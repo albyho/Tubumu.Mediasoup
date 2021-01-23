@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Tubumu.Mediasoup</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.3</Version>
     <Authors>Alby</Authors>
     <Company>Tubumu</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -23,11 +23,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="16.8.55" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
-    <PackageReference Include="Tubumu.Core" Version="1.0.0" />
-    <PackageReference Include="Tubumu.Libuv" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Tubumu.Core\Tubumu.Core.csproj" />
+    <ProjectReference Include="..\Tubumu.Libuv\Tubumu.Libuv.csproj" />
     <ProjectReference Include="..\Tubumu.Mediasoup.Common\Tubumu.Mediasoup.Common.csproj" />
   </ItemGroup>
 

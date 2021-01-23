@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 using Newtonsoft.Json;
 using Tubumu.Core.Extensions;
-using TubumuMeeting.Mediasoup.Extensions;
+using Tubumu.Mediasoup.Extensions;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public class TransportInternalData
     {

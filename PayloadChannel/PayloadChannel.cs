@@ -7,10 +7,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tubumu.Core.Extensions;
 using Tubumu.Core.Extensions.Object;
-using TubumuMeeting.Core;
+using Tubumu.Core;
 using Tubumu.Libuv;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public class PayloadChannel
     {

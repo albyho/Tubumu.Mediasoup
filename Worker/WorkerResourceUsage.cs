@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     /// <summary>
     /// An object with the fields of the uv_rusage_t struct.

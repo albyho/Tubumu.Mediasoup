@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Threading;
 using Tubumu.Core.Extensions;
 using Tubumu.Libuv;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     /// <summary>
     /// A worker represents a mediasoup C++ subprocess that runs in a single CPU core and handles Router instances.

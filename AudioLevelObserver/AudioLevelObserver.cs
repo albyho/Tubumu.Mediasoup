@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public class AudioLevelObserver : RtpObserver
     {

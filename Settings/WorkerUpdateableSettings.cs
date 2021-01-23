@@ -1,4 +1,4 @@
-﻿namespace TubumuMeeting.Mediasoup
+﻿namespace Tubumu.Mediasoup
 {
     public class WorkerUpdateableSettings
     {

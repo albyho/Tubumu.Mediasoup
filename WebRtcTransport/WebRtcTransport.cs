@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public class WebRtcTransport : Transport
     {
@@ -129,7 +129,7 @@ namespace TubumuMeeting.Mediasoup
 
                 if (SctpState.HasValue)
                 {
-                    SctpState = TubumuMeeting.Mediasoup.SctpState.Closed;
+                    SctpState = Tubumu.Mediasoup.SctpState.Closed;
                 }
 
                 await base.CloseAsync();
@@ -164,7 +164,7 @@ namespace TubumuMeeting.Mediasoup
 
                 if (SctpState.HasValue)
                 {
-                    SctpState = TubumuMeeting.Mediasoup.SctpState.Closed;
+                    SctpState = Tubumu.Mediasoup.SctpState.Closed;
                 }
 
                 await base.RouterClosedAsync();

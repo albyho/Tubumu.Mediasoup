@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public class PlainTransportOptions
     {
@@ -54,7 +54,7 @@ namespace TubumuMeeting.Mediasoup
         /// The SRTP crypto suite to be used if enableSrtp is set. Default
         /// 'AES_CM_128_HMAC_SHA1_80'.
         /// </summary>
-        public SrtpCryptoSuite? SrtpCryptoSuite { get; set; } = TubumuMeeting.Mediasoup.SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80;
+        public SrtpCryptoSuite? SrtpCryptoSuite { get; set; } = Tubumu.Mediasoup.SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80;
 
         /// <summary>
         /// Custom application data.

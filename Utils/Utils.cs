@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public static class Utils
     {

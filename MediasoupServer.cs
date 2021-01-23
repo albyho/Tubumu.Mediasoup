@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Force.DeepCloner;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public class MediasoupServer
     {

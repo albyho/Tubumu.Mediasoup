@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TubumuMeeting.Mediasoup.Extensions;
+using Tubumu.Mediasoup.Extensions;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public class ProducerInternalData
     {

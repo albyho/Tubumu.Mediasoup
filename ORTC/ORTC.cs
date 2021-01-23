@@ -6,7 +6,7 @@ using Force.DeepCloner;
 using Tubumu.Core.Extensions;
 using Tubumu.Core.Extensions.Object;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     public static class ORTC
     {

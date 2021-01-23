@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TubumuMeeting.Mediasoup
+namespace Tubumu.Mediasoup
 {
     internal class Sent
     {
