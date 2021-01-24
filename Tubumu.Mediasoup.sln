@@ -5,6 +5,12 @@ VisualStudioVersion = 16.0.808.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tubumu.Mediasoup", "Tubumu.Mediasoup.csproj", "{1612C5A2-59FA-4FA7-826A-39583416AE51}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tubumu.Core", "..\Tubumu.Core\Tubumu.Core.csproj", "{DAC23964-3694-4494-A59F-0C5474557055}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tubumu.Libuv", "..\Tubumu.Libuv\Tubumu.Libuv.csproj", "{A1B870D5-8819-43DB-A579-9FBC56B7A5A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tubumu.Mediasoup.Common", "..\Tubumu.Mediasoup.Common\Tubumu.Mediasoup.Common.csproj", "{C06611BC-CD6C-4D9C-BC50-32DEA7D0E871}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{1612C5A2-59FA-4FA7-826A-39583416AE51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1612C5A2-59FA-4FA7-826A-39583416AE51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1612C5A2-59FA-4FA7-826A-39583416AE51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAC23964-3694-4494-A59F-0C5474557055}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAC23964-3694-4494-A59F-0C5474557055}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAC23964-3694-4494-A59F-0C5474557055}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAC23964-3694-4494-A59F-0C5474557055}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B870D5-8819-43DB-A579-9FBC56B7A5A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B870D5-8819-43DB-A579-9FBC56B7A5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B870D5-8819-43DB-A579-9FBC56B7A5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B870D5-8819-43DB-A579-9FBC56B7A5A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C06611BC-CD6C-4D9C-BC50-32DEA7D0E871}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C06611BC-CD6C-4D9C-BC50-32DEA7D0E871}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C06611BC-CD6C-4D9C-BC50-32DEA7D0E871}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C06611BC-CD6C-4D9C-BC50-32DEA7D0E871}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

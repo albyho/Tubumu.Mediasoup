@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Tubumu.Mediasoup</PackageId>
-    <Version>1.0.3</Version>
+    <Version>1.0.5</Version>
     <Authors>Alby</Authors>
     <Company>Tubumu</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -26,9 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Tubumu.Mediasoup.Common\Tubumu.Mediasoup.Common.csproj" />
     <ProjectReference Include="..\Tubumu.Core\Tubumu.Core.csproj" />
     <ProjectReference Include="..\Tubumu.Libuv\Tubumu.Libuv.csproj" />
-    <ProjectReference Include="..\Tubumu.Mediasoup.Common\Tubumu.Mediasoup.Common.csproj" />
   </ItemGroup>
 
 </Project>
