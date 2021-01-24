@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Tubumu.Mediasoup</PackageId>
-    <Version>1.0.5</Version>
+    <Version>1.0.9</Version>
     <Authors>Alby</Authors>
     <Company>Tubumu</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
