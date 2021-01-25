@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Force.DeepCloner;
 using Tubumu.Core.Extensions;
@@ -624,7 +625,7 @@ namespace Tubumu.Mediasoup
                     var rtxCodec = new RtpCodecCapability
                     {
                         Kind = codec.Kind,
-                        MimeType = $"{codec.Kind.GetEnumStringValue()}/rtx",
+                        MimeType = $"{codec.Kind.GetEnumMemberValue()}/rtx",
                         PreferredPayloadType = pt,
                         ClockRate = codec.ClockRate,
                         Parameters = new Dictionary<string, object>
@@ -670,7 +671,7 @@ namespace Tubumu.Mediasoup
                 var matchedCapCodec = caps.Codecs
                     .Where(capCodec => MatchCodecs(codec, capCodec, true, true))
                     .FirstOrDefault();
-                codecToCapCodec[codec] = matchedCapCodec ?? throw new Exception($"unsupported codec[mimeType:{ codec.MimeType }, payloadType:{ codec.PayloadType }, Channels:{ codec.Channels }]");
+                codecToCapCodec[codec] = matchedCapCodec ?? throw new NotSupportedException($"unsupported codec[mimeType:{ codec.MimeType }, payloadType:{ codec.PayloadType }, Channels:{ codec.Channels }]");
             }
 
             // Match parameters RTX codecs to capabilities RTX codecs.
@@ -922,9 +923,21 @@ namespace Tubumu.Mediasoup
                 if (IsRtxMimeType(codec.MimeType))
                 {
                     // TODO: (alby)这里 apt 一定存在？
-                    var apt = Convert.ToInt32(codec.Parameters["apt"]);
+                    var apt = codec.Parameters["apt"];
+
+                    var apiInteger = 0;
+                    var aptJsonElement = apt as JsonElement?;
+                    if (aptJsonElement != null)
+                    {
+                        apiInteger = aptJsonElement.Value.GetInt32();
+                    }
+                    else
+                    {
+                        apiInteger = Convert.ToInt32(apt);
+                    }
+
                     // Search for the associated media codec.
-                    var associatedMediaCodec = consumerParams.Codecs.FirstOrDefault(mediaCodec => mediaCodec.PayloadType == apt);
+                    var associatedMediaCodec = consumerParams.Codecs.FirstOrDefault(mediaCodec => mediaCodec.PayloadType == apiInteger);
                     if (associatedMediaCodec != null)
                     {
                         rtxSupported = true;
@@ -1252,7 +1265,18 @@ namespace Tubumu.Mediasoup
                 return false;
             }
 
-            var apiInteger = Convert.ToInt32(apt);
+            var apiInteger = 0;
+
+            var aptJsonElement = apt as JsonElement?;
+            if (aptJsonElement != null)
+            {
+                apiInteger = aptJsonElement.Value.GetInt32();
+            }
+            else
+            {
+                apiInteger = Convert.ToInt32(apt);
+            }
+
             if (payloadType != apiInteger)
             {
                 return false;

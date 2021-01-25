@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Tubumu.Core.Extensions.Object;
 
 namespace Tubumu.Mediasoup
 {
@@ -20,7 +21,7 @@ namespace Tubumu.Mediasoup
 
         public IceParameters IceParameters { get; private set; }
 
-        public ReadOnlyCollection<IceCandidate> IceCandidates { get; private set; }
+        public IceCandidate[] IceCandidates { get; private set; }
 
         public IceState IceState { get; private set; }
 
@@ -83,7 +84,7 @@ namespace Tubumu.Mediasoup
             Func<string, DataProducer?> getDataProducerById,
             string iceRole,
             IceParameters iceParameters,
-            ReadOnlyCollection<IceCandidate> iceCandidates,
+            IceCandidate[] iceCandidates,
             IceState iceState,
             TransportTuple? iceSelectedTuple,
             DtlsParameters dtlsParameters,
@@ -195,7 +196,7 @@ namespace Tubumu.Mediasoup
             var reqData = new { DtlsParameters = dtlsParameters };
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<WebRtcTransportConnectResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<WebRtcTransportConnectResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             // Update data.
             DtlsParameters.Role = responseData.DtlsLocalRole;
@@ -209,7 +210,7 @@ namespace Tubumu.Mediasoup
             _logger.LogDebug($"RestartIceAsync() | WebRtcTransport:{TransportId}");
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_RESTART_ICE, Internal);
-            var responseData = JsonConvert.DeserializeObject<WebRtcTransportRestartIceResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<WebRtcTransportRestartIceResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             // Update data.
             IceParameters = responseData.IceParameters;
@@ -235,7 +236,7 @@ namespace Tubumu.Mediasoup
             {
                 case "icestatechange":
                     {
-                        var notification = JsonConvert.DeserializeObject<TransportIceStateChangeNotificationData>(data);
+                        var notification = JsonSerializer.Deserialize<TransportIceStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         IceState = notification.IceState;
 
                         Emit("icestatechange", IceState);
@@ -248,7 +249,7 @@ namespace Tubumu.Mediasoup
 
                 case "iceselectedtuplechange":
                     {
-                        var notification = JsonConvert.DeserializeObject<TransportIceSelectedTupleChangeNotificationData>(data);
+                        var notification = JsonSerializer.Deserialize<TransportIceSelectedTupleChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         IceSelectedTuple = notification.IceSelectedTuple;
 
                         Emit("iceselectedtuplechange", IceSelectedTuple);
@@ -261,7 +262,7 @@ namespace Tubumu.Mediasoup
 
                 case "dtlsstatechange":
                     {
-                        var notification = JsonConvert.DeserializeObject<TransportDtlsStateChangeNotificationData>(data);
+                        var notification = JsonSerializer.Deserialize<TransportDtlsStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         DtlsState = notification.DtlsState;
 
                         if (DtlsState == DtlsState.Connecting)
@@ -279,7 +280,7 @@ namespace Tubumu.Mediasoup
 
                 case "sctpstatechange":
                     {
-                        var notification = JsonConvert.DeserializeObject<TransportSctpStateChangeNotificationData>(data);
+                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         SctpState = notification.SctpState;
 
                         Emit("sctpstatechange", SctpState);
@@ -292,7 +293,7 @@ namespace Tubumu.Mediasoup
 
                 case "trace":
                     {
-                        var trace = JsonConvert.DeserializeObject<TransportTraceEventData>(data);
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("trace", trace);
 

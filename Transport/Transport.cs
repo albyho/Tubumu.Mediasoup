@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Force.DeepCloner;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
-using Newtonsoft.Json;
 using Tubumu.Core.Extensions;
+using Tubumu.Core.Extensions.Object;
 using Tubumu.Mediasoup.Extensions;
 
 namespace Tubumu.Mediasoup
@@ -474,7 +475,7 @@ namespace Tubumu.Mediasoup
             };
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<TransportProduceResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<TransportProduceResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
             var data = new
             {
                 producerOptions.Kind,
@@ -598,7 +599,7 @@ namespace Tubumu.Mediasoup
             };
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<TransportConsumeResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var data = new
             {
@@ -713,14 +714,14 @@ namespace Tubumu.Mediasoup
 
             var reqData = new
             {
-                Type = type.GetEnumStringValue(),
+                Type = type.GetEnumMemberValue(),
                 dataProducerOptions.SctpStreamParameters,
                 Label = dataProducerOptions.Label!,
                 Protocol = dataProducerOptions.Protocol!
             };
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE_DATA, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<TransportDataProduceResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<TransportDataProduceResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
             var dataProducer = new DataProducer(_loggerFactory,
                 @internal,
                 responseData.SctpStreamParameters,
@@ -832,14 +833,14 @@ namespace Tubumu.Mediasoup
 
             var reqData = new
             {
-                Type = type.GetEnumStringValue(),
+                Type = type.GetEnumMemberValue(),
                 SctpStreamParameters = sctpStreamParameters,
                 dataProducer.Label,
                 dataProducer.Protocol
             };
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME_DATA, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<TransportDataConsumeResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<TransportDataConsumeResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var dataConsumer = new DataConsumer(_loggerFactory,
                 @internal,

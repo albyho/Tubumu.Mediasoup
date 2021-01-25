@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Tubumu.Mediasoup
 {
@@ -8,7 +9,7 @@ namespace Tubumu.Mediasoup
 
         public IceParameters IceParameters { get; set; }
 
-        public ReadOnlyCollection<IceCandidate> IceCandidates { get; set; }
+        public IceCandidate[] IceCandidates { get; set; }
 
         public IceState IceState { get; set; }
 

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Tubumu.Core.Extensions.Object;
 using Tubumu.Mediasoup.Extensions;
 
 namespace Tubumu.Mediasoup
@@ -395,7 +396,7 @@ namespace Tubumu.Mediasoup
             {
                 case "score":
                     {
-                        var score = JsonConvert.DeserializeObject<ProducerScore[]>(data);
+                        var score = JsonSerializer.Deserialize<ProducerScore[]>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         Score = score;
 
                         Emit("score", score);
@@ -407,7 +408,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "videoorientationchange":
                     {
-                        var videoOrientation = JsonConvert.DeserializeObject<ProducerVideoOrientation>(data);
+                        var videoOrientation = JsonSerializer.Deserialize<ProducerVideoOrientation>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("videoorientationchange", videoOrientation);
 
@@ -418,7 +419,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "trace":
                     {
-                        var trace = JsonConvert.DeserializeObject<TransportTraceEventData>(data);
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("trace", trace);
 

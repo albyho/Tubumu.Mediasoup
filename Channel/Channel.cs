@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
+using Tubumu.Core;
 using Tubumu.Core.Extensions;
 using Tubumu.Core.Extensions.Object;
-using Tubumu.Core;
+using Tubumu.Core.Json;
 using Tubumu.Libuv;
 
 namespace Tubumu.Mediasoup
@@ -142,7 +143,7 @@ namespace Tubumu.Mediasoup
                 throw new InvalidStateException("Channel closed");
             }
 
-            var method = methodId.GetEnumStringValue();
+            var method = methodId.GetEnumMemberValue();
             var id = InterlockedExtensions.Increment(ref _nextId);
             // NOTE: For testinng
             //_logger.LogDebug($"RequestAsync() | [Method:{method}, Id:{id}]");
@@ -154,7 +155,7 @@ namespace Tubumu.Mediasoup
                 Internal = @internal,
                 Data = data,
             };
-            var nsBytes = Netstring.Encode(requestMesssge.ToCamelCaseJson());
+            var nsBytes = Netstring.Encode(requestMesssge.ToJson());
             if (nsBytes.Length > NsMessageMaxLen)
             {
                 throw new Exception("Channel request too big");
@@ -349,25 +350,26 @@ namespace Tubumu.Mediasoup
 
         private void ProcessMessage(string payload)
         {
-            var msg = JObject.Parse(payload);
-            var id = msg["id"].Value((long)-1);
-            var accepted = msg["accepted"].Value(false);
-            var targetId = msg["targetId"].Value(String.Empty);
-            var @event = msg["event"].Value(string.Empty);
-            var error = msg["error"].Value(string.Empty);
-            var reason = msg["reason"].Value(string.Empty);
-            var data = msg["data"].Value(string.Empty);
+            var jsonDocument = JsonDocument.Parse(payload);
+            var msg = jsonDocument.RootElement;
+            var id = msg.GetNullableJsonElement("id")?.GetNullableUInt32();
+            var accepted = msg.GetNullableJsonElement("accepted")?.GetNullableBool();
+            var targetId = msg.GetNullableJsonElement("targetId")?.GetString();
+            var @event = msg.GetNullableJsonElement("event")?.GetString();
+            var error = msg.GetNullableJsonElement("error")?.GetString();
+            var reason = msg.GetNullableJsonElement("reason")?.GetString();
+            var data = msg.GetNullableJsonElement("data")?.ToString();
 
             // If a response, retrieve its associated request.
-            if (id >= 0)
+            if (id.HasValue && id.Value >= 0)
             {
-                if (!_sents.TryGetValue((uint)id, out Sent sent))
+                if (!_sents.TryGetValue(id.Value, out Sent sent))
                 {
                     _logger.LogError($"ProcessMessage() | Received response does not match any sent request [id:{id}], payload:{payload}");
                     return;
                 }
 
-                if (accepted)
+                if (accepted.HasValue && accepted.Value)
                 {
                     _logger.LogDebug($"ProcessMessage() | Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
                     sent.Resolve?.Invoke(data);

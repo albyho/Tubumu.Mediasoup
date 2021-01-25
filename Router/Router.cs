@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Tubumu.Core.Extensions;
+using Tubumu.Core.Extensions.Object;
 using Tubumu.Mediasoup.Extensions;
 
 namespace Tubumu.Mediasoup
@@ -234,7 +235,7 @@ namespace Tubumu.Mediasoup
             };
 
             var status = await _channel.RequestAsync(MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<RouterCreateWebRtcTransportResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<RouterCreateWebRtcTransportResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var transport = new WebRtcTransport(_loggerFactory,
                 new TransportInternalData(@internal.RouterId, @internal.TransportId),
@@ -325,7 +326,7 @@ namespace Tubumu.Mediasoup
             };
 
             var status = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PLAIN_TRANSPORT, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<RouterCreatePlainTransportResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var transport = new PlainTransport(_loggerFactory,
                                 new TransportInternalData(@internal.RouterId, @internal.TransportId),
@@ -412,7 +413,7 @@ namespace Tubumu.Mediasoup
             };
 
             var status = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PIPE_TRANSPORT, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<RouterCreatePipeTransportResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<RouterCreatePipeTransportResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var transport = new PipeTransport(_loggerFactory,
                                 new TransportInternalData(@internal.RouterId, @internal.TransportId),
@@ -489,7 +490,7 @@ namespace Tubumu.Mediasoup
             };
 
             var status = await _channel.RequestAsync(MethodId.ROUTER_CREATE_DIRECT_TRANSPORT, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<RouterCreatePlainTransportResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var transport = new DirectTransport(_loggerFactory,
                 new TransportInternalData(@internal.RouterId, @internal.TransportId),

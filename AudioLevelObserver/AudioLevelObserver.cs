@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Tubumu.Mediasoup
 {
@@ -53,7 +53,7 @@ namespace Tubumu.Mediasoup
             {
                 case "volumes":
                     {
-                        var notification = JsonConvert.DeserializeObject<AudioLevelObserverVolumeNotificationData[]>(data);
+                        var notification = JsonSerializer.Deserialize<AudioLevelObserverVolumeNotificationData[]>(data)!;
 
                         List<AudioLevelObserverVolume> volumes = new List<AudioLevelObserverVolume>();
                         foreach (var item in notification)

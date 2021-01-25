@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Tubumu.Core.Extensions.Object;
 
 namespace Tubumu.Mediasoup
 {
@@ -164,7 +165,7 @@ namespace Tubumu.Mediasoup
             var reqData = plainTransportConnectParameters;
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<PlainTransportConnectResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<PlainTransportConnectResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             // Update data.
             if (responseData.Tuple != null)
@@ -198,7 +199,7 @@ namespace Tubumu.Mediasoup
             {
                 case "tuple":
                     {
-                        var notification = JsonConvert.DeserializeObject<PlainTransportTupleNotificationData>(data);
+                        var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Tuple = notification.Tuple;
 
@@ -212,7 +213,7 @@ namespace Tubumu.Mediasoup
 
                 case "rtcptuple":
                     {
-                        var notification = JsonConvert.DeserializeObject<PlainTransportRtcpTupleNotificationData>(data);
+                        var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         RtcpTuple = notification.RtcpTuple;
 
@@ -226,7 +227,7 @@ namespace Tubumu.Mediasoup
 
                 case "sctpstatechange":
                     {
-                        var notification = JsonConvert.DeserializeObject<TransportSctpStateChangeNotificationData>(data);
+                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         SctpState = notification.SctpState;
 
@@ -240,7 +241,7 @@ namespace Tubumu.Mediasoup
 
                 case "trace":
                     {
-                        var trace = JsonConvert.DeserializeObject<TransportTraceEventData>(data);
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("trace", trace);
 

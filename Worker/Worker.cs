@@ -151,11 +151,11 @@ namespace Tubumu.Mediasoup
             };
             if (workerSettings.LogLevel.HasValue)
             {
-                args.Add($"--logLevel={workerSettings.LogLevel.GetEnumStringValue()}");
+                args.Add($"--logLevel={workerSettings.LogLevel.GetEnumMemberValue()}");
             }
             if (!workerSettings.LogTags.IsNullOrEmpty())
             {
-                workerSettings.LogTags.ForEach(m => args.Add($"--logTag={m.GetEnumStringValue()}"));
+                workerSettings.LogTags.ForEach(m => args.Add($"--logTag={m.GetEnumMemberValue()}"));
             }
             if (workerSettings.RtcMinPort.HasValue)
             {
@@ -358,8 +358,8 @@ namespace Tubumu.Mediasoup
                 _logger.LogDebug("UpdateSettingsAsync()");
                 var reqData = new
                 {
-                    LogLevel = workerUpdateableSettings?.LogLevel.GetEnumStringValue(),
-                    LogTags = workerUpdateableSettings?.LogTags.Select(m => m.GetEnumStringValue()),
+                    LogLevel = workerUpdateableSettings?.LogLevel.GetEnumMemberValue(),
+                    LogTags = workerUpdateableSettings?.LogTags.Select(m => m.GetEnumMemberValue()),
                 };
                 return await _channel.RequestAsync(MethodId.WORKER_UPDATE_SETTINGS, null, reqData);
 

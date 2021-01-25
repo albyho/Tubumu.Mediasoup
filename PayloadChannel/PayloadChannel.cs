@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Tubumu.Core;
 using Tubumu.Core.Extensions;
 using Tubumu.Core.Extensions.Object;
-using Tubumu.Core;
+using Tubumu.Core.Json;
 using Tubumu.Libuv;
 
 namespace Tubumu.Mediasoup
@@ -141,7 +141,7 @@ namespace Tubumu.Mediasoup
             }
 
             var notification = new { @event, @internal, data };
-            var ns1Bytes = Netstring.Encode(notification.ToCamelCaseJson());
+            var ns1Bytes = Netstring.Encode(notification.ToJson());
             var ns2Bytes = Netstring.Encode(payload);
 
             if (ns1Bytes.Length > NsMessageMaxLen)
@@ -193,7 +193,7 @@ namespace Tubumu.Mediasoup
 
         public Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null, byte[]? payload = null)
         {
-            var method = methodId.GetEnumStringValue();
+            var method = methodId.GetEnumMemberValue();
             var id = InterlockedExtensions.Increment(ref _nextId);
 
             _logger.LogDebug($"RequestAsync() | [Method:{method}, Id:{id}]");
@@ -210,7 +210,7 @@ namespace Tubumu.Mediasoup
                 Internal = @internal,
                 Data = data,
             };
-            var nsBytes1 = Netstring.Encode(requestMesssge.ToCamelCaseJson());
+            var nsBytes1 = Netstring.Encode(requestMesssge.ToJson());
             var nsBytes2 = Netstring.Encode(payload);
             if (nsBytes1.Length > NsMessageMaxLen)
             {
@@ -374,26 +374,27 @@ namespace Tubumu.Mediasoup
             if (_ongoingNotification == null)
             {
                 var payloadString = Encoding.UTF8.GetString(payload.Data.Array, payload.Data.Offset, payload.Data.Count);
-                var msg = JObject.Parse(payloadString);
-                var id = msg["id"].Value((uint)0);
-                var accepted = msg["accepted"].Value(false);
-                var targetId = msg["targetId"].Value(String.Empty);
-                var @event = msg["event"].Value(string.Empty);
-                var error = msg["error"].Value(string.Empty);
-                var reason = msg["reason"].Value(string.Empty);
-                var data = msg["data"].Value(string.Empty);
+                var jsonDocument = JsonDocument.Parse(payloadString);
+                var msg = jsonDocument.RootElement;
+                var id = msg.GetNullableJsonElement("id")?.GetNullableUInt32();
+                var accepted = msg.GetNullableJsonElement("accepted")?.GetNullableBool();
+                var targetId = msg.GetNullableJsonElement("targetId")?.GetString();
+                var @event = msg.GetNullableJsonElement("event")?.GetString();
+                var error = msg.GetNullableJsonElement("error")?.GetString();
+                var reason = msg.GetNullableJsonElement("reason")?.GetString();
+                var data = msg.GetNullableJsonElement("data")?.GetString();
 
                 // If a response, retrieve its associated request.
-                if (id > 0)
+                if (id.HasValue && id.Value >= 0)
                 {
-                    if (!_sents.TryGetValue(id, out Sent sent))
+                    if (!_sents.TryGetValue(id.Value, out Sent sent))
                     {
                         _logger.LogError($"ProcessData() | Received response does not match any sent request [id:{id}]");
 
                         return;
                     }
 
-                    if (accepted)
+                    if (accepted.HasValue && accepted.Value)
                     {
                         _logger.LogDebug($"ProcessData() | Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
 
@@ -414,7 +415,7 @@ namespace Tubumu.Mediasoup
                 // If a notification emit it to the corresponding entity.
                 else if (!targetId.IsNullOrWhiteSpace() && !@event.IsNullOrWhiteSpace())
                 {
-                    var notifyData = JsonConvert.DeserializeObject<NotifyData>(data);
+                    var notifyData = JsonSerializer.Deserialize<NotifyData>(data, ObjectExtensions.DefaultJsonSerializerOptions);
                     _ongoingNotification = new OngoingNotification
                     {
                         TargetId = targetId,

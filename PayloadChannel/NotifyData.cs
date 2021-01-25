@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Tubumu.Mediasoup
 {
     public class NotifyData
     {
-        [JsonProperty("ppid")]
+        [JsonPropertyName("ppid")]
         public int PPID { get; set; }
     }
 }

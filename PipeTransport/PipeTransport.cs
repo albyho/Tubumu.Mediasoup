@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Tubumu.Core.Extensions;
+using Tubumu.Core.Extensions.Object;
 
 namespace Tubumu.Mediasoup
 {
@@ -166,7 +167,7 @@ namespace Tubumu.Mediasoup
             var reqData = pipeTransportConnectParameters;
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<PipeTransportConnectResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<PipeTransportConnectResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             // Update data.
             Tuple = responseData.Tuple;
@@ -213,7 +214,7 @@ namespace Tubumu.Mediasoup
             };
 
             var status = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, @internal, reqData);
-            var responseData = JsonConvert.DeserializeObject<TransportConsumeResponseData>(status!);
+            var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var data = new
             {
@@ -295,7 +296,7 @@ namespace Tubumu.Mediasoup
             {
                 case "sctpstatechange":
                     {
-                        var notification = JsonConvert.DeserializeObject<TransportSctpStateChangeNotificationData>(data);
+                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         SctpState = notification.SctpState;
 
                         Emit("sctpstatechange", SctpState);
@@ -308,7 +309,7 @@ namespace Tubumu.Mediasoup
 
                 case "trace":
                     {
-                        var trace = JsonConvert.DeserializeObject<TransportTraceEventData>(data);
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("trace", trace);
 
