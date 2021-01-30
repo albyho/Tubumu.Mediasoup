@@ -6,6 +6,10 @@
     <Version>1.0.10</Version>
     <Authors>Alby</Authors>
     <Company>Tubumu</Company>
+
+    <RepositoryUrl>https://github.com/albyho/Tubumu.Mediasoup</RepositoryUrl> 
+    <RepositoryType>git</RepositoryType>
+
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
