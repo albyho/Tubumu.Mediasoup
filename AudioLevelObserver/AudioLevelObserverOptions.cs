@@ -11,7 +11,7 @@ namespace Tubumu.Mediasoup
 
         /// <summary>
         /// Minimum average volume (in dBvo from -127 to 0) for entries in the
-        /// 'volumes' event.	Default -80.
+        /// 'volumes' event. Default -80.
         /// </summary>
         public int? Threshold { get; set; } = -80;
 
