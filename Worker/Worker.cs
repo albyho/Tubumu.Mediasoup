@@ -428,7 +428,7 @@ namespace Tubumu.Mediasoup
 
         #region Event handles
 
-        private void OnChannelMessage(string targetId, string @event, string data)
+        private void OnChannelMessage(string targetId, string @event, string? data)
         {
             if (@event != "running")
             {

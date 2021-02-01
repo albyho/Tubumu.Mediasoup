@@ -225,7 +225,7 @@ namespace Tubumu.Mediasoup
             Channel.MessageEvent += OnChannelMessage;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string data)
+        private void OnChannelMessage(string targetId, string @event, string? data)
         {
             if (targetId != Internal.TransportId)
             {
@@ -236,7 +236,7 @@ namespace Tubumu.Mediasoup
             {
                 case "icestatechange":
                     {
-                        var notification = JsonSerializer.Deserialize<TransportIceStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var notification = JsonSerializer.Deserialize<TransportIceStateChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         IceState = notification.IceState;
 
                         Emit("icestatechange", IceState);
@@ -249,7 +249,7 @@ namespace Tubumu.Mediasoup
 
                 case "iceselectedtuplechange":
                     {
-                        var notification = JsonSerializer.Deserialize<TransportIceSelectedTupleChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var notification = JsonSerializer.Deserialize<TransportIceSelectedTupleChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         IceSelectedTuple = notification.IceSelectedTuple;
 
                         Emit("iceselectedtuplechange", IceSelectedTuple);
@@ -262,7 +262,7 @@ namespace Tubumu.Mediasoup
 
                 case "dtlsstatechange":
                     {
-                        var notification = JsonSerializer.Deserialize<TransportDtlsStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var notification = JsonSerializer.Deserialize<TransportDtlsStateChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         DtlsState = notification.DtlsState;
 
                         if (DtlsState == DtlsState.Connecting)
@@ -280,7 +280,7 @@ namespace Tubumu.Mediasoup
 
                 case "sctpstatechange":
                     {
-                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         SctpState = notification.SctpState;
 
                         Emit("sctpstatechange", SctpState);
@@ -293,7 +293,7 @@ namespace Tubumu.Mediasoup
 
                 case "trace":
                     {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("trace", trace);
 

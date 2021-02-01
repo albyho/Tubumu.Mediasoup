@@ -362,7 +362,7 @@ namespace Tubumu.Mediasoup
             var reqData = new { Priority = priority };
             var status = await _channel.RequestAsync(MethodId.CONSUMER_SET_PRIORITY, _internal, reqData);
             var responseData = JsonSerializer.Deserialize<ConsumerSetOrUnsetPriorityResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions);
-            Priority = responseData.Priority;
+            Priority = responseData!.Priority;
         }
 
         /// <summary>
@@ -375,8 +375,7 @@ namespace Tubumu.Mediasoup
             var reqData = new { Priority = 1 };
             var status = await _channel.RequestAsync(MethodId.CONSUMER_SET_PRIORITY, _internal, reqData);
             var responseData = JsonSerializer.Deserialize<ConsumerSetOrUnsetPriorityResponseData>(status!, ObjectExtensions.DefaultJsonSerializerOptions);
-
-            Priority = responseData.Priority;
+            Priority = responseData!.Priority;
         }
 
         /// <summary>
@@ -411,7 +410,7 @@ namespace Tubumu.Mediasoup
             _payloadChannel.MessageEvent += OnPayloadChannelMessage;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string data)
+        private void OnChannelMessage(string targetId, string @event, string? data)
         {
             if (targetId != ConsumerId)
             {
@@ -486,7 +485,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "score":
                     {
-                        var score = JsonSerializer.Deserialize<ConsumerScore>(data, ObjectExtensions.DefaultJsonSerializerOptions);
+                        var score = JsonSerializer.Deserialize<ConsumerScore>(data!, ObjectExtensions.DefaultJsonSerializerOptions);
                         Score = score;
 
                         Emit("score", score);
@@ -498,7 +497,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "layerschange":
                     {
-                        var layers = !data.IsNullOrWhiteSpace() ? JsonSerializer.Deserialize<ConsumerLayers>(data, ObjectExtensions.DefaultJsonSerializerOptions) : null;
+                        var layers = !data.IsNullOrWhiteSpace() ? JsonSerializer.Deserialize<ConsumerLayers>(data!, ObjectExtensions.DefaultJsonSerializerOptions) : null;
 
                         CurrentLayers = layers;
 
@@ -511,7 +510,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "trace":
                     {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data, ObjectExtensions.DefaultJsonSerializerOptions);
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions);
 
                         Emit("trace", trace);
 

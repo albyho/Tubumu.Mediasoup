@@ -42,7 +42,7 @@ namespace Tubumu.Mediasoup
             _logger = loggerFactory.CreateLogger<AudioLevelObserver>();
         }
 
-        protected override void OnChannelMessage(string targetId, string @event, string data)
+        protected override void OnChannelMessage(string targetId, string @event, string? data)
         {
             if (targetId != Internal.RtpObserverId)
             {
@@ -53,7 +53,7 @@ namespace Tubumu.Mediasoup
             {
                 case "volumes":
                     {
-                        var notification = JsonSerializer.Deserialize<AudioLevelObserverVolumeNotificationData[]>(data)!;
+                        var notification = JsonSerializer.Deserialize<AudioLevelObserverVolumeNotificationData[]>(data!)!;
 
                         List<AudioLevelObserverVolume> volumes = new List<AudioLevelObserverVolume>();
                         foreach (var item in notification)

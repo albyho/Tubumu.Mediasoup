@@ -415,11 +415,11 @@ namespace Tubumu.Mediasoup
                 // If a notification emit it to the corresponding entity.
                 else if (!targetId.IsNullOrWhiteSpace() && !@event.IsNullOrWhiteSpace())
                 {
-                    var notifyData = JsonSerializer.Deserialize<NotifyData>(data, ObjectExtensions.DefaultJsonSerializerOptions);
+                    var notifyData = JsonSerializer.Deserialize<NotifyData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                     _ongoingNotification = new OngoingNotification
                     {
-                        TargetId = targetId,
-                        Event = @event,
+                        TargetId = targetId!,
+                        Event = @event!,
                         Data = notifyData,
                     };
                 }

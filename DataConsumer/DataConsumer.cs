@@ -322,7 +322,7 @@ namespace Tubumu.Mediasoup
             _payloadChannel.MessageEvent += OnPayloadChannelMessage;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string data)
+        private void OnChannelMessage(string targetId, string @event, string? data)
         {
             if (targetId != DataConsumerId)
             {
@@ -361,7 +361,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "bufferedamount":
                     {
-                        var bufferedAmount = Int32.Parse(data);
+                        var bufferedAmount = Int32.Parse(data!);
 
                         Emit("bufferedamountlow", bufferedAmount);
 

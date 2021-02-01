@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-
-namespace Tubumu.Mediasoup
+﻿namespace Tubumu.Mediasoup
 {
     public class RouterCreateWebRtcTransportResponseData
     {

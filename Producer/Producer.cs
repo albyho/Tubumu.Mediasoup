@@ -385,7 +385,7 @@ namespace Tubumu.Mediasoup
             _channel.MessageEvent += OnChannelMessage;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string data)
+        private void OnChannelMessage(string targetId, string @event, string? data)
         {
             if (targetId != ProducerId)
             {
@@ -396,7 +396,7 @@ namespace Tubumu.Mediasoup
             {
                 case "score":
                     {
-                        var score = JsonSerializer.Deserialize<ProducerScore[]>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var score = JsonSerializer.Deserialize<ProducerScore[]>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                         Score = score;
 
                         Emit("score", score);
@@ -408,7 +408,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "videoorientationchange":
                     {
-                        var videoOrientation = JsonSerializer.Deserialize<ProducerVideoOrientation>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var videoOrientation = JsonSerializer.Deserialize<ProducerVideoOrientation>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("videoorientationchange", videoOrientation);
 
@@ -419,7 +419,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "trace":
                     {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("trace", trace);
 

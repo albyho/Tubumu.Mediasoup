@@ -188,7 +188,7 @@ namespace Tubumu.Mediasoup
             Channel.MessageEvent += OnChannelMessage;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string data)
+        private void OnChannelMessage(string targetId, string @event, string? data)
         {
             if (targetId != Internal.TransportId)
             {
@@ -199,7 +199,7 @@ namespace Tubumu.Mediasoup
             {
                 case "tuple":
                     {
-                        var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Tuple = notification.Tuple;
 
@@ -213,7 +213,7 @@ namespace Tubumu.Mediasoup
 
                 case "rtcptuple":
                     {
-                        var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         RtcpTuple = notification.RtcpTuple;
 
@@ -227,7 +227,7 @@ namespace Tubumu.Mediasoup
 
                 case "sctpstatechange":
                     {
-                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         SctpState = notification.SctpState;
 
@@ -241,7 +241,7 @@ namespace Tubumu.Mediasoup
 
                 case "trace":
                     {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         Emit("trace", trace);
 

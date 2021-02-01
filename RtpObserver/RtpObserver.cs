@@ -261,7 +261,7 @@ namespace Tubumu.Mediasoup
             Channel.MessageEvent += OnChannelMessage;
         }
 
-        protected abstract void OnChannelMessage(string targetId, string @event, string data);
+        protected abstract void OnChannelMessage(string targetId, string @event, string? data);
 
         #endregion Event Handlers
     }

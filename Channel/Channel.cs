@@ -70,7 +70,7 @@ namespace Tubumu.Mediasoup
 
         #region Events
 
-        public event Action<string, string, string>? MessageEvent;
+        public event Action<string, string, string?>? MessageEvent;
 
         #endregion Events
 
@@ -391,7 +391,7 @@ namespace Tubumu.Mediasoup
             // If a notification emit it to the corresponding entity.
             else if (!targetId.IsNullOrWhiteSpace() && !@event.IsNullOrWhiteSpace())
             {
-                MessageEvent?.Invoke(targetId, @event, data);
+                MessageEvent?.Invoke(targetId!, @event!, data);
             }
             // Otherwise unexpected message.
             else
