@@ -1,6 +1,6 @@
 # Tubumu.Mediasoup
 
-[![NuGet](https://img.shields.io/nuget/v/Tubumu.Abp.Meeting.svg)](https://www.nuget.org/packages/Tubumu.Abp.Meeting)
+[![NuGet](https://img.shields.io/nuget/v/Tubumu.Mediasoup.svg)](https://www.nuget.org/packages/Tubumu.Mediasoup)
 ![License](https://img.shields.io/github/license/albyho/Tubumu.Mediasoup)
 
 ## Website and Documentation
