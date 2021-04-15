@@ -10,3 +10,6 @@
 ## Support Forum
 
 * [mediasoup.discourse.group](https://mediasoup.discourse.group/)
+
+## WeChat group
+![WeChat group](https://raw.githubusercontent.com/albyho/Tubumu.Meeting.Demo/dev-07/docs/WeChat-Group.jpg)
