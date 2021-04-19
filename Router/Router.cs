@@ -38,6 +38,9 @@ namespace Tubumu.Mediasoup
 
         #region Router data.
 
+        /// <summary>
+        /// RTC capabilities of the Router.
+        /// </summary>
         public RtpCapabilities RtpCapabilities { get; }
 
         #endregion Router data.
