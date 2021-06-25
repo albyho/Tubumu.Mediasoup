@@ -402,6 +402,19 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
+        /// Set maximum outgoing bitrate for sending media.
+        /// </summary>
+        /// <param name="bitrate"></param>
+        /// <returns></returns>
+        public virtual Task<string?> SetMaxOutgoingBitrateAsync(int bitrate)
+        {
+            _logger.LogDebug($"setMaxOutgoingBitrate() | Transport:{TransportId} Bitrate:{bitrate}");
+
+            var reqData = new { Bitrate = bitrate };
+            return Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal, reqData);
+        }
+
+        /// <summary>
         /// Create a Producer.
         /// </summary>
         public virtual async Task<Producer> ProduceAsync(ProducerOptions producerOptions)
@@ -546,6 +559,11 @@ namespace Tubumu.Mediasoup
                 throw new ArgumentException(nameof(consumerOptions.RtpCapabilities));
             }
 
+            if (consumerOptions.Mid != null && consumerOptions.Mid.Length == 0)
+            {
+                throw new ArgumentException(nameof(consumerOptions.Mid));
+            }
+
             if (!consumerOptions.Paused.HasValue)
             {
                 consumerOptions.Paused = false;
@@ -566,16 +584,23 @@ namespace Tubumu.Mediasoup
 
             if(pipe)
             {
-                lock (_nextMidForConsumersLock)
+                if (consumerOptions.Mid != null)
                 {
-                    // Set MID.
-                    rtpParameters.Mid = (_nextMidForConsumers++).ToString();
-
-                    // We use up to 8 bytes for MID (string).
-                    if (_nextMidForConsumers == 100_000_000)
+                    rtpParameters.Mid = consumerOptions.Mid;
+                }
+                else
+                {
+                    lock (_nextMidForConsumersLock)
                     {
-                        _logger.LogDebug($"ConsumeAsync() | Reaching max MID value {_nextMidForConsumers}");
-                        _nextMidForConsumers = 0;
+                        // Set MID.
+                        rtpParameters.Mid = (_nextMidForConsumers++).ToString();
+
+                        // We use up to 8 bytes for MID (string).
+                        if (_nextMidForConsumers == 100_000_000)
+                        {
+                            _logger.LogDebug($"ConsumeAsync() | Reaching max MID value {_nextMidForConsumers}");
+                            _nextMidForConsumers = 0;
+                        }
                     }
                 }
             }

@@ -176,12 +176,11 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a Consumer.
         /// </summary>
-        /// <param name="consumerOptions"></param>
+        /// <param name="consumerOptions">注意：由于强类型的原因，这里使用的是 ConsumerOptions 类而不是 PipConsumerOptions 类</param>
         /// <returns></returns>
         public override async Task<Consumer> ConsumeAsync(ConsumerOptions consumerOptions)
         {
             _logger.LogDebug("ConsumeAsync()");
-
 
             if (consumerOptions.ProducerId.IsNullOrWhiteSpace())
             {

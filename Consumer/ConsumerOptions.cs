@@ -2,17 +2,12 @@
 
 namespace Tubumu.Mediasoup
 {
-    public class ConsumerOptions
+    public class ConsumerOptions : ConsumerOptionsBase
     {
-        /// <summary>
-        /// The id of the Producer to consume.
-        /// </summary>
-        public string ProducerId { get; set; }
-
         /// <summary>
         /// RTP capabilities of the consuming endpoint.
         /// </summary>
-        public RtpCapabilities? RtpCapabilities { get; set; }
+        public RtpCapabilities RtpCapabilities { get; set; }
 
         /// <summary>
         /// Whether the Consumer must start in paused mode. Default false.
@@ -31,6 +26,12 @@ namespace Tubumu.Mediasoup
         public bool? Paused { get; set; } = false;
 
         /// <summary>
+        /// The MID for the Consumer. If not specified, a sequentially growing
+        /// number will be assigned.
+        /// </summary>
+        public string? Mid { get; set; }
+
+        /// <summary>
         /// Preferred spatial and temporal layer for simulcast or SVC media sources.
         /// If unset, the highest ones are selected.
         /// </summary>
@@ -41,10 +42,5 @@ namespace Tubumu.Mediasoup
         /// Producer.
         /// </summary>
         public bool? Pipe { get; set; } = false;
-
-        /// <summary>
-        /// Custom application data.
-        /// </summary>
-        public Dictionary<string, object>? AppData { get; set; }
     }
 }

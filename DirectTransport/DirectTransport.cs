@@ -127,6 +127,16 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
+        /// Set maximum outgoing bitrate for sending media.
+        /// </summary>
+        /// <param name="bitrate"></param>
+        /// <returns></returns>
+        public override Task<string?> SetMaxOutgoingBitrateAsync(int bitrate)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
         /// Create a Producer.
         /// </summary>
         public override Task<Producer> ProduceAsync(ProducerOptions producerOptions)

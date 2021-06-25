@@ -162,8 +162,7 @@ namespace Tubumu.Mediasoup
                 throw new ArgumentNullException(nameof(ext));
             }
 
-            // kind is optional. If unset set it to an empty string.
-            // 在 Node.js 实现中，判断了 kind 的数据类型。在强类型语言中不需要。但是将 kind 设置为了 Empty 字符串。
+            // 在 Node.js 实现中，判断了 kind 的值。在强类型语言中不需要。
             // TODO: (alby)或许 kind 没有设置为 Empty 字符串会有问题。
 
             // uri is mandatory.
