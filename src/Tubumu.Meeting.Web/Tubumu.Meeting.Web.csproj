@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <DockerComposeProjectPath>../docker-compose.dcproj</DockerComposeProjectPath>
+    <UserSecretsId>3f57799d-6043-4eb3-a4a1-90aceae86f9c</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Tubumu.Meeting.Web' " />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1701;1702;VSTHRD200</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="SigSpec.AspNetCore" Version="0.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+  </ItemGroup>
+
+
+<!--  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PackageReference Include="Tubumu.Utils" Version="6.0.0" />
+    <PackageReference Include="Tubumu.Mediasoup" Version="6.0.0" />
+    <PackageReference Include="Tubumu.Mediasoup.Common" Version="6.0.0" />
+    <PackageReference Include="Tubumu.Mediasoup.AspNetCore" Version="6.0.0" />
+    <PackageReference Include="Tubumu.Meeting.Server" Version="6.0.0" />
+    <PackageReference Include="Tubumu.Meeting.Server.Consul" Version="6.0.0" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tubumu.Mediasoup.Common\Tubumu.Mediasoup.Common.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\Tubumu.Mediasoup\Tubumu.Mediasoup.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\Tubumu.Meeting.Server.Consul\Tubumu.Meeting.Server.Consul.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\Tubumu.Meeting.Server\Tubumu.Meeting.Server.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+    <ProjectReference Include="..\Tubumu.Utils\Tubumu.Utils.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="publish\Tubumu.Meeting.Web.deps.json" />
+    <Content Remove="publish\hosting.json" />
+    <Content Remove="publish\mediasoupsettings.json" />
+    <Content Remove="publish\mediasoupsettings.example.json" />
+    <Content Remove="publish\Tubumu.Meeting.Web.runtimeconfig.json" />
+    <Content Remove="publish\appsettings.json" />
+    <Content Remove="publish\appsettings.Development.json" />
+    <Content Remove="publish\serilog.json" />
+    <Content Remove="publish\web.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="docs\*" />
+    <None Remove="publish\*" />
+  </ItemGroup>
+
+
+</Project>

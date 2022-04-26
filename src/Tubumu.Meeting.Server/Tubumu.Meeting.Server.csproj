@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+
+    <PackageId>Tubumu.Meeting.Server</PackageId>
+    <Version>6.0.0</Version>
+    <Authors>Alby</Authors>
+    <Company>Tubumu</Company>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <RepositoryUrl>https://github.com/albyho/Tubumu.Meeting.Server</RepositoryUrl> 
+    <RepositoryType>git</RepositoryType>
+
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>1701;1702;CS8618;VSTHRD200</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1701;1702;CS8618;VSTHRD012;VSTHRD200</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Connections" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.16" />
+    <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.17.0" />
+    <PackageReference Include="SignalRSwaggerGen" Version="3.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tubumu.Utils\Tubumu.Utils.csproj" />
+    <ProjectReference Include="..\Tubumu.Libuv\Tubumu.Libuv.csproj" />
+    <ProjectReference Include="..\Tubumu.Mediasoup.Common\Tubumu.Mediasoup.Common.csproj" />
+    <ProjectReference Include="..\Tubumu.Mediasoup\Tubumu.Mediasoup.csproj" />
+    <ProjectReference Include="..\Tubumu.Mediasoup.AspNetCore\Tubumu.Mediasoup.AspNetCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="SignalRSwaggerGen" />
+  </ItemGroup>
+  <ItemGroup>
+      <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

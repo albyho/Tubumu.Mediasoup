@@ -1,0 +1,112 @@
+﻿{
+  "MediasoupStartupSettings": {
+    "MediasoupVersion": "3.9.10",
+    //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release/mediasoup-worker",
+    //"WorkerPath": "/Users/alby/Workspace/Tubumu.Mediasoup/Tubumu.Mediasoup.Executable/runtimes/osx/native/mediasoup-worker",
+    "WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/xcode/debug/mediasoup-worker",
+    //"WorkerPath": "C:\\Developer\\OpenSource\\Meeting\\mediasoup\\worker\\out\\Release\\mediasoup-worker",
+    "NumberOfWorkers": 1
+  },
+  "MediasoupSettings": {
+    "WorkerSettings": {
+      "LogLevel": "debug", // debug, warn, error or none 
+      "LogTags": [
+        "info",
+        "ice",
+        //"dtls",
+        //"rtp",
+        //"srtp",
+        //"rtcp",
+        "rtx",
+        "bwe",
+        "score",
+        "simulcast",
+        "svc",
+        "sctp",
+        "message"
+      ],
+      "RtcMinPort": 20000,
+      "RtcMaxPort": 29999
+    },
+    "RouterSettings": {
+      "RtpCodecCapabilities": [
+        {
+          "Kind": "audio",
+          "MimeType": "audio/opus",
+          "ClockRate": 48000,
+          "Channels": 2
+        },
+        //{
+        //  "Kind": "audio",
+        //  "MimeType": "audio/PCMA",
+        //  "ClockRate": 8000,
+        //  "Channels": 1
+        //},
+        {
+          "Kind": "video",
+          "MimeType": "video/VP8",
+          "ClockRate": 90000,
+          "Parameters": {
+            "x-google-start-bitrate": 1000
+          }
+        },
+        {
+          "Kind": "video",
+          "MimeType": "video/VP9",
+          "ClockRate": 90000,
+          "Parameters": {
+            "profile-id": 2,
+            "x-google-start-bitrate": 1000
+          }
+        },
+        {
+          "Kind": "video",
+          "MimeType": "video/h264",
+          "ClockRate": 90000,
+          "Parameters": {
+            "packetization-mode": 1,
+            "profile-level-id": "4d0032",
+            "level-asymmetry-allowed": 1,
+            "x-google-start-bitrate": 1000
+          }
+        },
+        {
+          "Kind": "video",
+          "MimeType": "video/h264",
+          "ClockRate": 90000,
+          "Parameters": {
+            "packetization-mode": 1,
+            "profile-level-id": "42e01f",
+            "level-asymmetry-allowed": 1,
+            "x-google-start-bitrate": 1000
+          }
+        }
+      ]
+    },
+    "WebRtcTransportSettings": {
+      "ListenIps": [
+        {
+          "Ip": "0.0.0.0",
+          // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
+          "AnnouncedIp": null
+        }
+      ],
+      "InitialAvailableOutgoingBitrate": 1000000,
+      "MinimumAvailableOutgoingBitrate": 600000,
+      "MaxSctpMessageSize": 262144,
+      // Additional options that are not part of WebRtcTransportOptions.
+      "MaximumIncomingBitrate": 1500000
+    },
+    "PlainTransportSettings": {
+      "ListenIp": {
+        "Ip": "0.0.0.0",
+        // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
+        "AnnouncedIp": null
+      },
+      "MaxSctpMessageSize": 262144
+    }
+  },
+  "MeetingServerSettings": {
+    "ServeMode": "Open" // Open,Invite or Pull
+  }
+}

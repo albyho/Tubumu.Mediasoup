@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+
+    <PackageId>Tubumu.Mediasoup.Common</PackageId>
+    <Version>6.0.0</Version>
+    <Authors>Alby</Authors>
+    <Company>Tubumu</Company>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <RepositoryUrl>https://github.com/albyho/Tubumu.Mediasoup.Common</RepositoryUrl> 
+    <RepositoryType>git</RepositoryType>
+
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>1701;1702;CS8618</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    <ProjectReference Include="..\Tubumu.Utils\Tubumu.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>
