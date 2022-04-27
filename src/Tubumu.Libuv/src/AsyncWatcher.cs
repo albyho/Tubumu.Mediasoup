@@ -6,7 +6,7 @@ namespace Tubumu.Libuv
     public class AsyncWatcher<T> : IHandle, IDisposable
     {
         private readonly Async async;
-        private readonly Queue<T> queue = new Queue<T>();
+        private readonly Queue<T> queue = new();
 
         public AsyncWatcher()
             : this(Loop.Constructor)
@@ -44,21 +44,9 @@ namespace Tubumu.Libuv
             async.Unref();
         }
 
-        public bool HasRef
-        {
-            get
-            {
-                return async.HasRef;
-            }
-        }
+        public bool HasRef => async.HasRef;
 
-        public bool IsClosed
-        {
-            get
-            {
-                return async.IsClosed;
-            }
-        }
+        public bool IsClosed => async.IsClosed;
 
         public void Close(Action? callback)
         {

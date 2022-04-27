@@ -12,8 +12,8 @@ namespace Tubumu.Utils.FastLambda
         private static readonly IExpressionCache<Func<List<object>, object>> Cache =
             new HashedListCache<Func<List<object>, object>>();
 
-        private readonly DelegateGenerator _delegateGenerator = new DelegateGenerator();
-        private readonly ConstantExtractor _constantExtrator = new ConstantExtractor();
+        private readonly DelegateGenerator _delegateGenerator = new();
+        private readonly ConstantExtractor _constantExtrator = new();
 
         private readonly IExpressionCache<Func<List<object>, object>> _cache;
         private readonly Func<Expression, Func<List<object>, object>> _creatorDelegate;

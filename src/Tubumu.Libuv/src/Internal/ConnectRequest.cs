@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -20,7 +20,7 @@ namespace Tubumu.Libuv
         public IntPtr handle;
     }
 
-    unsafe internal class ConnectRequest : CallbackPermaRequest
+    internal unsafe class ConnectRequest : CallbackPermaRequest
     {
         private readonly uv_connect_t* connect;
 
@@ -30,12 +30,6 @@ namespace Tubumu.Libuv
             connect = (uv_connect_t*)Handle;
         }
 
-        public IntPtr ConnectHandle
-        {
-            get
-            {
-                return connect->handle;
-            }
-        }
+        public IntPtr ConnectHandle => connect->handle;
     }
 }

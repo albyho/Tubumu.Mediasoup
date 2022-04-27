@@ -5,10 +5,10 @@ namespace Tubumu.Libuv
 {
     internal enum uv_process_flags : uint
     {
-        UV_PROCESS_SETUID = (1 << 0),
-        UV_PROCESS_SETGID = (1 << 1),
-        UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS = (1 << 2),
-        UV_PROCESS_DETACHED = (1 << 3)
+        UV_PROCESS_SETUID = 1 << 0,
+        UV_PROCESS_SETGID = 1 << 1,
+        UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS = 1 << 2,
+        UV_PROCESS_DETACHED = 1 << 3
     };
 
     internal enum uv_stdio_flags : int
@@ -53,14 +53,9 @@ namespace Tubumu.Libuv
 
         public uv_process_options_t(Process process, ProcessOptions options)
         {
-            if (string.IsNullOrWhiteSpace(options.File))
-            {
-                throw new ArgumentException("file of processoptions can't be null or white space.");
-            }
-            else
-            {
-                file = Marshal.StringToHGlobalAnsi(options.File);
-            }
+            file = !string.IsNullOrWhiteSpace(options.File)
+                ? Marshal.StringToHGlobalAnsi(options.File)
+                : throw new ArgumentException("file of processoptions can't be null or white space.");
 
             args = alloc(options.Arguments);
             env = alloc(options.Environment);
@@ -95,7 +90,7 @@ namespace Tubumu.Libuv
 
             exit_cb = Marshal.GetFunctionPointerForDelegate(cb);
 
-            stdio_count = (options.Streams == null && !(options.Streams is UVStream[]) ? 0 : options.Streams.Count);
+            stdio_count = options.Streams is null and not UVStream[]? 0 : options.Streams.Count;
             if (stdio_count == 0)
             {
                 stdio = null;
@@ -125,7 +120,7 @@ namespace Tubumu.Libuv
                                 stdio[i].flags |= uv_stdio_flags.UV_WRITABLE_PIPE;
                             }
                         }
-                        else if (stream is UVStream)
+                        else
                         {
                             stdio[i].flags |= uv_stdio_flags.UV_INHERIT_STREAM;
                         }

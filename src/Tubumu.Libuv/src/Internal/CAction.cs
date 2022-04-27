@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -47,10 +47,7 @@ namespace Tubumu.Libuv
 
         private void PrivateCallback()
         {
-            if (cb != null)
-            {
-                cb();
-            }
+            cb?.Invoke();
 
             Dispose();
         }
@@ -71,10 +68,7 @@ namespace Tubumu.Libuv
 
         private void PrivateCallback(T1 arg1)
         {
-            if (cb != null)
-            {
-                cb(arg1);
-            }
+            cb?.Invoke(arg1);
 
             Dispose();
         }
@@ -95,10 +89,7 @@ namespace Tubumu.Libuv
 
         private void PrivateCallback(T1 arg1, T2 arg2)
         {
-            if (cb != null)
-            {
-                cb(arg1, arg2);
-            }
+            cb?.Invoke(arg1, arg2);
 
             Dispose();
         }
@@ -118,10 +109,7 @@ namespace Tubumu.Libuv
 
         private void PrivateCallback(T1 arg1, T2 arg2, T3 arg3)
         {
-            if (cb != null)
-            {
-                cb(arg1, arg2, arg3);
-            }
+            cb?.Invoke(arg1, arg2, arg3);
 
             Dispose();
         }

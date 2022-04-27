@@ -29,7 +29,7 @@ namespace Tubumu.Utils.FastLambda
         public Expression? Eval(Expression exp)
         {
             _candidates = new Nominator().Nominate(exp);
-            return _candidates.Count > 0 ? this.Visit(exp) : exp;
+            return _candidates.Count > 0 ? Visit(exp) : exp;
         }
 
         /// <summary>
@@ -44,13 +44,10 @@ namespace Tubumu.Utils.FastLambda
                 throw new NullReferenceException(nameof(_candidates));
             }
 
-            if (_candidates.Contains(exp))
-            {
-                return exp.NodeType == ExpressionType.Constant ? exp :
-                    Expression.Constant(_evaluator.Eval(exp), exp.Type);
-            }
-
-            return base.Visit(exp);
+            return _candidates.Contains(exp)
+                ? exp.NodeType == ExpressionType.Constant ? exp :
+                    Expression.Constant(_evaluator.Eval(exp), exp.Type)
+                : base.Visit(exp);
         }
 
         /// <summary>
@@ -80,7 +77,7 @@ namespace Tubumu.Utils.FastLambda
             internal HashSet<Expression> Nominate(Expression expression)
             {
                 _candidates = new HashSet<Expression>();
-                this.Visit(expression);
+                Visit(expression);
                 return _candidates;
             }
 

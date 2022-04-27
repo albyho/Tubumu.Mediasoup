@@ -17,14 +17,12 @@ namespace Tubumu.Libuv
             {
                 if (UV.IsUnix)
                 {
-                    int value;
-                    uv_fileno_unix(NativeHandle, out value);
+                    uv_fileno_unix(NativeHandle, out var value);
                     return (IntPtr)value;
                 }
                 else
                 {
-                    IntPtr value;
-                    uv_fileno_windows(NativeHandle, out value);
+                    uv_fileno_windows(NativeHandle, out var value);
                     return value;
                 }
             }
@@ -47,14 +45,7 @@ namespace Tubumu.Libuv
 
         public int Open(Func<IntPtr, int, int> unix, Func<IntPtr, IntPtr, int> windows, IntPtr handle, IntPtr fileDescriptor)
         {
-            if (UV.IsUnix)
-            {
-                return unix(handle, fileDescriptor.ToInt32());
-            }
-            else
-            {
-                return windows(handle, fileDescriptor);
-            }
+            return UV.IsUnix ? unix(handle, fileDescriptor.ToInt32()) : windows(handle, fileDescriptor);
         }
 
         public void Open(IntPtr fileDescriptor)
@@ -73,10 +64,10 @@ namespace Tubumu.Libuv
                 case HandleType.UV_NAMED_PIPE:
                     r = uv_pipe_open(NativeHandle, fileDescriptor.ToInt32());
                     break;
-
                 default:
                     throw new NotSupportedException($"Unsupport \"{HandleType}\".");
             }
+
             Ensure.Success(r);
         }
     }

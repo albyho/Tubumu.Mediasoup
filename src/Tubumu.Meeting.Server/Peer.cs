@@ -31,21 +31,12 @@ namespace Tubumu.Meeting.Server
 
         public bool Equals(Peer? other)
         {
-            if (other == null)
-                return false;
-
-            return PeerId == other.PeerId;
+            return other is not null && PeerId == other.PeerId;
         }
 
         public override bool Equals(object? obj)
         {
-            if (obj == null)
-                return false;
-
-            if (!(obj is Peer tObj))
-                return false;
-            else
-                return PeerId == tObj.PeerId;
+            return obj is not null && obj is Peer tObj && PeerId == tObj.PeerId;
         }
 
         public override int GetHashCode()
@@ -68,7 +59,7 @@ namespace Tubumu.Meeting.Server
 
         private bool _joined;
 
-        private readonly AsyncReaderWriterLock _joinedLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _joinedLock = new();
 
         private readonly WebRtcTransportSettings _webRtcTransportSettings;
 
@@ -78,15 +69,15 @@ namespace Tubumu.Meeting.Server
 
         private readonly SctpCapabilities? _sctpCapabilities;
 
-        private readonly Dictionary<string, Transport> _transports = new Dictionary<string, Transport>();
+        private readonly Dictionary<string, Transport> _transports = new();
 
-        private readonly AsyncReaderWriterLock _transportsLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _transportsLock = new();
 
-        private readonly Dictionary<string, Consumer> _consumers = new Dictionary<string, Consumer>();
+        private readonly Dictionary<string, Consumer> _consumers = new();
 
-        private readonly AsyncReaderWriterLock _consumersLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _consumersLock = new();
 
-        private Dictionary<string, Producer> _producers = new Dictionary<string, Producer>();
+        private readonly Dictionary<string, Producer> _producers = new();
 
         public async Task<Dictionary<string, Producer>> GetProducersASync()
         {
@@ -96,23 +87,23 @@ namespace Tubumu.Meeting.Server
             }
         }
 
-        private readonly AsyncReaderWriterLock _producersLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _producersLock = new();
 
-        private readonly Dictionary<string, DataConsumer> _dataConsumers = new Dictionary<string, DataConsumer>();
+        private readonly Dictionary<string, DataConsumer> _dataConsumers = new();
 
-        private readonly AsyncReaderWriterLock _dataConsumersLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _dataConsumersLock = new();
 
-        private Dictionary<string, DataProducer> _dataProducers = new Dictionary<string, DataProducer>();
+        private readonly Dictionary<string, DataProducer> _dataProducers = new();
 
-        private readonly AsyncReaderWriterLock __dataProducersLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock __dataProducersLock = new();
 
-        private readonly List<PullPadding> _pullPaddings = new List<PullPadding>();
+        private readonly List<PullPadding> _pullPaddings = new();
 
-        private readonly AsyncAutoResetEvent _pullPaddingsLock = new AsyncAutoResetEvent();
+        private readonly AsyncAutoResetEvent _pullPaddingsLock = new();
 
         private Room? _room;
 
-        private readonly AsyncReaderWriterLock _roomLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _roomLock = new();
 
         public const string RoleKey = "role";
 
@@ -442,7 +433,7 @@ namespace Tubumu.Meeting.Server
 
             // Add peerId into appData to later get the associated Peer during
             // the 'loudest' event of the audioLevelObserver.
-            produceRequest.AppData = produceRequest.AppData ?? new Dictionary<string, object>();
+            produceRequest.AppData ??= new Dictionary<string, object>();
             produceRequest.AppData["peerId"] = PeerId;
 
             using (await _joinedLock.ReadLockAsync())
@@ -1397,12 +1388,7 @@ namespace Tubumu.Meeting.Server
             {
                 CheckJoined("GetRoleAsync()");
 
-                if(InternalData.TryGetValue(RoleKey, out var role) && role.GetType() == typeof(UserRole))
-                {
-                    return (UserRole)role;
-                }
-
-                return UserRole.Normal;
+                return InternalData.TryGetValue(RoleKey, out var role) && role.GetType() == typeof(UserRole) ? (UserRole)role : UserRole.Normal;
             }
         }
 
@@ -1410,12 +1396,12 @@ namespace Tubumu.Meeting.Server
 
         private Transport? GetProducingTransport()
         {
-            return _transports.Values.Where(m => m.AppData != null && m.AppData.TryGetValue("Producing", out var value) && (bool)value).FirstOrDefault();
+            return _transports.Values.FirstOrDefault(m => m.AppData != null && m.AppData.TryGetValue("Producing", out var value) && (bool)value);
         }
 
         private Transport? GetConsumingTransport()
         {
-            return _transports.Values.Where(m => m.AppData != null && m.AppData.TryGetValue("Consuming", out var value) && (bool)value).FirstOrDefault();
+            return _transports.Values.FirstOrDefault(m => m.AppData != null && m.AppData.TryGetValue("Consuming", out var value) && (bool)value);
         }
 
         private bool HasProducingTransport()

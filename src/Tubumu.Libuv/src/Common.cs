@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.InteropServices;
@@ -26,56 +26,47 @@ namespace Tubumu.Libuv
 
     public static class UV
     {
-        unsafe internal static readonly int PointerSize = sizeof(IntPtr) / 4;
+        internal static readonly unsafe int PointerSize = sizeof(IntPtr) / 4;
 
-        internal static bool isUnix = (System.Environment.OSVersion.Platform == PlatformID.Unix) || (System.Environment.OSVersion.Platform == PlatformID.MacOSX);
-        internal static bool IsUnix { get { return isUnix; } }
-
-        [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        internal extern static int uv_ip4_addr(string ip, int port, out sockaddr_in address);
+        internal static bool isUnix = Environment.OSVersion.Platform is PlatformID.Unix or PlatformID.MacOSX;
+        internal static bool IsUnix => isUnix;
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        internal extern static int uv_ip6_addr(string ip, int port, out sockaddr_in6 address);
+        internal static extern int uv_ip4_addr(string ip, int port, out sockaddr_in address);
+
+        [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        internal static extern int uv_ip6_addr(string ip, int port, out sockaddr_in6 address);
 
         internal static sockaddr_in ToStruct(string ip, int port)
         {
-            sockaddr_in address;
-            int r = uv_ip4_addr(ip, port, out address);
+            var r = uv_ip4_addr(ip, port, out var address);
             Ensure.Success(r);
             return address;
         }
 
         internal static sockaddr_in6 ToStruct6(string ip, int port)
         {
-            sockaddr_in6 address;
-            int r = uv_ip6_addr(ip, port, out address);
+            int r = uv_ip6_addr(ip, port, out var address);
             Ensure.Success(r);
             return address;
         }
 
         [DllImport("__Internal", EntryPoint = "ntohs", CallingConvention = CallingConvention.Cdecl)]
-        internal extern static ushort ntohs_unix(ushort bytes);
+        internal static extern ushort ntohs_unix(ushort bytes);
 
         [DllImport("Ws2_32", EntryPoint = "ntohs")]
-        internal extern static ushort ntohs_win(ushort bytes);
+        internal static extern ushort ntohs_win(ushort bytes);
 
         internal static ushort ntohs(ushort bytes)
         {
-            if (isUnix)
-            {
-                return ntohs_unix(bytes);
-            }
-            else
-            {
-                return ntohs_win(bytes);
-            }
+            return isUnix ? ntohs_unix(bytes) : ntohs_win(bytes);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_ip4_name(IntPtr src, byte[] dst, IntPtr size);
+        internal static extern int uv_ip4_name(IntPtr src, byte[] dst, IntPtr size);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_ip6_name(IntPtr src, byte[] dst, IntPtr size);
+        internal static extern int uv_ip6_name(IntPtr src, byte[] dst, IntPtr size);
 
         private static bool IsMapping(byte[] data)
         {
@@ -105,19 +96,11 @@ namespace Tubumu.Libuv
             return new IPAddress(ip);
         }
 
-        unsafe internal static IPEndPoint GetIPEndPoint(IntPtr sockaddr, bool map)
+        internal static unsafe IPEndPoint GetIPEndPoint(IntPtr sockaddr, bool map)
         {
-            sockaddr* sa = (sockaddr*)sockaddr;
-            byte[] addr = new byte[64];
-            int r;
-            if (sa->sin_family == 2)
-            {
-                r = uv_ip4_name(sockaddr, addr, (IntPtr)addr.Length);
-            }
-            else
-            {
-                r = uv_ip6_name(sockaddr, addr, (IntPtr)addr.Length);
-            }
+            var sa = (sockaddr*)sockaddr;
+            var addr = new byte[64];
+            var r = sa->sin_family == 2 ? uv_ip4_name(sockaddr, addr, (IntPtr)addr.Length) : uv_ip6_name(sockaddr, addr, (IntPtr)addr.Length);
             Ensure.Success(r);
 
             IPAddress ip = IPAddress.Parse(System.Text.Encoding.ASCII.GetString(addr, 0, strlen(addr)));
@@ -150,7 +133,7 @@ namespace Tubumu.Libuv
         }
 
 #if DEBUG
-        private static readonly HashSet<IntPtr> pointers = new HashSet<IntPtr>();
+        private static readonly HashSet<IntPtr> pointers = new();
 #endif
 
         internal static IntPtr Alloc(RequestType type)
@@ -191,13 +174,7 @@ namespace Tubumu.Libuv
 
 #if DEBUG
 
-        public static int PointerCount
-        {
-            get
-            {
-                return pointers.Count;
-            }
-        }
+        public static int PointerCount => pointers.Count;
 
         public static void PrintPointers()
         {
@@ -218,7 +195,7 @@ namespace Tubumu.Libuv
 #endif
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static uint uv_version();
+        internal static extern uint uv_version();
 
         public static void GetVersion(out int major, out int minor, out int patch)
         {
@@ -232,41 +209,28 @@ namespace Tubumu.Libuv
         {
             get
             {
-                int major, minor, patch;
-                GetVersion(out major, out minor, out patch);
+                GetVersion(out var major, out var minor, out var patch);
                 return new Version(major, minor, patch);
             }
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        unsafe internal extern static sbyte* uv_version_string();
+        internal static extern unsafe sbyte* uv_version_string();
 
-        unsafe public static string VersionString
-        {
-            get
-            {
-                return new string(uv_version_string());
-            }
-        }
+        public static unsafe string VersionString => new(uv_version_string());
 
-        public static bool IsPreRelease
-        {
-            get
-            {
-                return VersionString.EndsWith("-pre");
-            }
-        }
+        public static bool IsPreRelease => VersionString.EndsWith("-pre");
 
         internal delegate int uv_getsockname(IntPtr handle, IntPtr addr, ref int length);
 
-        unsafe internal static IPEndPoint GetSockname(Handle handle, uv_getsockname getsockname)
+        internal static unsafe IPEndPoint GetSockname(Handle handle, uv_getsockname getsockname)
         {
             sockaddr_in6 addr;
-            IntPtr ptr = new IntPtr(&addr);
-            int length = sizeof(sockaddr_in6);
-            int r = getsockname(handle.NativeHandle, ptr, ref length);
+            var ptr = new IntPtr(&addr);
+            var length = sizeof(sockaddr_in6);
+            var r = getsockname(handle.NativeHandle, ptr, ref length);
             Ensure.Success(r);
-            return UV.GetIPEndPoint(ptr, true);
+            return GetIPEndPoint(ptr, true);
         }
 
         internal delegate int bind(IntPtr handle, ref sockaddr_in sockaddr, uint flags);
@@ -280,12 +244,12 @@ namespace Tubumu.Libuv
             int r;
             if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
-                sockaddr_in address = UV.ToStruct(ipAddress.ToString(), port);
+                sockaddr_in address = ToStruct(ipAddress.ToString(), port);
                 r = bind(handle.NativeHandle, ref address, 0);
             }
             else
             {
-                sockaddr_in6 address = UV.ToStruct6(ipAddress.ToString(), port);
+                sockaddr_in6 address = ToStruct6(ipAddress.ToString(), port);
                 r = bind6(handle.NativeHandle, ref address, (uint)(dualstack ? 0 : 1));
             }
             Ensure.Success(r);
@@ -295,12 +259,12 @@ namespace Tubumu.Libuv
 
         internal static string ToString(int size, callback func)
         {
-            IntPtr ptr = IntPtr.Zero;
+            var ptr = IntPtr.Zero;
             try
             {
                 ptr = Marshal.AllocHGlobal(size);
-                IntPtr sizePointer = (IntPtr)size;
-                int r = func(ptr, ref sizePointer);
+                var sizePointer = (IntPtr)size;
+                var r = func(ptr, ref sizePointer);
                 Ensure.Success(r);
                 return Marshal.PtrToStringAuto(ptr, sizePointer.ToInt32())!;
             }

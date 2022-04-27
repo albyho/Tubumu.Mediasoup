@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Runtime.InteropServices;
 
@@ -22,14 +22,8 @@ namespace Tubumu.Libuv
 
         public ByteBufferAllocatorBase ByteBufferAllocator
         {
-            get
-            {
-                return allocator ?? Loop.ByteBufferAllocator;
-            }
-            set
-            {
-                allocator = value;
-            }
+            get => allocator ?? Loop.ByteBufferAllocator;
+            set => allocator = value;
         }
 
         public Udp()
@@ -61,10 +55,10 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_udp_send(IntPtr req, IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in addr, callback callback);
+        internal static extern int uv_udp_send(IntPtr req, IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in addr, callback callback);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_udp_send(IntPtr req, IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in6 addr, callback callback);
+        internal static extern int uv_udp_send(IntPtr req, IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in6 addr, callback callback);
 
         public void Send(UdpMessage message, Action<Exception?>? callback)
         {
@@ -76,12 +70,14 @@ namespace Tubumu.Libuv
             var ipEndPoint = message.EndPoint;
             var data = message.Payload;
 
-            GCHandle datagchandle = GCHandle.Alloc(data.Array, GCHandleType.Pinned);
-            CallbackPermaRequest cpr = new CallbackPermaRequest(RequestType.UV_UDP_SEND);
-            cpr.Callback = (status, cpr2) =>
+            var datagchandle = GCHandle.Alloc(data.Array, GCHandleType.Pinned);
+            var cpr = new CallbackPermaRequest(RequestType.UV_UDP_SEND)
             {
-                datagchandle.Free();
-                Ensure.Success(status, callback);
+                Callback = (status, cpr2) =>
+                {
+                    datagchandle.Free();
+                    Ensure.Success(status, callback);
+                }
             };
 
             var ptr = (IntPtr)(datagchandle.AddrOfPinnedObject().ToInt64() + data.Offset);
@@ -115,7 +111,7 @@ namespace Tubumu.Libuv
 
         private void recv_callback(IntPtr handle, IntPtr nread, IntPtr sockaddr, ushort flags)
         {
-            int n = (int)nread;
+            var n = (int)nread;
 
             if (n == 0)
             {
@@ -140,12 +136,12 @@ namespace Tubumu.Libuv
         {
             CheckDisposed();
 
-            int r = uv_udp_recv_start(NativeHandle, ByteBufferAllocator.AllocCallback, recv_start_cb);
+            var r = uv_udp_recv_start(NativeHandle, ByteBufferAllocator.AllocCallback, recv_start_cb);
             Ensure.Success(r);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_udp_recv_stop(IntPtr handle);
+        internal static extern int uv_udp_recv_stop(IntPtr handle);
 
         public void Pause()
         {
@@ -159,10 +155,7 @@ namespace Tubumu.Libuv
 
         public byte TTL
         {
-            set
-            {
-                Invoke(uv_udp_set_ttl, (int)value);
-            }
+            set => Invoke(uv_udp_set_ttl, (int)value);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
@@ -170,10 +163,7 @@ namespace Tubumu.Libuv
 
         public bool Broadcast
         {
-            set
-            {
-                Invoke(uv_udp_set_broadcast, value ? 1 : 0);
-            }
+            set => Invoke(uv_udp_set_broadcast, value ? 1 : 0);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
@@ -181,10 +171,7 @@ namespace Tubumu.Libuv
 
         public byte MulticastTTL
         {
-            set
-            {
-                Invoke(uv_udp_set_multicast_ttl, (int)value);
-            }
+            set => Invoke(uv_udp_set_multicast_ttl, (int)value);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
@@ -192,10 +179,7 @@ namespace Tubumu.Libuv
 
         public bool MulticastLoop
         {
-            set
-            {
-                Invoke(uv_udp_set_multicast_loop, value ? 1 : 0);
-            }
+            set => Invoke(uv_udp_set_multicast_loop, value ? 1 : 0);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
@@ -212,12 +196,12 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_udp_try_send(IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in addr);
+        internal static extern int uv_udp_try_send(IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in addr);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_udp_try_send(IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in6 addr);
+        internal static extern int uv_udp_try_send(IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in6 addr);
 
-        unsafe public int TrySend(UdpMessage message)
+        public unsafe int TrySend(UdpMessage message)
         {
             Ensure.ArgumentNotNull(message, "message");
 

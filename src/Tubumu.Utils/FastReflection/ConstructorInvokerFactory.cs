@@ -21,7 +21,7 @@ namespace Tubumu.Utils.FastReflection
 
         IConstructorInvoker IFastReflectionFactory<ConstructorInfo, IConstructorInvoker>.Create(ConstructorInfo key)
         {
-            return this.Create(key);
+            return Create(key);
         }
 
         #endregion IFastReflectionFactory<ConstructorInfo,IConstructorInvoker> Members

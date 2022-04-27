@@ -23,7 +23,7 @@ namespace Tubumu.Utils.Extensions
 
         public static async Task<T?> PostObjectAsync<T>(this HttpClient client, Uri requestUri, HttpContent? content, CancellationToken cancellationToken)
         {
-            content = content ?? new StringContent(string.Empty);
+            content ??= new StringContent(string.Empty);
             var message = await client.PostAsync(requestUri, content, cancellationToken);
             message.EnsureSuccessStatusCode();
             var json = await message.Content.ReadAsStringAsync();

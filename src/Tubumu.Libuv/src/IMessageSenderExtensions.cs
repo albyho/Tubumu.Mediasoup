@@ -137,7 +137,7 @@ namespace Tubumu.Libuv
         public static void Send<TMessage, TEndPoint, TPayload>(this IMessageSender<TMessage> sender, TEndPoint endPoint, TPayload payload)
             where TMessage : IMessage<TEndPoint, TPayload>, new()
         {
-            sender.Send<TMessage, TEndPoint, TPayload>(endPoint, payload, null);
+            sender.Send(endPoint, payload, null);
         }
     }
 }

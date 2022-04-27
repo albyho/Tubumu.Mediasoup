@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -39,16 +39,13 @@ namespace Tubumu.Libuv
 
         public TTYMode Mode
         {
-            set
-            {
-                Invoke(uv_tty_set_mode, (int)value);
-            }
+            set => Invoke(uv_tty_set_mode, (int)value);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern void uv_tty_reset_mode();
 
-        static public void ResetMode()
+        public static void ResetMode()
         {
             uv_tty_reset_mode();
         }

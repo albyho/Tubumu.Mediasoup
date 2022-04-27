@@ -10,7 +10,7 @@ namespace Tubumu.Utils.FastReflection
     /// <typeparam name="TValue"></typeparam>
     public abstract class FastReflectionCache<TKey, TValue> : IFastReflectionCache<TKey, TValue> where TKey : notnull
     {
-        private readonly Dictionary<TKey, TValue> _cache = new Dictionary<TKey, TValue>();
+        private readonly Dictionary<TKey, TValue> _cache = new();
 
         /// <summary>
         /// Get
@@ -19,7 +19,7 @@ namespace Tubumu.Utils.FastReflection
         /// <returns></returns>
         public TValue? Get(TKey? key)
         {
-            if(key == null)
+            if (key == null)
             {
                 throw new ArgumentNullException(nameof(key));
             }

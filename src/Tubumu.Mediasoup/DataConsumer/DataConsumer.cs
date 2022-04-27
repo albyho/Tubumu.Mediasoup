@@ -360,7 +360,7 @@ namespace Tubumu.Mediasoup
                     }
                 case "bufferedamount":
                     {
-                        var bufferedAmount = Int32.Parse(data!);
+                        var bufferedAmount = int.Parse(data!);
 
                         Emit("bufferedamountlow", bufferedAmount);
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -46,22 +46,13 @@ namespace Tubumu.Libuv
 
                 return uv_timer_get_repeat(NativeHandle);
             }
-            set
-            {
-                uv_timer_set_repeat(NativeHandle, value);
-            }
+            set => uv_timer_set_repeat(NativeHandle, value);
         }
 
         public TimeSpan Repeat
         {
-            get
-            {
-                return TimeSpan.FromMilliseconds(LongRepeat);
-            }
-            set
-            {
-                LongRepeat = (ulong)value.TotalMilliseconds;
-            }
+            get => TimeSpan.FromMilliseconds(LongRepeat);
+            set => LongRepeat = (ulong)value.TotalMilliseconds;
         }
 
         public bool Running { get; private set; }
@@ -170,10 +161,7 @@ namespace Tubumu.Libuv
             timer.Tick += () =>
             {
                 i++;
-                if (callback != null)
-                {
-                    callback(i);
-                }
+                callback?.Invoke(i);
                 if (i >= times)
                 {
                     timer.Close();

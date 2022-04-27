@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -40,10 +40,7 @@ namespace Tubumu.Libuv
         {
             get
             {
-                if (@default == null)
-                {
-                    @default = new Loop(uv_default_loop(), new CopyingByteBufferAllocator());
-                }
+                @default ??= new Loop(uv_default_loop(), new CopyingByteBufferAllocator());
                 return @default;
             }
         }
@@ -95,32 +92,14 @@ namespace Tubumu.Libuv
             return ptr;
         }
 
-        private unsafe uv_loop_t* loop_t
-        {
-            get
-            {
-                return (uv_loop_t*)NativeHandle;
-            }
-        }
+        private unsafe uv_loop_t* loop_t => (uv_loop_t*)NativeHandle;
 
-        unsafe public uint ActiveHandlesCount
-        {
-            get
-            {
-                return loop_t->active_handles;
-            }
-        }
+        public unsafe uint ActiveHandlesCount => loop_t->active_handles;
 
-        unsafe public IntPtr Data
+        public unsafe IntPtr Data
         {
-            get
-            {
-                return loop_t->data;
-            }
-            set
-            {
-                loop_t->data = value;
-            }
+            get => loop_t->data;
+            set => loop_t->data = value;
         }
 
         public bool IsRunning { get; private set; }
@@ -148,11 +127,7 @@ namespace Tubumu.Libuv
 
         private bool RunGuard(Action context, Func<bool> func)
         {
-            if (!RunGuard(context))
-            {
-                return false;
-            }
-            return func();
+            return RunGuard(context) && func();
         }
 
         public bool Run()
@@ -190,13 +165,7 @@ namespace Tubumu.Libuv
             uv_update_time(NativeHandle);
         }
 
-        public ulong Now
-        {
-            get
-            {
-                return uv_now(NativeHandle);
-            }
-        }
+        public ulong Now => uv_now(NativeHandle);
 
         public void Sync(Action cb)
         {
@@ -280,18 +249,11 @@ namespace Tubumu.Libuv
             }
         }
 
-        internal Dictionary<IntPtr, Handle> handles = new Dictionary<IntPtr, Handle>();
+        internal Dictionary<IntPtr, Handle> handles = new();
 
         public Handle? GetHandle(IntPtr ptr)
         {
-            if (handles.TryGetValue(ptr, out var handle))
-            {
-                return handle;
-            }
-            else
-            {
-                return null;
-            }
+            return handles.TryGetValue(ptr, out var handle) ? handle : null;
         }
 
         public Handle?[] ActiveHandles
@@ -357,12 +319,6 @@ namespace Tubumu.Libuv
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern int uv_loop_alive(IntPtr loop);
 
-        public bool IsAlive
-        {
-            get
-            {
-                return uv_loop_alive(NativeHandle) != 0;
-            }
-        }
+        public bool IsAlive => uv_loop_alive(NativeHandle) != 0;
     }
 }

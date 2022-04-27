@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -72,10 +72,7 @@ namespace Tubumu.Libuv
 
         private void OnChange(string filename, FileSystemEvent @event)
         {
-            if (Change != null)
-            {
-                Change(filename, @event);
-            }
+            Change?.Invoke(filename, @event);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]

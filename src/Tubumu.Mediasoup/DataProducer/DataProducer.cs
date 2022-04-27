@@ -232,10 +232,7 @@ namespace Tubumu.Mediasoup
              * +-------------------------------+----------+
              */
 
-            if (ppid == null)
-            {
-                ppid = !message.IsNullOrEmpty() ? 51 : 56;
-            }
+            ppid ??= !message.IsNullOrEmpty() ? 51 : 56;
 
             // Ensure we honor PPIDs.
             if (ppid == 56)
@@ -260,10 +257,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"SendAsync() | DataProducer:{DataProducerId}");
 
-            if (ppid == null)
-            {
-                ppid = !message.IsNullOrEmpty() ? 53 : 57;
-            }
+            ppid ??= !message.IsNullOrEmpty() ? 53 : 57;
 
             // Ensure we honor PPIDs.
             if (ppid == 57)

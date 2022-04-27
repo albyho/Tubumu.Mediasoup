@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -31,8 +31,8 @@ namespace Tubumu.Libuv
         public BufferPin(byte[] buffer, IntPtr offset, IntPtr count)
         {
             Buffer = buffer;
-            Offset = (IntPtr)offset;
-            Count = (IntPtr)count;
+            Offset = offset;
+            Count = count;
             Alloc();
         }
 
@@ -67,21 +67,9 @@ namespace Tubumu.Libuv
         public IntPtr Offset { get; protected set; }
         public IntPtr Count { get; protected set; }
 
-        public IntPtr Start
-        {
-            get
-            {
-                return At(Offset);
-            }
-        }
+        public IntPtr Start => At(Offset);
 
-        public IntPtr End
-        {
-            get
-            {
-                return At(Offset.ToInt64() + Count.ToInt64());
-            }
-        }
+        public IntPtr End => At(Offset.ToInt64() + Count.ToInt64());
 
         public IntPtr At(int offset)
         {

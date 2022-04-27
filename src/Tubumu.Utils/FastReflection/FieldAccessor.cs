@@ -22,7 +22,7 @@ namespace Tubumu.Utils.FastReflection
     /// </summary>
     public class FieldAccessor : IFieldAccessor
     {
-        private Func<object, object> _getter;
+        private readonly Func<object, object> _getter;
 
         /// <summary>
         /// FieldInfo

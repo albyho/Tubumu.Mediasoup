@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Tubumu.Mediasoup
 {
@@ -14,96 +13,96 @@ namespace Tubumu.Mediasoup
         /// User CPU time used (in ms).
         /// </summary>
         [JsonPropertyName("ru_utime")]
-        public UInt64 UTime { get; set; }
+        public ulong UTime { get; set; }
 
         /// <summary>
         /// System CPU time used (in ms).
         /// </summary>
         [JsonPropertyName("ru_stime")]
-        public UInt64 STime { get; set; }
+        public ulong STime { get; set; }
 
         /// <summary>
         /// Maximum resident set size.
         /// </summary>
         [JsonPropertyName("ru_maxrss")]
-        public UInt64 MaxRss { get; set; }
+        public ulong MaxRss { get; set; }
 
         /// <summary>
         /// Integral shared memory size.
         /// </summary>
         [JsonPropertyName("ru_ixrss")]
-        public UInt64 IxRss { get; set; }
+        public ulong IxRss { get; set; }
 
         /// <summary>
         /// Integral unshared data size.
         /// </summary>
         [JsonPropertyName("ru_idrss")]
-        public UInt64 IdRss { get; set; }
+        public ulong IdRss { get; set; }
 
         /// <summary>
         /// Integral unshared stack size.
         /// </summary>
         [JsonPropertyName("ru_isrss")]
-        public UInt64 IsRss { get; set; }
+        public ulong IsRss { get; set; }
 
         /// <summary>
         /// Page reclaims (soft page faults).
         /// </summary>
         [JsonPropertyName("ru_minflt")]
-        public UInt64 MinFlt { get; set; }
+        public ulong MinFlt { get; set; }
 
         /// <summary>
         /// Page faults (hard page faults).
         /// </summary>
         [JsonPropertyName("ru_majflt")]
-        public UInt64 MajFlt { get; set; }
+        public ulong MajFlt { get; set; }
 
         /// <summary>
         /// Swaps.
         /// </summary>
         [JsonPropertyName("ru_nswap")]
-        public UInt64 NSwap { get; set; }
+        public ulong NSwap { get; set; }
 
         /// <summary>
         /// Block input operations.
         /// </summary>
         [JsonPropertyName("ru_inblock")]
-        public UInt64 InBlock { get; set; }
+        public ulong InBlock { get; set; }
 
         /// <summary>
         /// Block output operations.
         /// </summary>
         [JsonPropertyName("ru_oublock")]
-        public UInt64 OuBlock { get; set; }
+        public ulong OuBlock { get; set; }
 
         /// <summary>
         /// IPC messages sent.
         /// </summary>
         [JsonPropertyName("ru_msgsnd")]
-        public UInt64 MsgSnd { get; set; }
+        public ulong MsgSnd { get; set; }
 
         /// <summary>
         /// IPC messages received.
         /// </summary>
         [JsonPropertyName("ru_msgrcv")]
-        public UInt64 MsgRcv { get; set; }
+        public ulong MsgRcv { get; set; }
 
         /// <summary>
         /// Signals received.
         /// </summary>
         [JsonPropertyName("ru_nsignals")]
-        public UInt64 NSignals { get; set; }
+        public ulong NSignals { get; set; }
 
         /// <summary>
         /// Voluntary context switches.
         /// </summary>
         [JsonPropertyName("ru_nvcsw")]
-        public UInt64 NVcSw { get; set; }
+        public ulong NVcSw { get; set; }
 
         /// <summary>
         /// Involuntary context switches.
         /// </summary>
         [JsonPropertyName("ru_nivcsw")]
-        public UInt64 NIvcSw { get; set; }
+        public ulong NIvcSw { get; set; }
     }
 }

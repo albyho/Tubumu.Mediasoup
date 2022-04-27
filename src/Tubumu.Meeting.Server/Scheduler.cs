@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
@@ -26,13 +25,13 @@ namespace Tubumu.Meeting.Server
 
         private readonly MediasoupServer _mediasoupServer;
 
-        private readonly Dictionary<string, Peer> _peers = new Dictionary<string, Peer>();
+        private readonly Dictionary<string, Peer> _peers = new();
 
-        private readonly AsyncReaderWriterLock _peersLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _peersLock = new();
 
-        private readonly Dictionary<string, Room> _rooms = new Dictionary<string, Room>();
+        private readonly Dictionary<string, Room> _rooms = new();
 
-        private readonly AsyncAutoResetEvent _roomsLock = new AsyncAutoResetEvent();
+        private readonly AsyncAutoResetEvent _roomsLock = new();
 
         #endregion Private Fields
 
@@ -138,7 +137,7 @@ namespace Tubumu.Meeting.Server
 
                     var result = await peer.JoinRoomAsync(room);
 
-                    await peer.SetPeerInternalDataAsync(new SetPeerInternalDataRequest
+                    _ = await peer.SetPeerInternalDataAsync(new SetPeerInternalDataRequest
                     {
                         InternalData = new Dictionary<string, object>
                         {
@@ -224,12 +223,9 @@ namespace Tubumu.Meeting.Server
         {
             using (await _peersLock.ReadLockAsync())
             {
-                if (!_peers.TryGetValue(setPeerInternalDataRequest.PeerId, out var peer))
-                {
-                    throw new PeerNotExistsException("SetPeerInternalDataAsync()", setPeerInternalDataRequest.PeerId);
-                }
-
-                return await peer.SetPeerInternalDataAsync(setPeerInternalDataRequest);
+                return _peers.TryGetValue(setPeerInternalDataRequest.PeerId, out var peer)
+                    ? await peer.SetPeerInternalDataAsync(setPeerInternalDataRequest)
+                    : throw new PeerNotExistsException("SetPeerInternalDataAsync()", setPeerInternalDataRequest.PeerId);
             }
         }
 
@@ -252,12 +248,9 @@ namespace Tubumu.Meeting.Server
         {
             using (await _peersLock.ReadLockAsync())
             {
-                if (!_peers.TryGetValue(unsetPeerInternalDataRequest.PeerId, out var peer))
-                {
-                    throw new PeerNotExistsException("UnsetPeerInternalDataAsync()", unsetPeerInternalDataRequest.PeerId);
-                }
-
-                return await peer.UnsetPeerInternalDataAsync(unsetPeerInternalDataRequest);
+                return _peers.TryGetValue(unsetPeerInternalDataRequest.PeerId, out var peer)
+                    ? await peer.UnsetPeerInternalDataAsync(unsetPeerInternalDataRequest)
+                    : throw new PeerNotExistsException("UnsetPeerInternalDataAsync()", unsetPeerInternalDataRequest.PeerId);
             }
         }
 

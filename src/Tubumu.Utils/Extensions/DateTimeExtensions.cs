@@ -21,11 +21,7 @@ namespace Tubumu.Utils.Extensions
 
         public static DateTime EnsureLocal(this DateTime dateTime)
         {
-            if (dateTime.Kind == DateTimeKind.Utc)
-            {
-                return dateTime.ToLocalTime();
-            }
-            return dateTime;
+            return dateTime.Kind == DateTimeKind.Utc ? dateTime.ToLocalTime() : dateTime;
         }
     }
 }

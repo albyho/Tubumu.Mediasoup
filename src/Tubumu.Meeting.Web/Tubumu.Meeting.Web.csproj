@@ -22,24 +22,22 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
   </ItemGroup>
 
-
-<!--  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <!--
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PackageReference Include="Tubumu.Utils" Version="6.0.0" />
     <PackageReference Include="Tubumu.Mediasoup" Version="6.0.0" />
     <PackageReference Include="Tubumu.Mediasoup.Common" Version="6.0.0" />
     <PackageReference Include="Tubumu.Mediasoup.AspNetCore" Version="6.0.0" />
     <PackageReference Include="Tubumu.Meeting.Server" Version="6.0.0" />
     <PackageReference Include="Tubumu.Meeting.Server.Consul" Version="6.0.0" />
-  </ItemGroup>-->
+  </ItemGroup>
+  -->
 
   <ItemGroup>
     <ProjectReference Include="..\Tubumu.Mediasoup.Common\Tubumu.Mediasoup.Common.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
     <ProjectReference Include="..\Tubumu.Mediasoup\Tubumu.Mediasoup.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-    <ProjectReference Include="..\Tubumu.Meeting.Server.Consul\Tubumu.Meeting.Server.Consul.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
     <ProjectReference Include="..\Tubumu.Meeting.Server\Tubumu.Meeting.Server.csproj">
@@ -51,21 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="publish\Tubumu.Meeting.Web.deps.json" />
-    <Content Remove="publish\hosting.json" />
-    <Content Remove="publish\mediasoupsettings.json" />
-    <Content Remove="publish\mediasoupsettings.example.json" />
-    <Content Remove="publish\Tubumu.Meeting.Web.runtimeconfig.json" />
-    <Content Remove="publish\appsettings.json" />
-    <Content Remove="publish\appsettings.Development.json" />
-    <Content Remove="publish\serilog.json" />
-    <Content Remove="publish\web.config" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="docs\*" />
-    <None Remove="publish\*" />
   </ItemGroup>
-
 
 </Project>

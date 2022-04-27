@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -7,38 +7,17 @@ namespace Tubumu.Libuv
     {
         public static string Decorate(string name)
         {
-            if (UV.isUnix)
-            {
-                return string.Format("lib{0}.so", name);
-            }
-            else
-            {
-                return string.Format("{0}.dll", name);
-            }
+            return UV.isUnix ? string.Format("lib{0}.so", name) : string.Format("{0}.dll", name);
         }
 
         public static DynamicLibrary Open(string name)
         {
-            if (UV.isUnix)
-            {
-                return new LibuvDynamicLibrary(name);
-            }
-            else
-            {
-                return new WindowsDynamicLibrary(name);
-            }
+            return UV.isUnix ? new LibuvDynamicLibrary(name) : new WindowsDynamicLibrary(name);
         }
 
         public static DynamicLibrary Open()
         {
-            if (UV.isUnix)
-            {
-                return new LibuvDynamicLibrary();
-            }
-            else
-            {
-                return new WindowsDynamicLibrary();
-            }
+            return UV.isUnix ? new LibuvDynamicLibrary() : new WindowsDynamicLibrary();
         }
 
         public abstract bool Closed { get; }
@@ -53,32 +32,26 @@ namespace Tubumu.Libuv
     internal class LibuvDynamicLibrary : DynamicLibrary
     {
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_dlopen(IntPtr name, IntPtr handle);
+        internal static extern int uv_dlopen(IntPtr name, IntPtr handle);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_dlopen(string name, IntPtr handle);
+        internal static extern int uv_dlopen(string name, IntPtr handle);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static void uv_dlclose(IntPtr handle);
+        internal static extern void uv_dlclose(IntPtr handle);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_dlsym(IntPtr handle, string name, out IntPtr ptr);
+        internal static extern int uv_dlsym(IntPtr handle, string name, out IntPtr ptr);
 
         [DllImport(NativeMethods.Libuv)]
-        internal extern static IntPtr uv_dlerror(IntPtr handle);
+        internal static extern IntPtr uv_dlerror(IntPtr handle);
 
         [DllImport(NativeMethods.Libuv)]
-        internal extern static IntPtr uv_dlerror_free(IntPtr handle);
+        internal static extern IntPtr uv_dlerror_free(IntPtr handle);
 
         private IntPtr handle = IntPtr.Zero;
 
-        public override bool Closed
-        {
-            get
-            {
-                return handle == IntPtr.Zero;
-            }
-        }
+        public override bool Closed => handle == IntPtr.Zero;
 
         private void Check(int ret)
         {
@@ -113,18 +86,12 @@ namespace Tubumu.Libuv
 
         public override bool TryGetSymbol(string name, out IntPtr pointer)
         {
-            pointer = IntPtr.Zero;
             return uv_dlsym(handle, name, out pointer) == 0;
         }
 
         public override IntPtr GetSymbol(string name)
         {
-            IntPtr ptr = IntPtr.Zero;
-            if (uv_dlsym(handle, name, out ptr) < 0)
-            {
-                throw new Exception(Marshal.PtrToStringAnsi(uv_dlerror(handle)));
-            }
-            return ptr;
+            return uv_dlsym(handle, name, out var ptr) < 0 ? throw new Exception(Marshal.PtrToStringAnsi(uv_dlerror(handle))) : ptr;
         }
     }
 
@@ -154,13 +121,7 @@ namespace Tubumu.Libuv
             Check(LoadLibraryEx(name, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH));
         }
 
-        public override bool Closed
-        {
-            get
-            {
-                return handle == IntPtr.Zero;
-            }
-        }
+        public override bool Closed => handle == IntPtr.Zero;
 
         public override void Close()
         {
@@ -174,11 +135,7 @@ namespace Tubumu.Libuv
         public override IntPtr GetSymbol(string name)
         {
             var ptr = GetProcAddress(handle, name);
-            if (ptr == IntPtr.Zero)
-            {
-                throw new Exception();
-            }
-            return ptr;
+            return ptr != IntPtr.Zero ? ptr : throw new Exception();
         }
 
         public override bool TryGetSymbol(string name, out IntPtr pointer)

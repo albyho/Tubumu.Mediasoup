@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
 {
-    unsafe public abstract class UVStream : HandleBase, IUVStream<ArraySegment<byte>>, ITryWrite<ArraySegment<byte>>
+    public abstract unsafe class UVStream : HandleBase, IUVStream<ArraySegment<byte>>, ITryWrite<ArraySegment<byte>>
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void read_callback(IntPtr stream, IntPtr size, ref uv_buf_t buf);
@@ -42,20 +42,14 @@ namespace Tubumu.Libuv
 
         public ByteBufferAllocatorBase ByteBufferAllocator
         {
-            get
-            {
-                return allocator ?? Loop.ByteBufferAllocator;
-            }
-            set
-            {
-                allocator = value;
-            }
+            get => allocator ?? Loop.ByteBufferAllocator;
+            set => allocator = value;
         }
 
         internal UVStream(Loop loop, IntPtr handle)
             : base(loop, handle)
         {
-            stream = (uv_stream_t*)(handle.ToInt64() + Handle.Size(HandleType.UV_HANDLE));
+            stream = (uv_stream_t*)(handle.ToInt64() + Size(HandleType.UV_HANDLE));
         }
 
         internal UVStream(Loop loop, int size)
@@ -64,7 +58,7 @@ namespace Tubumu.Libuv
         }
 
         internal UVStream(Loop loop, HandleType type)
-            : this(loop, Handle.Size(type))
+            : this(loop, Size(type))
         {
         }
 
@@ -164,13 +158,13 @@ namespace Tubumu.Libuv
         {
             CheckDisposed();
 
-            int index = data.Offset;
-            int count = data.Count;
+            var index = data.Offset;
+            var count = data.Count;
 
             PendingWrites++;
 
-            GCHandle datagchandle = GCHandle.Alloc(data.Array, GCHandleType.Pinned);
-            CallbackPermaRequest cpr = new CallbackPermaRequest(RequestType.UV_WRITE)
+            var datagchandle = GCHandle.Alloc(data.Array, GCHandleType.Pinned);
+            var cpr = new CallbackPermaRequest(RequestType.UV_WRITE)
             {
                 Callback = (status, cpr2) =>
                 {
@@ -189,7 +183,7 @@ namespace Tubumu.Libuv
             var ptr = (IntPtr)(datagchandle.AddrOfPinnedObject().ToInt64() + index);
 
             var buf = new uv_buf_t[] { new uv_buf_t(ptr, count) };
-            int r = uv_write(cpr.Handle, NativeHandle, buf, 1, CallbackPermaRequest.CallbackDelegate);
+            var r = uv_write(cpr.Handle, NativeHandle, buf, 1, CallbackPermaRequest.CallbackDelegate);
             Ensure.Success(r);
         }
 
@@ -199,38 +193,39 @@ namespace Tubumu.Libuv
 
             PendingWrites++;
 
-            int i;
-            int n = buffers.Count;
-            GCHandle[] datagchandles = new GCHandle[n];
-            CallbackPermaRequest cpr = new CallbackPermaRequest(RequestType.UV_WRITE);
-            cpr.Callback = (status, cpr2) =>
+            var n = buffers.Count;
+            var datagchandles = new GCHandle[n];
+            var cpr = new CallbackPermaRequest(RequestType.UV_WRITE)
             {
-                for (i = 0; i < n; ++i)
+                Callback = (status, cpr2) =>
                 {
-                    datagchandles[i].Free();
-                }
+                    for (var i = 0; i < n; ++i)
+                    {
+                        datagchandles[i].Free();
+                    }
 
-                PendingWrites--;
+                    PendingWrites--;
 
-                Ensure.Success(status, callback);
+                    Ensure.Success(status, callback);
 
-                if (PendingWrites == 0)
-                {
-                    OnDrain();
+                    if (PendingWrites == 0)
+                    {
+                        OnDrain();
+                    }
                 }
             };
             var bufs = new uv_buf_t[n];
-            for (i = 0; i < n; ++i)
+            for (var i = 0; i < n; ++i)
             {
-                ArraySegment<byte> data = buffers[i];
-                int index = data.Offset;
-                int count = data.Count;
-                GCHandle datagchandle = GCHandle.Alloc(data.Array, GCHandleType.Pinned);
+                var data = buffers[i];
+                var index = data.Offset;
+                var count = data.Count;
+                var datagchandle = GCHandle.Alloc(data.Array, GCHandleType.Pinned);
                 var ptr = (IntPtr)(datagchandle.AddrOfPinnedObject().ToInt64() + index);
                 bufs[i] = new uv_buf_t(ptr, count);
                 datagchandles[i] = datagchandle;
             }
-            int r = uv_write(cpr.Handle, NativeHandle, bufs, n, CallbackPermaRequest.CallbackDelegate);
+            var r = uv_write(cpr.Handle, NativeHandle, bufs, n, CallbackPermaRequest.CallbackDelegate);
             Ensure.Success(r, callback);
         }
 
@@ -238,16 +233,15 @@ namespace Tubumu.Libuv
         {
             CheckDisposed();
 
-            var cbr = new CallbackPermaRequest(RequestType.UV_SHUTDOWN);
-            cbr.Callback = (status, _) =>
+            var cbr = new CallbackPermaRequest(RequestType.UV_SHUTDOWN)
             {
-                Ensure.Success(status, (ex) => Close(() =>
+                Callback = (status, _) =>
                 {
-                    if (callback != null)
+                    Ensure.Success(status, (ex) => Close(() =>
                     {
-                        callback(ex);
-                    }
-                }));
+                        callback?.Invoke(ex);
+                    }));
+                }
             };
             uv_shutdown(cbr.Handle, NativeHandle, CallbackPermaRequest.CallbackDelegate);
         }
@@ -265,10 +259,7 @@ namespace Tubumu.Libuv
 
                 return uv_is_readable(NativeHandle) != 0;
             }
-            set
-            {
-                readable = value;
-            }
+            set => readable = value;
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
@@ -284,16 +275,13 @@ namespace Tubumu.Libuv
 
                 return uv_is_writable(NativeHandle) != 0;
             }
-            set
-            {
-                writeable = value;
-            }
+            set => writeable = value;
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal extern static int uv_try_write(IntPtr handle, uv_buf_t[] bufs, int nbufs);
+        internal static extern int uv_try_write(IntPtr handle, uv_buf_t[] bufs, int nbufs);
 
-        unsafe public int TryWrite(ArraySegment<byte> data)
+        public unsafe int TryWrite(ArraySegment<byte> data)
         {
             CheckDisposed();
 

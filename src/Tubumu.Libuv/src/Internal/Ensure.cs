@@ -22,7 +22,7 @@ namespace Tubumu.Libuv
                     return new ArgumentException(UVException.StringError(systemErrorCode));
 
                 case UVErrorCode.ENOENT:
-                    var path = (name == null ? Directory.GetCurrentDirectory() : Path.Combine(System.IO.Directory.GetCurrentDirectory(), name));
+                    var path = name == null ? Directory.GetCurrentDirectory() : Path.Combine(Directory.GetCurrentDirectory(), name);
                     return new FileNotFoundException(string.Format("Could not find file '{0}'.", path), path);
 
                 case UVErrorCode.ENOTSUP:
@@ -68,8 +68,8 @@ namespace Tubumu.Libuv
 
         public static void AddressFamily(IPAddress ipAddress)
         {
-            if ((ipAddress.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork) &&
-                (ipAddress.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6))
+            if (ipAddress.AddressFamily is not System.Net.Sockets.AddressFamily.InterNetwork and
+                not System.Net.Sockets.AddressFamily.InterNetworkV6)
             {
                 throw new ArgumentException("ipAddress has to be of AddressFamily InterNetwork or InterNetworkV6");
             }

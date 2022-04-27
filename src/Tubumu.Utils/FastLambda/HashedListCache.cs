@@ -11,8 +11,8 @@ namespace Tubumu.Utils.FastLambda
     /// <typeparam name="T"></typeparam>
     public class HashedListCache<T> : IDisposable, IExpressionCache<T> where T : class
     {
-        private readonly Dictionary<int, SortedList<Expression, T>> _storage = new Dictionary<int, SortedList<Expression, T>>();
-        private readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim();
+        private readonly Dictionary<int, SortedList<Expression, T>> _storage = new();
+        private readonly ReaderWriterLockSlim _rwLock = new();
 
         /// <summary>
         /// Get

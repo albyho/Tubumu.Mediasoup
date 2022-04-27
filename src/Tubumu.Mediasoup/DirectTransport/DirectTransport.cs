@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Tubumu.Utils.Extensions.Object;
 using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
@@ -220,7 +219,9 @@ namespace Tubumu.Mediasoup
                     {
                         // TODO: (alby) _closed 的使用及线程安全。
                         if (Closed)
+                        {
                             break;
+                        }
 
                         Emit("rtcp", payload);
 

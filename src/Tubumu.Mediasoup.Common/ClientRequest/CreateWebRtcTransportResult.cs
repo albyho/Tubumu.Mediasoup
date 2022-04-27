@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.Json.Serialization;
-
-namespace Tubumu.Mediasoup
+﻿namespace Tubumu.Mediasoup
 {
     public class CreateWebRtcTransportResult
     {

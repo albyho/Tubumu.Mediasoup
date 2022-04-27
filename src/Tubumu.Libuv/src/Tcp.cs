@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Runtime.InteropServices;
 
@@ -53,10 +53,7 @@ namespace Tubumu.Libuv
 
         public bool SimultaneosAccepts
         {
-            set
-            {
-                Invoke(uv_tcp_simultaneos_accepts, value ? 1 : 0);
-            }
+            set => Invoke(uv_tcp_simultaneos_accepts, value ? 1 : 0);
         }
 
         public IPEndPoint LocalAddress
@@ -98,8 +95,10 @@ namespace Tubumu.Libuv
             Ensure.ArgumentNotNull(ipEndPoint, "ipEndPoint");
             Ensure.AddressFamily(ipEndPoint.Address);
 
-            ConnectRequest cpr = new ConnectRequest();
-            cpr.Callback = (status, cpr2) => Ensure.Success(status, callback);
+            var cpr = new ConnectRequest
+            {
+                Callback = (status, cpr2) => Ensure.Success(status, callback)
+            };
 
             int r;
             if (ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
@@ -123,10 +122,7 @@ namespace Tubumu.Libuv
 
         public bool NoDelay
         {
-            set
-            {
-                Invoke(uv_tcp_nodelay, value ? 1 : 0);
-            }
+            set => Invoke(uv_tcp_nodelay, value ? 1 : 0);
         }
 
         public void SetKeepAlive(bool enable, int delay)

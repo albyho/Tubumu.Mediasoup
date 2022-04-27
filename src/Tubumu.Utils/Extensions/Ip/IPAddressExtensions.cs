@@ -11,7 +11,7 @@ namespace Tubumu.Utils.Extensions.Ip
     /// </summary>
     public static class IPAddressExtensions
     {
-        private static readonly Regex IpV4Regex = new Regex(@"^\d{1,3}[\.]\d{1,3}[\.]\d{1,3}[\.]\d{1,3}$", RegexOptions.Compiled);
+        private static readonly Regex IpV4Regex = new(@"^\d{1,3}[\.]\d{1,3}[\.]\d{1,3}[\.]\d{1,3}$", RegexOptions.Compiled);
 
         /// <summary>
         /// IPAddress 转 Int32
@@ -27,7 +27,7 @@ namespace Tubumu.Utils.Extensions.Ip
             for (int i = 0; i < bytes.Length; i++)
             {
                 var f = bytes[i];
-                v += f << 8 * x--;
+                v += f << (8 * x--);
             }
             return v;
         }
@@ -45,7 +45,7 @@ namespace Tubumu.Utils.Extensions.Ip
             for (var i = 0; i < bytes.Length; i++)
             {
                 var f = bytes[i];
-                v += (long)f << 8 * x--;
+                v += (long)f << (8 * x--);
             }
             return v;
         }
@@ -60,7 +60,7 @@ namespace Tubumu.Utils.Extensions.Ip
             var bytes = new byte[4];
             for (var i = 0; i < 4; i++)
             {
-                bytes[3 - i] = (byte)(ip >> 8 * i & 255);
+                bytes[3 - i] = (byte)((ip >> 8 * i) & 255);
             }
             return new IPAddress(bytes);
         }
@@ -75,7 +75,7 @@ namespace Tubumu.Utils.Extensions.Ip
             var bytes = new byte[4];
             for (var i = 0; i < 4; i++)
             {
-                bytes[3 - i] = (byte)(ip >> 8 * i & 255);
+                bytes[3 - i] = (byte)((ip >> 8 * i) & 255);
             }
             return new IPAddress(bytes);
         }
@@ -87,12 +87,7 @@ namespace Tubumu.Utils.Extensions.Ip
         /// <returns></returns>
         public static bool IsIPv4(this string ip)
         {
-            if (ip.IsNullOrWhiteSpace() || ip.Length < 7 || ip.Length > 15)
-            {
-                return false;
-            }
-
-            return IpV4Regex.IsMatch(ip);
+            return !ip.IsNullOrWhiteSpace() && ip.Length >= 7 && ip.Length <= 15 && IpV4Regex.IsMatch(ip);
         }
 
         /// <summary>
@@ -114,7 +109,7 @@ namespace Tubumu.Utils.Extensions.Ip
         /// <returns></returns>
         public static IPAddress? GetLocalIPv4IPAddress()
         {
-            return GetLocalIPAddresses(AddressFamily.InterNetwork).Where(m => !IPAddress.IsLoopback(m)).FirstOrDefault();
+            return GetLocalIPAddresses(AddressFamily.InterNetwork).FirstOrDefault(m => !IPAddress.IsLoopback(m));
         }
     }
 }

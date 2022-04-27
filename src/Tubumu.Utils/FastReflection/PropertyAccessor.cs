@@ -93,12 +93,7 @@ namespace Tubumu.Utils.FastReflection
         /// <returns></returns>
         public object GetValue(object o)
         {
-            if (_getter == null)
-            {
-                throw new NotSupportedException("Get method is not defined for this property.");
-            }
-
-            return _getter!(o);
+            return _getter == null ? throw new NotSupportedException("Get method is not defined for this property.") : _getter!(o);
         }
 
         /// <summary>
@@ -113,7 +108,7 @@ namespace Tubumu.Utils.FastReflection
                 throw new NotSupportedException("Set method is not defined for this property.");
             }
 
-            _setMethodInvoker!.Invoke(o, new object[] { value });
+            _ = _setMethodInvoker!.Invoke(o, new object[] { value });
         }
 
         #region IPropertyAccessor Members

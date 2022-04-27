@@ -18,7 +18,7 @@ namespace Tubumu.Libuv
         {
             CheckDisposed();
 
-            int r = function(NativeHandle, out value);
+            var r = function(NativeHandle, out value);
             Ensure.Success(r);
             return r;
         }
@@ -30,26 +30,14 @@ namespace Tubumu.Libuv
 
         public int SendBufferSize
         {
-            get
-            {
-                return Apply(uv_send_buffer_size, 0);
-            }
-            set
-            {
-                Apply(uv_send_buffer_size, @value);
-            }
+            get => Apply(uv_send_buffer_size, 0);
+            set => Apply(uv_send_buffer_size, @value);
         }
 
         public int ReceiveBufferSize
         {
-            get
-            {
-                return Apply(uv_recv_buffer_size, 0);
-            }
-            set
-            {
-                Apply(uv_recv_buffer_size, @value);
-            }
+            get => Apply(uv_recv_buffer_size, 0);
+            set => Apply(uv_recv_buffer_size, @value);
         }
     }
 }

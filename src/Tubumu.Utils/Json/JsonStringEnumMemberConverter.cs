@@ -84,12 +84,16 @@ namespace System.Text.Json.Serialization
 				_JsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(namingPolicy, allowIntegerValues);
 			}
 
-			public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-				=> _JsonStringEnumMemberConverterHelper.Read(ref reader);
+            public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                return _JsonStringEnumMemberConverterHelper.Read(ref reader);
+            }
 
-			public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
-				=> _JsonStringEnumMemberConverterHelper.Write(writer, value);
-		}
+            public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
+            {
+                _JsonStringEnumMemberConverterHelper.Write(writer, value);
+            }
+        }
 
 #pragma warning disable CA1812 // Remove class never instantiated
 		private class NullableEnumMemberConverter<TEnum> : JsonConverter<TEnum?>
@@ -103,11 +107,15 @@ namespace System.Text.Json.Serialization
 				_JsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(namingPolicy, allowIntegerValues);
 			}
 
-			public override TEnum? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-				=> _JsonStringEnumMemberConverterHelper.Read(ref reader);
+            public override TEnum? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                return _JsonStringEnumMemberConverterHelper.Read(ref reader);
+            }
 
-			public override void Write(Utf8JsonWriter writer, TEnum? value, JsonSerializerOptions options)
-				=> _JsonStringEnumMemberConverterHelper.Write(writer, value!.Value);
-		}
+            public override void Write(Utf8JsonWriter writer, TEnum? value, JsonSerializerOptions options)
+            {
+                _JsonStringEnumMemberConverterHelper.Write(writer, value!.Value);
+            }
+        }
 	}
 }

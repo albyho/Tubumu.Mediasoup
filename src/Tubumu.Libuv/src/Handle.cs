@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
 {
-    unsafe public abstract class Handle : IHandle, IDisposable
+    public abstract unsafe class Handle : IHandle, IDisposable
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void callback(IntPtr req, int status);
@@ -28,14 +28,8 @@ namespace Tubumu.Libuv
 
         internal IntPtr DataPointer
         {
-            get
-            {
-                return handle->data;
-            }
-            set
-            {
-                handle->data = value;
-            }
+            get => handle->data;
+            set => handle->data = value;
         }
 
         internal static T FromIntPtr<T>(IntPtr ptr)
@@ -43,13 +37,7 @@ namespace Tubumu.Libuv
             return (T)GCHandle.FromIntPtr(((uv_handle_t*)ptr)->data).Target!;
         }
 
-        public HandleType HandleType
-        {
-            get
-            {
-                return handle->type;
-            }
-        }
+        public HandleType HandleType => handle->type;
 
         internal Handle(Loop loop, IntPtr handle)
         {
@@ -70,7 +58,7 @@ namespace Tubumu.Libuv
         }
 
         internal Handle(Loop loop, HandleType handleType)
-            : this(loop, Handle.Size(handleType))
+            : this(loop, Size(handleType))
         {
         }
 
@@ -118,7 +106,7 @@ namespace Tubumu.Libuv
 
         private static void CloseCallback(IntPtr handlePointer)
         {
-            var handle = Handle.FromIntPtr<Handle>(handlePointer);
+            var handle = FromIntPtr<Handle>(handlePointer);
             handle.Cleanup(handlePointer, handle.closeCallback);
         }
 
@@ -158,13 +146,7 @@ namespace Tubumu.Libuv
             Close(null);
         }
 
-        public bool IsClosed
-        {
-            get
-            {
-                return NativeHandle == IntPtr.Zero;
-            }
-        }
+        public bool IsClosed => NativeHandle == IntPtr.Zero;
 
         public void Dispose()
         {
@@ -180,45 +162,19 @@ namespace Tubumu.Libuv
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_is_active(IntPtr handle);
 
-        public bool IsActive
-        {
-            get
-            {
-                if (IsClosed)
-                {
-                    return false;
-                }
-                return uv_is_active(NativeHandle) != 0;
-            }
-        }
+        public bool IsActive => !IsClosed && uv_is_active(NativeHandle) != 0;
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_is_closing(IntPtr handle);
 
-        public bool IsClosing
-        {
-            get
-            {
-                if (IsClosed)
-                {
-                    return false;
-                }
-                return uv_is_closing(NativeHandle) != 0;
-            }
-        }
+        public bool IsClosing => !IsClosed && uv_is_closing(NativeHandle) != 0;
 
         /// <summary>
         /// Is the underlying still alive? Returns true if handle
         /// is not closing or closed.
         /// </summary>
         /// <value><c>true</c> if this instance is not closing or closed; otherwise, <c>false</c>.</value>
-        public bool IsAlive
-        {
-            get
-            {
-                return !IsClosed && !IsClosing;
-            }
-        }
+        public bool IsAlive => !IsClosed && !IsClosing;
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern void uv_ref(IntPtr handle);
@@ -247,17 +203,7 @@ namespace Tubumu.Libuv
             uv_unref(NativeHandle);
         }
 
-        public bool HasRef
-        {
-            get
-            {
-                if (IsClosed)
-                {
-                    return false;
-                }
-                return uv_has_ref(NativeHandle) != 0;
-            }
-        }
+        public bool HasRef => !IsClosed && uv_has_ref(NativeHandle) != 0;
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_handle_size(HandleType type);

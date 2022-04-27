@@ -51,7 +51,7 @@ namespace Tubumu.Utils.Utilities.Security
         /// </summary>
         public byte[] CreateValidationCodeGraphic(string validationCode)
         {
-            if(validationCode.IsNullOrWhiteSpace())
+            if (validationCode.IsNullOrWhiteSpace())
             {
                 throw new Exception($"验证码参数 {nameof(validationCode)} 为空。");
             }
@@ -86,16 +86,16 @@ namespace Tubumu.Utils.Utilities.Security
 
             canvas.Translate(-4, 0);
 
-            for (int i = 0; i < chars.Length; i++)
+            for (var i = 0; i < chars.Length; i++)
             {
-                int colorIndex = rand.Next(colors.Length);
-                int fontIndex = rand.Next(fonts.Length);
+                var colorIndex = rand.Next(colors.Length);
+                var fontIndex = rand.Next(fonts.Length);
 
                 var fontColor = colors[colorIndex];
                 var foneSize = rand.Next(18, 25);
                 float angle = rand.Next(-randAngle, randAngle);
 
-                SKPoint point = new SKPoint(16, 28 / 2 + 4);
+                var point = new SKPoint(16, (28 / 2) + 4);
 
                 canvas.Translate(point);
                 canvas.RotateDegrees(angle);

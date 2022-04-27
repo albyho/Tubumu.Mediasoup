@@ -202,12 +202,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <returns></returns>
         public static string DecryptFromByteArrayToString(byte[] inputByteArray, string? key = null)
         {
-            if (inputByteArray == null)
-            {
-                throw new ArgumentNullException(nameof(inputByteArray));
-            }
-
-            return Encoding.UTF8.GetString(DecryptFromByteArrayToByteArray(inputByteArray, key));
+            return inputByteArray == null
+                ? throw new ArgumentNullException(nameof(inputByteArray))
+                : Encoding.UTF8.GetString(DecryptFromByteArrayToByteArray(inputByteArray, key));
         }
 
         /// <summary>

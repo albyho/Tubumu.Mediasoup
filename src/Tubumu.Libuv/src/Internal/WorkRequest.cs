@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 
 namespace Tubumu.Libuv
 {
     internal unsafe class WorkRequest : PermaRequest
     {
-        public static readonly int Size = UV.Sizeof(Tubumu.Libuv.RequestType.UV_WORK);
+        public static readonly int Size = UV.Sizeof(RequestType.UV_WORK);
 
         public WorkRequest()
             : base(Size)
@@ -23,15 +23,14 @@ namespace Tubumu.Libuv
 
         public static void BeforeCallback(IntPtr req)
         {
-            var workreq = PermaRequest.GetObject<WorkRequest>(req);
+            var workreq = GetObject<WorkRequest>(req);
             workreq?.before?.Invoke();
         }
 
         public static void AfterCallback(IntPtr req)
         {
-            var workreq = PermaRequest.GetObject<WorkRequest>(req);
+            using var workreq = GetObject<WorkRequest>(req);
             workreq?.after?.Invoke();
-            workreq?.Dispose();
         }
     }
 }

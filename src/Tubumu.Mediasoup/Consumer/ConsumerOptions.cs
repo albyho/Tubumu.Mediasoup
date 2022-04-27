@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Tubumu.Mediasoup
+﻿namespace Tubumu.Mediasoup
 {
     public class ConsumerOptions : ConsumerOptionsBase
     {

@@ -312,12 +312,7 @@ namespace Tubumu.Utils.Extensions
 
             public override Expression? Visit(Expression? exp)
             {
-                if (exp == _oldParam)
-                {
-                    return _replacement;
-                }
-
-                return base.Visit(exp);
+                return exp == _oldParam ? _replacement : base.Visit(exp);
             }
         }
 
@@ -338,12 +333,12 @@ namespace Tubumu.Utils.Extensions
             {
                 throw new ArgumentOutOfRangeException(nameof(propertyName));
             }
-            ParameterExpression parameter = Expression.Parameter(type, String.Empty); // I don't care about some naming
+            ParameterExpression parameter = Expression.Parameter(type, string.Empty); // I don't care about some naming
             MemberExpression property = Expression.Property(parameter, propertyInfo);
             LambdaExpression sort = Expression.Lambda(property, parameter);
             MethodCallExpression call = Expression.Call(
                 typeof(Queryable),
-                (!anotherLevel ? "OrderBy" : "ThenBy") + (descending ? "Descending" : String.Empty),
+                (!anotherLevel ? "OrderBy" : "ThenBy") + (descending ? "Descending" : string.Empty),
                 new[] { typeof(T), property.Type },
                 source.Expression,
                 Expression.Quote(sort));
@@ -361,11 +356,9 @@ namespace Tubumu.Utils.Extensions
         /// <returns></returns>
         public static IOrderedQueryable<T> Order<T>(this IQueryable<T> source, SortInfo sortInfo, bool anotherLevel = false)
         {
-            if (sortInfo.Sort.IsNullOrWhiteSpace())
-            {
-                throw new ArgumentException($"{nameof(sortInfo.Sort)} can't be null or white space.");
-            }
-            return Order(source, sortInfo.Sort!, sortInfo.SortDir == SortDirection.DESC, anotherLevel);
+            return sortInfo.Sort.IsNullOrWhiteSpace()
+                ? throw new ArgumentException($"{nameof(sortInfo.Sort)} can't be null or white space.")
+                : Order(source, sortInfo.Sort!, sortInfo.SortDir == SortDirection.DESC, anotherLevel);
         }
 
         /// <summary>

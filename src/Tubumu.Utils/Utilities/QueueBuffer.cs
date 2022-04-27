@@ -5,19 +5,19 @@ namespace Tubumu.Utils.Utilities
 {
     public class QueueBuffer
     {
-        private Queue<ArraySegment<byte>> _segments { get; set; }
+        private Queue<ArraySegment<byte>> Segments { get; set; }
 
         public int Length { get; private set; }
 
         public void Enqueue(ArraySegment<byte> data)
         {
-            _segments.Enqueue(data);
+            Segments.Enqueue(data);
             Length += data.Count;
         }
 
         public ArraySegment<byte> Dequeue()
         {
-            if(_segments.TryDequeue(out var item))
+            if (Segments.TryDequeue(out var item))
             {
                 Length -= item.Count;
             }
@@ -26,13 +26,13 @@ namespace Tubumu.Utils.Utilities
 
         public ArraySegment<byte> Peek()
         {
-            var item = _segments.Peek();
+            var item = Segments.Peek();
             return item;
         }
 
         public QueueBuffer()
         {
-            _segments = new Queue<ArraySegment<byte>>();
+            Segments = new Queue<ArraySegment<byte>>();
             Length = 0;
         }
     }

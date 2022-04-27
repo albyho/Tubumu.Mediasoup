@@ -56,7 +56,7 @@ namespace Tubumu.Meeting.Server
             try
             {
                 var leaveResult = await _scheduler.LeaveAsync(UserId);
-                if(leaveResult != null)
+                if (leaveResult != null)
                 {
                     // Notification: peerLeaveRoom
                     SendNotification(leaveResult.OtherPeerIds, "peerLeaveRoom", new PeerLeaveRoomNotification {
@@ -234,7 +234,7 @@ namespace Tubumu.Meeting.Server
                 transport.On("dtlsstatechange", (_, obj) =>
                 {
                     var dtlsState = (DtlsState)obj!;
-                    if (dtlsState == DtlsState.Failed || dtlsState == DtlsState.Closed)
+                    if (dtlsState is DtlsState.Failed or DtlsState.Closed)
                     {
                         _logger.LogWarning($"WebRtcTransport dtlsstatechange event [dtlsState:{obj}]");
                     }
@@ -958,11 +958,9 @@ namespace Tubumu.Meeting.Server
             try
             {
                 var data = await _scheduler.GetWebRtcTransportStatsAsync(UserId, ConnectionId, transportId);
-                if(data == null)
-                {
-                    return MeetingMessage<WebRtcTransportStat>.Failure("GetWebRtcTransportStats 失败");
-                }
-                return MeetingMessage<WebRtcTransportStat>.Success(data, "GetWebRtcTransportStats 成功");
+                return data == null
+                    ? MeetingMessage<WebRtcTransportStat>.Failure("GetWebRtcTransportStats 失败")
+                    : MeetingMessage<WebRtcTransportStat>.Success(data, "GetWebRtcTransportStats 成功");
             }
             catch (MeetingException ex)
             {
@@ -986,11 +984,9 @@ namespace Tubumu.Meeting.Server
             try
             {
                 var data = await _scheduler.GetProducerStatsAsync(UserId, ConnectionId, producerId);
-                if(data == null)
-                {
-                    return MeetingMessage<ProducerStat>.Failure("GetProducerStats 失败");
-                }
-                return MeetingMessage<ProducerStat>.Success(data, "GetProducerStats 成功");
+                return data == null
+                    ? MeetingMessage<ProducerStat>.Failure("GetProducerStats 失败")
+                    : MeetingMessage<ProducerStat>.Success(data, "GetProducerStats 成功");
             }
             catch (MeetingException ex)
             {
@@ -1014,11 +1010,9 @@ namespace Tubumu.Meeting.Server
             try
             {
                 var data = await _scheduler.GetConsumerStatsAsync(UserId, ConnectionId, consumerId);
-                if(data == null)
-                {
-                    return MeetingMessage<ConsumerStat>.Failure("GetConsumerStats 失败");
-                }
-                return MeetingMessage<ConsumerStat>.Success(data, "GetConsumerStats 成功");
+                return data == null
+                    ? MeetingMessage<ConsumerStat>.Failure("GetConsumerStats 失败")
+                    : MeetingMessage<ConsumerStat>.Success(data, "GetConsumerStats 成功");
             }
             catch (MeetingException ex)
             {
@@ -1204,7 +1198,7 @@ namespace Tubumu.Meeting.Server
             try
             {
                 consumer = await _scheduler.ConsumeAsync(producerPeerId, consumerPeerId, producer.ProducerId);
-                if(consumer == null)
+                if (consumer == null)
                 {
                     return;
                 }
@@ -1312,7 +1306,11 @@ namespace Tubumu.Meeting.Server
         private void SendNotification(string peerId, string type, object data)
         {
             // For Testing
-            if (type == "consumerLayersChanged" || type == "consumerScore" || type == "producerScore") return;
+            if (type is "consumerLayersChanged" or "consumerScore" or "producerScore")
+            {
+                return;
+            }
+
             var client = _hubContext.Clients.User(peerId);
             client.Notify(new MeetingNotification
             {

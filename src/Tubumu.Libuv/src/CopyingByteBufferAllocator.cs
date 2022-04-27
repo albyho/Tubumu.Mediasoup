@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Tubumu.Libuv
 {
@@ -6,17 +6,7 @@ namespace Tubumu.Libuv
     {
         private BufferPin? pin;
 
-        public byte[] Buffer
-        {
-            get
-            {
-                if (pin == null)
-                {
-                    throw new NullReferenceException(nameof(pin));
-                }
-                return pin.Buffer;
-            }
-        }
+        public byte[] Buffer => pin == null ? throw new NullReferenceException(nameof(pin)) : pin.Buffer;
 
         public override int Alloc(int size, out IntPtr ptr)
         {

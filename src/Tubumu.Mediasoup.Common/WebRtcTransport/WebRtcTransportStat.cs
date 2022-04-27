@@ -7,7 +7,7 @@
 
         public IceState IceState { get; set; }
 
-        public TransportTuple? iceSelectedTuple { get; set; }
+        public TransportTuple? IceSelectedTuple { get; set; }
 
         public DtlsState DtlsState { get; set; }
     }

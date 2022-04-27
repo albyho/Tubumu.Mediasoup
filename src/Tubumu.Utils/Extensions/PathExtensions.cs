@@ -7,13 +7,13 @@ namespace Kavana.Utils.Extensions
 	{
 		public static string ReplaceFileExtension(this string path, string newExtension)
 		{
-			if(string.IsNullOrWhiteSpace(path))
+			if (string.IsNullOrWhiteSpace(path))
             {
 				throw new ArgumentException($"{nameof(path)} is null or empty.");
             }
 
 			var extension = Path.GetExtension(path);
-			if(extension == string.Empty)
+			if (extension == string.Empty)
             {
 				throw new Exception("No extension");
             }

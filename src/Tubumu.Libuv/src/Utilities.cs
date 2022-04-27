@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Tubumu.Libuv.Utilities
 {
@@ -15,7 +15,10 @@ namespace Tubumu.Libuv.Utilities
             bool done = false;
 
             Action<Exception?>? call = null;
-            Action? complete = () => call?.Invoke(null);
+            void complete()
+            {
+                call?.Invoke(null);
+            }
 
             call = (ex) =>
             {
@@ -28,13 +31,10 @@ namespace Tubumu.Libuv.Utilities
                 readStream.Complete -= complete;
 
                 done = true;
-                if (callback != null)
-                {
-                    callback(ex);
-                }
+                callback?.Invoke(ex);
             };
 
-            readStream.Data += ((data) =>
+            readStream.Data += (data) =>
             {
                 writeStream.Write(data, null);
                 if (writeStream.WriteQueueSize > 0)
@@ -42,7 +42,7 @@ namespace Tubumu.Libuv.Utilities
                     pending = true;
                     readStream.Pause();
                 }
-            });
+            };
 
             writeStream.Drain += () =>
             {

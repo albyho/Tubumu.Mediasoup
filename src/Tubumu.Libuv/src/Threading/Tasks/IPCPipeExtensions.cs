@@ -30,12 +30,12 @@ namespace Tubumu.Libuv.Threading.Tasks
 
         public static Task<int> WriteAsync(this IPCPipe pipe, Handle handle, Encoding encoding, string text)
         {
-            return HelperFunctions.Wrap<Handle, Encoding, string, int>(handle, encoding, text, pipe.Write);
+            return HelperFunctions.Wrap(handle, encoding, text, pipe.Write);
         }
 
         public static Task<int> WriteAsync(this IPCPipe pipe, Handle handle, string text)
         {
-            return HelperFunctions.Wrap<Handle, string, int>(handle, text, pipe.Write);
+            return HelperFunctions.Wrap(handle, text, pipe.Write);
         }
 
         #endregion Write string

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Tubumu.Utils.Utilities.Cryptography
@@ -16,12 +15,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <returns></returns>
         public static string Encrypt(string rawString)
         {
-            if (rawString == null)
-            {
-                throw new ArgumentNullException(nameof(rawString));
-            }
-
-            return Convert.ToBase64String(EncryptToByteArray(rawString));
+            return rawString == null
+                ? throw new ArgumentNullException(nameof(rawString))
+                : Convert.ToBase64String(EncryptToByteArray(rawString));
         }
 
         /// <summary>
@@ -29,7 +25,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         /// <param name="rawString"></param>
         /// <returns></returns>
-        public static Byte[] EncryptToByteArray(string rawString)
+        public static byte[] EncryptToByteArray(string rawString)
         {
             if (rawString == null)
             {

@@ -8,7 +8,7 @@ namespace Tubumu.Libuv
         {
             UVTimer? timer = null;
 
-            Action<Exception?> end = (Exception? exception) =>
+            void end(Exception? exception)
             {
                 if (timer != null)
                 {
@@ -16,7 +16,7 @@ namespace Tubumu.Libuv
                     timer = null;
                     callback?.Invoke(exception);
                 }
-            };
+            }
 
             timer = UVTimer.Once(timeSpan, () => end(new TimeoutException()));
 

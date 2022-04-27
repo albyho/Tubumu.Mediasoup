@@ -221,7 +221,7 @@ namespace Tubumu.Mediasoup
                 Internal.RouterId,
                 Internal.RtpObserverId,
             };
-            var reqData = new { ProducerId = rtpObserverAddRemoveProducerOptions.ProducerId };
+            var reqData = new { rtpObserverAddRemoveProducerOptions.ProducerId };
             await Channel.RequestAsync(MethodId.RTP_OBSERVER_ADD_PRODUCER, @internal, reqData);
 
             // Emit observer event.
@@ -246,7 +246,7 @@ namespace Tubumu.Mediasoup
                 Internal.RouterId,
                 Internal.RtpObserverId,
             };
-            var reqData = new { ProducerId = rtpObserverAddRemoveProducerOptions.ProducerId };
+            var reqData = new { rtpObserverAddRemoveProducerOptions.ProducerId };
             await Channel.RequestAsync(MethodId.RTP_OBSERVER_REMOVE_PRODUCER, @internal, reqData);
 
             // Emit observer event.

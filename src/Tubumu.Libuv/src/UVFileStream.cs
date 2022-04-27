@@ -21,23 +21,11 @@ namespace Tubumu.Libuv
             });
         }
 
-        public bool HasRef
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public bool HasRef => true;
 
         public Loop Loop { get; private set; }
 
-        public bool IsClosed
-        {
-            get
-            {
-                return uvfile == null;
-            }
-        }
+        public bool IsClosed => uvfile == null;
 
         public bool IsClosing { get; private set; }
 
@@ -168,7 +156,7 @@ namespace Tubumu.Libuv
         public event Action<ArraySegment<byte>>? Data;
 
         private int writeoffset = 0;
-        private readonly Queue<Tuple<ArraySegment<byte>, Action<Exception?>?>> queue = new Queue<Tuple<ArraySegment<byte>, Action<Exception?>?>>();
+        private readonly Queue<Tuple<ArraySegment<byte>, Action<Exception?>?>> queue = new();
 
         private void HandleWrite(Exception? ex, int? size)
         {

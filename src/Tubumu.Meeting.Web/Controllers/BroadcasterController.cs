@@ -91,7 +91,7 @@ namespace Tubumu.Meeting.Web.Controllers
                     ["peerId"] = deviceId,
                 }
             };
-            var videoProduceResult = await _scheduler.ProduceAsync(deviceId, "", videoProduceRequest);
+            _ = await _scheduler.ProduceAsync(deviceId, "", videoProduceRequest);
 
             var audioProduceRequest = new ProduceRequest
             {
@@ -120,7 +120,7 @@ namespace Tubumu.Meeting.Web.Controllers
                     ["peerId"] = deviceId,
                 }
             };
-            var audioProduceResult = await _scheduler.ProduceAsync(deviceId, "", audioProduceRequest);
+            _ = await _scheduler.ProduceAsync(deviceId, "", audioProduceRequest);
 
             var result = new CreatePlainTransportResult
             {

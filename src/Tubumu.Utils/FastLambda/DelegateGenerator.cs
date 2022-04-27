@@ -26,7 +26,7 @@ namespace Tubumu.Utils.FastLambda
             _parametersExpression =
                 Expression.Parameter(typeof(List<object>), "parameters");
 
-            var body = this.Visit(exp); // normalize
+            var body = Visit(exp); // normalize
             if (body.Type != typeof(object))
             {
                 body = Expression.Convert(body, typeof(object));
@@ -43,7 +43,7 @@ namespace Tubumu.Utils.FastLambda
         /// <returns></returns>
         protected override Expression VisitConstant(ConstantExpression c)
         {
-            if(_parametersExpression == null)
+            if (_parametersExpression == null)
             {
                 throw new NullReferenceException(nameof(_parametersExpression));
             }

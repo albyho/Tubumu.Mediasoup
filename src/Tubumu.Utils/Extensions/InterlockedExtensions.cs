@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Tubumu.Utils.Extensions
@@ -7,7 +6,7 @@ namespace Tubumu.Utils.Extensions
     public class InterlockedExtensions
     {
         /// <summary>
-        /// unsigned equivalent of <see cref="Interlocked.Increment(ref Int32)"/>
+        /// unsigned equivalent of <see cref="Interlocked.Increment(ref int)"/>
         /// </summary>
         public static uint Increment(ref uint location)
         {
@@ -16,11 +15,11 @@ namespace Tubumu.Utils.Extensions
         }
 
         /// <summary>
-        /// unsigned equivalent of <see cref="Interlocked.Increment(ref Int64)"/>
+        /// unsigned equivalent of <see cref="Interlocked.Increment(ref long)"/>
         /// </summary>
         public static ulong Increment(ref ulong location)
         {
-            long incrementedSigned = Interlocked.Increment(ref Unsafe.As<ulong, long>(ref location));
+            var incrementedSigned = Interlocked.Increment(ref Unsafe.As<ulong, long>(ref location));
             return Unsafe.As<long, ulong>(ref incrementedSigned);
         }
     }

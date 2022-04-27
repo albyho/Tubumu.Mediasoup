@@ -17,21 +17,12 @@ namespace Tubumu.Meeting.Server
 
         public bool Equals(Room? other)
         {
-            if (other == null)
-                return false;
-
-            return RoomId == other.RoomId;
+            return other is not null && RoomId == other.RoomId;
         }
 
         public override bool Equals(object? obj)
         {
-            if (obj == null)
-                return false;
-
-            if (!(obj is Room tObj))
-                return false;
-            else
-                return RoomId == tObj.RoomId;
+            return obj is not null && obj is Room tObj && RoomId == tObj.RoomId;
         }
 
         public override int GetHashCode()

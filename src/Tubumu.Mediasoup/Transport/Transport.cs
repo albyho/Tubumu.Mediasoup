@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using Force.DeepCloner;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
-using Tubumu.Utils.Extensions;
-using Tubumu.Utils.Extensions.Object;
 using Tubumu.Mediasoup.Extensions;
+using Tubumu.Utils.Extensions;
 using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
@@ -52,7 +51,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close locker.
         /// </summary>
-        protected readonly AsyncAutoResetEvent CloseLock = new AsyncAutoResetEvent();
+        protected readonly AsyncAutoResetEvent CloseLock = new();
 
         /// <summary>
         /// Internal data.
@@ -111,42 +110,42 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Producers map.
         /// </summary>
-        protected readonly Dictionary<string, Producer> Producers = new Dictionary<string, Producer>();
+        protected readonly Dictionary<string, Producer> Producers = new();
 
         /// <summary>
         /// Producers locker.
         /// </summary>
-        protected readonly AsyncAutoResetEvent ProducersLock = new AsyncAutoResetEvent();
+        protected readonly AsyncAutoResetEvent ProducersLock = new();
 
         /// <summary>
         /// Consumers map.
         /// </summary>
-        protected readonly Dictionary<string, Consumer> Consumers = new Dictionary<string, Consumer>();
+        protected readonly Dictionary<string, Consumer> Consumers = new();
 
         /// <summary>
         /// Consumers locker.
         /// </summary>
-        protected readonly AsyncAutoResetEvent ConsumersLock = new AsyncAutoResetEvent();
+        protected readonly AsyncAutoResetEvent ConsumersLock = new();
 
         /// <summary>
         /// DataProducers map.
         /// </summary>
-        protected readonly Dictionary<string, DataProducer> DataProducers = new Dictionary<string, DataProducer>();
+        protected readonly Dictionary<string, DataProducer> DataProducers = new();
 
         /// <summary>
         /// DataProducers locker.
         /// </summary>
-        protected readonly AsyncAutoResetEvent DataProducersLock = new AsyncAutoResetEvent();
+        protected readonly AsyncAutoResetEvent DataProducersLock = new();
 
         /// <summary>
         /// DataConsumers map.
         /// </summary>
-        protected readonly Dictionary<string, DataConsumer> DataConsumers = new Dictionary<string, DataConsumer>();
+        protected readonly Dictionary<string, DataConsumer> DataConsumers = new();
 
         /// <summary>
         /// DataConsumers locker.
         /// </summary>
-        protected readonly AsyncAutoResetEvent DataConsumersLock = new AsyncAutoResetEvent();
+        protected readonly AsyncAutoResetEvent DataConsumersLock = new();
 
         /// <summary>
         /// RTCP CNAME for Producers.
@@ -158,14 +157,14 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private int _nextMidForConsumers = 0;
 
-        private readonly object _nextMidForConsumersLock = new object();
+        private readonly object _nextMidForConsumersLock = new();
 
         /// <summary>
         /// Buffer with available SCTP stream ids.
         /// </summary>
         private int[]? _sctpStreamIds;
 
-        private readonly object _sctpStreamIdsLock = new object();
+        private readonly object _sctpStreamIdsLock = new();
 
         /// <summary>m
         /// Next SCTP stream id.
@@ -472,7 +471,7 @@ namespace Tubumu.Mediasoup
                 // do not include CNAME, create a random one.
                 else if (_cnameForProducers.IsNullOrWhiteSpace())
                 {
-                    _cnameForProducers = Guid.NewGuid().ToString().Substring(0, 8);
+                    _cnameForProducers = Guid.NewGuid().ToString()[..8];
                 }
 
                 // Override Producer's CNAME.
@@ -607,7 +606,7 @@ namespace Tubumu.Mediasoup
             // This may throw.
             var rtpParameters = ORTC.GetConsumerRtpParameters(producer.ConsumableRtpParameters, consumerOptions.RtpCapabilities, pipe);
 
-            if(!pipe)
+            if (!pipe)
             {
                 if (consumerOptions.Mid != null)
                 {
@@ -618,7 +617,7 @@ namespace Tubumu.Mediasoup
                     lock (_nextMidForConsumersLock)
                     {
                         // Set MID.
-                        rtpParameters.Mid = (_nextMidForConsumers++).ToString();
+                        rtpParameters.Mid = _nextMidForConsumers++.ToString();
 
                         // We use up to 8 bytes for MID (string).
                         if (_nextMidForConsumers == 100_000_000)
@@ -865,7 +864,7 @@ namespace Tubumu.Mediasoup
             {
                 type = DataProducerType.Sctp;
 
-                sctpStreamParameters = dataProducer.SctpStreamParameters!.DeepClone<SctpStreamParameters>();
+                sctpStreamParameters = dataProducer.SctpStreamParameters!.DeepClone();
                 // This may throw.
                 lock (_sctpStreamIdsLock)
                 {

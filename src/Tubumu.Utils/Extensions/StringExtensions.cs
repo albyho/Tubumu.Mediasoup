@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.International.Converters.PinYinConverter;
@@ -13,13 +11,13 @@ namespace Tubumu.Utils.Extensions
     /// </summary>
     public static class StringExtensions
     {
-        private static readonly Regex TagRegex = new Regex("<[^<>]*>", RegexOptions.Compiled | RegexOptions.Singleline);
-        private static readonly Regex GuidRegex = new Regex(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", RegexOptions.Compiled | RegexOptions.Singleline);
-        private static readonly Regex SpaceRegex = new Regex(@"\s+", RegexOptions.Compiled | RegexOptions.Singleline);
-        private static readonly Regex NonWordCharsRegex = new Regex(@"[^\w]+", RegexOptions.Compiled | RegexOptions.Singleline);
-        private static readonly Regex UrlRegex = new Regex("(^|[^\\w'\"]|\\G)(?<uri>(?:https?|ftp)(?:&#58;|:)(?:&#47;&#47;|//)(?:[^./\\s'\"<)\\]]+\\.)+[^./\\s'\"<)\\]]+(?:(?:&#47;|/).*?)?)(?:[\\s\\.,\\)\\]'\"]?(?:\\s|\\.|\\)|\\]|,|<|$))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex SubDirectoryRegex = new Regex(@"^[a-zA-Z0-9-_]+(/[a-zA-Z0-9-_]+)*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex VirtualDirectoryRegex = new Regex(@"^~(/[a-zA-Z0-9-_]+)+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex TagRegex = new("<[^<>]*>", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex GuidRegex = new(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex SpaceRegex = new(@"\s+", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex NonWordCharsRegex = new(@"[^\w]+", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex UrlRegex = new("(^|[^\\w'\"]|\\G)(?<uri>(?:https?|ftp)(?:&#58;|:)(?:&#47;&#47;|//)(?:[^./\\s'\"<)\\]]+\\.)+[^./\\s'\"<)\\]]+(?:(?:&#47;|/).*?)?)(?:[\\s\\.,\\)\\]'\"]?(?:\\s|\\.|\\)|\\]|,|<|$))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SubDirectoryRegex = new(@"^[a-zA-Z0-9-_]+(/[a-zA-Z0-9-_]+)*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex VirtualDirectoryRegex = new(@"^~(/[a-zA-Z0-9-_]+)+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         #region Guid相关
 
@@ -98,7 +96,7 @@ namespace Tubumu.Utils.Extensions
                 return string.Empty;
             }
 
-            att = att ?? string.Empty;
+            att ??= string.Empty;
 
             var rChinese = new Regex(@"[\u4e00-\u9fa5]"); //验证中文
             var rEnglish = new Regex(@"^[A-Za-z0-9]+$");  //验证字母
@@ -106,14 +104,14 @@ namespace Tubumu.Utils.Extensions
             if (rChinese.IsMatch(source))
             {
                 //中文
-                return (source.Length > len) ? source.Substring(0, len) + att : source;
+                return source.Length > len ? source[..len] + att : source;
             }
             else if (rEnglish.IsMatch(source))
             {
                 //英文
-                return (source.Length > len * 2) ? source.Substring(0, len * 2) + att : source;
+                return source.Length > len * 2 ? source[..(len * 2)] + att : source;
             }
-            return (source.Length > len) ? source.Substring(0, len) + att : source;
+            return (source.Length > len) ? source[..len] + att : source;
         }
 
         #endregion 字符串截取
@@ -245,7 +243,7 @@ namespace Tubumu.Utils.Extensions
 
             if (path.StartsWith("~"))
             {
-                path = path.Substring(1, path.Length - 1);
+                path = path[1..];
             }
 
             string[] pathNames = path.Split(Path.DirectorySeparatorChar);
@@ -260,7 +258,7 @@ namespace Tubumu.Utils.Extensions
             }
             if (path.EndsWith(Path.DirectorySeparatorChar))
             {
-                path = path.Substring(0, path.Length - 1);
+                path = path[0..^1];
             }
             return path;
         }
@@ -295,7 +293,7 @@ namespace Tubumu.Utils.Extensions
             }
             if (path.EndsWith(Path.DirectorySeparatorChar))
             {
-                path = path.Substring(0, path.Length - 1);
+                path = path[0..^1];
             }
             return path;
         }
@@ -373,12 +371,7 @@ namespace Tubumu.Utils.Extensions
         /// <returns></returns>
         public static string? WithUrl(this string source, string url)
         {
-            if (source == null || url == null)
-            {
-                return null;
-            }
-
-            return $"<a href=\"{url}\">{source}</a>";
+            return source == null || url == null ? null : $"<a href=\"{url}\">{source}</a>";
         }
 
         #region 拼音
@@ -397,7 +390,7 @@ namespace Tubumu.Utils.Extensions
                 {
                     var cc = new ChineseChar(item);
                     //PYstr += string.Join("", cc.Pinyins.ToArray());
-                    pinYin += cc.Pinyins[0].Substring(0, cc.Pinyins[0].Length - 1).ToLowerInvariant();
+                    pinYin += cc.Pinyins[0][0..^1].ToLowerInvariant();
                     //PYstr += cc.Pinyins[0].Substring(0, cc.Pinyins[0].Length - 1).Substring(0, 1).ToLower();
                 }
                 else
@@ -422,7 +415,7 @@ namespace Tubumu.Utils.Extensions
                 if (ChineseChar.IsValidChar(item))
                 {
                     var cc = new ChineseChar(item);
-                    var pinYinString = cc.Pinyins[0].Substring(0, cc.Pinyins[0].Length - 1).ToLowerInvariant();
+                    var pinYinString = cc.Pinyins[0][0..^1].ToLowerInvariant();
                     pinYin += pinYinString;
                     py += pinYinString[..1];
                 }

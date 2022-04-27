@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Tubumu.Utils.Extensions;
-using Tubumu.Utils.Extensions.Object;
 using Tubumu.Mediasoup.Extensions;
+using Tubumu.Utils.Extensions;
 using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
@@ -65,31 +64,31 @@ namespace Tubumu.Mediasoup
         /// Transports map.
         /// </summary>
         // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<string, Transport> _transports = new ConcurrentDictionary<string, Transport>();
+        private readonly ConcurrentDictionary<string, Transport> _transports = new();
 
         /// <summary>
         /// Producers map.
         /// </summary>
         // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<string, Producer> _producers = new ConcurrentDictionary<string, Producer>();
+        private readonly ConcurrentDictionary<string, Producer> _producers = new();
 
         /// <summary>
         /// RtpObservers map.
         /// </summary>
         // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<string, RtpObserver> _rtpObservers = new ConcurrentDictionary<string, RtpObserver>();
+        private readonly ConcurrentDictionary<string, RtpObserver> _rtpObservers = new();
 
         /// <summary>
         /// DataProducers map.
         /// </summary>
         // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<string, DataProducer> _dataProducers = new ConcurrentDictionary<string, DataProducer>();
+        private readonly ConcurrentDictionary<string, DataProducer> _dataProducers = new();
 
         /// <summary>
         /// Router to PipeTransport map.
         /// </summary>
         // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<Router, PipeTransport[]> _mapRouterPipeTransports = new ConcurrentDictionary<Router, PipeTransport[]>();
+        private readonly ConcurrentDictionary<Router, PipeTransport[]> _mapRouterPipeTransports = new();
 
         /// <summary>
         /// App custom data.
@@ -906,10 +905,7 @@ namespace Tubumu.Mediasoup
 
         public bool Equals(Router? other)
         {
-            if (other == null)
-                return false;
-
-            return RouterId == other.RouterId;
+            return other != null && RouterId == other.RouterId;
         }
 
         public override int GetHashCode()

@@ -10,8 +10,8 @@ namespace Tubumu.Utils.FastLambda
     {
         private static readonly IExpressionCache<Delegate> s_cache = new HashedListCache<Delegate>();
 
-        private readonly WeakTypeDelegateGenerator _delegateGenerator = new WeakTypeDelegateGenerator();
-        private readonly ConstantExtractor _constantExtrator = new ConstantExtractor();
+        private readonly WeakTypeDelegateGenerator _delegateGenerator = new();
+        private readonly ConstantExtractor _constantExtrator = new();
 
         private readonly IExpressionCache<Delegate> _cache;
         private readonly Func<Expression, Delegate> _creatorDelegate;

@@ -9,7 +9,7 @@ namespace Tubumu.Mediasoup
     /// </summary>
     public class ScalabilityMode
     {
-        private static readonly Regex ScalabilityModeRegex = new Regex("^[LS]([1-9]\\d{0,1})T([1-9]\\d{0,1})(_KEY)?.*", RegexOptions.Compiled);
+        private static readonly Regex ScalabilityModeRegex = new("^[LS]([1-9]\\d{0,1})T([1-9]\\d{0,1})(_KEY)?.*", RegexOptions.Compiled);
 
         /// <summary>
         /// 空间层

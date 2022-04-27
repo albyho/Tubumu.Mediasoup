@@ -167,12 +167,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             }
 
             var buffer = ByteArrayFromHexString(decryptString);
-            if (buffer.IsNullOrEmpty())
-            {
-                return Array.Empty<byte>();
-            }
-
-            return DecryptFromByteArrayToByteArray(buffer, key);
+            return buffer.IsNullOrEmpty() ? Array.Empty<byte>() : DecryptFromByteArrayToByteArray(buffer, key);
         }
 
         /// <summary>
@@ -184,12 +179,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
         public static string DecryptFromHexToString(string decryptString, string? key = null)
         {
             var buffer = ByteArrayFromHexString(decryptString);
-            if (buffer.IsNullOrEmpty())
-            {
-                return String.Empty;
-            }
-
-            return Encoding.UTF8.GetString(DecryptFromByteArrayToByteArray(buffer, key)).Replace("\0", "");
+            return buffer.IsNullOrEmpty()
+                ? string.Empty
+                : Encoding.UTF8.GetString(DecryptFromByteArrayToByteArray(buffer, key)).Replace("\0", "");
         }
 
         /// <summary>
@@ -206,12 +198,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             }
 
             var buffer = Convert.FromBase64String(decryptString);
-            if (buffer.IsNullOrEmpty())
-            {
-                return Array.Empty<byte>();
-            }
-
-            return DecryptFromByteArrayToByteArray(buffer, key);
+            return buffer.IsNullOrEmpty() ? Array.Empty<byte>() : DecryptFromByteArrayToByteArray(buffer, key);
         }
 
         #endregion 解密
@@ -224,7 +211,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             {
                 return Array.Empty<byte>();
             }
-            var buffer = new Byte[hexString.Length / 2];
+            var buffer = new byte[hexString.Length / 2];
             for (int i = 0; i < buffer.Length; i++)
             {
                 buffer[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
@@ -238,12 +225,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
             if (key != null)
             {
                 var keyBytes = Encoding.UTF8.GetBytes(key);
-                if (keyBytes.Length < 16)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(key), "key的经过UTF8编码后的长度至少需要16个字节");
-                }
-
-                return keyBytes.Length == 16 ? keyBytes : keyBytes.SubArray(16);
+                return keyBytes.Length < 16
+                    ? throw new ArgumentOutOfRangeException(nameof(key), "key的经过UTF8编码后的长度至少需要16个字节")
+                    : keyBytes.Length == 16 ? keyBytes : keyBytes.SubArray(16);
             }
 
             return Encoding.UTF8.GetBytes(DefaultKey);

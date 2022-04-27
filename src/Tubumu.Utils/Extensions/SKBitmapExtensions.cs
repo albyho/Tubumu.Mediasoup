@@ -118,10 +118,19 @@ namespace Tubumu.Utils.Extensions
                     }
 
                     return rotated;
-
-                default:
-                    return bitmap;
+                case SKEncodedOrigin.TopLeft:
+                    break;
+                case SKEncodedOrigin.TopRight:
+                    break;
+                case SKEncodedOrigin.BottomLeft:
+                    break;
+                case SKEncodedOrigin.LeftTop:
+                    break;
+                case SKEncodedOrigin.RightBottom:
+                    break;
             }
+
+            return bitmap;
         }
 
         private static SKEncodedImageFormat GetFormat(string fileName)
@@ -144,6 +153,8 @@ namespace Tubumu.Utils.Extensions
 
                 case ".jpeg":
                     return SKEncodedImageFormat.Jpeg;
+                default:
+                    break;
             }
 
             return SKEncodedImageFormat.Jpeg;

@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tubumu.Utils.Extensions;
-using Tubumu.Utils.Extensions.Object;
 using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
@@ -159,11 +158,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ConnectAsync()");
 
-            if (!(parameters is PipeTransportConnectParameters connectParameters))
-            {
-                throw new Exception($"{nameof(parameters)} type is not PipTransportConnectParameters");
-            }
-            return ConnectAsync(connectParameters);
+            return parameters is PipeTransportConnectParameters connectParameters
+                ? ConnectAsync(connectParameters)
+                : throw new Exception($"{nameof(parameters)} type is not PipTransportConnectParameters");
         }
 
         /// <summary>

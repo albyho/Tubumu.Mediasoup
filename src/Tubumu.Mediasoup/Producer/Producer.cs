@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Tubumu.Utils.Extensions.Object;
 using Tubumu.Mediasoup.Extensions;
 using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
@@ -48,7 +47,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private bool _closed;
 
-        private readonly object _closeLock = new object();
+        private readonly object _closeLock = new();
 
         // TODO: (alby) _paused 的使用及线程安全。
         /// <summary>
@@ -61,7 +60,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ProducerInternalData _internal;
 
-        private bool _isCheckConsumer = false;
+        private readonly bool _isCheckConsumer = false;
 
         private readonly Timer? _checkConsumersTimer;
 
@@ -118,7 +117,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// [扩展]Consumers
         /// </summary>
-        private readonly Dictionary<string, Consumer> _consumers = new Dictionary<string, Consumer>();
+        private readonly Dictionary<string, Consumer> _consumers = new();
 
         /// <summary>
         /// [扩展]Source.

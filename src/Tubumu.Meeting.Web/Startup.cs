@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -20,8 +18,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SignalRSwaggerGen;
-using SignalRSwaggerGen.Attributes;
 using Tubumu.Mediasoup;
 using Tubumu.Meeting.Server;
 using Tubumu.Meeting.Server.Authorization;
@@ -145,123 +141,123 @@ namespace Tubumu.Meeting.Web
             var webRtcTransportSettings = mediasoupSettings.WebRtcTransportSettings;
             var plainTransportSettings = mediasoupSettings.PlainTransportSettings;
             var meetingServerSettings = Configuration.GetSection("MeetingServerSettings").Get<MeetingServerSettings>();
-            services.AddMediasoup(options =>
-            {
+            _ = services.AddMediasoup(options =>
+              {
                 // MediasoupStartupSettings
                 if (mediasoupStartupSettings != null)
-                {
-                    options.MediasoupStartupSettings.MediasoupVersion = mediasoupStartupSettings.MediasoupVersion;
-                    options.MediasoupStartupSettings.WorkerPath = mediasoupStartupSettings.WorkerPath;
-                    options.MediasoupStartupSettings.NumberOfWorkers = !mediasoupStartupSettings.NumberOfWorkers.HasValue || mediasoupStartupSettings.NumberOfWorkers <= 0 ? Environment.ProcessorCount : mediasoupStartupSettings.NumberOfWorkers;
-                }
+                  {
+                      options.MediasoupStartupSettings.MediasoupVersion = mediasoupStartupSettings.MediasoupVersion;
+                      options.MediasoupStartupSettings.WorkerPath = mediasoupStartupSettings.WorkerPath;
+                      options.MediasoupStartupSettings.NumberOfWorkers = !mediasoupStartupSettings.NumberOfWorkers.HasValue || mediasoupStartupSettings.NumberOfWorkers <= 0 ? Environment.ProcessorCount : mediasoupStartupSettings.NumberOfWorkers;
+                  }
 
                 // WorkerSettings
                 if (workerSettings != null)
-                {
-                    options.MediasoupSettings.WorkerSettings.LogLevel = workerSettings.LogLevel;
-                    options.MediasoupSettings.WorkerSettings.LogTags = workerSettings.LogTags;
-                    options.MediasoupSettings.WorkerSettings.RtcMinPort = workerSettings.RtcMinPort;
-                    options.MediasoupSettings.WorkerSettings.RtcMaxPort = workerSettings.RtcMaxPort;
-                    options.MediasoupSettings.WorkerSettings.DtlsCertificateFile = workerSettings.DtlsCertificateFile;
-                    options.MediasoupSettings.WorkerSettings.DtlsPrivateKeyFile = workerSettings.DtlsPrivateKeyFile;
-                }
+                  {
+                      options.MediasoupSettings.WorkerSettings.LogLevel = workerSettings.LogLevel;
+                      options.MediasoupSettings.WorkerSettings.LogTags = workerSettings.LogTags;
+                      options.MediasoupSettings.WorkerSettings.RtcMinPort = workerSettings.RtcMinPort;
+                      options.MediasoupSettings.WorkerSettings.RtcMaxPort = workerSettings.RtcMaxPort;
+                      options.MediasoupSettings.WorkerSettings.DtlsCertificateFile = workerSettings.DtlsCertificateFile;
+                      options.MediasoupSettings.WorkerSettings.DtlsPrivateKeyFile = workerSettings.DtlsPrivateKeyFile;
+                  }
 
                 // RouteSettings
                 if (routerSettings != null && !routerSettings.RtpCodecCapabilities.IsNullOrEmpty())
-                {
-                    options.MediasoupSettings.RouterSettings = routerSettings;
+                  {
+                      options.MediasoupSettings.RouterSettings = routerSettings;
 
                     // Fix RtpCodecCapabilities[x].Parameters 。从配置文件反序列化时将数字转换成了字符串，这里进行修正。
                     foreach (var codec in routerSettings.RtpCodecCapabilities.Where(m => m.Parameters != null))
-                    {
-                        foreach (var key in codec.Parameters.Keys.ToArray())
-                        {
-                            var value = codec.Parameters[key];
-                            if (value != null && Int32.TryParse(value.ToString(), out var intValue))
-                            {
-                                codec.Parameters[key] = intValue;
-                            }
-                        }
-                    }
-                }
+                      {
+                          foreach (var key in codec.Parameters.Keys.ToArray())
+                          {
+                              var value = codec.Parameters[key];
+                              if (value != null && int.TryParse(value.ToString(), out var intValue))
+                              {
+                                  codec.Parameters[key] = intValue;
+                              }
+                          }
+                      }
+                  }
 
                 // WebRtcTransportSettings
                 if (webRtcTransportSettings != null)
-                {
-                    options.MediasoupSettings.WebRtcTransportSettings.ListenIps = webRtcTransportSettings.ListenIps;
-                    options.MediasoupSettings.WebRtcTransportSettings.InitialAvailableOutgoingBitrate = webRtcTransportSettings.InitialAvailableOutgoingBitrate;
-                    options.MediasoupSettings.WebRtcTransportSettings.MinimumAvailableOutgoingBitrate = webRtcTransportSettings.MinimumAvailableOutgoingBitrate;
-                    options.MediasoupSettings.WebRtcTransportSettings.MaxSctpMessageSize = webRtcTransportSettings.MaxSctpMessageSize;
+                  {
+                      options.MediasoupSettings.WebRtcTransportSettings.ListenIps = webRtcTransportSettings.ListenIps;
+                      options.MediasoupSettings.WebRtcTransportSettings.InitialAvailableOutgoingBitrate = webRtcTransportSettings.InitialAvailableOutgoingBitrate;
+                      options.MediasoupSettings.WebRtcTransportSettings.MinimumAvailableOutgoingBitrate = webRtcTransportSettings.MinimumAvailableOutgoingBitrate;
+                      options.MediasoupSettings.WebRtcTransportSettings.MaxSctpMessageSize = webRtcTransportSettings.MaxSctpMessageSize;
 
                     // 如果没有设置 ListenIps 则获取本机所有的 IPv4 地址进行设置。
                     var listenIps = options.MediasoupSettings.WebRtcTransportSettings.ListenIps;
-                    if (listenIps.IsNullOrEmpty())
-                    {
-                        var localIPv4IPAddresses = IPAddressExtensions.GetLocalIPAddresses(AddressFamily.InterNetwork).Where(m => m != IPAddress.Loopback);
-                        if (EnumerableExtensions.IsNullOrEmpty(localIPv4IPAddresses))
-                        {
-                            throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
-                        }
+                      if (listenIps.IsNullOrEmpty())
+                      {
+                          var localIPv4IPAddresses = IPAddressExtensions.GetLocalIPAddresses(AddressFamily.InterNetwork).Where(m => m != IPAddress.Loopback);
+                          if (EnumerableExtensions.IsNullOrEmpty(localIPv4IPAddresses))
+                          {
+                              throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
+                          }
 
-                        listenIps = (from ip in localIPv4IPAddresses
-                                     let ipString = ip.ToString()
-                                     select new TransportListenIp
-                                     {
-                                         Ip = ipString,
-                                         AnnouncedIp = ipString
-                                     }).ToArray();
-                        options.MediasoupSettings.WebRtcTransportSettings.ListenIps = listenIps;
-                    }
-                    else
-                    {
-                        var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
-                        if (localIPv4IPAddress == null)
-                        {
-                            throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
-                        }
+                          listenIps = (from ip in localIPv4IPAddresses
+                                       let ipString = ip.ToString()
+                                       select new TransportListenIp
+                                       {
+                                           Ip = ipString,
+                                           AnnouncedIp = ipString
+                                       }).ToArray();
+                          options.MediasoupSettings.WebRtcTransportSettings.ListenIps = listenIps;
+                      }
+                      else
+                      {
+                          var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
+                          if (localIPv4IPAddress == null)
+                          {
+                              throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
+                          }
 
-                        foreach (var listenIp in listenIps)
-                        {
-                            if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
-                            {
+                          foreach (var listenIp in listenIps)
+                          {
+                              if (listenIp.AnnouncedIp.IsNullOrWhiteSpace())
+                              {
                                 // 如果没有设置 AnnouncedIp：
                                 // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
                                 listenIp.AnnouncedIp = listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddress.ToString() : listenIp.Ip;
-                            }
-                        }
-                    }
-                }
+                              }
+                          }
+                      }
+                  }
 
                 // PlainTransportSettings
                 if (plainTransportSettings != null)
-                {
-                    options.MediasoupSettings.PlainTransportSettings.ListenIp = plainTransportSettings.ListenIp;
-                    options.MediasoupSettings.PlainTransportSettings.MaxSctpMessageSize = plainTransportSettings.MaxSctpMessageSize;
+                  {
+                      options.MediasoupSettings.PlainTransportSettings.ListenIp = plainTransportSettings.ListenIp;
+                      options.MediasoupSettings.PlainTransportSettings.MaxSctpMessageSize = plainTransportSettings.MaxSctpMessageSize;
 
-                    var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
-                    if (localIPv4IPAddress == null)
-                    {
-                        throw new ArgumentException("无法获取本机 IPv4 配置 PlainTransport。");
-                    }
+                      var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
+                      if (localIPv4IPAddress == null)
+                      {
+                          throw new ArgumentException("无法获取本机 IPv4 配置 PlainTransport。");
+                      }
 
-                    var listenIp = options.MediasoupSettings.PlainTransportSettings.ListenIp;
-                    if (listenIp == null)
-                    {
-                        listenIp = new TransportListenIp
-                        {
-                            Ip = localIPv4IPAddress.ToString(),
-                            AnnouncedIp = localIPv4IPAddress.ToString(),
-                        };
-                        options.MediasoupSettings.PlainTransportSettings.ListenIp = listenIp;
-                    }
-                    else if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
-                    {
+                      var listenIp = options.MediasoupSettings.PlainTransportSettings.ListenIp;
+                      if (listenIp == null)
+                      {
+                          listenIp = new TransportListenIp
+                          {
+                              Ip = localIPv4IPAddress.ToString(),
+                              AnnouncedIp = localIPv4IPAddress.ToString(),
+                          };
+                          options.MediasoupSettings.PlainTransportSettings.ListenIp = listenIp;
+                      }
+                      else if (listenIp.AnnouncedIp.IsNullOrWhiteSpace())
+                      {
                         // 如果没有设置 AnnouncedIp：
                         // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
                         listenIp.AnnouncedIp = listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddress.ToString() : listenIp.Ip;
-                    }
-                }
-            });
+                      }
+                  }
+              });
 
             // Meeting server
             services.AddMeetingServer(options =>

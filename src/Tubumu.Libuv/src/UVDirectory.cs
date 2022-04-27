@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -11,8 +11,10 @@ namespace Tubumu.Libuv
 
         public static void Create(Loop loop, string path, int mode, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest();
-            fsr.Callback = callback;
+            var fsr = new FileSystemRequest
+            {
+                Callback = callback
+            };
             int r = uv_fs_mkdir(loop.NativeHandle, fsr.Handle, path, mode, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -57,8 +59,10 @@ namespace Tubumu.Libuv
 
         public static void Delete(Loop loop, string path, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest();
-            fsr.Callback = callback;
+            var fsr = new FileSystemRequest
+            {
+                Callback = callback
+            };
             int r = uv_fs_rmdir(loop.NativeHandle, fsr.Handle, path, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -83,8 +87,10 @@ namespace Tubumu.Libuv
 
         public static void Rename(Loop loop, string path, string newPath, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest();
-            fsr.Callback = callback;
+            var fsr = new FileSystemRequest
+            {
+                Callback = callback
+            };
             int r = uv_fs_rename(loop.NativeHandle, fsr.Handle, path, newPath, fsr.End);
             Ensure.Success(r);
         }
@@ -122,8 +128,7 @@ namespace Tubumu.Libuv
                 }
 
                 var list = new List<UVDirectoryEntity>();
-                uv_dirent_t entity;
-                while (UVException.Map(uv_fs_scandir_next(fsr.Handle, out entity)) != UVErrorCode.EOF)
+                while (UVException.Map(uv_fs_scandir_next(fsr.Handle, out var entity)) != UVErrorCode.EOF)
                 {
                     list.Add(new UVDirectoryEntity(entity));
                 }

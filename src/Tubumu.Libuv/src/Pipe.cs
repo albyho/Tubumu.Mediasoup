@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -18,13 +18,7 @@ namespace Tubumu.Libuv
             Invoke(NativeMethods.uv_pipe_bind, name);
         }
 
-        public string LocalAddress
-        {
-            get
-            {
-                return UV.ToString(4096, (IntPtr buffer, ref IntPtr length) => NativeMethods.uv_pipe_getsockname(NativeHandle, buffer, ref length));
-            }
-        }
+        public string LocalAddress => UV.ToString(4096, (IntPtr buffer, ref IntPtr length) => NativeMethods.uv_pipe_getsockname(NativeHandle, buffer, ref length));
     }
 
     public class PipeListener : BasePipeListener<PipeListener, Pipe>
@@ -77,19 +71,13 @@ namespace Tubumu.Libuv
         {
         }
 
-        unsafe internal Pipe(Loop loop, bool interProcessCommunication)
+        internal unsafe Pipe(Loop loop, bool interProcessCommunication)
             : base(loop, HandleType.UV_NAMED_PIPE, NativeMethods.uv_pipe_init, interProcessCommunication ? 1 : 0)
         {
-            pipe_t = (uv_pipe_t*)(this.NativeHandle.ToInt64() + Handle.Size(HandleType.UV_STREAM));
+            pipe_t = (uv_pipe_t*)(NativeHandle.ToInt64() + Size(HandleType.UV_STREAM));
         }
 
-        unsafe public bool InterProcessCommunication
-        {
-            get
-            {
-                return pipe_t->rpc >= 1;
-            }
-        }
+        public unsafe bool InterProcessCommunication => pipe_t->rpc >= 1;
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         private static extern void uv_pipe_connect(IntPtr req, IntPtr handle, string name, callback connect_cb);
@@ -100,7 +88,7 @@ namespace Tubumu.Libuv
 
             Ensure.ArgumentNotNull(name, "name");
 
-            ConnectRequest cpr = new ConnectRequest();
+            var cpr = new ConnectRequest();
             Pipe pipe = this;
 
             cpr.Callback = (status, cpr2) => Ensure.Success(status, callback, name);
@@ -142,7 +130,7 @@ namespace Tubumu.Libuv
             CheckDisposed();
 
             GCHandle datagchandle = GCHandle.Alloc(segment.Array, GCHandleType.Pinned);
-            CallbackPermaRequest cpr = new CallbackPermaRequest(RequestType.UV_WRITE)
+            CallbackPermaRequest cpr = new(RequestType.UV_WRITE)
             {
                 Callback = (status, cpr2) =>
                 {

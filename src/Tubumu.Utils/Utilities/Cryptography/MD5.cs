@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Text;
 using Tubumu.Utils.Extensions;
 
@@ -16,7 +15,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         /// <param name="inputByteArray"></param>
         /// <returns></returns>
-        public static byte[] EncryptFromByteArrayToByteArray(Byte[] inputByteArray)
+        public static byte[] EncryptFromByteArrayToByteArray(byte[] inputByteArray)
         {
             var md5 = System.Security.Cryptography.MD5.Create();
             return md5.ComputeHash(inputByteArray);
@@ -43,7 +42,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         /// <param name="inputByteArray"></param>
         /// <returns></returns>
-        public static string EncryptFromByteArrayToBase64(Byte[] inputByteArray)
+        public static string EncryptFromByteArrayToBase64(byte[] inputByteArray)
         {
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
             return Convert.ToBase64String(encryptBuffer);
@@ -71,7 +70,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         /// <param name="inputByteArray"></param>
         /// <returns></returns>
-        public static string EncryptFromByteArrayToHex(Byte[] inputByteArray)
+        public static string EncryptFromByteArrayToHex(byte[] inputByteArray)
         {
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
             return ByteArrayToHex(encryptBuffer);

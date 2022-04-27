@@ -62,13 +62,8 @@ namespace Tubumu.Utils.FastLambda
                 return result;
             }
 
-            result = String.Compare(x.Name, y.Name, StringComparison.Ordinal);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return x.AssemblyQualifiedName!.CompareTo(y.AssemblyQualifiedName);
+            result = string.Compare(x.Name, y.Name, StringComparison.Ordinal);
+            return result != 0 ? result : x.AssemblyQualifiedName!.CompareTo(y.AssemblyQualifiedName);
         }
 
         /// <summary>
@@ -108,12 +103,7 @@ namespace Tubumu.Utils.FastLambda
             }
 
             result = CompareType(x.DeclaringType, y.DeclaringType);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return x.ToString()!.CompareTo(y.ToString());
+            return result != 0 ? result : x.ToString()!.CompareTo(y.ToString());
         }
 
         /// <summary>
@@ -235,12 +225,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual int CompareListInit(ListInitExpression x, ListInitExpression y)
         {
             int result = CompareElementInitializerList(x.Initializers, y.Initializers);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return CompareNew(x.NewExpression, y.NewExpression);
+            return result != 0 ? result : CompareNew(x.NewExpression, y.NewExpression);
         }
 
         /// <summary>
@@ -278,12 +263,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual int CompareElementInitializer(ElementInit x, ElementInit y)
         {
             int result = CompareMemberInfo(x.AddMethod, y.AddMethod);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return CompareExpressionList(x.Arguments, y.Arguments);
+            return result != 0 ? result : CompareExpressionList(x.Arguments, y.Arguments);
         }
 
         /// <summary>
@@ -295,12 +275,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual int CompareMemberInit(MemberInitExpression x, MemberInitExpression y)
         {
             int result = CompareNew(x.NewExpression, y.NewExpression);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return CompareBindingList(x.Bindings, y.Bindings);
+            return result != 0 ? result : CompareBindingList(x.Bindings, y.Bindings);
         }
 
         /// <summary>
@@ -338,12 +313,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual int CompareBinding(MemberBinding x, MemberBinding y)
         {
             int result = x.BindingType - y.BindingType;
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return CompareMemberInfo(x.Member, y.Member);
+            return result != 0 ? result : CompareMemberInfo(x.Member, y.Member);
         }
 
         /// <summary>
@@ -463,13 +433,13 @@ namespace Tubumu.Utils.FastLambda
         /// <returns></returns>
         protected virtual int CompareExpressionList(ReadOnlyCollection<Expression> x, ReadOnlyCollection<Expression> y)
         {
-            int result = x.Count - y.Count;
+            var result = x.Count - y.Count;
             if (result != 0)
             {
                 return result;
             }
 
-            for (int i = 0; i < x.Count; i++)
+            for (var i = 0; i < x.Count; i++)
             {
                 result = Compare(x[i], y[i]);
                 if (result != 0)
@@ -552,12 +522,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual int CompareTypeIs(TypeBinaryExpression x, TypeBinaryExpression y)
         {
             int result = CompareType(x.TypeOperand, y.TypeOperand);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return Compare(x.Expression, y.Expression);
+            return result != 0 ? result : Compare(x.Expression, y.Expression);
         }
 
         /// <summary>

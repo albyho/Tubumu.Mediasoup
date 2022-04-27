@@ -15,7 +15,7 @@ namespace Tubumu.Libuv
         }
 
         internal HandleBase(Loop loop, HandleType type)
-            : this(loop, Handle.Size(type))
+            : this(loop, Size(type))
         {
         }
 

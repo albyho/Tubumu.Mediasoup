@@ -68,7 +68,7 @@ namespace Tubumu.Utils.Extensions
                     break;
 
                 default:
-                    throw new NotSupportedException(String.Format("{0}{1} 不是数字、字符串或基于数字的公式", sourceCellName, sourceRow.RowNum + 1));
+                    throw new NotSupportedException(string.Format("{0}{1} 不是数字、字符串或基于数字的公式", sourceCellName, sourceRow.RowNum + 1));
             }
         }
 
@@ -120,13 +120,13 @@ namespace Tubumu.Utils.Extensions
             var n = 0;
             for (int i = s.Length - 1, j = 1; i >= 0; i--, j *= 26)
             {
-                char c = char.ToUpper(s[i]);
-                if (c < 'A' || c > 'Z')
+                var c = char.ToUpper(s[i]);
+                if (c is < 'A' or > 'Z')
                 {
                     return 0;
                 }
 
-                n += ((int)c - 64) * j;
+                n += (c - 64) * j;
             }
             return n;
         }

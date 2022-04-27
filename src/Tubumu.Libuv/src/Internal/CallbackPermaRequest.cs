@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Tubumu.Libuv
 {
@@ -24,9 +24,9 @@ namespace Tubumu.Libuv
 
         public static Handle.callback CallbackDelegate = StaticEnd;
 
-        static public void StaticEnd(IntPtr ptr, int status)
+        public static void StaticEnd(IntPtr ptr, int status)
         {
-            var obj = PermaRequest.GetObject<CallbackPermaRequest>(ptr);
+            var obj = GetObject<CallbackPermaRequest>(ptr);
             if (obj == null)
             {
                 throw new Exception("Target is null");

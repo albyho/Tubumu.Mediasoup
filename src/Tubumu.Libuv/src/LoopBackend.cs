@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
@@ -15,23 +15,11 @@ namespace Tubumu.Libuv
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern int uv_backend_fd(IntPtr loop);
 
-        public int FileDescriptor
-        {
-            get
-            {
-                return uv_backend_fd(nativeHandle);
-            }
-        }
+        public int FileDescriptor => uv_backend_fd(nativeHandle);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern int uv_backend_timeout(IntPtr loop);
 
-        public int Timeout
-        {
-            get
-            {
-                return uv_backend_timeout(nativeHandle);
-            }
-        }
+        public int Timeout => uv_backend_timeout(nativeHandle);
     }
 }

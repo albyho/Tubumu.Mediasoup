@@ -54,7 +54,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private bool _closed;
 
-        private readonly AsyncReaderWriterLock _closeLock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _closeLock = new();
 
         // TODO: (alby) _paused 的使用及线程安全。
         /// <summary>
@@ -540,7 +540,9 @@ namespace Tubumu.Mediasoup
                     {
                         // TODO: (alby) _closed 的使用及线程安全。
                         if (_closed)
+                        {
                             break;
+                        }
 
                         Emit("rtp", payload);
 

@@ -34,11 +34,9 @@ namespace Tubumu.Meeting.Server
 
         public static string Stringify(int code, string message, string? data = null)
         {
-            if (data == null)
-            {
-                return $"{{\"code\":{code},\"message\":\"{message}\"}}";
-            }
-            return $"{{\"code\":{code},\"message\":\"{message}\",\"data\":{data}}}";
+            return data == null
+                ? $"{{\"code\":{code},\"message\":\"{message}\"}}"
+                : $"{{\"code\":{code},\"message\":\"{message}\",\"data\":{data}}}";
         }
     }
 

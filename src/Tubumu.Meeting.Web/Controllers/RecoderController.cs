@@ -130,7 +130,7 @@ namespace Tubumu.Meeting.Web.Controllers
 
             // Create Consumers
             var producerPeer = joinRoomResult.Peers.Where(m => m.PeerId == recorderPrepareRequest.ProducerPeerId).FirstOrDefault();
-            if(producerPeer == null)
+            if (producerPeer == null)
             {
                 return new ApiResult { Code = 400, Message = "生产者 Peer 不存在" };
             }
@@ -152,12 +152,12 @@ namespace Tubumu.Meeting.Web.Controllers
                 }
 
                 var producer = producers.Values.FirstOrDefault(m => m.Source == source);
-                if(producer == null)
+                if (producer == null)
                 {
                     return new ApiResult { Code = 400, Message = $"生产者尚未生产 {source}" };
                 }
                 var consumer = await _scheduler.ConsumeAsync(recorderPrepareRequest.ProducerPeerId, recorderPrepareRequest.PeerId, producer.ProducerId);
-                if(consumer == null)
+                if (consumer == null)
                 {
                     return new ApiResult { Code = 400, Message = $"已经在消费 {source}" };
                 }

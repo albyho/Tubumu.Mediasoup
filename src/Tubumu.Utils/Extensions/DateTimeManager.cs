@@ -91,7 +91,7 @@ namespace Tubumu.Utils.Extensions
                     break;
 
                 case DateInterval.Quarter:
-                    lngDateDiffValue = (long)((timeSpan.Days / 30) / 3);
+                    lngDateDiffValue = (long)(timeSpan.Days / 30 / 3);
                     break;
 
                 case DateInterval.Year:

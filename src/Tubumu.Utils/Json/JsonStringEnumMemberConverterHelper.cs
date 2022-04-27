@@ -53,9 +53,12 @@ namespace System.Text.Json.Serialization
 			for (int i = 0; i < builtInNames.Length; i++)
 			{
 				Enum? enumValue = (Enum?)builtInValues.GetValue(i);
-				if (enumValue == null)
-					continue;
-				ulong rawValue = GetEnumValue(enumValue);
+                if (enumValue == null)
+                {
+                    continue;
+                }
+
+                ulong rawValue = GetEnumValue(enumValue);
 
 				string name = builtInNames[i];
 				FieldInfo field = _EnumType.GetField(name, EnumBindings)!;
@@ -81,9 +84,11 @@ namespace System.Text.Json.Serialization
 
 				// Case sensitive search attempted first.
 				if (_TransformedToRaw.TryGetValue(enumString, out EnumInfo? enumInfo))
-					return enumInfo.EnumValue;
+                {
+                    return enumInfo.EnumValue;
+                }
 
-				if (_IsFlags)
+                if (_IsFlags)
 				{
 					ulong calculatedValue = 0;
 
@@ -114,9 +119,11 @@ namespace System.Text.Json.Serialization
 							}
 
 							if (!matched)
-								//throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType, flagValue);
-								throw new Exception("DeserializeUnableToConvertValue");
-						}
+                            {
+                                //throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType, flagValue);
+                                throw new Exception("DeserializeUnableToConvertValue");
+                            }
+                        }
 					}
 
 					TEnum enumValue = (TEnum)Enum.ToObject(_EnumType, calculatedValue);
@@ -140,67 +147,89 @@ namespace System.Text.Json.Serialization
 				throw new Exception("DeserializeUnableToConvertValue");
 			}
 
-			if (token != JsonTokenType.Number || !_AllowIntegerValues)
-				//throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType);
-				throw new Exception("DeserializeUnableToConvertValue");
+            if (token != JsonTokenType.Number || !_AllowIntegerValues)
+            {
+                //throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType);
+                throw new Exception("DeserializeUnableToConvertValue");
+            }
 
-			switch (_EnumTypeCode)
-			{
-				case TypeCode.Int32:
-					if (reader.TryGetInt32(out int int32))
-					{
-						return (TEnum)Enum.ToObject(_EnumType, int32);
-					}
-					break;
-				case TypeCode.Int64:
-					if (reader.TryGetInt64(out long int64))
-					{
-						return (TEnum)Enum.ToObject(_EnumType, int64);
-					}
-					break;
-				case TypeCode.Int16:
-					if (reader.TryGetInt16(out short int16))
-					{
-						return (TEnum)Enum.ToObject(_EnumType, int16);
-					}
-					break;
-				case TypeCode.Byte:
-					if (reader.TryGetByte(out byte ubyte8))
-					{
-						return (TEnum)Enum.ToObject(_EnumType, ubyte8);
-					}
-					break;
-				case TypeCode.UInt32:
-					if (reader.TryGetUInt32(out uint uint32))
-					{
-						return (TEnum)Enum.ToObject(_EnumType, uint32);
-					}
-					break;
-				case TypeCode.UInt64:
-					if (reader.TryGetUInt64(out ulong uint64))
-					{
-						return (TEnum)Enum.ToObject(_EnumType, uint64);
-					}
-					break;
-				case TypeCode.UInt16:
-					if (reader.TryGetUInt16(out ushort uint16))
-					{
-						return (TEnum)Enum.ToObject(_EnumType, uint16);
-					}
-					break;
-				case TypeCode.SByte:
-					if (reader.TryGetSByte(out sbyte byte8))
-					{
-						return (TEnum)Enum.ToObject(_EnumType, byte8);
-					}
-					break;
-			}
+            switch (_EnumTypeCode)
+            {
+                case TypeCode.Int32:
+                    if (reader.TryGetInt32(out int int32))
+                    {
+                        return (TEnum)Enum.ToObject(_EnumType, int32);
+                    }
+                    break;
+                case TypeCode.Int64:
+                    if (reader.TryGetInt64(out long int64))
+                    {
+                        return (TEnum)Enum.ToObject(_EnumType, int64);
+                    }
+                    break;
+                case TypeCode.Int16:
+                    if (reader.TryGetInt16(out short int16))
+                    {
+                        return (TEnum)Enum.ToObject(_EnumType, int16);
+                    }
+                    break;
+                case TypeCode.Byte:
+                    if (reader.TryGetByte(out byte ubyte8))
+                    {
+                        return (TEnum)Enum.ToObject(_EnumType, ubyte8);
+                    }
+                    break;
+                case TypeCode.UInt32:
+                    if (reader.TryGetUInt32(out uint uint32))
+                    {
+                        return (TEnum)Enum.ToObject(_EnumType, uint32);
+                    }
+                    break;
+                case TypeCode.UInt64:
+                    if (reader.TryGetUInt64(out ulong uint64))
+                    {
+                        return (TEnum)Enum.ToObject(_EnumType, uint64);
+                    }
+                    break;
+                case TypeCode.UInt16:
+                    if (reader.TryGetUInt16(out ushort uint16))
+                    {
+                        return (TEnum)Enum.ToObject(_EnumType, uint16);
+                    }
+                    break;
+                case TypeCode.SByte:
+                    if (reader.TryGetSByte(out sbyte byte8))
+                    {
+                        return (TEnum)Enum.ToObject(_EnumType, byte8);
+                    }
+                    break;
+                case TypeCode.Empty:
+                    break;
+                case TypeCode.Object:
+                    break;
+                case TypeCode.DBNull:
+                    break;
+                case TypeCode.Boolean:
+                    break;
+                case TypeCode.Char:
+                    break;
+                case TypeCode.Single:
+                    break;
+                case TypeCode.Double:
+                    break;
+                case TypeCode.Decimal:
+                    break;
+                case TypeCode.DateTime:
+                    break;
+                case TypeCode.String:
+                    break;
+            }
 
-			//throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType);
-			throw new Exception("DeserializeUnableToConvertValue");
-		}
+            //throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType);
+            throw new Exception("DeserializeUnableToConvertValue");
+        }
 
-		public void Write(Utf8JsonWriter writer, TEnum value)
+        public void Write(Utf8JsonWriter writer, TEnum value)
 		{
 			if (_RawToTransformed.TryGetValue(value, out EnumInfo? enumInfo))
 			{
@@ -208,13 +237,13 @@ namespace System.Text.Json.Serialization
 				return;
 			}
 
-			ulong rawValue = GetEnumValue(value);
+			var rawValue = GetEnumValue(value);
 
 			if (_IsFlags)
 			{
 				ulong calculatedValue = 0;
 
-				StringBuilder Builder = new StringBuilder();
+				var Builder = new StringBuilder();
 				foreach (KeyValuePair<TEnum, EnumInfo> enumItem in _RawToTransformed)
 				{
 					enumInfo = enumItem.Value;
@@ -228,8 +257,11 @@ namespace System.Text.Json.Serialization
 					calculatedValue |= enumInfo.RawValue;
 
 					if (Builder.Length > 0)
-						Builder.Append(", ");
-					Builder.Append(enumInfo.Name);
+                    {
+                        Builder.Append(", ");
+                    }
+
+                    Builder.Append(enumInfo.Name);
 				}
 				if (calculatedValue == rawValue)
 				{
@@ -246,51 +278,81 @@ namespace System.Text.Json.Serialization
 			if (!_AllowIntegerValues)
 				throw new JsonException($"Enum type {_EnumType} does not have a mapping for integer value '{rawValue.ToString(CultureInfo.CurrentCulture)}'.");
 
-			switch (_EnumTypeCode)
-			{
-				case TypeCode.Int32:
-					writer.WriteNumberValue((int)rawValue);
-					break;
-				case TypeCode.Int64:
-					writer.WriteNumberValue((long)rawValue);
-					break;
-				case TypeCode.Int16:
-					writer.WriteNumberValue((short)rawValue);
-					break;
-				case TypeCode.Byte:
-					writer.WriteNumberValue((byte)rawValue);
-					break;
-				case TypeCode.UInt32:
-					writer.WriteNumberValue((uint)rawValue);
-					break;
-				case TypeCode.UInt64:
-					writer.WriteNumberValue(rawValue);
-					break;
-				case TypeCode.UInt16:
-					writer.WriteNumberValue((ushort)rawValue);
-					break;
-				case TypeCode.SByte:
-					writer.WriteNumberValue((sbyte)rawValue);
-					break;
-				default:
-					throw new JsonException(); // GetEnumValue should have already thrown.
-			}
-		}
+            switch (_EnumTypeCode)
+            {
+                case TypeCode.Int32:
+                    writer.WriteNumberValue((int)rawValue);
+                    break;
+                case TypeCode.Int64:
+                    writer.WriteNumberValue((long)rawValue);
+                    break;
+                case TypeCode.Int16:
+                    writer.WriteNumberValue((short)rawValue);
+                    break;
+                case TypeCode.Byte:
+                    writer.WriteNumberValue((byte)rawValue);
+                    break;
+                case TypeCode.UInt32:
+                    writer.WriteNumberValue((uint)rawValue);
+                    break;
+                case TypeCode.UInt64:
+                    writer.WriteNumberValue(rawValue);
+                    break;
+                case TypeCode.UInt16:
+                    writer.WriteNumberValue((ushort)rawValue);
+                    break;
+                case TypeCode.SByte:
+                    writer.WriteNumberValue((sbyte)rawValue);
+                    break;
+                case TypeCode.Empty:
+                    break;
+                case TypeCode.Object:
+                    break;
+                case TypeCode.DBNull:
+                    break;
+                case TypeCode.Boolean:
+                    break;
+                case TypeCode.Char:
+                    break;
+                case TypeCode.Single:
+                    break;
+                case TypeCode.Double:
+                    break;
+                case TypeCode.Decimal:
+                    break;
+                case TypeCode.DateTime:
+                    break;
+                case TypeCode.String:
+                    break;
+                default:
+                    throw new JsonException(); // GetEnumValue should have already thrown.
+            }
+        }
 
-		private ulong GetEnumValue(object value)
+        private ulong GetEnumValue(object value)
 		{
 			return _EnumTypeCode switch
-			{
-				TypeCode.Int32 => (ulong)(int)value,
-				TypeCode.Int64 => (ulong)(long)value,
-				TypeCode.Int16 => (ulong)(short)value,
-				TypeCode.Byte => (byte)value,
-				TypeCode.UInt32 => (uint)value,
-				TypeCode.UInt64 => (ulong)value,
-				TypeCode.UInt16 => (ushort)value,
-				TypeCode.SByte => (ulong)(sbyte)value,
-				_ => throw new NotSupportedException($"Enum '{value}' of {_EnumTypeCode} type is not supported."),
-			};
+            {
+                TypeCode.Int32 => (ulong)(int)value,
+                TypeCode.Int64 => (ulong)(long)value,
+                TypeCode.Int16 => (ulong)(short)value,
+                TypeCode.Byte => (byte)value,
+                TypeCode.UInt32 => (uint)value,
+                TypeCode.UInt64 => (ulong)value,
+                TypeCode.UInt16 => (ushort)value,
+                TypeCode.SByte => (ulong)(sbyte)value,
+                TypeCode.Empty => throw new NotImplementedException(),
+                TypeCode.Object => throw new NotImplementedException(),
+                TypeCode.DBNull => throw new NotImplementedException(),
+                TypeCode.Boolean => throw new NotImplementedException(),
+                TypeCode.Char => throw new NotImplementedException(),
+                TypeCode.Single => throw new NotImplementedException(),
+                TypeCode.Double => throw new NotImplementedException(),
+                TypeCode.Decimal => throw new NotImplementedException(),
+                TypeCode.DateTime => throw new NotImplementedException(),
+                TypeCode.String => throw new NotImplementedException(),
+                _ => throw new NotSupportedException($"Enum '{value}' of {_EnumTypeCode} type is not supported."),
+            };
 		}
-	}
+    }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -59,7 +59,7 @@ namespace Tubumu.Libuv
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     }
 
-    unsafe public class Process : Handle
+    public unsafe class Process : Handle
     {
         public long ExitCode { get; private set; }
         public int TermSignal { get; private set; }
@@ -72,26 +72,14 @@ namespace Tubumu.Libuv
 
         public static string Title
         {
-            get
-            {
-                return UV.ToString(4096, uv_get_process_title);
-            }
-            set
-            {
-                uv_set_process_title(value);
-            }
+            get => UV.ToString(4096, uv_get_process_title);
+            set => uv_set_process_title(value);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_exepath(IntPtr buffer, ref IntPtr size);
 
-        public static string ExecutablePath
-        {
-            get
-            {
-                return UV.ToString(4096, uv_exepath);
-            }
-        }
+        public static string ExecutablePath => UV.ToString(4096, uv_exepath);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_spawn(IntPtr loop, IntPtr handle, ref uv_process_options_t options);
@@ -121,17 +109,11 @@ namespace Tubumu.Libuv
             {
                 CheckDisposed();
 
-                return (uv_process_t*)(NativeHandle.ToInt64() + Handle.Size(HandleType.UV_HANDLE));
+                return (uv_process_t*)(NativeHandle.ToInt64() + Size(HandleType.UV_HANDLE));
             }
         }
 
-        public int Id
-        {
-            get
-            {
-                return process->pid;
-            }
-        }
+        public int Id => process->pid;
 
         public static Process Spawn(ProcessOptions options)
         {

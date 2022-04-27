@@ -8,11 +8,11 @@ namespace Tubumu.Mediasoup
 {
     public class MediasoupServer
     {
-        private readonly List<Worker> _workers = new List<Worker>();
+        private readonly List<Worker> _workers = new();
 
         private int _nextMediasoupWorkerIndex = 0;
 
-        private readonly ReaderWriterLockSlim _workersLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _workersLock = new();
 
         /// <summary>
         /// Get a cloned copy of the mediasoup supported RTP capabilities.
@@ -20,7 +20,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public static RtpCapabilities GetSupportedRtpCapabilities()
         {
-            return RtpCapabilities.SupportedRtpCapabilities.DeepClone<RtpCapabilities>();
+            return RtpCapabilities.SupportedRtpCapabilities.DeepClone();
         }
 
         /// <summary>

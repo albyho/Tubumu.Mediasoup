@@ -48,7 +48,7 @@ namespace Tubumu.Utils
             Array.Copy(payloadLengthBuffer, 0, result, 0, payloadLengthBuffer.Length);
             result[payloadLengthBuffer.Length] = (byte)':';
             Array.Copy(value, 0, result, payloadLengthBuffer.Length + 1, value.Length);
-            result[result.Length - 1] = (byte)',';
+            result[^1] = (byte)',';
             return result;
         }
 
@@ -104,15 +104,10 @@ namespace Tubumu.Utils
 
                 if (cc == ':'/*0x3a*/)
                 {
-                    if (i == offset)
-                    {
-                        throw new Exception("Invalid netstring with leading ':'");
-                    }
-
-                    return len;
+                    return i != offset ? len : throw new Exception("Invalid netstring with leading ':'");
                 }
 
-                if (cc < '0'/*0x30*/ || cc > '9'/*0x39*/)
+                if (cc is < (byte)'0'/*0x30*/ or > (byte)'9'/*0x39*/)
                 {
                     throw new Exception($"Unexpected character {cc} found at offset");
                 }
@@ -122,16 +117,11 @@ namespace Tubumu.Utils
                     throw new Exception("Invalid netstring with leading 0");
                 }
 
-                len = len * 10 + cc - '0'/*0x30*/;
+                len = (len * 10) + cc - '0'/*0x30*/;
             }
 
             // We didn't get a complete length specification
-            if (i == buffer.Count)
-            {
-                return -1;
-            }
-
-            return len;
+            return i == buffer.Count ? -1 : len;
         }
 
         private static int ComputeNetstringLength(int payloadLength)

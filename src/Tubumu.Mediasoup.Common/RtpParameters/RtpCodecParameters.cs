@@ -23,7 +23,7 @@ namespace Tubumu.Mediasoup
 
         public bool Equals(RtpCodecParameters? other)
         {
-            if (other == null)
+            if (other is null)
             {
                 return false;
             }
@@ -59,14 +59,7 @@ namespace Tubumu.Mediasoup
 
         public override bool Equals(object? other)
         {
-            if (other is RtpCodecParameters)
-            {
-                return Equals((RtpCodecParameters)other);
-            }
-            else
-            {
-                return false;
-            }
+            return other is RtpCodecParameters parameters && Equals(parameters);
         }
 
         public override int GetHashCode()

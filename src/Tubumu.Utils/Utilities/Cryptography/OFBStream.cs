@@ -31,9 +31,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
             algo.Mode = CipherMode.CBC;
             //if (algo.Padding != PaddingMode.None)
             algo.Padding = PaddingMode.None;
-            this._parent = parent;
-            this._cbcStream = new CryptoStream(new ZeroStream(), algo.CreateEncryptor(), CryptoStreamMode.Read);
-            this._mode = mode;
+            _parent = parent;
+            _cbcStream = new CryptoStream(new ZeroStream(), algo.CreateEncryptor(), CryptoStreamMode.Read);
+            _mode = mode;
             _keyStreamBuffer = new byte[algo.BlockSize * Blocks];
             _readWriteBuffer = new byte[_keyStreamBuffer.Length];
         }
@@ -124,18 +124,12 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// CanRead
         /// </summary>
-        public override bool CanRead
-        {
-            get { return _mode == CryptoStreamMode.Read; }
-        }
+        public override bool CanRead => _mode == CryptoStreamMode.Read;
 
         /// <summary>
         /// CanWrite
         /// </summary>
-        public override bool CanWrite
-        {
-            get { return _mode == CryptoStreamMode.Write; }
-        }
+        public override bool CanWrite => _mode == CryptoStreamMode.Write;
 
         /// <summary>
         /// Flush
@@ -148,10 +142,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// CanSeek
         /// </summary>
-        public override bool CanSeek
-        {
-            get { return false; }
-        }
+        public override bool CanSeek => false;
 
         /// <summary>
         /// Seek
@@ -169,17 +160,14 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public override long Position
         {
-            get { throw new NotSupportedException(nameof(Position)); }
-            set { throw new NotSupportedException(nameof(Position)); }
+            get => throw new NotSupportedException(nameof(Position));
+            set => throw new NotSupportedException(nameof(Position));
         }
 
         /// <summary>
         /// Length
         /// </summary>
-        public override long Length
-        {
-            get { throw new NotSupportedException(nameof(Length)); }
-        }
+        public override long Length => throw new NotSupportedException(nameof(Length));
 
         /// <summary>
         /// SetLength
@@ -203,42 +191,24 @@ namespace Tubumu.Utils.Utilities.Cryptography
             return count;
         }
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => true;
 
         // ... the rest is not implemented
-        public override bool CanSeek
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override bool CanSeek => throw new NotImplementedException();
 
-        public override bool CanWrite
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override bool CanWrite => throw new NotImplementedException();
 
         public override void Flush()
         {
             throw new NotImplementedException();
         }
 
-        public override long Length
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override long Length => throw new NotImplementedException();
 
         public override long Position
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
         }
 
         public override long Seek(long offset, SeekOrigin origin)

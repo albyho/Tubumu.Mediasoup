@@ -46,7 +46,7 @@ namespace Tubumu.Utils.FastLambda
             return this;
         }
 
-        private static readonly object NullValue = new object();
+        private static readonly object NullValue = new();
 
         /// <summary>
         /// Hash
@@ -55,7 +55,7 @@ namespace Tubumu.Utils.FastLambda
         /// <returns></returns>
         protected virtual ExpressionHasher Hash(object value)
         {
-            value = value ?? NullValue;
+            value ??= NullValue;
             unchecked { HashCode += value.GetHashCode(); }
             return this;
         }

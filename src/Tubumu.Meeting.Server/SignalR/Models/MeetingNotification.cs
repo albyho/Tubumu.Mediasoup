@@ -14,11 +14,7 @@ namespace Tubumu.Meeting.Server
 
         public static string Stringify(string type, string? data = null)
         {
-            if (data == null)
-            {
-                return $"{{\"type\":{type}}}";
-            }
-            return $"{{\"type\":{type},\"data\":{data}}}";
+            return data == null ? $"{{\"type\":{type}}}" : $"{{\"type\":{type},\"data\":{data}}}";
         }
     }
 }

@@ -22,7 +22,7 @@
 
         private int ByteMaskString(char c, string str)
         {
-            return (
+            return 
                 ((str[0] == c) ? 1 << 7 : 0) |
                 ((str[1] == c) ? 1 << 6 : 0) |
                 ((str[2] == c) ? 1 << 5 : 0) |
@@ -31,7 +31,7 @@
                 ((str[5] == c) ? 1 << 2 : 0) |
                 ((str[6] == c) ? 1 << 1 : 0) |
                 ((str[7] == c) ? 1 << 0 : 0)
-            );
+            ;
         }
     }
 }

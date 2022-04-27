@@ -19,20 +19,20 @@ namespace Tubumu.Utils.Models
         /// 页码（从 1 开始）
         /// </summary>
         [Required(ErrorMessage = "请输入 pageNumber")]
-        [Range(1, Int32.MaxValue, ErrorMessage = "请输入合法的 PageNumber（大于等于1）")]
+        [Range(1, int.MaxValue, ErrorMessage = "请输入合法的 PageNumber（大于等于1）")]
         public int PageNumber { get; set; }
 
         /// <summary>
         /// 每页记录数
         /// </summary>
         [Required(ErrorMessage = "请输入 pageSize")]
-        [Range(1, Int32.MaxValue, ErrorMessage = "请输入合法的 PageSize（大于等于1）")]
+        [Range(1, int.MaxValue, ErrorMessage = "请输入合法的 PageSize（大于等于1）")]
         public int PageSize { get; set; }
 
         /// <summary>
         /// 跳过数量（将少读取跳过的数量）
         /// </summary>
-        [Range(0, Int32.MaxValue, ErrorMessage = "请输入合法的 skipTop（大于等于0）")]
+        [Range(0, int.MaxValue, ErrorMessage = "请输入合法的 skipTop（大于等于0）")]
         public int SkipTop { get; set; }
 
         /// <summary>

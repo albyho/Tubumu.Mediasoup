@@ -17,7 +17,7 @@ namespace Tubumu.Meeting.Server.Authorization
     /// </summary>
     public class TokenService : ITokenService
     {
-        private readonly JwtSecurityTokenHandler _tokenHandler = new JwtSecurityTokenHandler();
+        private readonly JwtSecurityTokenHandler _tokenHandler = new();
         private readonly TokenValidationSettings _tokenValidationSettings;
         private readonly IDistributedCache _cache;
         private readonly ILogger<TokenService> _logger;
@@ -117,13 +117,10 @@ namespace Tubumu.Meeting.Server.Authorization
             };
 
             var principal = _tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-            if (!(securityToken is JwtSecurityToken jwtSecurityToken) ||
-                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            {
-                throw new SecurityTokenException("Invalid token");
-            }
-
-            return principal;
+            return securityToken is not JwtSecurityToken jwtSecurityToken ||
+                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase)
+                ? throw new SecurityTokenException("Invalid token")
+                : principal;
         }
     }
 }

@@ -46,12 +46,7 @@ namespace Tubumu.Utils.Extensions.Object
         /// <returns></returns>
         public static T? FromJson<T>(string json) where T : class
         {
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                return default;
-            }
-
-            return JsonSerializer.Deserialize<T>(json, DefaultJsonSerializerOptions);
+            return string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, DefaultJsonSerializerOptions);
         }
 
         /// <summary>
@@ -244,12 +239,7 @@ namespace Tubumu.Utils.Extensions.Object
         public static bool IsStringType(this object o)
         {
             var jsonElement = o as JsonElement?;
-            if (jsonElement != null)
-            {
-                return jsonElement.Value.ValueKind == JsonValueKind.String;
-            }
-
-            return o.GetType() == typeof(string);
+            return jsonElement != null ? jsonElement.Value.ValueKind == JsonValueKind.String : o.GetType() == typeof(string);
         }
     }
 }

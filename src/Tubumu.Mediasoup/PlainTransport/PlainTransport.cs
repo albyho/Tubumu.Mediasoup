@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Tubumu.Utils.Extensions.Object;
 using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
@@ -105,7 +104,7 @@ namespace Tubumu.Mediasoup
 
                 if (SctpState.HasValue)
                 {
-                    SctpState = Tubumu.Mediasoup.SctpState.Closed;
+                    SctpState = Mediasoup.SctpState.Closed;
                 }
 
                 await base.CloseAsync();
@@ -140,7 +139,7 @@ namespace Tubumu.Mediasoup
 
                 if (SctpState.HasValue)
                 {
-                    SctpState = Tubumu.Mediasoup.SctpState.Closed;
+                    SctpState = Mediasoup.SctpState.Closed;
                 }
 
                 await base.RouterClosedAsync();
@@ -162,11 +161,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ConnectAsync()");
 
-            if (!(parameters is PlainTransportConnectParameters connectParameters))
-            {
-                throw new Exception($"{nameof(parameters)} type is not PipTransportConnectParameters");
-            }
-            return ConnectAsync(connectParameters);
+            return parameters is PlainTransportConnectParameters connectParameters
+                ? ConnectAsync(connectParameters)
+                : throw new Exception($"{nameof(parameters)} type is not PipTransportConnectParameters");
         }
 
         private async Task ConnectAsync(PlainTransportConnectParameters plainTransportConnectParameters)

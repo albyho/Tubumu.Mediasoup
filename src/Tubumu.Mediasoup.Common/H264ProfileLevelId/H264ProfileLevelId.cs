@@ -242,12 +242,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public static ProfileLevelId? ParseSdpProfileLevelId(IDictionary<string, object> parameters)
         {
-            if (!parameters.TryGetValue("profile-level-id", out var profile_level_id))
-            {
-                return DefaultProfileLevelId;
-            }
-
-            return ParseProfileLevelId(profile_level_id.ToString()!);
+            return parameters.TryGetValue("profile-level-id", out var profile_level_id)
+                ? ParseProfileLevelId(profile_level_id.ToString()!)
+                : DefaultProfileLevelId;
         }
 
         /// <summary>

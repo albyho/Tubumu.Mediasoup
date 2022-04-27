@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
 {
-    unsafe internal class FileSystemRequest : PermaRequest
+    internal unsafe class FileSystemRequest : PermaRequest
     {
         private static readonly int Size = UV.Sizeof(RequestType.UV_FS);
 
@@ -34,29 +34,11 @@ namespace Tubumu.Libuv
             base.Dispose(disposing);
         }
 
-        public IntPtr Result
-        {
-            get
-            {
-                return fsrequest->result;
-            }
-        }
+        public IntPtr Result => fsrequest->result;
 
-        public IntPtr Pointer
-        {
-            get
-            {
-                return fsrequest->ptr;
-            }
-        }
+        public IntPtr Pointer => fsrequest->ptr;
 
-        public uv_stat_t stat
-        {
-            get
-            {
-                return fsrequest->buf;
-            }
-        }
+        public uv_stat_t stat => fsrequest->buf;
 
         public void End(IntPtr ptr)
         {
@@ -64,13 +46,10 @@ namespace Tubumu.Libuv
             var r = Result.ToInt32();
             if (r < 0)
             {
-                e = Ensure.Map(r, (string.IsNullOrEmpty(Path) ? null : Path));
+                e = Ensure.Map(r, string.IsNullOrEmpty(Path) ? null : Path);
             }
 
-            if (Callback != null)
-            {
-                Callback(e);
-            }
+            Callback?.Invoke(e);
 
             Dispose();
         }
@@ -79,7 +58,7 @@ namespace Tubumu.Libuv
 
         public static void StaticEnd(IntPtr ptr)
         {
-            PermaRequest.GetObject<FileSystemRequest>(ptr)?.End(ptr);
+            GetObject<FileSystemRequest>(ptr)?.End(ptr);
         }
     }
 }

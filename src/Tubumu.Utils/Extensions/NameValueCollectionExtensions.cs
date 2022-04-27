@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Text;
 
 namespace Tubumu.Utils.Extensions
@@ -45,12 +44,7 @@ namespace Tubumu.Utils.Extensions
             }
 
             var values = collection.GetValues(key);
-            if (values.IsNullOrEmpty())
-            {
-                return null;
-            }
-
-            return bool.TryParse(values![0], out bool isTrueValue) && isTrueValue;
+            return values.IsNullOrEmpty() ? null : bool.TryParse(values![0], out bool isTrueValue) && isTrueValue;
         }
 
         /// <summary>
@@ -63,19 +57,19 @@ namespace Tubumu.Utils.Extensions
             if (queryString.Count > 0)
             {
                 var qs = new StringBuilder();
-                qs.Append("?");
+                qs.Append('?');
                 for (var i = 0; i < queryString.Count; i++)
                 {
                     if (i > 0)
                     {
-                        qs.Append("&");
+                        qs.Append('&');
                     }
 
                     qs.AppendFormat("{0}={1}", queryString.Keys[i], queryString[i]);
                 }
                 return qs.ToString();
             }
-            return String.Empty;
+            return string.Empty;
         }
     }
 }

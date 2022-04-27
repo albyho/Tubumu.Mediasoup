@@ -129,7 +129,7 @@ namespace Tubumu.Mediasoup
 
                 if (SctpState.HasValue)
                 {
-                    SctpState = Tubumu.Mediasoup.SctpState.Closed;
+                    SctpState = Mediasoup.SctpState.Closed;
                 }
 
                 await base.CloseAsync();
@@ -168,7 +168,7 @@ namespace Tubumu.Mediasoup
 
                 if (SctpState.HasValue)
                 {
-                    SctpState = Tubumu.Mediasoup.SctpState.Closed;
+                    SctpState = Mediasoup.SctpState.Closed;
                 }
 
                 await base.RouterClosedAsync();
@@ -190,19 +190,16 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"ConnectAsync() | WebRtcTransport:{TransportId}");
 
-            if (parameters is not DtlsParameters dtlsParameters)
-            {
-                throw new Exception($"{nameof(parameters)} type is not DtlsParameters");
-            }
-
-            return ConnectAsync(dtlsParameters);
+            return parameters is DtlsParameters dtlsParameters
+                ? ConnectAsync(dtlsParameters)
+                : throw new Exception($"{nameof(parameters)} type is not DtlsParameters");
         }
 
         private async Task ConnectAsync(DtlsParameters dtlsParameters)
         {
             var reqData = new { DtlsParameters = dtlsParameters };
             var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
-            if(resData == null)
+            if (resData == null)
             {
                 throw new Exception($"{nameof(resData)} is null");
             }
@@ -331,7 +328,7 @@ namespace Tubumu.Mediasoup
 
                 case "trace":
                     {
-                        if(data == null)
+                        if (data == null)
                         {
                             _logger.LogWarning($"trace event's data is null.");
                             break;

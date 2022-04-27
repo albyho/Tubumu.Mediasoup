@@ -132,11 +132,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
         {
             ReadOnlyCollection<Expression> arguments = VisitExpressionList(initializer.Arguments);
-            if (arguments != initializer.Arguments)
-            {
-                return Expression.ElementInit(initializer.AddMethod, arguments);
-            }
-            return initializer;
+            return arguments != initializer.Arguments ? Expression.ElementInit(initializer.AddMethod, arguments) : initializer;
         }
 
         /// <summary>
@@ -147,11 +143,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual Expression VisitUnary(UnaryExpression u)
         {
             Expression operand = Visit(u.Operand);
-            if (operand != u.Operand)
-            {
-                return Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method);
-            }
-            return u;
+            return operand != u.Operand ? Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method) : (Expression)u;
         }
 
         /// <summary>
@@ -166,14 +158,9 @@ namespace Tubumu.Utils.FastLambda
             Expression conversion = Visit(b.Conversion!);
             if (left != b.Left || right != b.Right || conversion != b.Conversion)
             {
-                if (b.NodeType == ExpressionType.Coalesce && b.Conversion != null)
-                {
-                    return Expression.Coalesce(left, right, conversion as LambdaExpression);
-                }
-                else
-                {
-                    return Expression.MakeBinary(b.NodeType, left, right, b.IsLiftedToNull, b.Method);
-                }
+                return b.NodeType == ExpressionType.Coalesce && b.Conversion != null
+                    ? Expression.Coalesce(left, right, conversion as LambdaExpression)
+                    : (Expression)Expression.MakeBinary(b.NodeType, left, right, b.IsLiftedToNull, b.Method);
             }
             return b;
         }
@@ -186,11 +173,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual Expression VisitTypeIs(TypeBinaryExpression b)
         {
             Expression expr = Visit(b.Expression);
-            if (expr != b.Expression)
-            {
-                return Expression.TypeIs(expr, b.TypeOperand);
-            }
-            return b;
+            return expr != b.Expression ? Expression.TypeIs(expr, b.TypeOperand) : (Expression)b;
         }
 
         /// <summary>
@@ -238,11 +221,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual Expression VisitMemberAccess(MemberExpression m)
         {
             Expression exp = Visit(m.Expression!);
-            if (exp != m.Expression)
-            {
-                return Expression.MakeMemberAccess(exp, m.Member);
-            }
-            return m;
+            return exp != m.Expression ? Expression.MakeMemberAccess(exp, m.Member) : (Expression)m;
         }
 
         /// <summary>
@@ -254,11 +233,7 @@ namespace Tubumu.Utils.FastLambda
         {
             Expression obj = Visit(m.Object!);
             IEnumerable<Expression> args = VisitExpressionList(m.Arguments);
-            if (obj != m.Object || args != m.Arguments)
-            {
-                return Expression.Call(obj, m.Method, args);
-            }
-            return m;
+            return obj != m.Object || args != m.Arguments ? Expression.Call(obj, m.Method, args) : (Expression)m;
         }
 
         /// <summary>
@@ -286,11 +261,8 @@ namespace Tubumu.Utils.FastLambda
                     list.Add(p);
                 }
             }
-            if (list != null)
-            {
-                return list.AsReadOnly();
-            }
-            return original;
+
+            return list != null ? list.AsReadOnly() : original;
         }
 
         /// <summary>
@@ -301,11 +273,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {
             Expression e = Visit(assignment.Expression);
-            if (e != assignment.Expression)
-            {
-                return Expression.Bind(assignment.Member, e);
-            }
-            return assignment;
+            return e != assignment.Expression ? Expression.Bind(assignment.Member, e) : assignment;
         }
 
         /// <summary>
@@ -355,12 +323,8 @@ namespace Tubumu.Utils.FastLambda
                     list.Add(b);
                 }
             }
-            if (list != null)
-            {
-                return list;
-            }
 
-            return original;
+            return list != null ? list : original;
         }
 
         /// <summary>
@@ -388,12 +352,8 @@ namespace Tubumu.Utils.FastLambda
                     list.Add(init);
                 }
             }
-            if (list != null)
-            {
-                return list;
-            }
 
-            return original;
+            return list != null ? list : original;
         }
 
         /// <summary>
@@ -404,11 +364,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual Expression VisitLambda(LambdaExpression lambda)
         {
             Expression body = Visit(lambda.Body);
-            if (body != lambda.Body)
-            {
-                return Expression.Lambda(lambda.Type, body, lambda.Parameters);
-            }
-            return lambda;
+            return body != lambda.Body ? Expression.Lambda(lambda.Type, body, lambda.Parameters) : (Expression)lambda;
         }
 
         /// <summary>
@@ -419,18 +375,9 @@ namespace Tubumu.Utils.FastLambda
         protected virtual NewExpression VisitNew(NewExpression nex)
         {
             IEnumerable<Expression> args = VisitExpressionList(nex.Arguments);
-            if (args != nex.Arguments)
-            {
-                if (nex.Members != null)
-                {
-                    return Expression.New(nex.Constructor!, args, nex.Members);
-                }
-                else
-                {
-                    return Expression.New(nex.Constructor!, args);
-                }
-            }
-            return nex;
+            return args != nex.Arguments
+                ? nex.Members != null ? Expression.New(nex.Constructor!, args, nex.Members) : Expression.New(nex.Constructor!, args)
+                : nex;
         }
 
         /// <summary>
@@ -442,11 +389,7 @@ namespace Tubumu.Utils.FastLambda
         {
             NewExpression n = VisitNew(init.NewExpression);
             IEnumerable<MemberBinding> bindings = VisitBindingList(init.Bindings);
-            if (n != init.NewExpression || bindings != init.Bindings)
-            {
-                return Expression.MemberInit(n, bindings);
-            }
-            return init;
+            return n != init.NewExpression || bindings != init.Bindings ? Expression.MemberInit(n, bindings) : (Expression)init;
         }
 
         /// <summary>
@@ -458,11 +401,7 @@ namespace Tubumu.Utils.FastLambda
         {
             NewExpression n = VisitNew(init.NewExpression);
             IEnumerable<ElementInit> initializers = VisitElementInitializerList(init.Initializers);
-            if (n != init.NewExpression || initializers != init.Initializers)
-            {
-                return Expression.ListInit(n, initializers);
-            }
-            return init;
+            return n != init.NewExpression || initializers != init.Initializers ? Expression.ListInit(n, initializers) : (Expression)init;
         }
 
         /// <summary>
@@ -475,14 +414,9 @@ namespace Tubumu.Utils.FastLambda
             IEnumerable<Expression> exprs = VisitExpressionList(na.Expressions);
             if (exprs != na.Expressions)
             {
-                if (na.NodeType == ExpressionType.NewArrayInit)
-                {
-                    return Expression.NewArrayInit(na.Type.GetElementType()!, exprs);
-                }
-                else
-                {
-                    return Expression.NewArrayBounds(na.Type.GetElementType()!, exprs);
-                }
+                return na.NodeType == ExpressionType.NewArrayInit
+                    ? Expression.NewArrayInit(na.Type.GetElementType()!, exprs)
+                    : (Expression)Expression.NewArrayBounds(na.Type.GetElementType()!, exprs);
             }
             return na;
         }

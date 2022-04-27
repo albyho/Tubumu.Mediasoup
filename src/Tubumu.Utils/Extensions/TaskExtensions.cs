@@ -25,8 +25,8 @@ namespace Tubumu.Utils.Extensions
         public static async Task WithTimeout(this Task task, TimeSpan timeout, Action? cancelled = null)
         {
             using var timerCancellation = new CancellationTokenSource();
-            Task timeoutTask = Task.Delay(timeout, timerCancellation.Token);
-            Task firstCompletedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+            var timeoutTask = Task.Delay(timeout, timerCancellation.Token);
+            var firstCompletedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
             if (firstCompletedTask == timeoutTask)
             {
                 if (cancelled == null)
@@ -96,13 +96,21 @@ namespace Tubumu.Utils.Extensions
 #pragma warning restore CS8604 // Possible null reference argument.
                 case TaskStatus.Faulted:
                     return resultSetter.TrySetException(task.Exception!.InnerExceptions);
-
                 case TaskStatus.Canceled:
                     return resultSetter.TrySetCanceled();
-
-                default:
-                    throw new InvalidOperationException("The task was not completed.");
+                case TaskStatus.Created:
+                    break;
+                case TaskStatus.WaitingForActivation:
+                    break;
+                case TaskStatus.WaitingToRun:
+                    break;
+                case TaskStatus.Running:
+                    break;
+                case TaskStatus.WaitingForChildrenToComplete:
+                    break;
             }
+
+            throw new InvalidOperationException("The task was not completed.");
         }
 
         /// <summary>

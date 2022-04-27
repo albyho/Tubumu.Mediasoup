@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -140,37 +140,37 @@ namespace Tubumu.Libuv
 
         public void Read(int offset, byte[] data, int index, int count, Action<Exception?, int?>? callback)
         {
-            Read(this.Loop, offset, data, index, count, callback);
+            Read(Loop, offset, data, index, count, callback);
         }
 
         public void Read(byte[] data, int index, int count, Action<Exception?, int?> callback)
         {
-            Read(this.Loop, data, index, count, callback);
+            Read(Loop, data, index, count, callback);
         }
 
         public void Read(int offset, byte[] data, Action<Exception?, int?> callback)
         {
-            Read(this.Loop, offset, data, callback);
+            Read(Loop, offset, data, callback);
         }
 
         public void Read(byte[] data, Action<Exception?, int?> callback)
         {
-            Read(this.Loop, data, callback);
+            Read(Loop, data, callback);
         }
 
         public void Read(int offset, byte[] data, int index, int count)
         {
-            Read(this.Loop, offset, data, index, count);
+            Read(Loop, offset, data, index, count);
         }
 
         public void Read(byte[] data, int index, int count)
         {
-            Read(this.Loop, data, index, count);
+            Read(Loop, data, index, count);
         }
 
         public void Read(byte[] data)
         {
-            Read(this.Loop, data);
+            Read(Loop, data);
         }
 
         public void Read(Loop loop, ArraySegment<byte> data, Action<Exception?, int?>? callback)
@@ -306,7 +306,7 @@ namespace Tubumu.Libuv
 
         public void Write(int offset, byte[] data, int index, int count, Action<Exception?, int?>? callback)
         {
-            Write(this.Loop, offset, data, index, count, callback);
+            Write(Loop, offset, data, index, count, callback);
         }
 
         public void Write(byte[] data, int index, int count, Action<Exception?, int?>? callback)
@@ -316,12 +316,12 @@ namespace Tubumu.Libuv
 
         public void Write(int offset, byte[] data, Action<Exception?, int?>? callback)
         {
-            Write(this.Loop, offset, data, callback);
+            Write(Loop, offset, data, callback);
         }
 
         public void Write(byte[] data, Action<Exception?, int?>? callback)
         {
-            Write(this.Loop, data, callback);
+            Write(Loop, data, callback);
         }
 
         public void Write(int offset, byte[] data, int index, int count)
@@ -419,42 +419,42 @@ namespace Tubumu.Libuv
 
         public int Write(int offset, Encoding encoding, string text, Action<Exception?, int?>? callback)
         {
-            return Write(this.Loop, offset, encoding, text, callback);
+            return Write(Loop, offset, encoding, text, callback);
         }
 
         public int Write(Encoding encoding, string text, Action<Exception?, int?>? callback)
         {
-            return Write(this.Loop, encoding, text, callback);
+            return Write(Loop, encoding, text, callback);
         }
 
         public int Write(int offset, Encoding encoding, string text)
         {
-            return Write(this.Loop, offset, encoding, text);
+            return Write(Loop, offset, encoding, text);
         }
 
         public int Write(Encoding encoding, string text)
         {
-            return Write(this.Loop, encoding, text);
+            return Write(Loop, encoding, text);
         }
 
         public int Write(int offset, string text, Action<Exception?, int?>? callback)
         {
-            return Write(this.Loop, offset, text, callback);
+            return Write(Loop, offset, text, callback);
         }
 
         public int Write(string text, Action<Exception?, int?>? callback)
         {
-            return Write(this.Loop, text, callback);
+            return Write(Loop, text, callback);
         }
 
         public int Write(int offset, string text)
         {
-            return Write(this.Loop, offset, text);
+            return Write(Loop, offset, text);
         }
 
         public int Write(string text)
         {
-            return Write(this.Loop, text);
+            return Write(Loop, text);
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]

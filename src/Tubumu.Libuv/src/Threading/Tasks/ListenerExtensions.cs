@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
@@ -31,7 +31,7 @@ namespace Tubumu.Libuv.Threading.Tasks
 
             Action<Exception?, TClient?>? finish = null;
 
-            Action connectioncb = () =>
+            void connectioncb()
             {
                 try
                 {
@@ -39,9 +39,9 @@ namespace Tubumu.Libuv.Threading.Tasks
                 }
                 catch (Exception ex)
                 {
-                    finish?.Invoke(ex, default(TClient));
+                    finish?.Invoke(ex, default);
                 }
-            };
+            }
 
             finish = HelperFunctions.Finish(tcs, () =>
             {

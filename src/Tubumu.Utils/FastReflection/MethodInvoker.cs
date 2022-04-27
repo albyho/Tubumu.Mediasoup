@@ -37,12 +37,7 @@ namespace Tubumu.Utils.FastReflection
         /// <param name="methodInfo"></param>
         public MethodInvoker(MethodInfo methodInfo)
         {
-            if (methodInfo == null)
-            {
-                throw new ArgumentNullException(nameof(methodInfo));
-            }
-
-            MethodInfo = methodInfo;
+            MethodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
             _invoker = CreateInvokeDelegate(methodInfo);
         }
 

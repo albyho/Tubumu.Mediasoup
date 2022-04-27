@@ -1,5 +1,4 @@
 ﻿using System.Runtime.Serialization;
-using Tubumu.Utils.Extensions;
 
 namespace Tubumu.Mediasoup
 {

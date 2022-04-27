@@ -8,8 +8,8 @@ namespace Tubumu.Meeting.Server
     public class BadDisconnectSocketService
     {
         private readonly ILogger<BadDisconnectSocketService> _logger;
-        private readonly Dictionary<string, HubCallerContext> _cache = new Dictionary<string, HubCallerContext>();
-        private readonly object _cacheLock = new object();
+        private readonly Dictionary<string, HubCallerContext> _cache = new();
+        private readonly object _cacheLock = new();
 
         public BadDisconnectSocketService(ILogger<BadDisconnectSocketService> logger)
         {

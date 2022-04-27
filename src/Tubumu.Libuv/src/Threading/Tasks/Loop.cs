@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Tubumu.Libuv.Threading.Tasks;
@@ -13,21 +13,12 @@ namespace Tubumu.Libuv
         {
             get
             {
-                if (taskfactory == null)
-                {
-                    taskfactory = new TaskFactory(Scheduler);
-                }
+                taskfactory ??= new TaskFactory(Scheduler);
                 return taskfactory;
             }
         }
 
-        public TaskScheduler Scheduler
-        {
-            get
-            {
-                return LoopTaskScheduler.Instance;
-            }
-        }
+        public static TaskScheduler Scheduler => LoopTaskScheduler.Instance;
 
         public bool Run(Func<Task> asyncMethod)
         {
@@ -49,12 +40,7 @@ namespace Tubumu.Libuv
 
                 var returnValue = loop.Run();
 
-                if (task.Exception != null)
-                {
-                    throw task.Exception;
-                }
-
-                return returnValue;
+                return task.Exception != null ? throw task.Exception : returnValue;
             }
             finally
             {
@@ -72,9 +58,9 @@ namespace Tubumu.Libuv
                 }
 
                 var current = SynchronizationContext.Current;
-                if (current is LoopSynchronizationContext)
+                if (current is LoopSynchronizationContext context)
                 {
-                    return ((LoopSynchronizationContext)current).Loop;
+                    return context.Loop;
                 }
 
                 // TODO: Think about returning exception
@@ -86,12 +72,6 @@ namespace Tubumu.Libuv
         /// Returns Default Loop value when creating Tubumu.Libuv objects.
         /// </summary>
         /// <value>A loop.</value>
-        internal static Loop Constructor
-        {
-            get
-            {
-                return Loop.Current ?? Loop.Default;
-            }
-        }
+        internal static Loop Constructor => Current ?? Default;
     }
 }

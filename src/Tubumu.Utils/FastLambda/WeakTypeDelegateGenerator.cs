@@ -20,7 +20,7 @@ namespace Tubumu.Utils.FastLambda
         {
             _parameters = new List<ParameterExpression>();
 
-            var body = this.Visit(exp);
+            var body = Visit(exp);
             var lambda = Expression.Lambda(body, _parameters.ToArray());
             return lambda.Compile();
         }

@@ -12,8 +12,8 @@ namespace Tubumu.Mediasoup
 {
     public static class ORTC
     {
-        private static readonly Regex MimeTypeRegex = new Regex(@"^(audio|video)/(.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex RtxMimeTypeRegex = new Regex(@"^.+/rtx$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex MimeTypeRegex = new(@"^(audio|video)/(.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex RtxMimeTypeRegex = new(@"^.+/rtx$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static readonly int[] DynamicPayloadTypes = new[] {
             100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
@@ -516,8 +516,8 @@ namespace Tubumu.Mediasoup
             // Normalize supported RTP capabilities.
             ValidateRtpCapabilities(RtpCapabilities.SupportedRtpCapabilities);
 
-            var clonedSupportedRtpCapabilities = RtpCapabilities.SupportedRtpCapabilities.DeepClone<RtpCapabilities>();
-            var dynamicPayloadTypes = DynamicPayloadTypes.DeepClone<int[]>().ToList();
+            var clonedSupportedRtpCapabilities = RtpCapabilities.SupportedRtpCapabilities.DeepClone();
+            var dynamicPayloadTypes = DynamicPayloadTypes.DeepClone().ToList();
             var caps = new RtpCapabilities
             {
                 Codecs = new List<RtpCodecCapability>(),
@@ -531,7 +531,7 @@ namespace Tubumu.Mediasoup
 
                 var matchedSupportedCodec = clonedSupportedRtpCapabilities
                     .Codecs!
-                    .Where(supportedCodec => MatchCodecs(mediaCodec, supportedCodec, false)).FirstOrDefault();
+                    .FirstOrDefault(supportedCodec => MatchCodecs(mediaCodec, supportedCodec, false));
 
                 if (matchedSupportedCodec == null)
                 {
@@ -539,7 +539,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Clone the supported codec.
-                var codec = matchedSupportedCodec.DeepClone<RtpCodecCapability>();
+                var codec = matchedSupportedCodec.DeepClone();
 
                 // If the given media codec has preferredPayloadType, keep it.
                 if (mediaCodec.PreferredPayloadType.HasValue)
@@ -642,8 +642,7 @@ namespace Tubumu.Mediasoup
 
                 // Search for the same media codec in capabilities.
                 var matchedCapCodec = caps.Codecs!
-                    .Where(capCodec => MatchCodecs(codec, capCodec, true, true))
-                    .FirstOrDefault();
+                    .FirstOrDefault(capCodec => MatchCodecs(codec, capCodec, true, true));
                 codecToCapCodec[codec] = matchedCapCodec ?? throw new NotSupportedException($"Unsupported codec[mimeType:{ codec.MimeType }, payloadType:{ codec.PayloadType }, Channels:{ codec.Channels }]");
             }
 
@@ -657,8 +656,7 @@ namespace Tubumu.Mediasoup
 
                 // Search for the associated media codec.
                 var associatedMediaCodec = parameters.Codecs
-                    .Where(mediaCodec => MatchCodecsWithPayloadTypeAndApt(mediaCodec.PayloadType, codec.Parameters))
-                    .FirstOrDefault();
+                    .FirstOrDefault(mediaCodec => MatchCodecsWithPayloadTypeAndApt(mediaCodec.PayloadType, codec.Parameters));
 
                 if (associatedMediaCodec == null)
                 {
@@ -669,8 +667,7 @@ namespace Tubumu.Mediasoup
 
                 // Ensure that the capabilities media codec has a RTX codec.
                 var associatedCapRtxCodec = caps.Codecs!
-                    .Where(capCodec => IsRtxMimeType(capCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(capMediaCodec.PreferredPayloadType, capCodec.Parameters))
-                    .FirstOrDefault();
+                    .FirstOrDefault(capCodec => IsRtxMimeType(capCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(capMediaCodec.PreferredPayloadType, capCodec.Parameters));
                 codecToCapCodec[codec] = associatedCapRtxCodec ?? throw new Exception($"no RTX codec for capability codec PT { capMediaCodec.PreferredPayloadType}");
             }
 
@@ -730,8 +727,7 @@ namespace Tubumu.Mediasoup
                     .FirstOrDefault();
 
                 var matchedCapCodec = caps.Codecs!
-                    .Where(capCodec => capCodec.PreferredPayloadType == consumableCodecPt)
-                    .FirstOrDefault();
+                    .FirstOrDefault(capCodec => capCodec.PreferredPayloadType == consumableCodecPt);
 
                 var consumableCodec = new RtpCodecParameters
                 {
@@ -746,8 +742,7 @@ namespace Tubumu.Mediasoup
                 consumableParams.Codecs.Add(consumableCodec);
 
                 var consumableCapRtxCodec = caps.Codecs!
-                    .Where(capRtxCodec => IsRtxMimeType(capRtxCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(consumableCodec.PayloadType, capRtxCodec.Parameters))
-                    .FirstOrDefault();
+                    .FirstOrDefault(capRtxCodec => IsRtxMimeType(capRtxCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(consumableCodec.PayloadType, capRtxCodec.Parameters));
 
                 if (consumableCapRtxCodec != null)
                 {
@@ -827,8 +822,7 @@ namespace Tubumu.Mediasoup
             foreach (var codec in consumableParams.Codecs)
             {
                 var matchedCapCodec = caps.Codecs!
-                    .Where(capCodec => MatchCodecs(capCodec, codec, true))
-                    .FirstOrDefault();
+                    .FirstOrDefault(capCodec => MatchCodecs(capCodec, codec, true));
 
                 if (matchedCapCodec == null)
                 {
@@ -839,12 +833,7 @@ namespace Tubumu.Mediasoup
             }
 
             // Ensure there is at least one media codec.
-            if (matchingCodecs.Count == 0 || IsRtxMimeType(matchingCodecs[0].MimeType))
-            {
-                return false;
-            }
-
-            return true;
+            return matchingCodecs.Count != 0 && !IsRtxMimeType(matchingCodecs[0].MimeType);
         }
 
         /// <summary>
@@ -869,15 +858,14 @@ namespace Tubumu.Mediasoup
                 ValidateRtpCodecCapability(capCodec);
             }
 
-            var consumableCodecs = consumableParams.Codecs.DeepClone<List<RtpCodecParameters>>();
+            var consumableCodecs = consumableParams.Codecs.DeepClone();
 
             var rtxSupported = false;
 
             foreach (var codec in consumableCodecs)
             {
                 var matchedCapCodec = caps.Codecs
-                    .Where(capCodec => MatchCodecs(capCodec, codec, true))
-                    .FirstOrDefault();
+                    .FirstOrDefault(capCodec => MatchCodecs(capCodec, codec, true));
 
                 if (matchedCapCodec == null)
                 {
@@ -895,21 +883,14 @@ namespace Tubumu.Mediasoup
             {
                 if (IsRtxMimeType(codec.MimeType))
                 {
-                    if(!codec.Parameters.TryGetValue("apt", out var apt))
+                    if (!codec.Parameters.TryGetValue("apt", out var apt))
                     {
                         throw new Exception("\"apt\" key is not exists.");
                     }
 
                     var apiInteger = 0;
                     var aptJsonElement = apt as JsonElement?;
-                    if (aptJsonElement != null)
-                    {
-                        apiInteger = aptJsonElement.Value.GetInt32();
-                    }
-                    else
-                    {
-                        apiInteger = Convert.ToInt32(apt);
-                    }
+                    apiInteger = aptJsonElement != null ? aptJsonElement.Value.GetInt32() : Convert.ToInt32(apt);
 
                     // Search for the associated media codec.
                     var associatedMediaCodec = consumerParams.Codecs.FirstOrDefault(mediaCodec => mediaCodec.PayloadType == apiInteger);
@@ -956,7 +937,7 @@ namespace Tubumu.Mediasoup
             {
                 foreach (var codec in consumerParams.Codecs)
                 {
-                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type != "transport-cc" && fb.Type != "goog-remb").ToArray();
+                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type is not "transport-cc" and not "goog-remb").ToArray();
                 }
             }
 
@@ -974,7 +955,7 @@ namespace Tubumu.Mediasoup
 
                 // If any in the consumableParams.Encodings has scalabilityMode, process it
                 // (assume all encodings have the same value).
-                var encodingWithScalabilityMode = consumableParams.Encodings!.Where(encoding => !encoding.ScalabilityMode.IsNullOrWhiteSpace()).FirstOrDefault();
+                var encodingWithScalabilityMode = consumableParams.Encodings!.FirstOrDefault(encoding => !encoding.ScalabilityMode.IsNullOrWhiteSpace());
 
                 var scalabilityMode = encodingWithScalabilityMode?.ScalabilityMode;
 
@@ -1011,18 +992,8 @@ namespace Tubumu.Mediasoup
                 for (var i = 0; i < consumableEncodings!.Count; ++i)
                 {
                     var encoding = consumableEncodings[i];
-
                     encoding.Ssrc = baseSsrc + (uint)i;
-
-                    if (rtxSupported)
-                    {
-                        encoding.Rtx = new Rtx { Ssrc = baseRtxSsrc + (uint)i };
-
-                    }
-                    else
-                    {
-                        encoding.Rtx = null;
-                    }
+                    encoding.Rtx = rtxSupported ? new Rtx { Ssrc = baseRtxSsrc + (uint)i } : null;
 
                     consumerParams.Encodings!.Add(encoding);
                 }
@@ -1047,7 +1018,7 @@ namespace Tubumu.Mediasoup
                 Rtcp = consumableParams.Rtcp
             };
 
-            var consumableCodecs = consumableParams.Codecs.DeepClone<List<RtpCodecParameters>>();
+            var consumableCodecs = consumableParams.Codecs.DeepClone();
 
             foreach (var codec in consumableCodecs)
             {
@@ -1068,10 +1039,10 @@ namespace Tubumu.Mediasoup
 
             // Reduce RTP extensions by disabling transport MID and BWE related ones.
             consumerParams.HeaderExtensions = consumableParams.HeaderExtensions!
-                .Where(ext => (ext.Uri != "urn:ietf:parameters:rtp-hdrext:sdes:mid" &&
-                                ext.Uri != "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time" &&
-                                ext.Uri != "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
-                                )).ToList();
+                .Where(ext => ext.Uri is not "urn:ietf:parameters:rtp-hdrext:sdes:mid" and
+                                not "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time" and
+                                not "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
+                                ).ToList();
 
             var consumableEncodings = consumableParams.Encodings!.DeepClone();
 
@@ -1171,13 +1142,17 @@ namespace Tubumu.Mediasoup
                         var bNumStreams = bCodec.Parameters["num_streams"];
 
                         if (aNumStreams != bNumStreams)
+                        {
                             return false;
+                        }
 
                         var aCoupledStreams = aCodec.Parameters["coupled_streams"];
                         var bCoupledStreams = bCodec.Parameters["coupled_streams"];
 
                         if (aCoupledStreams != bCoupledStreams)
+                        {
                             return false;
+                        }
 
                         break;
                     }
@@ -1235,6 +1210,9 @@ namespace Tubumu.Mediasoup
 
                         break;
                     }
+
+                default:
+                    break;
             }
 
             return true;

@@ -38,7 +38,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// mediasoup-worker child process.
         /// </summary>
-        private Tubumu.Libuv.Process? _child;
+        private Process? _child;
 
         /// <summary>
         /// Worker process PID.
@@ -68,12 +68,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Routers set.
         /// </summary>
-        private readonly List<Router> _routers = new List<Router>();
+        private readonly List<Router> _routers = new();
 
         /// <summary>
         /// Locker.
         /// </summary>
-        private readonly object _routersLock = new object();
+        private readonly object _routersLock = new();
 
         #endregion Private Fields
 
@@ -85,7 +85,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close locker.
         /// </summary>
-        private readonly AsyncAutoResetEvent _closeLock = new AsyncAutoResetEvent();
+        private readonly AsyncAutoResetEvent _closeLock = new();
 
         /// <summary>
         /// Custom app data.
@@ -116,24 +116,13 @@ namespace Tubumu.Mediasoup
             if (workerPath.IsNullOrWhiteSpace())
             {
                 // 见：https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
-                string rid;
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    rid = "linux";
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    rid = "osx";
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    rid = "win";
-                }
-                else
-                {
-                    throw new NotSupportedException("Unsupported platform");
-                }
-
+                string rid = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                    ? "linux"
+                    : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                        ? "osx"
+                        : RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                            ? "win"
+                            : throw new NotSupportedException("Unsupported platform");
                 var location = Assembly.GetEntryAssembly()!.Location;
                 var directory = Path.GetDirectoryName(location)!;
                 workerPath = Path.Combine(directory, "runtimes", rid, "native", "mediasoup-worker");

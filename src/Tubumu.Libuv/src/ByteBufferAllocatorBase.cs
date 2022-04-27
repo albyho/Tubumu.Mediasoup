@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Tubumu.Libuv
 {
@@ -24,8 +24,7 @@ namespace Tubumu.Libuv
 
         private void Alloc(IntPtr data, int size, out uv_buf_t buf)
         {
-            IntPtr ptr;
-            size = Alloc(size, out ptr);
+            size = Alloc(size, out var ptr);
             buf = new uv_buf_t(ptr, size);
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Tubumu.Utils.Utilities.Cryptography
@@ -34,7 +33,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <param name="rawString"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
-        public static Byte[] EncryptToByteArray(string rawString, string salt)
+        public static byte[] EncryptToByteArray(string rawString, string salt)
         {
             if (rawString == null)
             {
@@ -44,7 +43,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             {
                 throw new ArgumentNullException(nameof(salt));
             }
-            var salted = Encoding.UTF8.GetBytes(String.Concat(rawString, salt));
+            var salted = Encoding.UTF8.GetBytes(string.Concat(rawString, salt));
             var hasher = System.Security.Cryptography.SHA256.Create();
             var hashed = hasher.ComputeHash(salted);
             return hashed;

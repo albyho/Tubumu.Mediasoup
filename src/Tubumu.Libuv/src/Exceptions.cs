@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
 {
-    unsafe public class UVException : Exception
+    public unsafe class UVException : Exception
     {
         /// <summary>
         /// Independent error code, has the same value on all
@@ -56,11 +56,7 @@ namespace Tubumu.Libuv
 
         public static UVErrorCode Map(int systemErrorCode)
         {
-            if (systemErrorCode == 0)
-            {
-                return UVErrorCode.OK;
-            }
-            return Map(ErrorName(systemErrorCode));
+            return systemErrorCode == 0 ? UVErrorCode.OK : Map(ErrorName(systemErrorCode));
         }
 
         public static UVErrorCode Map(string errorName)
