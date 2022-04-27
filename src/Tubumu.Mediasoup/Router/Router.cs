@@ -226,11 +226,8 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateWebRtcTransportAsync()");
 
-            var @internal = new
-            {
-                RouterId,
-                TransportId = Guid.NewGuid().ToString(),
-            };
+            var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
+
             var reqData = new
             {
                 webRtcTransportOptions.ListenIps,
@@ -251,7 +248,7 @@ namespace Tubumu.Mediasoup
             var responseData = JsonSerializer.Deserialize<RouterCreateWebRtcTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var transport = new WebRtcTransport(_loggerFactory,
-                new TransportInternalData(@internal.RouterId, @internal.TransportId),
+                @internal,
                 sctpParameters: null,
                 sctpState: null,
                 _channel,
@@ -319,11 +316,7 @@ namespace Tubumu.Mediasoup
                 throw new Exception("Missing listenIp");
             }
 
-            var @internal = new
-            {
-                RouterId,
-                TransportId = Guid.NewGuid().ToString(),
-            };
+            var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
 
             var reqData = new
             {
@@ -408,11 +401,7 @@ namespace Tubumu.Mediasoup
                 throw new ArgumentNullException(nameof(pipeTransportOptions.ListenIp), "Missing listenIp");
             }
 
-            var @internal = new
-            {
-                RouterId,
-                TransportId = Guid.NewGuid().ToString(),
-            };
+            var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
 
             var reqData = new
             {
@@ -492,11 +481,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateDirectTransportAsync()");
 
-            var @internal = new
-            {
-                RouterId,
-                TransportId = Guid.NewGuid().ToString(),
-            };
+            var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
 
             var reqData = new
             {

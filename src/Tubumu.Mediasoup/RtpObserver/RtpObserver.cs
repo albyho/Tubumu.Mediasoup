@@ -64,7 +64,6 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public Dictionary<string, object>? AppData { get; private set; }
 
-
         /// <summary>
         /// Method to retrieve a Producer.
         /// </summary>
@@ -216,13 +215,8 @@ namespace Tubumu.Mediasoup
                 return;
             }
 
-            var @internal = new
-            {
-                Internal.RouterId,
-                Internal.RtpObserverId,
-            };
             var reqData = new { rtpObserverAddRemoveProducerOptions.ProducerId };
-            await Channel.RequestAsync(MethodId.RTP_OBSERVER_ADD_PRODUCER, @internal, reqData);
+            await Channel.RequestAsync(MethodId.RTP_OBSERVER_ADD_PRODUCER, Internal, reqData);
 
             // Emit observer event.
             Observer.Emit("addproducer", producer);
@@ -241,13 +235,8 @@ namespace Tubumu.Mediasoup
                 return;
             }
 
-            var @internal = new
-            {
-                Internal.RouterId,
-                Internal.RtpObserverId,
-            };
             var reqData = new { rtpObserverAddRemoveProducerOptions.ProducerId };
-            await Channel.RequestAsync(MethodId.RTP_OBSERVER_REMOVE_PRODUCER, @internal, reqData);
+            await Channel.RequestAsync(MethodId.RTP_OBSERVER_REMOVE_PRODUCER, Internal, reqData);
 
             // Emit observer event.
             Observer.Emit("removeproducer", producer);
