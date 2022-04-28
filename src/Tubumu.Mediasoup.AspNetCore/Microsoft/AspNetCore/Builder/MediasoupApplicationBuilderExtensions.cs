@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
@@ -30,7 +31,7 @@ namespace Microsoft.AspNetCore.Builder
                             var worker = app.ApplicationServices.GetRequiredService<WorkerNative>();
                             mediasoupServer.AddWorker(worker);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             logger.LogError(ex, "Worker create failure.");
                         }

@@ -46,9 +46,7 @@
     <ProjectReference Include="..\Tubumu.Mediasoup\Tubumu.Mediasoup.csproj" />
     <ProjectReference Include="..\Tubumu.Mediasoup.AspNetCore\Tubumu.Mediasoup.AspNetCore.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="SignalRSwaggerGen" />
-  </ItemGroup>
+
   <ItemGroup>
       <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
