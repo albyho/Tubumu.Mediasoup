@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
@@ -9,7 +8,7 @@ using Tubumu.Mediasoup;
 
 namespace Microsoft.AspNetCore.Builder
 {
-    public static class ApplicationBuilderExtensions
+    public static class MediasoupApplicationBuilderExtensions
     {
         public static IApplicationBuilder UseMediasoup(this IApplicationBuilder app)
         {

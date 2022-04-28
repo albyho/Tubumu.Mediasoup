@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Tubumu.Meeting.Server;
-using Tubumu.Meeting.Server.Authorization;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
