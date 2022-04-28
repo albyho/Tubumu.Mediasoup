@@ -266,7 +266,7 @@ namespace Tubumu.Meeting.Server
                 CheckConnection(peer, connectionId);
 
                 Peer? targetPeer;
-                if(peerId == targetPeerId)
+                if (peerId == targetPeerId)
                 {
                     targetPeer = peer;
                 }

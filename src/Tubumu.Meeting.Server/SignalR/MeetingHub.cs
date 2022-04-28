@@ -59,7 +59,8 @@ namespace Tubumu.Meeting.Server
                 if (leaveResult != null)
                 {
                     // Notification: peerLeaveRoom
-                    SendNotification(leaveResult.OtherPeerIds, "peerLeaveRoom", new PeerLeaveRoomNotification {
+                    SendNotification(leaveResult.OtherPeerIds, "peerLeaveRoom", new PeerLeaveRoomNotification
+                    {
                         PeerId = leaveResult.SelfPeer.PeerId
                     });
                     _badDisconnectSocketService.DisconnectClient(leaveResult.SelfPeer.ConnectionId);
@@ -94,7 +95,7 @@ namespace Tubumu.Meeting.Server
         public MeetingMessage<RtpCapabilities> GetRouterRtpCapabilities()
         {
             var rtpCapabilities = _scheduler.DefaultRtpCapabilities;
-            return  MeetingMessage<RtpCapabilities>.Success(rtpCapabilities, "GetRouterRtpCapabilities 成功");
+            return MeetingMessage<RtpCapabilities>.Success(rtpCapabilities, "GetRouterRtpCapabilities 成功");
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace Tubumu.Meeting.Server
                 };
                 return MeetingMessage<JoinRoomResponse>.Success(data, "JoinRoom 成功");
             }
-            catch(MeetingException ex)
+            catch (MeetingException ex)
             {
                 _logger.LogError(ex.Message);
             }
@@ -255,11 +256,11 @@ namespace Tubumu.Meeting.Server
                     {
                         // Notification: downlinkBwe
                         SendNotification(peerId, "downlinkBwe", new
-                            {
-                                DesiredBitrate = traceData.Info["desiredBitrate"],
-                                EffectiveDesiredBitrate = traceData.Info["effectiveDesiredBitrate"],
-                                AvailableBitrate = traceData.Info["availableBitrate"]
-                            });
+                        {
+                            DesiredBitrate = traceData.Info["desiredBitrate"],
+                            EffectiveDesiredBitrate = traceData.Info["effectiveDesiredBitrate"],
+                            AvailableBitrate = traceData.Info["availableBitrate"]
+                        });
                     }
                     return Task.CompletedTask;
                 });
@@ -643,8 +644,10 @@ namespace Tubumu.Meeting.Server
                 producer.On("score", (_, obj) =>
                 {
                     // Notification: producerScore
-                    SendNotification(peerId, "producerScore", new ProducerScoreNotification {
-                        ProducerId = producer.ProducerId, Score = obj
+                    SendNotification(peerId, "producerScore", new ProducerScoreNotification
+                    {
+                        ProducerId = producer.ProducerId,
+                        Score = obj
                     });
                     return Task.CompletedTask;
                 });
@@ -655,7 +658,8 @@ namespace Tubumu.Meeting.Server
                     //var videoOrientation= (ProducerVideoOrientation?)data;
 
                     // Notification: producerVideoOrientationChanged
-                    SendNotification(peerId, "producerVideoOrientationChanged", new ProducerVideoOrientationChangedNotification {
+                    SendNotification(peerId, "producerVideoOrientationChanged", new ProducerVideoOrientationChangedNotification
+                    {
                         ProducerId = producer.ProducerId,
                         VideoOrientation = obj
                     });
@@ -676,15 +680,18 @@ namespace Tubumu.Meeting.Server
                 producer.Observer.On("close", (_, _) =>
                 {
                     // Notification: producerClosed
-                    SendNotification(peerId, "producerClosed", new ProducerClosedNotification {
+                    SendNotification(peerId, "producerClosed", new ProducerClosedNotification
+                    {
                         ProducerId = producer.ProducerId
                     });
                     return Task.CompletedTask;
                 });
 
-                return MeetingMessage<ProduceRespose>.Success(new ProduceRespose {
+                return MeetingMessage<ProduceRespose>.Success(new ProduceRespose
+                {
                     Id = producer.ProducerId,
-                    Source = produceRequest.Source },
+                    Source = produceRequest.Source
+                },
                     "Produce 成功");
             }
             catch (MeetingException ex)
@@ -846,7 +853,8 @@ namespace Tubumu.Meeting.Server
                 if (consumer != null)
                 {
                     // Notification: consumerScore
-                    SendNotification(UserId, "consumerScore", new ConsumerScoreNotification {
+                    SendNotification(UserId, "consumerScore", new ConsumerScoreNotification
+                    {
                         ConsumerId = consumer.ConsumerId,
                         Score = consumer.Score
                     });
@@ -1216,7 +1224,8 @@ namespace Tubumu.Meeting.Server
                 //var score = (ConsumerScore?)obj;
 
                 // Notification: consumerScore
-                SendNotification(consumerPeerId, "consumerScore", new ConsumerScoreNotification {
+                SendNotification(consumerPeerId, "consumerScore", new ConsumerScoreNotification
+                {
                     ProducerPeerId = producerPeerId,
                     Kind = producer.Kind,
                     ConsumerId = consumer.ConsumerId,
@@ -1232,7 +1241,8 @@ namespace Tubumu.Meeting.Server
             consumer.Observer.On("close", (_, _) =>
             {
                 // Notification: consumerClosed
-                SendNotification(consumerPeerId, "consumerClosed", new ConsumerClosedNotification {
+                SendNotification(consumerPeerId, "consumerClosed", new ConsumerClosedNotification
+                {
                     ProducerPeerId = producerPeerId,
                     Kind = producer.Kind,
                     ConsumerId = consumer.ConsumerId
@@ -1243,7 +1253,8 @@ namespace Tubumu.Meeting.Server
             consumer.On("producerpause", (_, _) =>
             {
                 // Notification: consumerPaused
-                SendNotification(consumerPeerId, "consumerPaused", new ConsumerPausedNotification {
+                SendNotification(consumerPeerId, "consumerPaused", new ConsumerPausedNotification
+                {
                     ProducerPeerId = producerPeerId,
                     Kind = producer.Kind,
                     ConsumerId = consumer.ConsumerId
@@ -1254,7 +1265,8 @@ namespace Tubumu.Meeting.Server
             consumer.On("producerresume", (_, _) =>
             {
                 // Notification: consumerResumed
-                SendNotification(consumerPeerId, "consumerResumed", new ConsumerResumedNotification {
+                SendNotification(consumerPeerId, "consumerResumed", new ConsumerResumedNotification
+                {
                     ProducerPeerId = producerPeerId,
                     Kind = producer.Kind,
                     ConsumerId = consumer.ConsumerId
@@ -1268,7 +1280,8 @@ namespace Tubumu.Meeting.Server
                 //var layers = (ConsumerLayers?)obj;
 
                 // Notification: consumerLayersChanged
-                SendNotification(consumerPeerId, "consumerLayersChanged", new ConsumerLayersChangedNotification {
+                SendNotification(consumerPeerId, "consumerLayersChanged", new ConsumerLayersChangedNotification
+                {
                     ProducerPeerId = producerPeerId,
                     Kind = producer.Kind,
                     ConsumerId = consumer.ConsumerId,

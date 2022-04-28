@@ -112,7 +112,7 @@ namespace Tubumu.Utils.Extensions
             return result;
         }
 
-        public static bool DeepEquals<TKey, TValue>(this IDictionary<TKey, TValue> first, IDictionary<TKey, TValue> second) where TKey: notnull
+        public static bool DeepEquals<TKey, TValue>(this IDictionary<TKey, TValue> first, IDictionary<TKey, TValue> second) where TKey : notnull
         {
             var comparer = new DictionaryComparer<TKey, TValue>();
             return comparer.Equals(first, second);
@@ -125,7 +125,7 @@ namespace Tubumu.Utils.Extensions
         }
     }
 
-    public class DictionaryComparer<TKey, TValue> : IEqualityComparer<IDictionary<TKey, TValue>> where TKey: notnull
+    public class DictionaryComparer<TKey, TValue> : IEqualityComparer<IDictionary<TKey, TValue>> where TKey : notnull
     {
         public bool Equals(IDictionary<TKey, TValue>? x, IDictionary<TKey, TValue>? y)
         {

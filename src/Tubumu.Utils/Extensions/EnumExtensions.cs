@@ -18,7 +18,7 @@ namespace Tubumu.Utils.Extensions
         /// </summary>
         /// <param name="enumValue">枚举值</param>
         /// <returns>DisplayName</returns>
-        public static string GetDisplayName<T>(this T enumValue) where T: Enum
+        public static string GetDisplayName<T>(this T enumValue) where T : Enum
         {
             var type = enumValue.GetType();
             var enumName = Enum.GetName(type, enumValue);
@@ -46,7 +46,7 @@ namespace Tubumu.Utils.Extensions
         /// <typeparam name="T">泛型参数</typeparam>
         /// <param name="type">枚举类型</param>
         /// <returns>枚举值与对应的 DisplayAttribute 的 Name 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>(this Type type) where T: Enum
+        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>(this Type type) where T : Enum
         {
             return from e in Enum.GetValues(type).Cast<T>()
                    select new KeyValuePair<T, string?>(e, e.GetDisplayName());
@@ -57,7 +57,7 @@ namespace Tubumu.Utils.Extensions
         /// </summary>
         /// <typeparam name="T">泛型参数</typeparam>
         /// <returns>枚举值与对应的 DisplayAttribute 的 Name 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>() where T: Enum
+        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>() where T : Enum
         {
             return GetDisaplayNameMap<T>(typeof(T));
         }
@@ -124,7 +124,7 @@ namespace Tubumu.Utils.Extensions
         /// </summary>
         /// <param name="enumValue"></param>
         /// <returns></returns>
-        public static int GetInt32<T>(this T enumValue) where T: Enum
+        public static int GetInt32<T>(this T enumValue) where T : Enum
         {
             var type = enumValue.GetType();
             var enumName = Enum.GetName(type, enumValue)!;

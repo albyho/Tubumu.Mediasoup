@@ -81,7 +81,7 @@ namespace Tubumu.Meeting.Server
 
         public async Task<Dictionary<string, Producer>> GetProducersASync()
         {
-            using(await _producersLock.ReadLockAsync())
+            using (await _producersLock.ReadLockAsync())
             {
                 return _producers;
             }
@@ -476,7 +476,8 @@ namespace Tubumu.Meeting.Server
                             // Store producer source
                             producer.Source = produceRequest.Source;
 
-                            producer.On("@close", async (_, _) => {
+                            producer.On("@close", async (_, _) =>
+                            {
                                 // 因为调用 producer.Close() 之前已经使用 _producersLock 写锁，所以触发该事件的调用从 _producers 移除无需再次加锁。
                                 _producers.Remove(producer.ProducerId);
 
@@ -484,7 +485,8 @@ namespace Tubumu.Meeting.Server
                                 _pullPaddings.Clear();
                                 _pullPaddingsLock.Set();
                             });
-                            producer.On("transportclose", async (_, _) => {
+                            producer.On("transportclose", async (_, _) =>
+                            {
                                 using (await _producersLock.WriteLockAsync())
                                 {
                                     _producers.Remove(producer.ProducerId);
@@ -546,7 +548,7 @@ namespace Tubumu.Meeting.Server
                         using (await _consumersLock.WriteLockAsync())
                         {
                             // 已经在消费
-                            if(_consumers.Any(m => m.Value.ProducerId == producerId))
+                            if (_consumers.Any(m => m.Value.ProducerId == producerId))
                             {
                                 return null;
                             }
@@ -573,14 +575,16 @@ namespace Tubumu.Meeting.Server
 
                                 consumer.Source = producer.Source;
 
-                                consumer.On("@close", (_, _) => {
+                                consumer.On("@close", (_, _) =>
+                                {
                                     // 因为调用 consumer.CloseAsync() 之前已经使用 _consumersLock 写锁，所以触发该事件的调用从 _consumers 移除无需再次加锁。
                                     _consumers.Remove(consumer.ConsumerId);
                                     producer.RemoveConsumer(consumer.ConsumerId);
                                     return Task.CompletedTask;
                                 });
-                                consumer.On("producerclose,transportclose", async (_, _) => {
-                                    using(await _consumersLock.WriteLockAsync())
+                                consumer.On("producerclose,transportclose", async (_, _) =>
+                                {
+                                    using (await _consumersLock.WriteLockAsync())
                                     {
                                         _consumers.Remove(consumer.ConsumerId);
                                     }
