@@ -33,8 +33,8 @@ namespace Tubumu.Mediasoup
         /// <param name="getProducerById"></param>
         public AudioLevelObserver(ILoggerFactory loggerFactory,
             RtpObserverInternalData rtpObserverInternalData,
-            Channel channel,
-            PayloadChannel payloadChannel,
+            IChannel channel,
+            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<string, Producer?> getProducerById
             ) : base(loggerFactory, rtpObserverInternalData, channel, payloadChannel, appData, getProducerById)

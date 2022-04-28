@@ -53,12 +53,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Channel instance.
         /// </summary>
-        private readonly Channel _channel;
+        private readonly IChannel _channel;
 
         /// <summary>
         /// PayloadChannel instance.
         /// </summary>
-        private readonly PayloadChannel _payloadChannel;
+        private readonly IPayloadChannel _payloadChannel;
 
         /// <summary>
         /// Transports map.
@@ -118,8 +118,8 @@ namespace Tubumu.Mediasoup
         public Router(ILoggerFactory loggerFactory,
             string routerId,
             RtpCapabilities rtpCapabilities,
-            Channel channel,
-            PayloadChannel payloadChannel,
+            IChannel channel,
+            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData
             )
         {

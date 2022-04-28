@@ -148,6 +148,7 @@ namespace Tubumu.Meeting.Web
                 if (mediasoupStartupSettings != null)
                 {
                     options.MediasoupStartupSettings.MediasoupVersion = mediasoupStartupSettings.MediasoupVersion;
+                    options.MediasoupStartupSettings.WorkerInProcess = mediasoupStartupSettings.WorkerInProcess;
                     options.MediasoupStartupSettings.WorkerPath = mediasoupStartupSettings.WorkerPath;
                     options.MediasoupStartupSettings.NumberOfWorkers = !mediasoupStartupSettings.NumberOfWorkers.HasValue || mediasoupStartupSettings.NumberOfWorkers <= 0 ? Environment.ProcessorCount : mediasoupStartupSettings.NumberOfWorkers;
                 }

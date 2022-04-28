@@ -13,7 +13,7 @@ using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
 {
-    public class PayloadChannel
+    public class PayloadChannel : IPayloadChannel
     {
         #region Constants
 
@@ -243,7 +243,7 @@ namespace Tubumu.Mediasoup
             {
                 throw new Exception("PayloadChannel notification too big");
             }
-            else if (payload !=null && payload.Length > PayloadMaxLen)
+            else if (payload != null && payload.Length > PayloadMaxLen)
             {
                 throw new Exception("PayloadChannel payload too big");
             }

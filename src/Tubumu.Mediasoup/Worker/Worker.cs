@@ -15,7 +15,7 @@ namespace Tubumu.Mediasoup
     /// <summary>
     /// A worker represents a mediasoup C++ subprocess that runs in a single CPU core and handles Router instances.
     /// </summary>
-    public class Worker : EventEmitter, IDisposable
+    public class Worker : EventEmitter, IDisposable, IWorker
     {
         #region Constants
 
@@ -53,12 +53,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Channel instance.
         /// </summary>
-        private readonly Channel _channel;
+        private readonly IChannel _channel;
 
         /// <summary>
         /// PayloadChannel instance.
         /// </summary>
-        private readonly PayloadChannel _payloadChannel;
+        private readonly IPayloadChannel _payloadChannel;
 
         /// <summary>
         /// Pipes.
@@ -374,7 +374,7 @@ namespace Tubumu.Mediasoup
                 };
                 return await _channel.RequestAsync(MethodId.WORKER_UPDATE_SETTINGS, null, reqData);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateSettingsAsync()");
                 return null;

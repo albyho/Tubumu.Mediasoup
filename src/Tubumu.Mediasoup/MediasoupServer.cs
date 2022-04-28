@@ -8,7 +8,7 @@ namespace Tubumu.Mediasoup
 {
     public class MediasoupServer
     {
-        private readonly List<Worker> _workers = new();
+        private readonly List<IWorker> _workers = new();
 
         private int _nextMediasoupWorkerIndex = 0;
 
@@ -27,7 +27,7 @@ namespace Tubumu.Mediasoup
         /// Get next mediasoup Worker.
         /// </summary>
         /// <returns></returns>
-        public Worker GetWorker()
+        public IWorker GetWorker()
         {
             _workersLock.EnterReadLock();
             try
@@ -59,7 +59,7 @@ namespace Tubumu.Mediasoup
         /// Add worker.
         /// </summary>
         /// <param name="worker"></param>
-        public void AddWorker(Worker worker)
+        public void AddWorker(IWorker worker)
         {
             if (worker == null)
             {

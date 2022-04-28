@@ -80,12 +80,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Channel instance.
         /// </summary>
-        protected readonly Channel Channel;
+        protected readonly IChannel Channel;
 
         /// <summary>
         /// PayloadChannel instance.
         /// </summary>
-        protected readonly PayloadChannel PayloadChannel;
+        protected readonly IPayloadChannel PayloadChannel;
 
         /// <summary>
         /// App custom data.
@@ -205,8 +205,8 @@ namespace Tubumu.Mediasoup
             TransportInternalData transportInternalData,
             SctpParameters? sctpParameters,
             SctpState? sctpState,
-            Channel channel,
-            PayloadChannel payloadChannel,
+            IChannel channel,
+            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Producer?> getProducerById,

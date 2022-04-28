@@ -52,12 +52,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Channel instance.
         /// </summary>
-        protected readonly Channel Channel;
+        protected readonly IChannel Channel;
 
         /// <summary>
         /// PayloadChannel instance.
         /// </summary>
-        protected readonly PayloadChannel PayloadChannel;
+        protected readonly IPayloadChannel PayloadChannel;
 
         /// <summary>
         /// App custom data.
@@ -93,8 +93,8 @@ namespace Tubumu.Mediasoup
         /// <param name="getProducerById"></param>
         protected RtpObserver(ILoggerFactory loggerFactory,
             RtpObserverInternalData rtpObserverInternalData,
-            Channel channel,
-            PayloadChannel payloadChannel,
+            IChannel channel,
+            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<string, Producer?> getProducerById
             )

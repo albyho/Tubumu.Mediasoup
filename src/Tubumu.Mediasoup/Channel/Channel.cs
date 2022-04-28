@@ -12,7 +12,7 @@ using Tubumu.Utils.Json;
 
 namespace Tubumu.Mediasoup
 {
-    public class Channel
+    public class Channel : IChannel
     {
         #region Constants
 

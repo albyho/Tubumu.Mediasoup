@@ -12,6 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton(mediasoupOptions);
             services.AddSingleton<MediasoupServer>();
             services.AddTransient<Worker>();
+            services.AddTransient<WorkerNative>();
             return services;
         }
     }

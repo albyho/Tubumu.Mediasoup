@@ -102,12 +102,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Channel instance.
         /// </summary>
-        private readonly Channel _channel;
+        private readonly IChannel _channel;
 
         /// <summary>
         /// Channel instance.
         /// </summary>
-        private readonly PayloadChannel _payloadChannel;
+        private readonly IPayloadChannel _payloadChannel;
 
         /// <summary>
         /// App custom data.
@@ -164,8 +164,8 @@ namespace Tubumu.Mediasoup
             RtpParameters rtpParameters,
             ProducerType type,
             RtpParameters consumableRtpParameters,
-            Channel channel,
-            PayloadChannel payloadChannel,
+            IChannel channel,
+            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             bool paused
             )
