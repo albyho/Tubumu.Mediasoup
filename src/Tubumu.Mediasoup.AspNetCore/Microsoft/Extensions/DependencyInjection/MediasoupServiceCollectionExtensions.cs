@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MediasoupServiceCollectionExtensions
     {
-        public static IServiceCollection AddMediasoup(this IServiceCollection services, Action<MediasoupOptions>? configure = null)
+        public static IServiceCollection AddMediasoup(this IServiceCollection services, Action<MediasoupOptions>? configure)
         {
             var mediasoupOptions = MediasoupOptions.Default;
             return AddMediasoup(services, mediasoupOptions, configure);

@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MeetingServerServiceCollectionExtensions
     {
-        public static IServiceCollection AddMeetingServer(this IServiceCollection services, Action<MeetingServerOptions>? configure = null)
+        public static IServiceCollection AddMeetingServer(this IServiceCollection services, Action<MeetingServerOptions>? configure)
         {
             var meetingServerOptions = new MeetingServerOptions();
             return AddMeetingServer(services, meetingServerOptions, configure);
