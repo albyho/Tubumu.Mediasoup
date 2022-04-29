@@ -17,9 +17,9 @@ namespace Tubumu.Mediasoup
     {
         #region Constants
 
-        private const int MessageMaxLen = 4194308;
+        protected const int MessageMaxLen = 4194308;
 
-        private const int PayloadMaxLen = 4194304;
+        protected const int PayloadMaxLen = 4194304;
 
         private const int RecvBufferMaxLen = 4194308 * 2;
 
@@ -30,13 +30,13 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Logger.
         /// </summary>
-        private readonly ILogger<PayloadChannel> _logger;
+        protected readonly ILogger<PayloadChannel> _logger;
 
         // TODO: (alby) _closed 的使用及线程安全。
         /// <summary>
         /// Closed flag.
         /// </summary>
-        private bool _closed;
+        protected bool _closed;
 
         /// <summary>
         /// Unix Socket instance for sending messages to the worker process.
@@ -56,7 +56,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Next id for messages sent to the worker process.
         /// </summary>
-        private uint _nextId = 0;
+        protected uint _nextId = 0;
 
         /// <summary>
         /// Map of pending sent requests.
@@ -107,7 +107,7 @@ namespace Tubumu.Mediasoup
                 return;
             }
 
-            _logger.LogDebug($"Close() | Worker [pid:{_processId}]");
+            _logger.LogDebug($"Close() | Worker[{_processId}]");
 
             _closed = true;
 
@@ -127,7 +127,7 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Close() | Worker [pid:{_processId}]");
+                _logger.LogError(ex, $"Close() | Worker[{_processId}]");
             }
 
             try
@@ -136,13 +136,13 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Close() | Worker [pid:{_processId}]");
+                _logger.LogError(ex, $"Close() | Worker[{_processId}]");
             }
         }
 
         public void Notify(string @event, object @internal, NotifyData? data, byte[] payload)
         {
-            _logger.LogDebug($"Notify() | Worker [pid:{_processId}] Event:{@event}");
+            _logger.LogDebug($"Notify() | Worker[{_processId}] Event:{@event}");
 
             if (_closed)
             {
@@ -173,20 +173,20 @@ namespace Tubumu.Mediasoup
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                         }
                     });
                     _producerSocket.Write(notificationBytes, ex =>
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                         }
                     });
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Notify() | Worker [pid:{_processId}] Sending notification failed");
+                    _logger.LogError(ex, $"Notify() | Worker[{_processId}] Sending notification failed");
                     return;
                 }
 
@@ -197,20 +197,20 @@ namespace Tubumu.Mediasoup
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                         }
                     });
                     _producerSocket.Write(payload, ex =>
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                         }
                     });
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, $"Notify() | Worker [pid:{_processId}] Sending notification failed");
+                    _logger.LogWarning(ex, $"Notify() | Worker[{_processId}] Sending notification failed");
                     return;
                 }
             });
@@ -221,7 +221,7 @@ namespace Tubumu.Mediasoup
             var method = methodId.GetEnumMemberValue();
             var id = InterlockedExtensions.Increment(ref _nextId);
 
-            _logger.LogDebug($"RequestAsync() | Worker [pid:{_processId}] Method:{method}");
+            _logger.LogDebug($"RequestAsync() | Worker[{_processId}] Method:{method}");
 
             if (_closed)
             {
@@ -292,7 +292,7 @@ namespace Tubumu.Mediasoup
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                             sent.Reject(ex);
                         }
                     });
@@ -300,7 +300,7 @@ namespace Tubumu.Mediasoup
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                             sent.Reject(ex);
                         }
                     });
@@ -313,7 +313,7 @@ namespace Tubumu.Mediasoup
                         {
                             if (ex != null)
                             {
-                                _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                                 sent.Reject(ex);
                             }
                         });
@@ -321,7 +321,7 @@ namespace Tubumu.Mediasoup
                         {
                             if (ex != null)
                             {
-                                _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                                 sent.Reject(ex);
                             }
                         });
@@ -329,7 +329,7 @@ namespace Tubumu.Mediasoup
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"_producerSocket.Write() | Worker [pid:{_processId}] Error");
+                    _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
                     sent.Reject(ex);
                 }
             });
@@ -378,29 +378,29 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"ConsumerSocketOnData() | Worker [pid:{_processId}] Invalid data received from the worker process.");
+                _logger.LogError(ex, $"ConsumerSocketOnData() | Worker[{_processId}] Invalid data received from the worker process.");
                 return;
             }
         }
 
         private void ConsumerSocketOnClosed()
         {
-            _logger.LogDebug($"ConsumerSocketOnClosed() | Worker [pid:{_processId}] Consumer Channel ended by the worker process");
+            _logger.LogDebug($"ConsumerSocketOnClosed() | Worker[{_processId}] Consumer Channel ended by the worker process");
         }
 
         private void ConsumerSocketOnError(Exception? exception)
         {
-            _logger.LogDebug(exception, $"ConsumerSocketOnError() | Worker [pid:{_processId}] Consumer Channel error");
+            _logger.LogDebug(exception, $"ConsumerSocketOnError() | Worker[{_processId}] Consumer Channel error");
         }
 
         private void ProducerSocketOnClosed()
         {
-            _logger.LogDebug($"ProducerSocketOnClosed() | Worker [pid:{_processId}] Producer Channel ended by the worker process");
+            _logger.LogDebug($"ProducerSocketOnClosed() | Worker[{_processId}] Producer Channel ended by the worker process");
         }
 
         private void ProducerSocketOnError(Exception? exception)
         {
-            _logger.LogDebug(exception, $"ProducerSocketOnError() | Worker [pid:{_processId}] Producer Channel error");
+            _logger.LogDebug(exception, $"ProducerSocketOnError() | Worker[{_processId}] Producer Channel error");
         }
 
         #endregion Event handles
@@ -428,27 +428,27 @@ namespace Tubumu.Mediasoup
                 {
                     if (!_sents.TryGetValue(id.Value, out var sent))
                     {
-                        _logger.LogError($"ProcessData() | Worker [pid:{_processId}] Received response does not match any sent request [id:{id}]");
+                        _logger.LogError($"ProcessData() | Worker[{_processId}] Received response does not match any sent request [id:{id}]");
 
                         return;
                     }
 
                     if (accepted.HasValue && accepted.Value)
                     {
-                        _logger.LogDebug($"ProcessData() | Worker [pid:{_processId}] Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
+                        _logger.LogDebug($"ProcessData() | Worker[{_processId}] Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
 
                         sent.Resolve?.Invoke(data);
                     }
                     else if (!error.IsNullOrWhiteSpace())
                     {
                         // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
-                        _logger.LogWarning($"ProcessData() | Worker [pid:{_processId}] Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}");
+                        _logger.LogWarning($"ProcessData() | Worker[{_processId}] Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}");
 
                         sent.Reject?.Invoke(new Exception(reason));
                     }
                     else
                     {
-                        _logger.LogError($"ProcessData() | Worker [pid:{_processId}] Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
+                        _logger.LogError($"ProcessData() | Worker[{_processId}] Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
                     }
                 }
                 // If a notification emit it to the corresponding entity.
@@ -464,7 +464,7 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    _logger.LogError($"ProcessData() | Worker [pid:{_processId}] Received data is not a notification nor a response");
+                    _logger.LogError($"ProcessData() | Worker[{_processId}] Received data is not a notification nor a response");
                     return;
                 }
             }

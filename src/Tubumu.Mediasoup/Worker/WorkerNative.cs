@@ -7,8 +7,8 @@ using Tubumu.Utils.Extensions;
 
 namespace Tubumu.Mediasoup
 {
-    public class WorkerNative : IWorker
-	{
+    public class WorkerNative : WorkerBase
+    {
         #region P/Invoke Channel
 
         private static readonly LibMediasoupWorkerNative.ChannelReadFreeFn _channelReadFree = ChannelReadFree;
@@ -67,13 +67,8 @@ namespace Tubumu.Mediasoup
         #endregion
 
         private readonly IntPtr _ptr;
-        private bool disposedValue;
 
-        public Dictionary<string, object>? AppData => throw new NotImplementedException();
-
-        public EventEmitter Observer => throw new NotImplementedException();
-
-        public WorkerNative(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
+        public WorkerNative(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions) : base(loggerFactory, mediasoupOptions)
         {
             _ptr = IntPtr.Zero;// GCHandle.ToIntPtr(GCHandle.Alloc(this, GCHandleType.Pinned));
 
@@ -128,65 +123,33 @@ namespace Tubumu.Mediasoup
              _payloadchannelWrite,
              _ptr
              );
+
+            /*
+            _channel = new Channel(_loggerFactory.CreateLogger<Channel>(), _pipes[3], _pipes[4], ProcessId);
+            _channel.MessageEvent += OnChannelMessage;
+
+            _payloadChannel = new PayloadChannel(_loggerFactory.CreateLogger<PayloadChannel>(), _pipes[5], _pipes[6], ProcessId);
+            */
         }
 
-        public Task CloseAsync()
+        public override Task CloseAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task<Router?> CreateRouterAsync(RouterOptions routerOptions)
-        {
-            throw new NotImplementedException();
-        }
+        #region Event handles
 
-        public Task<string?> DumpAsync()
+        private void OnChannelMessage(string targetId, string @event, string? data)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<string?> GetResourceUsageAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string?> UpdateSettingsAsync(WorkerUpdateableSettings workerUpdateableSettings)
-        {
-            throw new NotImplementedException();
-        }
-
-        #region Dispose
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
+            if (@event != "running")
             {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects)
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
+                return;
             }
-        }
 
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~WorkerNative()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            _channel.MessageEvent -= OnChannelMessage;
+            Emit("@success");
         }
 
         #endregion
     }
 }
-
