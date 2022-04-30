@@ -1,8 +1,9 @@
 ﻿using System;
+
 namespace Tubumu.Utils.Extensions
 {
-	public static class IntPtrExtensions
-	{
+    public static class IntPtrExtensions
+    {
         public static byte[] IntPtrToBytes(this IntPtr input)
         {
             return IntPtr.Size == sizeof(int) ? BitConverter.GetBytes((int)input) : BitConverter.GetBytes((long)input);
