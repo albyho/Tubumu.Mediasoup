@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tubumu.Utils.Extensions;
@@ -9,69 +10,13 @@ namespace Tubumu.Mediasoup
 {
     public class WorkerNative : WorkerBase
     {
-        #region P/Invoke Channel
-
-        private static readonly LibMediasoupWorkerNative.ChannelReadFreeFn _channelReadFree = ChannelReadFree;
-
-        private static void ChannelReadFree(IntPtr message, uint messageLen, IntPtr messageCtx)
-        {
-            ;
-        }
-
-        private static readonly LibMediasoupWorkerNative.ChannelReadFn _channelRead = ChannelRead;
-
-        private static LibMediasoupWorkerNative.ChannelReadFreeFn? ChannelRead(IntPtr message, IntPtr messageLen, IntPtr messageCtx,
-            IntPtr handle, IntPtr ctx)
-        {
-            return null;
-            return _channelReadFree;
-        }
-
-        private static readonly LibMediasoupWorkerNative.ChannelWriteFn _channelWrite = ChannelWrite;
-
-        private static void ChannelWrite(string message, uint messageLen, IntPtr ctx)
-        {
-            ;
-        }
-
-        #endregion
-
-        #region P/Invoke PayloadChannel
-
-        private static readonly LibMediasoupWorkerNative.PayloadChannelReadFreeFn _payloadChannelReadFree = PayloadChannelReadFree;
-
-        private static void PayloadChannelReadFree(IntPtr message, uint messageLen, IntPtr messageCtx)
-        {
-            ;
-        }
-
-        private static readonly LibMediasoupWorkerNative.PayloadChannelReadFn _payloadChannelRead = PayloadChannelRead;
-
-        internal static LibMediasoupWorkerNative.PayloadChannelReadFreeFn? PayloadChannelRead(IntPtr message, IntPtr messageLen, IntPtr messageCtx,
-            IntPtr payload, IntPtr payloadLen, IntPtr payloadCapacity,
-            IntPtr handle, IntPtr ctx)
-        {
-            return null;
-            return _payloadChannelReadFree;
-        }
-
-        private static readonly LibMediasoupWorkerNative.PayloadChannelWriteFn _payloadchannelWrite = PayloadChannelWrite;
-
-        private static void PayloadChannelWrite(string message, uint messageLen,
-            IntPtr payload, uint payloadLen,
-            IntPtr ctx)
-        {
-            ;
-        }
-
-        #endregion
-
-        private readonly IntPtr _ptr;
+        private readonly string[] _argv;
+        private readonly string _version;
+        private readonly IntPtr _channlPtr;
+        private readonly IntPtr _payloadChannlPtr;
 
         public WorkerNative(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions) : base(loggerFactory, mediasoupOptions)
         {
-            _ptr = IntPtr.Zero;// GCHandle.ToIntPtr(GCHandle.Alloc(this, GCHandleType.Pinned));
-
             var workerSettings = mediasoupOptions.MediasoupSettings.WorkerSettings;
             var argv = new List<string>
             {
@@ -105,36 +50,85 @@ namespace Tubumu.Mediasoup
             argv.Add(null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 
-            var version = mediasoupOptions.MediasoupStartupSettings.MediasoupVersion;
+            _argv = argv.ToArray();
+            _version = mediasoupOptions.MediasoupStartupSettings.MediasoupVersion;
 
-            LibMediasoupWorkerNative.MediasoupWorkerRun(argv.Count - 1,
-             argv.ToArray(),
-             version,
+            var threadId = Environment.CurrentManagedThreadId;
+
+            _channel = new ChannelNative(_loggerFactory.CreateLogger<Channel>(), threadId);
+            _channel.MessageEvent += OnChannelMessage;
+            _channlPtr = GCHandle.ToIntPtr(GCHandle.Alloc(_channel, GCHandleType.Normal));
+
+            _payloadChannel = new PayloadChannelNative(_loggerFactory.CreateLogger<PayloadChannel>(), threadId);
+            _payloadChannlPtr = GCHandle.ToIntPtr(GCHandle.Alloc(_payloadChannel, GCHandleType.Normal));
+        }
+
+        public void Run()
+        {
+            var workerRunResult = LibMediasoupWorkerNative.MediasoupWorkerRun(_argv.Length - 1,
+             _argv,
+             _version,
              0,
              0,
              0,
              0,
-             _channelRead,
-             _ptr,
-             _channelWrite,
-             _ptr,
-             _payloadChannelRead,
-             _ptr,
-             _payloadchannelWrite,
-             _ptr
+             ChannelNative.OnChannelRead,
+             _channlPtr,
+             ChannelNative.OnChannelWrite,
+             _channlPtr,
+             PayloadChannelNative.OnPayloadChannelRead,
+             _payloadChannlPtr,
+             PayloadChannelNative.OnPayloadchannelWrite,
+             _payloadChannlPtr
              );
 
-            /*
-            _channel = new Channel(_loggerFactory.CreateLogger<Channel>(), _pipes[3], _pipes[4], ProcessId);
-            _channel.MessageEvent += OnChannelMessage;
+            void OnExit()
+            {
+                if (workerRunResult == 42)
+                {
+                    _logger.LogError($"OnExit() | Worker run failed due to wrong settings");
+                    Emit("@failure", new Exception("wrong settings"));
+                }
 
-            _payloadChannel = new PayloadChannel(_loggerFactory.CreateLogger<PayloadChannel>(), _pipes[5], _pipes[6], ProcessId);
-            */
+                else if (workerRunResult == 0)
+                {
+                    _logger.LogError($"OnExit() | Worker process died unexpectedly");
+                    Emit("died", new Exception($"Worker died unexpectedly"));
+                }
+                else
+                {
+                    _logger.LogError($"OnExit() | Worker run failed unexpectedly");
+                    Emit("@failure", new Exception("unexpectedly"));
+                }
+            }
+
+            OnExit();
         }
 
         public override Task CloseAsync()
         {
             throw new NotImplementedException();
+        }
+
+        protected override void Destory()
+        {
+            if (_channlPtr != IntPtr.Zero)
+            {
+                var handle = GCHandle.FromIntPtr(_channlPtr);
+                if (handle.IsAllocated)
+                {
+                    handle.Free();
+                }
+            }
+
+            if (_payloadChannlPtr != IntPtr.Zero)
+            {
+                var handle = GCHandle.FromIntPtr(_payloadChannlPtr);
+                if (handle.IsAllocated)
+                {
+                    handle.Free();
+                }
+            }
         }
 
         #region Event handles

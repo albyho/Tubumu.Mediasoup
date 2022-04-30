@@ -164,9 +164,9 @@ namespace Tubumu.Mediasoup
             throw new NotImplementedException("ConsumeAsync() not implemented in DirectTransport");
         }
 
-        public void SendRtcp(byte[] rtcpPacket)
+        public Task SendRtcpAsync(byte[] rtcpPacket)
         {
-            PayloadChannel.Notify("transport.sendRtcp", Internal, null, rtcpPacket);
+            return PayloadChannel.NotifyAsync("transport.sendRtcp", Internal, null, rtcpPacket);
         }
 
         #region Event Handlers

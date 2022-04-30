@@ -28,7 +28,13 @@ namespace Microsoft.AspNetCore.Builder
                         try
                         {
                             var worker = app.ApplicationServices.GetRequiredService<WorkerNative>();
-                            mediasoupServer.AddWorker(worker);
+                            worker.On("@success", (_, _) =>
+                            {
+                                mediasoupServer.AddWorker(worker);
+                                logger.LogInformation($"Worker create success.");
+                                return Task.CompletedTask;
+                            });
+                            worker.Run();
                         }
                         catch (Exception ex)
                         {

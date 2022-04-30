@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
 using Tubumu.Utils.Extensions;
 using Tubumu.Utils.Extensions.Object;
-using Tubumu.Utils.Json;
 
 namespace Tubumu.Mediasoup
 {
@@ -15,7 +12,7 @@ namespace Tubumu.Mediasoup
     {
         #region Constants
 
-        private const int RecvBufferMaxLen = 4194308 * 2;
+        private const int RecvBufferMaxLen = PayloadMaxLen * 2;
 
         #endregion Constants
 
@@ -32,11 +29,6 @@ namespace Tubumu.Mediasoup
         private readonly UVStream _consumerSocket;
 
         /// <summary>
-        /// Map of pending sent requests.
-        /// </summary>
-        private readonly ConcurrentDictionary<uint, Sent> _sents = new();
-
-        /// <summary>
         /// Buffer for reading messages from the worker.
         /// </summary>
         private readonly byte[] _recvBuffer;
@@ -44,13 +36,7 @@ namespace Tubumu.Mediasoup
 
         #endregion Private Fields
 
-        #region Events
-
-        public override event Action<string, string, string?>? MessageEvent;
-
-        #endregion Events
-
-        public Channel(ILogger<Channel> logger, UVStream producerSocket, UVStream consumerSocket, int processId):base(logger, processId)
+        public Channel(ILogger<Channel> logger, UVStream producerSocket, UVStream consumerSocket, int processId) : base(logger, processId)
         {
             _producerSocket = producerSocket;
             _consumerSocket = consumerSocket;
@@ -65,25 +51,16 @@ namespace Tubumu.Mediasoup
             _producerSocket.Error += ProducerSocketOnError;
         }
 
-        public override void Close()
+        public override void Cleanup()
         {
-            if (_closed)
-            {
-                return;
-            }
-
-            _logger.LogDebug($"Close() | Worker[{_workerId}]");
-
-            _closed = true;
-
             // Close every pending sent.
             try
             {
-                _sents.Values.ForEach(m => m.Close.Invoke());
+                _sents.Values.ForEach(m => m.Close?.Invoke());
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Close() | Worker[{_workerId}] _sents.Values.ForEach(m => m.Close.Invoke())");
+                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}] _sents.Values.ForEach(m => m.Close.Invoke())");
             }
 
             // Remove event listeners but leave a fake 'error' hander to avoid
@@ -103,7 +80,7 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Close() | Worker[{_workerId}] _producerSocket.Close()");
+                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}] _producerSocket.Close()");
             }
 
             try
@@ -112,87 +89,31 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Close() | Worker[{_workerId}] _consumerSocket.Close()");
+                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}] _consumerSocket.Close()");
             }
         }
 
-        public override Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null)
+        protected override void SendRequestMessage(RequestMessage requestMessage, Sent sent)
         {
-            if (_closed)
+            var messageJson = requestMessage.ToJson();
+            var messageBytes = Encoding.UTF8.GetBytes(messageJson);
+            if (messageBytes.Length > PayloadMaxLen)
             {
-                throw new InvalidStateException("Channel closed");
+                throw new Exception("Channel request message too big");
             }
-
-            var method = methodId.GetEnumMemberValue();
-            var id = InterlockedExtensions.Increment(ref _nextId);
-            // NOTE: For testinng
-            //_logger.LogDebug($"RequestAsync() | [Method:{method}, Id:{id}]");
-
-            var requestMesssge = new RequestMessage
+            if (messageBytes.Length + sizeof(int) > MessageMaxLen)
             {
-                Id = id,
-                Method = method,
-                Internal = @internal,
-                Data = data,
-            };
-
-            var payload = requestMesssge.ToJson();
-            var payloadBytes = Encoding.UTF8.GetBytes(payload);
-            if (payloadBytes.Length > PayloadMaxLen)
-            {
-                throw new Exception("Channel request too big");
+                throw new Exception("Channel request payload too big");
             }
-            var payloadBytesLengthBytes = BitConverter.GetBytes(payloadBytes.Length);
-            if (payloadBytes.Length + payloadBytesLengthBytes.Length > MessageMaxLen)
-            {
-                throw new Exception("Channel request too big");
-            }
-
-            var message = new byte[payloadBytes.Length + payloadBytesLengthBytes.Length];
-            Array.Copy(payloadBytesLengthBytes, 0, message, 0, payloadBytesLengthBytes.Length);
-            Array.Copy(payloadBytes, 0, message, payloadBytesLengthBytes.Length, payloadBytes.Length);
-
-            var tcs = new TaskCompletionSource<string?>();
-
-            var sent = new Sent
-            {
-                RequestMessage = requestMesssge,
-                Resolve = data =>
-                {
-                    if (!_sents.TryRemove(id, out _))
-                    {
-                        tcs.TrySetException(new Exception($"Received response does not match any sent request [id:{id}]"));
-                        return;
-                    }
-                    tcs.TrySetResult(data);
-                },
-                Reject = e =>
-                {
-                    if (!_sents.TryRemove(id, out _))
-                    {
-                        tcs.TrySetException(new Exception($"Received response does not match any sent request [id:{id}]"));
-                        return;
-                    }
-                    tcs.TrySetException(e);
-                },
-                Close = () =>
-                {
-                    tcs.TrySetException(new InvalidStateException("Channel closed"));
-                },
-            };
-            if (!_sents.TryAdd(id, sent))
-            {
-                throw new Exception($"Error add sent request [id:{id}]");
-            }
-
-            tcs.WithTimeout(TimeSpan.FromSeconds(15 + (0.1 * _sents.Count)), () => _sents.TryRemove(id, out _));
 
             Loop.Default.Sync(() =>
             {
                 try
                 {
+                    var messageBytesLengthBytes = BitConverter.GetBytes(messageBytes.Length);
+
                     // This may throw if closed or remote side ended.
-                    _producerSocket.Write(message, ex =>
+                    _producerSocket.Write(messageBytesLengthBytes, ex =>
                     {
                         if (ex != null)
                         {
@@ -200,6 +121,16 @@ namespace Tubumu.Mediasoup
                             sent.Reject(ex);
                         }
                     });
+                    // This may throw if closed or remote side ended.
+                    _producerSocket.Write(messageBytes, ex =>
+                    {
+                        if (ex != null)
+                        {
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
+                            sent.Reject(ex);
+                        }
+                    });
+
                 }
                 catch (Exception ex)
                 {
@@ -207,8 +138,6 @@ namespace Tubumu.Mediasoup
                     sent.Reject(ex);
                 }
             });
-
-            return tcs.Task;
         }
 
         #region Event handles
@@ -244,12 +173,12 @@ namespace Tubumu.Mediasoup
                         break;
                     }
 
-                    var payload = new byte[msgLen];
-                    Array.Copy(_recvBuffer, readCount, payload, 0, msgLen);
+                    var messageBytes = new byte[msgLen];
+                    Array.Copy(_recvBuffer, readCount, messageBytes, 0, msgLen);
                     readCount += msgLen;
 
-                    var payloadString = Encoding.UTF8.GetString(payload, 0, payload.Length);
-                    ConsumerSocketOnData(payloadString);
+                    var message = Encoding.UTF8.GetString(messageBytes, 0, messageBytes.Length);
+                    ProcessMessage(message);
                 }
 
                 var remainingLength = _recvBufferCount - readCount;
@@ -289,59 +218,6 @@ namespace Tubumu.Mediasoup
         private void ProducerSocketOnError(Exception? exception)
         {
             _logger.LogDebug(exception, $"ProducerSocketOnError() | Worker[{_workerId}] Producer Channel error");
-        }
-
-        protected override void ProcessPayload(string payload)
-        {
-            var jsonDocument = JsonDocument.Parse(payload);
-            var msg = jsonDocument.RootElement;
-            var id = msg.GetNullableJsonElement("id")?.GetNullableUInt32();
-            var accepted = msg.GetNullableJsonElement("accepted")?.GetNullableBool();
-            // targetId 可能是 Number 或 String。不能使用 GetString()，否则可能报错：Cannot get the value of a token type 'Number' as a string"
-            var targetId = msg.GetNullableJsonElement("targetId")?.ToString();
-            var @event = msg.GetNullableJsonElement("event")?.GetString();
-            var error = msg.GetNullableJsonElement("error")?.GetString();
-            var reason = msg.GetNullableJsonElement("reason")?.GetString();
-            var data = msg.GetNullableJsonElement("data")?.ToString();
-
-            // If a response, retrieve its associated request.
-            if (id.HasValue && id.Value >= 0)
-            {
-                if (!_sents.TryGetValue(id.Value, out var sent))
-                {
-                    _logger.LogError($"ProcessMessage() | Worker[{_workerId}] Received response does not match any sent request [id:{id}], payload:{payload}");
-                    return;
-                }
-
-                if (accepted.HasValue && accepted.Value)
-                {
-                    _logger.LogDebug($"ProcessMessage() | Worker[{_workerId}] Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
-                    sent.Resolve?.Invoke(data);
-                }
-                else if (!error.IsNullOrWhiteSpace())
-                {
-                    // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
-                    _logger.LogWarning($"ProcessMessage() | Worker[{_workerId}] Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}. payload:{payload}");
-
-                    sent.Reject?.Invoke(new Exception($"Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}. payload:{payload}"));
-                }
-                else
-                {
-                    _logger.LogError($"ProcessMessage() | Worker[{_workerId}] Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]. payload:{payload}");
-
-                    sent.Reject?.Invoke(new Exception($"Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]. payload:{payload}"));
-                }
-            }
-            // If a notification emit it to the corresponding entity.
-            else if (!targetId.IsNullOrWhiteSpace() && !@event.IsNullOrWhiteSpace())
-            {
-                MessageEvent?.Invoke(targetId!, @event!, data);
-            }
-            // Otherwise unexpected message.
-            else
-            {
-                _logger.LogError($"ProcessMessage() | Worker[{_workerId}] Received message is not a response nor a notification: {payload}");
-            }
         }
 
         #endregion Event handles

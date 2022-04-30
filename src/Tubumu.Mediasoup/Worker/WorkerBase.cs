@@ -14,7 +14,7 @@ namespace Tubumu.Mediasoup
 {
     public abstract class WorkerBase : EventEmitter, IDisposable, IWorker
     {
-        #region Private Fields
+        #region Protected Fields
 
         /// <summary>
         /// Logger factory for create logger.
@@ -46,8 +46,6 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected readonly object _routersLock = new();
 
-        #endregion Private Fields
-
         /// <summary>
         /// Closed flag.
         /// </summary>
@@ -57,6 +55,8 @@ namespace Tubumu.Mediasoup
         /// Close locker.
         /// </summary>
         protected readonly AsyncAutoResetEvent _closeLock = new();
+
+        #endregion Protected Fields
 
         /// <summary>
         /// Custom app data.

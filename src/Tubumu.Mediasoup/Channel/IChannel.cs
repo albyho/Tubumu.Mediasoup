@@ -7,7 +7,8 @@ namespace Tubumu.Mediasoup
     {
         event Action<string, string, string?>? MessageEvent;
 
-        void Close();
+        Task CloseAsync();
         Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null);
+        void ProcessMessage(string message);
     }
 }

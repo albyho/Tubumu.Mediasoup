@@ -239,7 +239,7 @@ namespace Tubumu.Mediasoup
         /// <param name="message"></param>
         /// <param name="ppid"></param>
         /// <returns></returns>
-        public Task SendAsync(string message, int? ppid)
+        public async Task SendAsync(string message, int? ppid)
         {
             _logger.LogDebug($"SendAsync() | DataConsumer:{DataConsumerId}");
 
@@ -272,9 +272,7 @@ namespace Tubumu.Mediasoup
 
             var requestData = new NotifyData { PPID = ppid.Value };
 
-            _payloadChannel.Notify("dataConsumer.send", _internal, requestData, Encoding.UTF8.GetBytes(message));
-
-            return Task.CompletedTask;
+            await _payloadChannel.NotifyAsync("dataConsumer.send", _internal, requestData, Encoding.UTF8.GetBytes(message));
         }
 
         /// <summary>
@@ -283,7 +281,7 @@ namespace Tubumu.Mediasoup
         /// <param name="message"></param>
         /// <param name="ppid"></param>
         /// <returns></returns>
-        public Task SendAsync(byte[] message, int? ppid)
+        public async Task SendAsync(byte[] message, int? ppid)
         {
             _logger.LogDebug($"SendAsync() | DataConsumer:{DataConsumerId}");
 
@@ -300,9 +298,7 @@ namespace Tubumu.Mediasoup
 
             var requestData = new NotifyData { PPID = ppid.Value };
 
-            _payloadChannel.Notify("dataConsumer.send", _internal, requestData, message);
-
-            return Task.CompletedTask;
+            await _payloadChannel.NotifyAsync("dataConsumer.send", _internal, requestData, message);
         }
 
         public Task<string?> GetBufferedAmountAsync()

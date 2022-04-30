@@ -4,15 +4,31 @@ namespace Tubumu.Mediasoup
 {
     public class RequestMessage
     {
-        public uint Id { get; set; }
+        #region Request
 
-        public string Method { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public uint? Id { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Method { get; set; }
+
+        #endregion
+
+        #region Notification
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Event { get; set; }
+
+        #endregion
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object? Internal { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object? Data { get; set; }
+
+        [JsonIgnore]
+        public byte[]? Payload { get; set; }
     }
 
     // Note: For testing.
