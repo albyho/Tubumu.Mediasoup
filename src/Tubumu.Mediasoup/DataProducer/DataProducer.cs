@@ -212,7 +212,7 @@ namespace Tubumu.Mediasoup
         /// <param name="message"></param>
         /// <param name="ppid"></param>
         /// <returns></returns>
-        public Task SendAsync(string message, int? ppid)
+        public async Task SendAsync(string message, int? ppid)
         {
             _logger.LogDebug($"SendAsync() | DataProducer:{DataProducerId}");
 
@@ -242,9 +242,7 @@ namespace Tubumu.Mediasoup
 
             var notifyData = new NotifyData { PPID = ppid.Value };
 
-            _payloadChannel.Notify("dataProducer.send", _internal, notifyData, Encoding.UTF8.GetBytes(message));
-
-            return Task.CompletedTask;
+            await _payloadChannel.NotifyAsync("dataProducer.send", _internal, notifyData, Encoding.UTF8.GetBytes(message));
         }
 
         /// <summary>
@@ -253,7 +251,7 @@ namespace Tubumu.Mediasoup
         /// <param name="message"></param>
         /// <param name="ppid"></param>
         /// <returns></returns>
-        public Task SendAsync(byte[] message, int? ppid)
+        public async Task SendAsync(byte[] message, int? ppid)
         {
             _logger.LogDebug($"SendAsync() | DataProducer:{DataProducerId}");
 
@@ -267,9 +265,7 @@ namespace Tubumu.Mediasoup
 
             var notifyData = new NotifyData { PPID = ppid.Value };
 
-            _payloadChannel.Notify("dataProducer.send", _internal, notifyData, message);
-
-            return Task.CompletedTask;
+            await _payloadChannel.NotifyAsync("dataProducer.send", _internal, notifyData, message);
         }
 
         #region Event Handlers

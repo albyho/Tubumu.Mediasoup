@@ -194,10 +194,16 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Close the Channel instance.
-                _channel?.Close();
+                if (_channel != null)
+                {
+                    await _channel.CloseAsync();
+                }
 
                 // Close the PayloadChannel instance.
-                _payloadChannel?.Close();
+                if (_payloadChannel != null)
+                {
+                    await _payloadChannel.CloseAsync();
+                }
 
                 // Close every Router.
                 Router[] routersForClose;

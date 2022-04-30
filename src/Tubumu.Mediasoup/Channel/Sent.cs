@@ -2,7 +2,7 @@
 
 namespace Tubumu.Mediasoup
 {
-    internal class Sent
+    public class Sent
     {
         public RequestMessage RequestMessage { get; set; }
 
@@ -10,6 +10,6 @@ namespace Tubumu.Mediasoup
 
         public Action<Exception> Reject { get; set; }
 
-        public Action Close { get; set; }
+        public Action? Close { get; set; }
     }
 }

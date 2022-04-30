@@ -344,9 +344,9 @@ namespace Tubumu.Mediasoup
         /// Send RTP packet (just valid for Producers created on a DirectTransport).
         /// </summary>
         /// <param name="rtpPacket"></param>
-        public void Send(byte[] rtpPacket)
+        public Task SendAsync(byte[] rtpPacket)
         {
-            _payloadChannel.Notify("producer.send", _internal, null, rtpPacket);
+            return _payloadChannel.NotifyAsync("producer.send", _internal, null, rtpPacket);
         }
 
         public void AddConsumer(Consumer consumer)

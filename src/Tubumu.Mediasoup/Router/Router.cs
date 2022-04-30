@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 using Tubumu.Mediasoup.Extensions;
 using Tubumu.Utils.Extensions;
 using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
@@ -32,6 +33,11 @@ namespace Tubumu.Mediasoup
         /// Whether the Router is closed.
         /// </summary>
         private bool _closed;
+
+        /// <summary>
+        /// Close locker.
+        /// </summary>
+        private readonly AsyncAutoResetEvent _closeLock = new();
 
         #region Internal data.
 
@@ -125,6 +131,8 @@ namespace Tubumu.Mediasoup
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Router>();
+            _closeLock.Set();
+
             _internal = new RouterInternalData
             {
                 RouterId = routerId

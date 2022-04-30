@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
 using Tubumu.Utils.Extensions;
@@ -13,30 +11,15 @@ using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
 {
-    public class PayloadChannel : IPayloadChannel
+    public class PayloadChannel : PayloadChannelBase
     {
         #region Constants
 
-        protected const int MessageMaxLen = 4194308;
-
-        protected const int PayloadMaxLen = 4194304;
-
-        private const int RecvBufferMaxLen = 4194308 * 2;
+        private const int RecvBufferMaxLen = PayloadMaxLen * 2;
 
         #endregion Constants
 
-        #region Private Fields
-
-        /// <summary>
-        /// Logger.
-        /// </summary>
-        protected readonly ILogger<PayloadChannel> _logger;
-
-        // TODO: (alby) _closed 的使用及线程安全。
-        /// <summary>
-        /// Closed flag.
-        /// </summary>
-        protected bool _closed;
+        #region Protected Fields
 
         /// <summary>
         /// Unix Socket instance for sending messages to the worker process.
@@ -48,20 +31,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly UVStream _consumerSocket;
 
-        /// <summary>
-        /// Worker process PID.
-        /// </summary>
-        private readonly int _processId;
+        #endregion Protected Fields
 
-        /// <summary>
-        /// Next id for messages sent to the worker process.
-        /// </summary>
-        protected uint _nextId = 0;
-
-        /// <summary>
-        /// Map of pending sent requests.
-        /// </summary>
-        private readonly ConcurrentDictionary<uint, Sent> _sents = new();
+        #region Private Fields
 
         /// <summary>
         /// Buffer for reading messages from the worker.
@@ -69,26 +41,18 @@ namespace Tubumu.Mediasoup
         private readonly byte[] _recvBuffer;
         private int _recvBufferCount;
 
-        /// <summary>
-        /// Ongoing notification (waiting for its payload).
-        /// </summary>
-        private OngoingNotification? _ongoingNotification;
-
-        #endregion Private Fields
+        #endregion
 
         #region Events
 
-        public event Action<string, string, NotifyData, ArraySegment<byte>>? MessageEvent;
+        public override event Action<string, string, NotifyData, ArraySegment<byte>>? MessageEvent;
 
         #endregion Events
 
-        public PayloadChannel(ILogger<PayloadChannel> logger, UVStream producerSocket, UVStream consumerSocket, int processId)
+        public PayloadChannel(ILogger<PayloadChannel> logger, UVStream producerSocket, UVStream consumerSocket, int processId) : base(logger, processId)
         {
-            _logger = logger;
-
             _producerSocket = producerSocket;
             _consumerSocket = consumerSocket;
-            _processId = processId;
 
             _recvBuffer = new byte[RecvBufferMaxLen];
             _recvBufferCount = 0;
@@ -100,17 +64,8 @@ namespace Tubumu.Mediasoup
             _producerSocket.Error += ProducerSocketOnError;
         }
 
-        public void Close()
+        public override void Cleanup()
         {
-            if (_closed)
-            {
-                return;
-            }
-
-            _logger.LogDebug($"Close() | Worker[{_processId}]");
-
-            _closed = true;
-
             // Remove event listeners but leave a fake 'error' hander to avoid
             // propagation.
             _consumerSocket.Closed -= ConsumerSocketOnClosed;
@@ -127,7 +82,7 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Close() | Worker[{_processId}]");
+                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}]");
             }
 
             try
@@ -136,192 +91,131 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Close() | Worker[{_processId}]");
+                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}]");
             }
         }
 
-        public void Notify(string @event, object @internal, NotifyData? data, byte[] payload)
+        protected override void SendNotification(RequestMessage notification)
         {
-            _logger.LogDebug($"Notify() | Worker[{_processId}] Event:{@event}");
-
-            if (_closed)
-            {
-                throw new InvalidStateException("PayloadChannel closed");
-            }
-
-            var notification = new { @event, @internal, data };
-            var notificationJson = notification.ToJson();
-            var notificationBytes = Encoding.UTF8.GetBytes(notificationJson);
-            var notificationBytesLengthBytes = BitConverter.GetBytes(notificationBytes.Length);
-
-            if (notificationBytes.Length > MessageMaxLen)
-            {
-                throw new Exception("PayloadChannel notification too big");
-            }
-            else if (payload.Length > MessageMaxLen)
-            {
-                throw new Exception("PayloadChannel payload too big");
-            }
-            var payloadLengthBytes = BitConverter.GetBytes(payload.Length);
+            var messageJson = notification.ToJson();
+            var messageBytes = Encoding.UTF8.GetBytes(messageJson);
+            var payloadBytes = notification.Payload!;
 
             Loop.Default.Sync(() =>
             {
                 try
                 {
+                    var messageBytesLengthBytes = BitConverter.GetBytes(messageBytes.Length);
+
                     // This may throw if closed or remote side ended.
-                    _producerSocket.Write(notificationBytesLengthBytes, ex =>
+                    _producerSocket.Write(messageBytesLengthBytes, ex =>
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                         }
                     });
-                    _producerSocket.Write(notificationBytes, ex =>
+                    _producerSocket.Write(messageBytes, ex =>
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                         }
                     });
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Notify() | Worker[{_processId}] Sending notification failed");
+                    _logger.LogError(ex, $"NotifyAsync() | Worker[{_workerId}] Sending notification failed");
                     return;
                 }
 
                 try
                 {
+                    var payloadBytesLengthBytes = BitConverter.GetBytes(payloadBytes.Length);
+
                     // This may throw if closed or remote side ended.
-                    _producerSocket.Write(payloadLengthBytes, ex =>
+                    _producerSocket.Write(payloadBytesLengthBytes, ex =>
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                         }
                     });
-                    _producerSocket.Write(payload, ex =>
+                    _producerSocket.Write(payloadBytes, ex =>
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                         }
                     });
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, $"Notify() | Worker[{_processId}] Sending notification failed");
+                    _logger.LogWarning(ex, $"NotifyAsync() | Worker[{_workerId}] Sending notification failed");
                     return;
                 }
             });
         }
 
-        public Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null, byte[]? payload = null)
+        protected override void SendRequestMessage(RequestMessage requestMessage, Sent sent)
         {
-            var method = methodId.GetEnumMemberValue();
-            var id = InterlockedExtensions.Increment(ref _nextId);
-
-            _logger.LogDebug($"RequestAsync() | Worker[{_processId}] Method:{method}");
-
-            if (_closed)
-            {
-                throw new InvalidStateException("Channel closed");
-            }
-
-            var requestMessage = new RequestMessage
-            {
-                Id = id,
-                Method = method,
-                Internal = @internal,
-                Data = data,
-            };
             var requestMessageJson = requestMessage.ToJson();
             var requestMessageBytes = Encoding.UTF8.GetBytes(requestMessageJson);
-            var requestMessageBytesLengthBytes = BitConverter.GetBytes(requestMessageBytes.Length);
 
             if (requestMessageBytes.Length > MessageMaxLen)
             {
-                throw new Exception("PayloadChannel notification too big");
+                throw new Exception("PayloadChannel message too big");
             }
-            else if (payload != null && payload.Length > PayloadMaxLen)
+            else if (requestMessage.Payload != null && requestMessage.Payload.Length > PayloadMaxLen)
             {
                 throw new Exception("PayloadChannel payload too big");
             }
-
-            var tcs = new TaskCompletionSource<string?>();
-
-            var sent = new Sent
-            {
-                RequestMessage = requestMessage,
-                Resolve = data =>
-                {
-                    if (!_sents.TryRemove(id, out _))
-                    {
-                        tcs.TrySetException(new Exception($"Received response does not match any sent request [id:{id}]"));
-                        return;
-                    }
-                    tcs.TrySetResult(data);
-                },
-                Reject = e =>
-                {
-                    if (!_sents.TryRemove(id, out _))
-                    {
-                        tcs.TrySetException(new Exception($"Received response does not match any sent request [id:{id}]"));
-                        return;
-                    }
-                    tcs.TrySetException(e);
-                },
-                Close = () =>
-                {
-                    tcs.TrySetException(new InvalidStateException("Channel closed"));
-                },
-            };
-            if (!_sents.TryAdd(id, sent))
-            {
-                throw new Exception($"Error add sent request [id:{id}]");
-            }
-
-            tcs.WithTimeout(TimeSpan.FromSeconds(15 + (0.1 * _sents.Count)), () => _sents.TryRemove(id, out _));
 
             Loop.Default.Sync(() =>
             {
                 try
                 {
+                    var requestMessageBytesLengthBytes = BitConverter.GetBytes(requestMessageBytes.Length);
+
                     // This may throw if closed or remote side ended.
                     _producerSocket.Write(requestMessageBytesLengthBytes, ex =>
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                             sent.Reject(ex);
                         }
                     });
+                    // This may throw if closed or remote side ended.
                     _producerSocket.Write(requestMessageBytes, ex =>
                     {
                         if (ex != null)
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                             sent.Reject(ex);
                         }
                     });
 
-                    if (payload != null)
+                    if (requestMessage.Payload != null)
                     {
-                        var payloadLengthBytes = BitConverter.GetBytes(payload.Length);
+                        var payloadLengthBytes = BitConverter.GetBytes(requestMessage.Payload.Length);
 
+                        // This may throw if closed or remote side ended.
                         _producerSocket.Write(payloadLengthBytes, ex =>
                         {
                             if (ex != null)
                             {
-                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                                 sent.Reject(ex);
                             }
                         });
-                        _producerSocket.Write(payload, ex =>
+
+                        // This may throw if closed or remote side ended.
+                        _producerSocket.Write(requestMessage.Payload, ex =>
                         {
                             if (ex != null)
                             {
-                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                                 sent.Reject(ex);
                             }
                         });
@@ -329,12 +223,10 @@ namespace Tubumu.Mediasoup
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_processId}] Error");
+                    _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                     sent.Reject(ex);
                 }
             });
-
-            return tcs.Task;
         }
 
         #region Event handles
@@ -360,7 +252,7 @@ namespace Tubumu.Mediasoup
 
                     ThreadPool.QueueUserWorkItem(_ =>
                     {
-                        ProcessData(payload);
+                        Process(payload);
                     });
                 }
 
@@ -378,41 +270,46 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"ConsumerSocketOnData() | Worker[{_processId}] Invalid data received from the worker process.");
+                _logger.LogError(ex, $"ConsumerSocketOnData() | Worker[{_workerId}] Invalid data received from the worker process.");
                 return;
             }
         }
 
         private void ConsumerSocketOnClosed()
         {
-            _logger.LogDebug($"ConsumerSocketOnClosed() | Worker[{_processId}] Consumer Channel ended by the worker process");
+            _logger.LogDebug($"ConsumerSocketOnClosed() | Worker[{_workerId}] Consumer Channel ended by the worker process");
         }
 
         private void ConsumerSocketOnError(Exception? exception)
         {
-            _logger.LogDebug(exception, $"ConsumerSocketOnError() | Worker[{_processId}] Consumer Channel error");
+            _logger.LogDebug(exception, $"ConsumerSocketOnError() | Worker[{_workerId}] Consumer Channel error");
         }
 
         private void ProducerSocketOnClosed()
         {
-            _logger.LogDebug($"ProducerSocketOnClosed() | Worker[{_processId}] Producer Channel ended by the worker process");
+            _logger.LogDebug($"ProducerSocketOnClosed() | Worker[{_workerId}] Producer Channel ended by the worker process");
         }
 
         private void ProducerSocketOnError(Exception? exception)
         {
-            _logger.LogDebug(exception, $"ProducerSocketOnError() | Worker[{_processId}] Producer Channel error");
+            _logger.LogDebug(exception, $"ProducerSocketOnError() | Worker[{_workerId}] Producer Channel error");
         }
 
         #endregion Event handles
 
-        #region Private Methods
+        #region Process Methods
 
-        private void ProcessData(byte[] payload)
+        public override void Process(string message, byte[] payload)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Process(byte[] payload)
         {
             if (_ongoingNotification == null)
             {
-                var payloadString = Encoding.UTF8.GetString(payload, 0, payload.Length);
-                var jsonDocument = JsonDocument.Parse(payloadString);
+                var message = Encoding.UTF8.GetString(payload, 0, payload.Length);
+                var jsonDocument = JsonDocument.Parse(message);
                 var msg = jsonDocument.RootElement;
                 var id = msg.GetNullableJsonElement("id")?.GetNullableUInt32();
                 var accepted = msg.GetNullableJsonElement("accepted")?.GetNullableBool();
@@ -428,27 +325,26 @@ namespace Tubumu.Mediasoup
                 {
                     if (!_sents.TryGetValue(id.Value, out var sent))
                     {
-                        _logger.LogError($"ProcessData() | Worker[{_processId}] Received response does not match any sent request [id:{id}]");
-
+                        _logger.LogError($"ProcessData() | Worker[{_workerId}] Received response does not match any sent request [id:{id}]");
                         return;
                     }
 
                     if (accepted.HasValue && accepted.Value)
                     {
-                        _logger.LogDebug($"ProcessData() | Worker[{_processId}] Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
+                        _logger.LogDebug($"ProcessData() | Worker[{_workerId}] Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
 
                         sent.Resolve?.Invoke(data);
                     }
                     else if (!error.IsNullOrWhiteSpace())
                     {
                         // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
-                        _logger.LogWarning($"ProcessData() | Worker[{_processId}] Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}");
+                        _logger.LogWarning($"ProcessData() | Worker[{_workerId}] Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}");
 
                         sent.Reject?.Invoke(new Exception(reason));
                     }
                     else
                     {
-                        _logger.LogError($"ProcessData() | Worker[{_processId}] Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
+                        _logger.LogError($"ProcessData() | Worker[{_workerId}] Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
                     }
                 }
                 // If a notification emit it to the corresponding entity.
@@ -464,7 +360,7 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    _logger.LogError($"ProcessData() | Worker[{_processId}] Received data is not a notification nor a response");
+                    _logger.LogError($"ProcessData() | Worker[{_workerId}] Received data is not a notification nor a response");
                     return;
                 }
             }
