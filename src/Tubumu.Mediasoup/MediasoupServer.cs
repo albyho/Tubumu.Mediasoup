@@ -6,13 +6,15 @@ using Force.DeepCloner;
 
 namespace Tubumu.Mediasoup
 {
-    public class MediasoupServer
+    public class MediasoupServer : EventEmitter
     {
         private readonly List<IWorker> _workers = new();
 
         private int _nextMediasoupWorkerIndex = 0;
 
         private readonly ReaderWriterLockSlim _workersLock = new();
+
+        public EventEmitter Observer { get; } = new EventEmitter();
 
         /// <summary>
         /// Get a cloned copy of the mediasoup supported RTP capabilities.
@@ -70,6 +72,7 @@ namespace Tubumu.Mediasoup
             try
             {
                 _workers.Add(worker);
+                Observer.Emit("newworker", worker);
             }
             catch (Exception ex)
             {
