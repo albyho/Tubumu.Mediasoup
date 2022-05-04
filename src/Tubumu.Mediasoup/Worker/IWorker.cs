@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Mediasoup
 {
-    public interface IWorker : IDisposable
+    public interface IWorker : IEventEmitter, IDisposable
     {
         Dictionary<string, object>? AppData { get; }
         EventEmitter Observer { get; }
