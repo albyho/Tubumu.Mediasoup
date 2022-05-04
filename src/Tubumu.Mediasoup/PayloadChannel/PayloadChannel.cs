@@ -4,10 +4,7 @@ using System.Text.Json;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
-using Tubumu.Utils.Extensions;
-using Tubumu.Utils.Extensions.Object;
 using Tubumu.Utils.Json;
-using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
 {

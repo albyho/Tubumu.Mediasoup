@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tubumu.Utils.Extensions
+﻿namespace System
 {
     /// <summary>
     /// 时间间隔类型

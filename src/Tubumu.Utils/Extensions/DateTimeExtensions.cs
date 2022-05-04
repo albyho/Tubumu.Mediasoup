@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tubumu.Utils.Extensions
+﻿namespace System
 {
     public static class DateTimeExtensions
     {

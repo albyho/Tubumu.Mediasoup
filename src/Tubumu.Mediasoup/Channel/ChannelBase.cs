@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
-using Tubumu.Utils.Extensions;
 using Tubumu.Utils.Json;
 
 namespace Tubumu.Mediasoup

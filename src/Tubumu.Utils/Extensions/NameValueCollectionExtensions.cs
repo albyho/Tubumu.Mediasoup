@@ -1,7 +1,7 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Tubumu.Utils.Extensions
+namespace System.Collections.Specialized
 {
     /// <summary>
     /// NameValueCollectionExtensions

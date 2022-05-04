@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Threading;
 
-namespace Tubumu.Utils.Extensions
+namespace System.Threading
 {
     public class InterlockedExtensions
     {

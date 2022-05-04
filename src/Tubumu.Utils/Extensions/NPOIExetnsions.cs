@@ -6,7 +6,7 @@ using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
 
-namespace Tubumu.Utils.Extensions
+namespace NPOI
 {
     public static class NPOIExetnsion
     {

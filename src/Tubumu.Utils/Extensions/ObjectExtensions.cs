@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -10,7 +9,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using Tubumu.Utils.FastReflection;
 
-namespace Tubumu.Utils.Extensions.Object
+namespace System
 {
     /// <summary>
     /// ObjectExtensions

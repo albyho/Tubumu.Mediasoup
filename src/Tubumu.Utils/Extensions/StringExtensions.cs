@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.International.Converters.PinYinConverter;
 
-namespace Tubumu.Utils.Extensions
+namespace System
 {
     /// <summary>
     /// StringExtensions

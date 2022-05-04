@@ -1,7 +1,6 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
-namespace Tubumu.Mediasoup.Extensions
+namespace System.Threading.Tasks
 {
     public static class TaskExtensions
     {

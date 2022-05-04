@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
-namespace Kavana.Utils.Extensions
+namespace System
 {
     public static class PathExtensions
     {

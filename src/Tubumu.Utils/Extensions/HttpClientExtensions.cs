@@ -1,12 +1,8 @@
-﻿using System;
-using System.Net.Http;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Tubumu.Utils.Extensions.Object;
-using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
-namespace Tubumu.Utils.Extensions
+namespace System.Net.Http
 {
     public static class HttpClientExtensions
     {
