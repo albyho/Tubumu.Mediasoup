@@ -6,7 +6,7 @@ using Force.DeepCloner;
 
 namespace Tubumu.Mediasoup
 {
-    public class MediasoupServer : EventEmitter
+    public class MediasoupServer
     {
         private readonly List<IWorker> _workers = new();
 
@@ -72,6 +72,8 @@ namespace Tubumu.Mediasoup
             try
             {
                 _workers.Add(worker);
+
+                // Emit observer event.
                 Observer.Emit("newworker", worker);
             }
             catch (Exception ex)
