@@ -32,13 +32,13 @@ namespace System
                 {
                     if (curDesc[0].Description == description)
                     {
-                        return (T)field.GetValue(null);
+                        return (T)field.GetValue(null)!;
                     }
                 }
                 else
                 {
                     if (field.Name == description)
-                        return (T)field.GetValue(null);
+                        return (T)field.GetValue(null)!;
                 }
             }
             throw new ArgumentException(string.Format("{0} 未能找到对应的枚举.", description), "Description");
@@ -49,7 +49,7 @@ namespace System
         /// </summary>
         /// <param name="fieldInfo">FieldInfo</param>
         /// <returns>DescriptionAttribute[] </returns>
-        private static DescriptionAttribute[] GetDescriptAttributes(this FieldInfo fieldInfo)
+        private static DescriptionAttribute[]? GetDescriptAttributes(this FieldInfo fieldInfo)
         {
             return fieldInfo != null ? (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false) : null;
         }
@@ -68,7 +68,7 @@ namespace System
                 throw new NotSupportedException();
             }
 
-            var attribute = type.GetField(enumName).GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault();
+            var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault();
             if (attribute != null)
             {
                 var displayName = ((DisplayAttribute)attribute).Name;
@@ -121,7 +121,7 @@ namespace System
                 throw new NotSupportedException();
             }
 
-            var attribute = type.GetField(enumName).GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault();
+            var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault();
             if (attribute != null)
             {
                 var displayName = ((DisplayAttribute)attribute).Name;
@@ -174,7 +174,7 @@ namespace System
                 throw new NotSupportedException();
             }
 
-            var attribute = type.GetField(enumName).GetCustomAttributes(typeof(EnumMemberAttribute), false).FirstOrDefault();
+            var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(EnumMemberAttribute), false).FirstOrDefault();
             if (attribute != null)
             {
                 var value = ((EnumMemberAttribute)attribute).Value;
@@ -221,9 +221,9 @@ namespace System
         public static int GetInt32(this Enum enumValue)
         {
             var type = enumValue.GetType();
-            var enumName = Enum.GetName(type, enumValue);
+            var enumName = Enum.GetName(type, enumValue)!;
             var enumFieldInfo = type.GetField(enumName);
-            return (int)enumFieldInfo.GetRawConstantValue();
+            return (int)enumFieldInfo!.GetRawConstantValue()!;
         }
 
         #endregion RawConstantValue

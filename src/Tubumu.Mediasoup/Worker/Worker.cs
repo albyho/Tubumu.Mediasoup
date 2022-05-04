@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
-using Tubumu.Utils.Extensions;
 
 namespace Tubumu.Mediasoup
 {

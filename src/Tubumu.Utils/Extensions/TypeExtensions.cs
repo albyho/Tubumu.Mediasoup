@@ -1,8 +1,7 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq.Expressions;
 
-namespace Tubumu.Utils.Extensions
+namespace System
 {
     /// <summary>
     /// TypeExtensions

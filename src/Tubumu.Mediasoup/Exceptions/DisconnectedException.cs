@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tubumu.Mediasoup
+﻿namespace System
 {
     public class DisconnectedException : Exception
     {

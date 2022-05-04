@@ -3,10 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Tubumu.Utils.Extensions;
-using Tubumu.Utils.Extensions.Object;
 using Tubumu.Utils.Json;
-using ObjectExtensions = Tubumu.Utils.Extensions.Object.ObjectExtensions;
 
 namespace Tubumu.Mediasoup
 {

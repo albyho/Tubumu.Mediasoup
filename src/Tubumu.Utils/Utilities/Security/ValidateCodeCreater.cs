@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using SkiaSharp;
-using Tubumu.Utils.Extensions;
 
 namespace Tubumu.Utils.Utilities.Security
 {

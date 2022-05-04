@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Tubumu.Utils.Extensions;
 
 namespace Tubumu.Utils.Utilities.Cryptography
 {

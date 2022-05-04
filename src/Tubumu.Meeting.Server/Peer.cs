@@ -7,9 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
-using Tubumu.Utils.Extensions;
 using Tubumu.Mediasoup;
-using Tubumu.Mediasoup.Extensions;
 
 namespace Tubumu.Meeting.Server
 {

@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Tubumu.Mediasoup;
-using Tubumu.Mediasoup.Extensions;
-using Tubumu.Utils.Extensions;
 
 namespace Tubumu.Meeting.Server
 {

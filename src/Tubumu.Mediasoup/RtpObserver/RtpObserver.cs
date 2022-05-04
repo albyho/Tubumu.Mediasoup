@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Tubumu.Mediasoup.Extensions;
 
 namespace Tubumu.Mediasoup
 {
