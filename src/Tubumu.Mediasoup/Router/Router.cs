@@ -815,7 +815,7 @@ namespace Tubumu.Mediasoup
                 @internal,
                 _channel,
                 _payloadChannel,
-                AppData,
+                activeSpeakerObserverOptions.AppData,
                 m => _producers.TryGetValue(m, out var p) ? p : null);
 
             _rtpObservers[activeSpeakerObserver.Internal.RtpObserverId] = activeSpeakerObserver;
@@ -853,7 +853,7 @@ namespace Tubumu.Mediasoup
                 @internal,
                 _channel,
                 _payloadChannel,
-                AppData,
+                audioLevelObserverOptions.AppData,
                 m => _producers.TryGetValue(m, out var p) ? p : null);
 
             _rtpObservers[audioLevelObserver.Internal.RtpObserverId] = audioLevelObserver;
