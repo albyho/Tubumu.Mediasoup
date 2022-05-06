@@ -251,7 +251,7 @@ namespace Tubumu.Mediasoup
             // 在 Node.js 实现中，判断了 clockRate 的数据类型。在强类型语言中不需要。
 
             // channels is optional. If unset, set it to 1 (just if audio).
-            // 在 Node.js 实现中，如果是音频会 delete 掉 Channels 。
+            // 在 Node.js 实现中，如果是 `video` 会 delete 掉 Channels 。
             if (mimeType.StartsWith("audio") && (!codec.Channels.HasValue || codec.Channels < 1))
             {
                 codec.Channels = 1;
