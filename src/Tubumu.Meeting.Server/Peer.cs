@@ -348,7 +348,7 @@ namespace Tubumu.Meeting.Server
 
                                     if (sources.Except(producerPeer.Sources).Any())
                                     {
-                                        throw new Exception($"PullAsync() | Peer:{producerPeer.PeerId} can't produce some sources in Room.");
+                                        throw new Exception($"PullAsync() | Peer:{producerPeer.PeerId} can't produce some sources.");
                                     }
 
                                     return await PullInternalAsync(producerPeer, sources);
