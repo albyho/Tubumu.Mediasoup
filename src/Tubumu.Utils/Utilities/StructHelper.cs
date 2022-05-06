@@ -38,7 +38,7 @@ namespace Tubumu.Utils.Utilities
         /// </summary>
         /// <param name="bytes">Byte 数组</param>
         /// <returns>转换后的结构体</returns>
-        public static T BytesToStuct<T>(byte[] bytes) where T : struct
+        public static T BytesToStruct<T>(byte[] bytes) where T : struct
         {
             var type = typeof(T);
             // 得到结构体的大小
@@ -68,7 +68,7 @@ namespace Tubumu.Utils.Utilities
         /// <param name="bytes">Byte 数组</param>
         /// <param name="offset"></param>
         /// <returns>转换后的结构体</returns>
-        public static T BytesToStuct<T>(byte[] bytes, int offset) where T : struct
+        public static T BytesToStruct<T>(byte[] bytes, int offset) where T : struct
         {
             var type = typeof(T);
             // 得到结构体的大小
@@ -97,7 +97,7 @@ namespace Tubumu.Utils.Utilities
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static string ByteArray2String(IEnumerable<byte> buffer)
+        public static string ByteArrayToString(IEnumerable<byte> buffer)
         {
             var sb = new StringBuilder();
             foreach (byte item in buffer)
