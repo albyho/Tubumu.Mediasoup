@@ -36,7 +36,7 @@ namespace Tubumu.Mediasoup
             {
                 if (_nextMediasoupWorkerIndex > _workers.Count - 1)
                 {
-                    throw new Exception("none worker");
+                    throw new Exception("None worker");
                 }
 
                 if (++_nextMediasoupWorkerIndex == _workers.Count)

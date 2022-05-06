@@ -20,8 +20,10 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public RtpHeaderExtension[]? HeaderExtensions { get; set; }
 
+        /// <summary>
+        /// Supported Rtp capabilitie.
+        /// </summary>
         public static RtpCapabilities SupportedRtpCapabilities { get; }
-
 
         static RtpCapabilities()
         {
@@ -349,107 +351,107 @@ namespace Tubumu.Mediasoup
                 {
                      new RtpHeaderExtension {
                         Kind = MediaKind.Audio,
-                        Uri= "urn:ietf:params:rtp-hdrext:sdes:mid",
-                        PreferredId= 1,
+                        Uri = "urn:ietf:params:rtp-hdrext:sdes:mid",
+                        PreferredId = 1,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "urn:ietf:params:rtp-hdrext:sdes:mid",
-                        PreferredId= 1,
+                        Uri = "urn:ietf:params:rtp-hdrext:sdes:mid",
+                        PreferredId = 1,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id",
-                        PreferredId= 2,
+                        Uri = "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id",
+                        PreferredId = 2,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.ReceiveOnly
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id",
-                        PreferredId= 3,
+                        Uri = "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id",
+                        PreferredId = 3,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.ReceiveOnly
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Audio,
-                        Uri= "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
-                        PreferredId= 4,
+                        Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
+                        PreferredId = 4,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
-                        PreferredId= 4,
+                        Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
+                        PreferredId = 4,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
 		            // NOTE: For audio we just enable transport-wide-cc-01 when receiving media.
 		            new RtpHeaderExtension {
                         Kind = MediaKind.Audio,
-                        Uri= "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
-                        PreferredId= 5,
+                        Uri = "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
+                        PreferredId = 5,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.ReceiveOnly,
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
-                        PreferredId= 5,
+                        Uri = "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
+                        PreferredId = 5,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
 		            // NOTE: Remove this once framemarking draft becomes RFC.
 		            new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "http://tools.ietf.org/html/draft-ietf-avtext-framemarking-07",
-                        PreferredId= 6,
+                        Uri = "http://tools.ietf.org/html/draft-ietf-avtext-framemarking-07",
+                        PreferredId = 6,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "urn:ietf:params:rtp-hdrext:framemarking",
-                        PreferredId= 7,
+                        Uri = "urn:ietf:params:rtp-hdrext:framemarking",
+                        PreferredId = 7,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Audio,
-                        Uri= "urn:ietf:params:rtp-hdrext:ssrc-audio-level",
-                        PreferredId= 10,
+                        Uri = "urn:ietf:params:rtp-hdrext:ssrc-audio-level",
+                        PreferredId = 10,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "urn:3gpp:video-orientation",
-                        PreferredId= 11,
+                        Uri = "urn:3gpp:video-orientation",
+                        PreferredId = 11,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "urn:ietf:params:rtp-hdrext:toffset",
-                        PreferredId= 12,
+                        Uri = "urn:ietf:params:rtp-hdrext:toffset",
+                        PreferredId = 12,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Video,
-                        Uri= "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
-                        PreferredId= 13,
+                        Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
+                        PreferredId = 13,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
                         Kind = MediaKind.Audio,
-                        Uri= "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
+                        Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
                         PreferredId= 13,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive

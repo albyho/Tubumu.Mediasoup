@@ -63,12 +63,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 mediasoupOptions.MediasoupSettings.WorkerSettings.DtlsPrivateKeyFile = workerSettings.DtlsPrivateKeyFile;
             }
 
-            // RouteSettings
+            // RouterSettings
             if (routerSettings != null && !routerSettings.RtpCodecCapabilities.IsNullOrEmpty())
             {
                 mediasoupOptions.MediasoupSettings.RouterSettings = routerSettings;
 
-                // Fix RtpCodecCapabilities[x].Parameters 。从配置文件反序列化时将数字转换成了字符串，这里进行修正。
+                // Fix RtpCodecCapabilities[x].Parameters 。从配置文件反序列化时将数字转换成了字符串，而 mediasoup-worker 有严格的数据类型验证，故这里进行修正。
                 foreach (var codec in routerSettings.RtpCodecCapabilities.Where(m => m.Parameters != null))
                 {
                     foreach (var key in codec.Parameters.Keys.ToArray())
@@ -95,7 +95,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 if (listenIps.IsNullOrEmpty())
                 {
                     var localIPv4IPAddresses = IPAddressExtensions.GetLocalIPAddresses(AddressFamily.InterNetwork).Where(m => m != IPAddress.Loopback);
-                    if (EnumerableExtensions.IsNullOrEmpty(localIPv4IPAddresses))
+                    if (localIPv4IPAddresses.IsNullOrEmpty())
                     {
                         throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
                     }
