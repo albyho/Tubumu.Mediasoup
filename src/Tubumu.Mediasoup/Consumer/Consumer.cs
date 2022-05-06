@@ -214,10 +214,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            if (_closed)
-            {
-                return;
-            }
+            _logger.LogDebug($"CloseAsync() | Consumer:{ConsumerId}");
 
             using (await _closeLock.WriteLockAsync())
             {
@@ -225,8 +222,6 @@ namespace Tubumu.Mediasoup
                 {
                     return;
                 }
-
-                _logger.LogDebug($"Close() | Consumer:{ConsumerId}");
 
                 _closed = true;
 
@@ -249,10 +244,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task TransportClosedAsync()
         {
-            if (_closed)
-            {
-                return;
-            }
+            _logger.LogDebug($"TransportClosed() | Consumer:{ConsumerId}");
 
             using (await _closeLock.WriteLockAsync())
             {
@@ -260,8 +252,6 @@ namespace Tubumu.Mediasoup
                 {
                     return;
                 }
-
-                _logger.LogDebug($"TransportClosed() | Consumer:{ConsumerId}");
 
                 _closed = true;
 

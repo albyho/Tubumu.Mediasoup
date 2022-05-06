@@ -92,20 +92,16 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<string?> DumpAsync()
         {
-            if (_closed)
-            {
-                return null;
-            }
+            _logger.LogDebug("DumpAsync()");
 
             await _closeLock.WaitAsync();
             try
             {
                 if (_closed)
                 {
-                    return null;
+                    throw new InvalidStateException("Worker closed");
                 }
 
-                _logger.LogDebug("DumpAsync()");
                 return await _channel.RequestAsync(MethodId.WORKER_DUMP);
             }
             catch (Exception ex)
@@ -124,20 +120,16 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<string?> GetResourceUsageAsync()
         {
-            if (_closed)
-            {
-                return null;
-            }
+            _logger.LogDebug("GetResourceUsageAsync()");
 
             await _closeLock.WaitAsync();
             try
             {
                 if (_closed)
                 {
-                    return null;
+                    throw new InvalidStateException("Worker closed");
                 }
 
-                _logger.LogDebug("GetResourceUsageAsync()");
                 return await _channel.RequestAsync(MethodId.WORKER_GET_RESOURCE_USAGE);
             }
             catch (Exception ex)
@@ -156,20 +148,15 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<string?> UpdateSettingsAsync(WorkerUpdateableSettings workerUpdateableSettings)
         {
-            if (_closed)
-            {
-                return null;
-            }
+            _logger.LogDebug("UpdateSettingsAsync()");
 
             await _closeLock.WaitAsync();
             try
             {
                 if (_closed)
                 {
-                    return null;
+                    throw new InvalidStateException("Worker closed");
                 }
-
-                _logger.LogDebug("UpdateSettingsAsync()");
 
                 var logTags = workerUpdateableSettings.LogTags ?? Array.Empty<WorkerLogTag>();
                 var reqData = new
@@ -195,20 +182,15 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<Router?> CreateRouterAsync(RouterOptions routerOptions)
         {
-            if (_closed)
-            {
-                return null;
-            }
+            _logger.LogDebug("CreateRouterAsync()");
 
             await _closeLock.WaitAsync();
             try
             {
                 if (_closed)
                 {
-                    return null;
+                    throw new InvalidStateException("Workder closed");
                 }
-
-                _logger.LogDebug("CreateRouterAsync()");
 
                 // This may throw.
                 var rtpCapabilities = ORTC.GenerateRouterRtpCapabilities(routerOptions.MediaCodecs);

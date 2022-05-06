@@ -153,11 +153,6 @@ namespace Tubumu.Meeting.Server
 
         public async Task CloseAsync()
         {
-            if (_closed)
-            {
-                return;
-            }
-
             using (await _closeLock.WriteLockAsync())
             {
                 if (_closed)

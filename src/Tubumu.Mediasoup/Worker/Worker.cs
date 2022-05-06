@@ -166,20 +166,16 @@ namespace Tubumu.Mediasoup
 
         public override async Task CloseAsync()
         {
-            if (_closed)
-            {
-                return;
-            }
+            _logger.LogDebug("CloseAsync() | Worker");
 
             await _closeLock.WaitAsync();
             try
             {
                 if (_closed)
                 {
-                    return;
+                    throw new InvalidStateException("Worker closed");
                 }
 
-                _logger.LogDebug("CloseAsync() | Worker");
 
                 _closed = true;
 

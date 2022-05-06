@@ -76,10 +76,7 @@ namespace Tubumu.Mediasoup
 
         public async Task CloseAsync()
         {
-            if (_closed)
-            {
-                return;
-            }
+            _logger.LogDebug($"CloseAsync() | Worker[{_workerId}]");
 
             await _closeLock.WaitAsync();
             try
@@ -88,8 +85,6 @@ namespace Tubumu.Mediasoup
                 {
                     return;
                 }
-
-                _logger.LogDebug($"CloseAsync() | Worker[{_workerId}]");
 
                 _closed = true;
 
@@ -140,20 +135,15 @@ namespace Tubumu.Mediasoup
 
         public async Task NotifyAsync(string @event, object @internal, NotifyData? data, byte[] payload)
         {
-            if (_closed)
-            {
-                throw new InvalidStateException("PayloadChannel closed");
-            }
+            _logger.LogDebug($"NotifyAsync() | Worker[{_workerId}] Event:{@event}");
 
             await _closeLock.WaitAsync();
             try
             {
                 if (_closed)
                 {
-                    return;
+                    throw new InvalidStateException("PayloadChannel closed");
                 }
-
-                _logger.LogDebug($"NotifyAsync() | Worker[{_workerId}] Event:{@event}");
 
                 var notification = CreateNotification(@event, @internal, data, payload);
                 SendNotification(notification);
@@ -170,23 +160,17 @@ namespace Tubumu.Mediasoup
 
         public async Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null, byte[]? payload = null)
         {
-            if (_closed)
-            {
-                throw new InvalidStateException("Channel closed");
-            }
+            _logger.LogDebug($"RequestAsync() | Worker[{_workerId}] Method:{methodId.GetEnumMemberValue()}");
 
             await _closeLock.WaitAsync();
             try
             {
                 if (_closed)
                 {
-                    return null;
+                    throw new InvalidStateException("Channel closed");
                 }
 
-
                 var requestMessage = CreateRequestMessage(methodId, @internal, data);
-
-                _logger.LogDebug($"RequestAsync() | Worker[{_workerId}] Method:{requestMessage.Method}");
 
                 var tcs = new TaskCompletionSource<string?>();
                 var sent = new Sent

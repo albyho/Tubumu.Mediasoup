@@ -197,10 +197,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public void Close()
         {
-            if (_closed)
-            {
-                return;
-            }
+            _logger.LogDebug($"Close() | Producer:{ProducerId}");
 
             lock (_closeLock)
             {
@@ -208,8 +205,6 @@ namespace Tubumu.Mediasoup
                 {
                     return;
                 }
-
-                _logger.LogDebug($"Close() | Producer:{ProducerId}");
 
                 _closed = true;
 
@@ -234,10 +229,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public void TransportClosed()
         {
-            if (_closed)
-            {
-                return;
-            }
+            _logger.LogDebug($"TransportClosed() | Producer:{ProducerId}");
 
             lock (_closeLock)
             {
@@ -245,8 +237,6 @@ namespace Tubumu.Mediasoup
                 {
                     return;
                 }
-
-                _logger.LogDebug($"TransportClosed() | Producer:{ProducerId}");
 
                 _closed = true;
 
@@ -349,10 +339,12 @@ namespace Tubumu.Mediasoup
 
         public void AddConsumer(Consumer consumer)
         {
-            CheckClosed();
             lock (_closeLock)
             {
-                CheckClosed();
+                if(_closed)
+                {
+                    throw new InvalidStateException("Producer closed");
+                }
 
                 _consumers[consumer.ConsumerId] = consumer;
             }
@@ -432,11 +424,7 @@ namespace Tubumu.Mediasoup
 
         private void CheckConsumers(object? state)
         {
-            if (_closed)
-            {
-                _checkConsumersTimer?.Dispose();
-                return;
-            }
+            _logger.LogDebug($"CheckConsumer() | Producer: {_internal.ProducerId} Consumers: {_consumers.Count}");
 
             lock (_closeLock)
             {
@@ -445,8 +433,6 @@ namespace Tubumu.Mediasoup
                     _checkConsumersTimer?.Dispose();
                     return;
                 }
-
-                _logger.LogDebug($"CheckConsumer() | Producer: {_internal.ProducerId} Consumers: {_consumers.Count}");
 
                 if (_consumers.Count == 0)
                 {
@@ -461,14 +447,6 @@ namespace Tubumu.Mediasoup
                 {
                     _checkConsumersTimer?.Change(TimeSpan.FromSeconds(CheckConsumersTimeSeconds), TimeSpan.FromMilliseconds(-1));
                 }
-            }
-        }
-
-        private void CheckClosed()
-        {
-            if (_closed)
-            {
-                throw new Exception($"CheckClosed() | Producer:{ProducerId} was closed");
             }
         }
 

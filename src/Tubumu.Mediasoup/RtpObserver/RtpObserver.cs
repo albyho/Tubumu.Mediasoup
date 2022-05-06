@@ -115,12 +115,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public void Close()
         {
+            _logger.LogDebug($"Close() | RtpObserver:{Internal.RtpObserverId}");
+
             if (_closed)
             {
                 return;
             }
-
-            _logger.LogDebug($"Close() | RtpObserver:{Internal.RtpObserverId}");
 
             _closed = true;
 
@@ -142,12 +142,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public void RouterClosed()
         {
+            _logger.LogDebug($"RouterClosed() | RtpObserver:{Internal.RtpObserverId}");
+
             if (_closed)
             {
                 return;
             }
-
-            _logger.LogDebug($"RouterClosed() | RtpObserver:{Internal.RtpObserverId}");
 
             _closed = true;
 

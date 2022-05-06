@@ -151,12 +151,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public void Close()
         {
+            _logger.LogDebug($"Close() | DataConsumer:{DataConsumerId}");
+
             if (_closed)
             {
                 return;
             }
-
-            _logger.LogDebug($"Close() | DataConsumer:{DataConsumerId}");
 
             _closed = true;
 
@@ -178,12 +178,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public void TransportClosed()
         {
+            _logger.LogDebug($"Transport_closed() | DataConsumer:{DataConsumerId}");
+
             if (_closed)
             {
                 return;
             }
-
-            _logger.LogDebug($"Transport_closed() | DataConsumer:{DataConsumerId}");
 
             _closed = true;
 
