@@ -325,12 +325,7 @@ namespace Tubumu.Utils.FastLambda
         protected virtual int CompareInvocation(InvocationExpression x, InvocationExpression y)
         {
             int result = CompareExpressionList(x.Arguments, y.Arguments);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return Compare(x.Expression, y.Expression);
+            return result != 0 ? result : Compare(x.Expression, y.Expression);
         }
 
         /// <summary>

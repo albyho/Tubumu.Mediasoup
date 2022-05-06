@@ -227,7 +227,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
                 var keyBytes = Encoding.UTF8.GetBytes(key);
                 return keyBytes.Length < 16
                     ? throw new ArgumentOutOfRangeException(nameof(key), "key的经过UTF8编码后的长度至少需要16个字节")
-                    : keyBytes.Length == 16 ? keyBytes : keyBytes.SubArray(16);
+                    : keyBytes.Length == 16 ? keyBytes : keyBytes[0..16];
             }
 
             return Encoding.UTF8.GetBytes(DefaultKey);

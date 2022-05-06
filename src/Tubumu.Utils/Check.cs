@@ -9,55 +9,37 @@ namespace Tubumu.Utils
     {
         public static T NotNull<T>(T value, string parameterName)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(parameterName);
-            }
-
-            return value;
+            return value != null
+                ? value
+                : throw new ArgumentNullException(parameterName);
         }
-
 
         public static T NotNull<T>(T value, string parameterName, string message)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(parameterName, message);
-            }
-
-            return value;
+            return value != null
+                ? value
+                : throw new ArgumentNullException(parameterName, message);
         }
-
 
         public static string NotNullOrWhiteSpace(string value, string parameterName)
         {
-            if (value.IsNullOrWhiteSpace())
-            {
-                throw new ArgumentException($"{parameterName} can not be null, empty or white space!", parameterName);
-            }
-
-            return value;
+            return !value.IsNullOrWhiteSpace()
+                ? value
+                : throw new ArgumentException($"{parameterName} can not be null, empty or white space!", parameterName);
         }
-
 
         public static string NotNullOrEmpty(string value, string parameterName)
         {
-            if (value.IsNullOrEmpty())
-            {
-                throw new ArgumentException($"{parameterName} can not be null or empty!", parameterName);
-            }
-
-            return value;
+            return !value.IsNullOrEmpty()
+                ? value
+                : throw new ArgumentException($"{parameterName} can not be null or empty!", parameterName);
         }
 
         public static ICollection<T> NotNullOrEmpty<T>(ICollection<T> value, string parameterName)
         {
-            if (value.IsNullOrEmpty())
-            {
-                throw new ArgumentException(parameterName + " can not be null or empty!", parameterName);
-            }
-
-            return value;
+            return value.IsNullOrEmpty()
+                ? value
+                : throw new ArgumentException(parameterName + " can not be null or empty!", parameterName);
         }
     }
 }

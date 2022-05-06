@@ -304,7 +304,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
                     throw new ArgumentOutOfRangeException(nameof(key), "key应该是经过UTF8编码后的长度至少需要8个字节的字符串");
                 }
 
-                return keyBytes.Length == 8 ? keyBytes : keyBytes.SubArray(8);
+                return keyBytes.Length == 8 ? keyBytes : keyBytes[0..8];
             }
 
             return Encoding.UTF8.GetBytes(DefaultKey);
