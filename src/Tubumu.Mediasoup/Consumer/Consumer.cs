@@ -70,7 +70,7 @@ namespace Tubumu.Mediasoup
         public string ConsumerId => _internal.ConsumerId;
 
         /// <summary>
-        /// Consumer id.
+        /// Producer id.
         /// </summary>
         public string ProducerId => _internal.ProducerId;
 
