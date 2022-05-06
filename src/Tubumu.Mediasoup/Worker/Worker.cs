@@ -230,7 +230,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        protected override void Destory()
+        protected override void DestoryManaged()
         {
             _child?.Dispose();
             _pipes.ForEach(m => m?.Dispose());
@@ -266,12 +266,12 @@ namespace Tubumu.Mediasoup
                 if (process.ExitCode == 42)
                 {
                     _logger.LogError($"OnExit() | Worker process failed due to wrong settings [pid:{ProcessId}]");
-                    Emit("@failure", new Exception("wrong settings"));
+                    Emit("@failure", new Exception($"Worker process failed due to wrong settings [pid:{ProcessId}]"));
                 }
                 else
                 {
                     _logger.LogError($"OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]");
-                    Emit("@failure", new Exception($"[pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"));
+                    Emit("@failure", new Exception($"Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"));
                 }
             }
             else

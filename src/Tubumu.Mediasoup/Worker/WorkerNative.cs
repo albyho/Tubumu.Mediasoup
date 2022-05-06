@@ -85,18 +85,18 @@ namespace Tubumu.Mediasoup
                 if (workerRunResult == 42)
                 {
                     _logger.LogError($"OnExit() | Worker run failed due to wrong settings");
-                    Emit("@failure", new Exception("wrong settings"));
+                    Emit("@failure", new Exception("Worker run failed due to wrong settings"));
                 }
 
                 else if (workerRunResult == 0)
                 {
-                    _logger.LogError($"OnExit() | Worker process died unexpectedly");
-                    Emit("died", new Exception($"Worker died unexpectedly"));
+                    _logger.LogError($"OnExit() | Worker died unexpectedly");
+                    Emit("died", new Exception("Worker died unexpectedly"));
                 }
                 else
                 {
                     _logger.LogError($"OnExit() | Worker run failed unexpectedly");
-                    Emit("@failure", new Exception("unexpectedly"));
+                    Emit("@failure", new Exception("Worker run failed unexpectedly"));
                 }
             }
 
@@ -108,7 +108,7 @@ namespace Tubumu.Mediasoup
             throw new NotImplementedException();
         }
 
-        protected override void Destory()
+        protected override void DestoryUnmanaged()
         {
             if (_channlPtr != IntPtr.Zero)
             {
