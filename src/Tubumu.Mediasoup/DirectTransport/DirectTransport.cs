@@ -52,53 +52,22 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
-        /// Close the PipeTransport.
+        /// Close the DirectTransport.
         /// </summary>
-        public override async Task CloseAsync()
+        /// <returns></returns>
+        protected override Task OnCloseAsync()
         {
-            await CloseLock.WaitAsync();
-            try
-            {
-                if (Closed)
-                {
-                    return;
-                }
-
-                await base.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CloseAsync()");
-            }
-            finally
-            {
-                CloseLock.Set();
-            }
+            // Do nothing
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Router was closed.
         /// </summary>
-        public override async Task RouterClosedAsync()
+        protected override Task OnRouterClosedAsync()
         {
-            await CloseLock.WaitAsync();
-            try
-            {
-                if (Closed)
-                {
-                    return;
-                }
-
-                await base.RouterClosedAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "RouterClosedAsync()");
-            }
-            finally
-            {
-                CloseLock.Set();
-            }
+            // Do nothing
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -119,7 +88,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public override Task<string?> SetMaxIncomingBitrateAsync(int bitrate)
         {
-            _logger.LogDebug($"SetMaxIncomingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
+            _logger.LogError($"SetMaxIncomingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
             throw new NotImplementedException("SetMaxIncomingBitrateAsync() not implemented in DirectTransport");
         }
 
@@ -130,6 +99,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public override Task<string?> SetMaxOutgoingBitrateAsync(int bitrate)
         {
+            _logger.LogError($"SetMaxOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
             throw new NotImplementedException("SetMaxOutgoingBitrateAsync is not implemented in DirectTransport");
         }
 
@@ -138,7 +108,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public override Task<Producer> ProduceAsync(ProducerOptions producerOptions)
         {
-            _logger.LogDebug($"ProduceAsync() | DiectTransport:{TransportId}");
+            _logger.LogError($"ProduceAsync() | DiectTransport:{TransportId}");
             throw new NotImplementedException("ProduceAsync() is not implemented in DirectTransport");
         }
 
@@ -149,29 +119,20 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public override Task<Consumer> ConsumeAsync(ConsumerOptions consumerOptions)
         {
-            _logger.LogDebug($"ConsumeAsync() | DiectTransport:{TransportId}");
+            _logger.LogError($"ConsumeAsync() | DiectTransport:{TransportId}");
             throw new NotImplementedException("ConsumeAsync() not implemented in DirectTransport");
         }
 
         public async Task SendRtcpAsync(byte[] rtcpPacket)
         {
-            await CloseLock.WaitAsync();
-            try
+            using (await CloseLock.ReadLockAsync())
             {
                 if (Closed)
                 {
-                    return;
+                    throw new InvalidStateException("Transport closed");
                 }
 
                 await PayloadChannel.NotifyAsync("transport.sendRtcp", Internal, null, rtcpPacket);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "SendRtcpAsync()");
-            }
-            finally
-            {
-                CloseLock.Set();
             }
         }
 

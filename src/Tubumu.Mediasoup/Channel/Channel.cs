@@ -148,7 +148,7 @@ namespace Tubumu.Mediasoup
                 return;
             }
 
-            // 数据回调通过单一线程进入，所以 _recvBuffer 是线程安全的。
+            // 数据回调通过单一线程进入，所以 _recvBuffer 是 Thread-safe 的。
             if (_recvBufferCount + data.Count > RecvBufferMaxLen)
             {
                 _logger.LogError($"ConsumerSocketOnData() | Worker[{_workerId}] Receiving buffer is full, discarding all data into it");

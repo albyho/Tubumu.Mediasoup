@@ -80,61 +80,22 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close the PipeTransport.
         /// </summary>
-        public override async Task CloseAsync()
+        protected override Task OnCloseAsync()
         {
-            await CloseLock.WaitAsync();
-            try
+            if (SctpState.HasValue)
             {
-                if (Closed)
-                {
-                    return;
-                }
+                SctpState = Mediasoup.SctpState.Closed;
+            }
 
-                if (SctpState.HasValue)
-                {
-                    SctpState = Mediasoup.SctpState.Closed;
-                }
-
-                await base.CloseAsync();
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "CloseAsync()");
-            }
-            finally
-            {
-                CloseLock.Set();
-            }
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Router was closed.
         /// </summary>
-        public override async Task RouterClosedAsync()
+        protected override Task OnRouterClosedAsync()
         {
-            await CloseLock.WaitAsync();
-            try
-            {
-                if (Closed)
-                {
-                    return;
-                }
-
-                if (SctpState.HasValue)
-                {
-                    SctpState = Mediasoup.SctpState.Closed;
-                }
-
-                await base.RouterClosedAsync();
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "RouterClosedAsync()");
-            }
-            finally
-            {
-                CloseLock.Set();
-            }
+            return OnCloseAsync();
         }
 
         /// <summary>
@@ -142,13 +103,16 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public override Task ConnectAsync(object parameters)
+        public override async Task ConnectAsync(object parameters)
         {
             _logger.LogDebug("ConnectAsync()");
 
-            return parameters is PipeTransportConnectParameters connectParameters
-                ? ConnectAsync(connectParameters)
-                : throw new Exception($"{nameof(parameters)} type is not PipTransportConnectParameters");
+            if (parameters is not PipeTransportConnectParameters connectParameters)
+            {
+                throw new Exception($"{nameof(parameters)} type is not PipeTransportConnectParameters");
+            }
+
+            await ConnectAsync(connectParameters);
         }
 
         /// <summary>
@@ -158,12 +122,20 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task ConnectAsync(PipeTransportConnectParameters pipeTransportConnectParameters)
         {
-            var reqData = pipeTransportConnectParameters;
-            var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
-            var responseData = JsonSerializer.Deserialize<PipeTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+            using (await CloseLock.ReadLockAsync())
+            {
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
 
-            // Update data.
-            Tuple = responseData.Tuple;
+                var reqData = pipeTransportConnectParameters;
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
+                var responseData = JsonSerializer.Deserialize<PipeTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+
+                // Update data.
+                Tuple = responseData.Tuple;
+            }
         }
 
         /// <summary>

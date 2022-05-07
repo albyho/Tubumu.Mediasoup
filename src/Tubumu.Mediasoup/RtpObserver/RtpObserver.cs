@@ -261,7 +261,7 @@ namespace Tubumu.Mediasoup
             {
                 if (_closed)
                 {
-                    throw new InvalidStateException("AddProducerAsync()");
+                    throw new InvalidStateException("RepObserver closed");
                 }
 
                 var producer = GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
@@ -289,7 +289,7 @@ namespace Tubumu.Mediasoup
             {
                 if (_closed)
                 {
-                    throw new InvalidStateException("AddProducerAsync()");
+                    throw new InvalidStateException("RepObserver closed");
                 }
 
                 var producer = GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);

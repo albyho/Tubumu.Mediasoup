@@ -86,94 +86,65 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close the PlainTransport.
         /// </summary>
-        public override async Task CloseAsync()
+        protected override Task OnCloseAsync()
         {
-            await CloseLock.WaitAsync();
-            try
+            if (SctpState.HasValue)
             {
-                if (Closed)
-                {
-                    return;
-                }
+                SctpState = Mediasoup.SctpState.Closed;
+            }
 
-                if (SctpState.HasValue)
-                {
-                    SctpState = Mediasoup.SctpState.Closed;
-                }
-
-                await base.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CloseAsync()");
-            }
-            finally
-            {
-                CloseLock.Set();
-            }
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Router was closed.
         /// </summary>
-        public override async Task RouterClosedAsync()
+        protected override Task OnRouterClosedAsync()
         {
-            await CloseLock.WaitAsync();
-            try
-            {
-                if (Closed)
-                {
-                    return;
-                }
-
-                if (SctpState.HasValue)
-                {
-                    SctpState = Mediasoup.SctpState.Closed;
-                }
-
-                await base.RouterClosedAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "RouterClosedAsync()");
-            }
-            finally
-            {
-                CloseLock.Set();
-            }
+            return OnCloseAsync();
         }
 
         /// <summary>
         /// Provide the PipeTransport remote parameters.
         /// </summary>
-        public override Task ConnectAsync(object parameters)
+        public override async Task ConnectAsync(object parameters)
         {
             _logger.LogDebug("ConnectAsync()");
 
-            return parameters is PlainTransportConnectParameters connectParameters
-                ? ConnectAsync(connectParameters)
-                : throw new Exception($"{nameof(parameters)} type is not PlainTransportConnectParameters");
+            if (parameters is not PlainTransportConnectParameters connectParameters)
+            {
+                throw new Exception($"{nameof(parameters)} type is not PlainTransportConnectParameters");
+            }
+
+            await ConnectAsync(connectParameters);
         }
 
         private async Task ConnectAsync(PlainTransportConnectParameters plainTransportConnectParameters)
         {
-            var reqData = plainTransportConnectParameters;
-
-            var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
-            var responseData = JsonSerializer.Deserialize<PlainTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
-
-            // Update data.
-            if (responseData.Tuple != null)
+            using (await CloseLock.ReadLockAsync())
             {
-                Tuple = responseData.Tuple;
-            }
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
 
-            if (responseData.RtcpTuple != null)
-            {
-                RtcpTuple = responseData.RtcpTuple;
-            }
+                var reqData = plainTransportConnectParameters;
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
+                var responseData = JsonSerializer.Deserialize<PlainTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
-            SrtpParameters = responseData.SrtpParameters;
+                // Update data.
+                if (responseData.Tuple != null)
+                {
+                    Tuple = responseData.Tuple;
+                }
+
+                if (responseData.RtcpTuple != null)
+                {
+                    RtcpTuple = responseData.RtcpTuple;
+                }
+
+                SrtpParameters = responseData.SrtpParameters;
+            }
         }
 
         #region Event Handlers

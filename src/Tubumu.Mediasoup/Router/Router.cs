@@ -806,11 +806,7 @@ namespace Tubumu.Mediasoup
                         pipeDataConsumer.Observer.On("close", async (_, _) => await pipeDataProducer.CloseAsync());
 
                         // Pipe events from the pipe DataProducer to the pipe DataConsumer.
-                        pipeDataProducer.Observer.On("close", (_, _) =>
-                        {
-                            pipeDataConsumer.Close();
-                            return Task.CompletedTask;
-                        });
+                        pipeDataProducer.Observer.On("close", async (_, _) => await pipeDataConsumer.CloseAsync());
 
                         return new PipeToRouterResult { PipeDataConsumer = pipeDataConsumer, PipeDataProducer = pipeDataProducer };
                     }
@@ -820,7 +816,7 @@ namespace Tubumu.Mediasoup
 
                         if (pipeDataConsumer != null)
                         {
-                            pipeDataConsumer.Close();
+                            await pipeDataConsumer.CloseAsync();
                         }
 
                         if (pipeDataProducer != null)

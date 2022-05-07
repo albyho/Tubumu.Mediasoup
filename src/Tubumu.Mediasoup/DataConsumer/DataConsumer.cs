@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
@@ -44,11 +45,11 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<DataConsumer> _logger;
 
-        // TODO: (alby) _closed 的使用及线程安全。
         /// <summary>
         /// Whether the DataConsumer is closed.
         /// </summary>
         private bool _closed;
+        private readonly AsyncReaderWriterLock _closeLock = new();
 
         /// <summary>
         /// Internal data.
@@ -149,72 +150,94 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close the DataConsumer.
         /// </summary>
-        public void Close()
+        public async Task CloseAsync()
         {
-            _logger.LogDebug($"Close() | DataConsumer:{DataConsumerId}");
+            _logger.LogDebug($"CloseAsync() | DataConsumer:{DataConsumerId}");
 
-            if (_closed)
+            using (await _closeLock.WriteLockAsync())
             {
-                return;
+                if (_closed)
+                {
+                    return;
+                }
+
+                _closed = true;
+
+                // Remove notification subscriptions.
+                _channel.MessageEvent -= OnChannelMessage;
+                _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+
+                // Fire and forget
+                _channel.RequestAsync(MethodId.DATA_CONSUMER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+
+                Emit("@close");
+
+                // Emit observer event.
+                Observer.Emit("close");
             }
-
-            _closed = true;
-
-            // Remove notification subscriptions.
-            _channel.MessageEvent -= OnChannelMessage;
-            _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
-
-            // Fire and forget
-            _channel.RequestAsync(MethodId.DATA_CONSUMER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
-
-            Emit("@close");
-
-            // Emit observer event.
-            Observer.Emit("close");
         }
 
         /// <summary>
         /// Transport was closed.
         /// </summary>
-        public void TransportClosed()
+        public async Task TransportClosedAsync()
         {
-            _logger.LogDebug($"Transport_closed() | DataConsumer:{DataConsumerId}");
+            _logger.LogDebug($"TransportClosedAsync() | DataConsumer:{DataConsumerId}");
 
-            if (_closed)
+            using (await _closeLock.WriteLockAsync())
             {
-                return;
+                if (_closed)
+                {
+                    return;
+                }
+
+                _closed = true;
+
+                // Remove notification subscriptions.
+                _channel.MessageEvent -= OnChannelMessage;
+                _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+
+                Emit("transportclose");
+
+                // Emit observer event.
+                Observer.Emit("close");
             }
-
-            _closed = true;
-
-            // Remove notification subscriptions.
-            _channel.MessageEvent -= OnChannelMessage;
-            _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
-
-            Emit("transportclose");
-
-            // Emit observer event.
-            Observer.Emit("close");
         }
 
         /// <summary>
         /// Dump DataConsumer.
         /// </summary>
-        public Task<string?> DumpAsync()
+        public async Task<string?> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | DataConsumer:{DataConsumerId}");
 
-            return _channel.RequestAsync(MethodId.DATA_CONSUMER_DUMP, _internal);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if(_closed)
+                {
+                    throw new InvalidStateException("DataConsumer closed");
+                }
+
+                return await _channel.RequestAsync(MethodId.DATA_CONSUMER_DUMP, _internal);
+            }
         }
 
         /// <summary>
         /// Get DataConsumer stats. Return: DataConsumerStat[]
         /// </summary>
-        public Task<string?> GetStatsAsync()
+        public async Task<string?> GetStatsAsync()
         {
             _logger.LogDebug($"GetStatsAsync() | DataConsumer:{DataConsumerId}");
 
-            return _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_STATS, _internal);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataConsumer closed");
+                }
+
+                return await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_STATS, _internal);
+            }
         }
 
         /// <summary>
@@ -227,8 +250,16 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"SetBufferedAmountLowThreshold() | Threshold:{threshold}");
 
-            var reqData = new { Threshold = threshold };
-            await _channel.RequestAsync(MethodId.DATA_CONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD, _internal, reqData);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataConsumer closed");
+                }
+
+                var reqData = new { Threshold = threshold };
+                await _channel.RequestAsync(MethodId.DATA_CONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD, _internal, reqData);
+            }
         }
 
         /// <summary>
@@ -270,7 +301,15 @@ namespace Tubumu.Mediasoup
 
             var requestData = new NotifyData { PPID = ppid.Value };
 
-            await _payloadChannel.NotifyAsync("dataConsumer.send", _internal, requestData, Encoding.UTF8.GetBytes(message));
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataConsumer closed");
+                }
+
+                await _payloadChannel.NotifyAsync("dataConsumer.send", _internal, requestData, Encoding.UTF8.GetBytes(message));
+            }
         }
 
         /// <summary>
@@ -296,15 +335,31 @@ namespace Tubumu.Mediasoup
 
             var requestData = new NotifyData { PPID = ppid.Value };
 
-            await _payloadChannel.NotifyAsync("dataConsumer.send", _internal, requestData, message);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataConsumer closed");
+                }
+
+                await _payloadChannel.NotifyAsync("dataConsumer.send", _internal, requestData, message);
+            }
         }
 
-        public Task<string?> GetBufferedAmountAsync()
+        public async Task<string?> GetBufferedAmountAsync()
         {
             _logger.LogDebug("GetBufferedAmountAsync()");
 
-            // 返回的是 JSON 格式，取其 bufferedAmount 属性。
-            return _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_BUFFERED_AMOUNT, _internal);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataConsumer closed");
+                }
+
+                // 返回的是 JSON 格式，取其 bufferedAmount 属性。
+                return await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_BUFFERED_AMOUNT, _internal);
+            }
         }
 
         #region Event Handlers
@@ -315,7 +370,9 @@ namespace Tubumu.Mediasoup
             _payloadChannel.MessageEvent += OnPayloadChannelMessage;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string? data)
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        private async void OnChannelMessage(string targetId, string @event, string? data)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             if (targetId != DataConsumerId)
             {
@@ -326,24 +383,25 @@ namespace Tubumu.Mediasoup
             {
                 case "dataproducerclose":
                     {
-                        // TODO: (alby) _closed 的使用及线程安全。
-                        if (_closed)
+                        using (await _closeLock.WriteLockAsync())
                         {
-                            break;
+                            if (_closed)
+                            {
+                                break;
+                            }
+
+                            _closed = true;
+
+                            // Remove notification subscriptions.
+                            _channel.MessageEvent -= OnChannelMessage;
+                            _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+
+                            Emit("@dataproducerclose");
+                            Emit("dataproducerclose");
+
+                            // Emit observer event.
+                            Observer.Emit("close");
                         }
-
-                        _closed = true;
-
-                        // Remove notification subscriptions.
-                        _channel.MessageEvent -= OnChannelMessage;
-                        _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
-
-                        Emit("@dataproducerclose");
-                        Emit("dataproducerclose");
-
-                        // Emit observer event.
-                        Observer.Emit("close");
-
                         break;
                     }
                 case "sctpsendbufferfull":

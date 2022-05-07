@@ -107,95 +107,63 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close the WebRtcTransport.
         /// </summary>
-        public override async Task CloseAsync()
+        protected override Task OnCloseAsync()
         {
-            await CloseLock.WaitAsync();
-            try
-            {
-                if (Closed)
-                {
-                    return;
-                }
+            IceState = IceState.Closed;
+            IceSelectedTuple = null;
+            DtlsState = DtlsState.Closed;
 
-                IceState = IceState.Closed;
-                IceSelectedTuple = null;
-                DtlsState = DtlsState.Closed;
-
-                if (SctpState.HasValue)
-                {
-                    SctpState = Mediasoup.SctpState.Closed;
-                }
-
-                await base.CloseAsync();
-            }
-            catch (Exception ex)
+            if (SctpState.HasValue)
             {
-                _logger.LogError(ex, "CloseAsync()");
+                SctpState = Mediasoup.SctpState.Closed;
             }
-            finally
-            {
-                CloseLock.Set();
-            }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Router was closed.
         /// </summary>
-        public override async Task RouterClosedAsync()
+        protected override Task OnRouterClosedAsync()
         {
-            await CloseLock.WaitAsync();
-            try
-            {
-                if (Closed)
-                {
-                    return;
-                }
-
-                IceState = IceState.Closed;
-                IceSelectedTuple = null;
-                DtlsState = DtlsState.Closed;
-
-                if (SctpState.HasValue)
-                {
-                    SctpState = Mediasoup.SctpState.Closed;
-                }
-
-                await base.RouterClosedAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "RouterClosedAsync()");
-            }
-            finally
-            {
-                CloseLock.Set();
-            }
+            return OnCloseAsync();
         }
 
         /// <summary>
         /// Provide the WebRtcTransport remote parameters.
         /// </summary>
-        public override Task ConnectAsync(object parameters)
+        public override async Task ConnectAsync(object parameters)
         {
             _logger.LogDebug($"ConnectAsync() | WebRtcTransport:{TransportId}");
 
-            return parameters is DtlsParameters dtlsParameters
-                ? ConnectAsync(dtlsParameters)
-                : throw new Exception($"{nameof(parameters)} type is not DtlsParameters");
+            if (parameters is not DtlsParameters dtlsParameters)
+            {
+                throw new ArgumentException($"{nameof(parameters)} type is not DtlsParameters");
+            }
+
+            await ConnectAsync(dtlsParameters);
         }
 
         private async Task ConnectAsync(DtlsParameters dtlsParameters)
         {
-            var reqData = new { DtlsParameters = dtlsParameters };
-            var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
-            if (resData == null)
+            using (await CloseLock.ReadLockAsync())
             {
-                throw new Exception($"{nameof(resData)} is null");
-            }
-            var responseData = JsonSerializer.Deserialize<WebRtcTransportConnectResponseData>(resData, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
 
-            // Update data.
-            DtlsParameters.Role = responseData.DtlsLocalRole;
+                var reqData = new { DtlsParameters = dtlsParameters };
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
+                if (resData == null)
+                {
+                    throw new Exception($"{nameof(resData)} is null");
+                }
+                var responseData = JsonSerializer.Deserialize<WebRtcTransportConnectResponseData>(resData, ObjectExtensions.DefaultJsonSerializerOptions)!;
+
+                // Update data.
+                DtlsParameters.Role = responseData.DtlsLocalRole;
+            }
         }
 
         /// <summary>
@@ -205,17 +173,25 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"RestartIceAsync() | WebRtcTransport:{TransportId}");
 
-            var resData = await Channel.RequestAsync(MethodId.TRANSPORT_RESTART_ICE, Internal);
-            if (resData == null)
+            using (await CloseLock.ReadLockAsync())
             {
-                throw new Exception($"{nameof(resData)} is null");
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
+
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_RESTART_ICE, Internal);
+                if (resData == null)
+                {
+                    throw new Exception($"{nameof(resData)} is null");
+                }
+                var responseData = JsonSerializer.Deserialize<WebRtcTransportRestartIceResponseData>(resData, ObjectExtensions.DefaultJsonSerializerOptions)!;
+
+                // Update data.
+                IceParameters = responseData.IceParameters;
+
+                return IceParameters;
             }
-            var responseData = JsonSerializer.Deserialize<WebRtcTransportRestartIceResponseData>(resData, ObjectExtensions.DefaultJsonSerializerOptions)!;
-
-            // Update data.
-            IceParameters = responseData.IceParameters;
-
-            return IceParameters;
         }
 
         #region Event Handlers

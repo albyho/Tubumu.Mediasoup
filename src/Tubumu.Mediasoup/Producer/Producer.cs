@@ -245,7 +245,10 @@ namespace Tubumu.Mediasoup
 
                 _closed = true;
 
-                _checkConsumersTimer?.DisposeAsync();
+                if (_checkConsumersTimer != null)
+                {
+                  await _checkConsumersTimer.DisposeAsync();
+                }
 
                 // Remove notification subscriptions.
                 _channel.MessageEvent -= OnChannelMessage;
