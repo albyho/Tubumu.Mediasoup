@@ -109,11 +109,6 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public override async Task CloseAsync()
         {
-            if (Closed)
-            {
-                return;
-            }
-
             await CloseLock.WaitAsync();
             try
             {
@@ -148,11 +143,6 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public override async Task RouterClosedAsync()
         {
-            if (Closed)
-            {
-                return;
-            }
-
             await CloseLock.WaitAsync();
             try
             {
