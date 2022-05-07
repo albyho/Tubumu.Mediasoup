@@ -15,7 +15,7 @@ namespace Tubumu.Mediasoup
 
         #endregion Events
 
-        private OutgoingMessageBuffer<RequestMessage> _requestMessageQueue = new();
+        private readonly OutgoingMessageBuffer<RequestMessage> _requestMessageQueue = new();
 
         public PayloadChannelNative(ILogger<PayloadChannel> logger, int workerId):base(logger, workerId)
         {
@@ -219,11 +219,7 @@ namespace Tubumu.Mediasoup
             var requestMessage = payloadChannel.ProduceMessage(message, messageLen, messageCtx,
                 payload, payloadLen, payloadCapacity,
                 handle);
-            if (requestMessage == null)
-            {
-                return null;
-            }
-            return OnPayloadChannelReadFree;
+            return requestMessage == null ? null : OnPayloadChannelReadFree;
         };
 
         internal static readonly LibMediasoupWorkerNative.PayloadChannelWriteFn OnPayloadchannelWrite = (message, messageLen, payload, payloadLen, ctx) =>
