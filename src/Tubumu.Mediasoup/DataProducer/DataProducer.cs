@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
@@ -37,11 +39,11 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<DataProducer> _logger;
 
-        // TODO: (alby) _closed 的使用及线程安全。
         /// <summary>
         /// Whether the DataProducer is closed.
         /// </summary>
         private bool _closed;
+        private readonly AsyncReaderWriterLock _closeLock = new();
 
         /// <summary>
         /// Internal data.
@@ -137,71 +139,93 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close the DataProducer.
         /// </summary>
-        public void Close()
+        public async Task CloseAsync()
         {
-            _logger.LogDebug($"Close() | DataProducer:{DataProducerId}");
+            _logger.LogDebug($"CloseAsync() | DataProducer:{DataProducerId}");
 
-            if (_closed)
+            using (await _closeLock.WriteLockAsync())
             {
-                return;
+                if (_closed)
+                {
+                    return;
+                }
+
+                _closed = true;
+
+                // Remove notification subscriptions.
+                //_channel.MessageEvent -= OnChannelMessage;
+
+                // Fire and forget
+                _channel.RequestAsync(MethodId.DATA_PRODUCER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+
+                Emit("close");
+
+                // Emit observer event.
+                Observer.Emit("close");
             }
-
-            _closed = true;
-
-            // Remove notification subscriptions.
-            //_channel.MessageEvent -= OnChannelMessage;
-
-            // Fire and forget
-            _channel.RequestAsync(MethodId.DATA_PRODUCER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
-
-            Emit("close");
-
-            // Emit observer event.
-            Observer.Emit("close");
         }
 
         /// <summary>
         /// Transport was closed.
         /// </summary>
-        public void TransportClosed()
+        public async Task TransportClosedAsync()
         {
-            _logger.LogDebug($"TransportClosed() | DataProducer:{DataProducerId}");
+            _logger.LogDebug($"TransportClosedAsync() | DataProducer:{DataProducerId}");
 
-            if (_closed)
+            using (await _closeLock.WriteLockAsync())
             {
-                return;
+                if (_closed)
+                {
+                    return;
+                }
+
+                _closed = true;
+
+                // Remove notification subscriptions.
+                //_channel.MessageEvent -= OnChannelMessage;
+                //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+
+                Emit("transportclose");
+
+                // Emit observer event.
+                Observer.Emit("close");
             }
-
-            _closed = true;
-
-            // Remove notification subscriptions.
-            //_channel.MessageEvent -= OnChannelMessage;
-            //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
-
-            Emit("transportclose");
-
-            // Emit observer event.
-            Observer.Emit("close");
         }
 
         /// <summary>
         /// Dump DataProducer.
         /// </summary>
-        public Task<string?> DumpAsync()
+        public async Task<string?> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | DataProducer:{DataProducerId}");
 
-            return _channel.RequestAsync(MethodId.DATA_PRODUCER_DUMP, _internal);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataProducer closed");
+                }
+
+                return await _channel.RequestAsync(MethodId.DATA_PRODUCER_DUMP, _internal);
+            }
         }
 
         /// <summary>
         /// Get DataProducer stats. Return: DataProducerStat[]
         /// </summary>
-        public Task<string?> GetStatsAsync()
+        public async Task<string?> GetStatsAsync()
         {
             _logger.LogDebug($"GetStatsAsync() | DataProducer:{DataProducerId}");
 
-            return _channel.RequestAsync(MethodId.DATA_PRODUCER_GET_STATS, _internal);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataProducer closed");
+                }
+
+                return await _channel.RequestAsync(MethodId.DATA_PRODUCER_GET_STATS, _internal);
+            }
         }
 
         /// <summary>
@@ -240,7 +264,15 @@ namespace Tubumu.Mediasoup
 
             var notifyData = new NotifyData { PPID = ppid.Value };
 
-            await _payloadChannel.NotifyAsync("dataProducer.send", _internal, notifyData, Encoding.UTF8.GetBytes(message));
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataProducer closed");
+                }
+
+                await _payloadChannel.NotifyAsync("dataProducer.send", _internal, notifyData, Encoding.UTF8.GetBytes(message));
+            }
         }
 
         /// <summary>
@@ -263,7 +295,15 @@ namespace Tubumu.Mediasoup
 
             var notifyData = new NotifyData { PPID = ppid.Value };
 
-            await _payloadChannel.NotifyAsync("dataProducer.send", _internal, notifyData, message);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("DataProducer closed");
+                }
+
+                await _payloadChannel.NotifyAsync("dataProducer.send", _internal, notifyData, message);
+            }
         }
 
         #region Event Handlers

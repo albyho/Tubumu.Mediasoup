@@ -379,12 +379,6 @@ namespace Tubumu.Mediasoup
             {
                 case "message":
                     {
-                        // TODO: (alby) _closed 的使用及线程安全。
-                        if (_closed)
-                        {
-                            break;
-                        }
-
                         var ppid = data.PPID;
                         var message = payload;
 

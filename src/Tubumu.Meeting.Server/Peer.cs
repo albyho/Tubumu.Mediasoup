@@ -573,12 +573,11 @@ namespace Tubumu.Meeting.Server
 
                                 consumer.Source = producer.Source;
 
-                                consumer.On("@close", (_, _) =>
+                                consumer.On("@close", async (_, _) =>
                                 {
                                     // 因为调用 consumer.CloseAsync() 之前已经使用 _consumersLock 写锁，所以触发该事件的调用从 _consumers 移除无需再次加锁。
                                     _consumers.Remove(consumer.ConsumerId);
-                                    producer.RemoveConsumer(consumer.ConsumerId);
-                                    return Task.CompletedTask;
+                                    await producer.RemoveConsumerAsync(consumer.ConsumerId);
                                 });
                                 consumer.On("producerclose,transportclose", async (_, _) =>
                                 {
@@ -586,13 +585,13 @@ namespace Tubumu.Meeting.Server
                                     {
                                         _consumers.Remove(consumer.ConsumerId);
                                     }
-                                    producer.RemoveConsumer(consumer.ConsumerId);
+                                    await producer.RemoveConsumerAsync(consumer.ConsumerId);
                                 });
+
+                                await producer.AddConsumerAsync(consumer);
 
                                 // Store the Consumer into the consumerPeer data Object.
                                 _consumers[consumer.ConsumerId] = consumer;
-
-                                producer.AddConsumer(consumer);
 
                                 return consumer;
                             }
@@ -625,7 +624,7 @@ namespace Tubumu.Meeting.Server
                             throw new Exception($"CloseProducerAsync() | Peer:{PeerId} has no Producer:{producerId}.");
                         }
 
-                        producer.Close();
+                        await producer.CloseAsync();
                         return true;
                     }
                 }
@@ -653,7 +652,7 @@ namespace Tubumu.Meeting.Server
                         var producers = _producers.Values.ToArray();
                         foreach (var producer in producers)
                         {
-                            producer.Close();
+                           await producer.CloseAsync();
                         }
 
                         return true;
@@ -682,7 +681,7 @@ namespace Tubumu.Meeting.Server
                         var producers = _producers.Values.Where(m => sources.Contains(m.Source)).ToArray();
                         foreach (var producer in producers)
                         {
-                            producer.Close();
+                            await producer.CloseAsync();
                         }
 
                         return true;

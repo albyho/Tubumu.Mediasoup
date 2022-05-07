@@ -223,12 +223,6 @@ namespace Tubumu.Mediasoup
             {
                 case "rtcp":
                     {
-                        // TODO: (alby) _closed 的使用及线程安全。
-                        if (Closed)
-                        {
-                            break;
-                        }
-
                         Emit("rtcp", payload);
 
                         break;

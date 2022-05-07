@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
@@ -39,19 +40,17 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<Producer> _logger;
 
-        // TODO: (alby) _closed 的使用及线程安全。
         /// <summary>
         /// Whether the Producer is closed.
         /// </summary>
         private bool _closed;
+        private readonly AsyncReaderWriterLock _closeLock = new();
 
-        private readonly object _closeLock = new();
-
-        // TODO: (alby) _paused 的使用及线程安全。
         /// <summary>
         /// Paused flag.
         /// </summary>
         private bool _paused;
+        private readonly AsyncAutoResetEvent _pauseLock = new();
 
         /// <summary>
         /// Internal data.
@@ -183,6 +182,7 @@ namespace Tubumu.Mediasoup
             _payloadChannel = payloadChannel;
             AppData = appData;
             _paused = paused;
+            _pauseLock.Set();
 
             if (_isCheckConsumer)
             {
@@ -195,43 +195,48 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close the Producer.
         /// </summary>
-        public void Close()
+        public async Task CloseAsync()
         {
-            _logger.LogDebug($"Close() | Producer:{ProducerId}");
+            _logger.LogDebug($"CloseAsync() | Producer:{ProducerId}");
 
-            lock (_closeLock)
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
-                {
-                    return;
-                }
-
-                _closed = true;
-
-                _checkConsumersTimer?.Dispose();
-
-                // Remove notification subscriptions.
-                _channel.MessageEvent -= OnChannelMessage;
-                //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
-
-                // Fire and forget
-                _channel.RequestAsync(MethodId.PRODUCER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
-
-                Emit("@close");
-
-                // Emit observer event.
-                Observer.Emit("close");
+                CloseInternal();
             }
+        }
+
+        private void CloseInternal()
+        {
+            if (_closed)
+            {
+                return;
+            }
+
+            _closed = true;
+
+            _checkConsumersTimer?.Dispose();
+
+            // Remove notification subscriptions.
+            _channel.MessageEvent -= OnChannelMessage;
+            //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+
+            // Fire and forget
+            _channel.RequestAsync(MethodId.PRODUCER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+
+            Emit("@close");
+
+            // Emit observer event.
+            Observer.Emit("close");
         }
 
         /// <summary>
         /// Transport was closed.
         /// </summary>
-        public void TransportClosed()
+        public async Task TransportClosedAsync()
         {
-            _logger.LogDebug($"TransportClosed() | Producer:{ProducerId}");
+            _logger.LogDebug($"TransportClosedAsync() | Producer:{ProducerId}");
 
-            lock (_closeLock)
+            using (await _closeLock.WriteLockAsync())
             {
                 if (_closed)
                 {
@@ -240,7 +245,7 @@ namespace Tubumu.Mediasoup
 
                 _closed = true;
 
-                _checkConsumersTimer?.Dispose();
+                _checkConsumersTimer?.DisposeAsync();
 
                 // Remove notification subscriptions.
                 _channel.MessageEvent -= OnChannelMessage;
@@ -256,21 +261,37 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump DataProducer.
         /// </summary>
-        public Task<string?> DumpAsync()
+        public async Task<string?> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Producer:{ProducerId}");
 
-            return _channel.RequestAsync(MethodId.PRODUCER_DUMP, _internal);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("Producer closed");
+                }
+
+                return await _channel.RequestAsync(MethodId.PRODUCER_DUMP, _internal);
+            }
         }
 
         /// <summary>
         /// Get DataProducer stats.
         /// </summary>
-        public Task<string?> GetStatsAsync()
+        public async Task<string?> GetStatsAsync()
         {
             _logger.LogDebug($"GetStatsAsync() | Producer:{ProducerId}");
 
-            return _channel.RequestAsync(MethodId.PRODUCER_GET_STATS, _internal);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("Producer closed");
+                }
+
+                return await _channel.RequestAsync(MethodId.PRODUCER_GET_STATS, _internal);
+            }
         }
 
         /// <summary>
@@ -280,16 +301,36 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"PauseAsync() | Producer:{ProducerId}");
 
-            var wasPaused = _paused;
-
-            await _channel.RequestAsync(MethodId.PRODUCER_PAUSE, _internal);
-
-            _paused = true;
-
-            // Emit observer event.
-            if (!wasPaused)
+            using (await _closeLock.ReadLockAsync())
             {
-                Observer.Emit("pause");
+                if (_closed)
+                {
+                    throw new InvalidStateException("Producer closed");
+                }
+
+                await _pauseLock.WaitAsync();
+                try
+                {
+                    var wasPaused = _paused;
+
+                    await _channel.RequestAsync(MethodId.PRODUCER_PAUSE, _internal);
+
+                    _paused = true;
+
+                    // Emit observer event.
+                    if (!wasPaused)
+                    {
+                        Observer.Emit("pause");
+                    }
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex, "PauseAsync()");
+                }
+                finally
+                {
+                    _pauseLock.Set();
+                }
             }
         }
 
@@ -300,48 +341,84 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"ResumeAsync() | Producer:{ProducerId}");
 
-            var wasPaused = _paused;
-
-            await _channel.RequestAsync(MethodId.PRODUCER_RESUME, _internal);
-
-            _paused = false;
-
-            // Emit observer event.
-            if (wasPaused)
+            using (await _closeLock.ReadLockAsync())
             {
-                Observer.Emit("resume");
+                if (_closed)
+                {
+                    throw new InvalidStateException("Producer closed");
+                }
+
+                await _pauseLock.WaitAsync();
+                try
+                {
+                    var wasPaused = _paused;
+
+                    await _channel.RequestAsync(MethodId.PRODUCER_RESUME, _internal);
+
+                    _paused = false;
+
+                    // Emit observer event.
+                    if (wasPaused)
+                    {
+                        Observer.Emit("resume");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "ResumeAsync()");
+                }
+                finally
+                {
+                    _pauseLock.Set();
+                }
             }
         }
 
         /// <summary>
         /// Enable 'trace' event.
         /// </summary>
-        public Task EnableTraceEventAsync(TraceEventType[] types)
+        public async Task EnableTraceEventAsync(TraceEventType[] types)
         {
             _logger.LogDebug($"EnableTraceEventAsync() | Producer:{ProducerId}");
 
-            var reqData = new
+            using (await _closeLock.ReadLockAsync())
             {
-                Types = types ?? Array.Empty<TraceEventType>()
-            };
+                if (_closed)
+                {
+                    throw new InvalidStateException("Producer closed");
+                }
 
-            return _channel.RequestAsync(MethodId.PRODUCER_ENABLE_TRACE_EVENT, _internal, reqData);
+                var reqData = new
+                {
+                    Types = types ?? Array.Empty<TraceEventType>()
+                };
+
+                await _channel.RequestAsync(MethodId.PRODUCER_ENABLE_TRACE_EVENT, _internal, reqData);
+            }
         }
 
         /// <summary>
         /// Send RTP packet (just valid for Producers created on a DirectTransport).
         /// </summary>
         /// <param name="rtpPacket"></param>
-        public Task SendAsync(byte[] rtpPacket)
+        public async Task SendAsync(byte[] rtpPacket)
         {
-            return _payloadChannel.NotifyAsync("producer.send", _internal, null, rtpPacket);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("Producer closed");
+                }
+
+                await _payloadChannel.NotifyAsync("producer.send", _internal, null, rtpPacket);
+            }
         }
 
-        public void AddConsumer(Consumer consumer)
+        public async Task AddConsumerAsync(Consumer consumer)
         {
-            lock (_closeLock)
+            using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -350,12 +427,13 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        public void RemoveConsumer(string consumerId)
+        public async Task RemoveConsumerAsync(string consumerId)
         {
-            // 关闭后也允许移除
-            lock (_closeLock)
+            _logger.LogDebug($"RemoveConsumer() | Producer:{ProducerId} ConsumerId:{consumerId}");
+
+            using (await _closeLock.ReadLockAsync())
             {
-                _logger.LogDebug($"RemoveConsumer() | Producer:{ProducerId} ConsumerId:{consumerId}");
+                // 关闭后也允许移除
                 _consumers.Remove(consumerId);
             }
         }
@@ -422,11 +500,14 @@ namespace Tubumu.Mediasoup
 
         #region Private Methods
 
-        private void CheckConsumers(object? state)
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        private async void CheckConsumers(object? state)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             _logger.LogDebug($"CheckConsumer() | Producer: {_internal.ProducerId} Consumers: {_consumers.Count}");
 
-            lock (_closeLock)
+            // NOTE: 使用写锁
+            using (await _closeLock.WriteLockAsync())
             {
                 if (_closed)
                 {
@@ -436,11 +517,7 @@ namespace Tubumu.Mediasoup
 
                 if (_consumers.Count == 0)
                 {
-                    // 防止死锁
-                    ThreadPool.QueueUserWorkItem(_ =>
-                    {
-                        Close();
-                    });
+                    CloseInternal();
                     _checkConsumersTimer?.Dispose();
                 }
                 else

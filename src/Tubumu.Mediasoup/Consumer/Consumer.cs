@@ -50,7 +50,6 @@ namespace Tubumu.Mediasoup
         /// Whether the Consumer is closed.
         /// </summary>
         private bool _closed;
-
         private readonly AsyncReaderWriterLock _closeLock = new();
 
         // TODO: (alby) _paused 的使用及线程安全。
@@ -525,12 +524,6 @@ namespace Tubumu.Mediasoup
             {
                 case "rtp":
                     {
-                        // TODO: (alby) _closed 的使用及线程安全。
-                        if (_closed)
-                        {
-                            break;
-                        }
-
                         Emit("rtp", payload);
 
                         break;

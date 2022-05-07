@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -215,7 +214,7 @@ namespace Tubumu.Mediasoup
                 // Close every RtpObserver.
                 foreach (var rtpObserver in _rtpObservers.Values)
                 {
-                    rtpObserver.RouterClosed();
+                    await rtpObserver.RouterClosedAsync();
                 }
                 _rtpObservers.Clear();
             }
@@ -756,11 +755,7 @@ namespace Tubumu.Mediasoup
                         });
 
                         // Pipe events from the pipe Consumer to the pipe Producer.
-                        pipeConsumer.Observer.On("close", (_, _) =>
-                        {
-                            pipeProducer.Close();
-                            return Task.CompletedTask;
-                        });
+                        pipeConsumer.Observer.On("close", async (_, _) => await pipeProducer.CloseAsync());
                         pipeConsumer.Observer.On("pause", async (_, _) => await pipeProducer.PauseAsync());
                         pipeConsumer.Observer.On("resume", async (_, _) => await pipeProducer.ResumeAsync());
 
@@ -780,7 +775,7 @@ namespace Tubumu.Mediasoup
 
                         if (pipeProducer != null)
                         {
-                            pipeProducer.Close();
+                           await pipeProducer.CloseAsync();
                         }
 
                         throw;
@@ -808,11 +803,7 @@ namespace Tubumu.Mediasoup
                         });
 
                         // Pipe events from the pipe DataConsumer to the pipe DataProducer.
-                        pipeDataConsumer.Observer.On("close", (_, _) =>
-                        {
-                            pipeDataProducer.Close();
-                            return Task.CompletedTask;
-                        });
+                        pipeDataConsumer.Observer.On("close", async (_, _) => await pipeDataProducer.CloseAsync());
 
                         // Pipe events from the pipe DataProducer to the pipe DataConsumer.
                         pipeDataProducer.Observer.On("close", (_, _) =>
@@ -834,7 +825,7 @@ namespace Tubumu.Mediasoup
 
                         if (pipeDataProducer != null)
                         {
-                            pipeDataProducer.Close();
+                            await pipeDataProducer.CloseAsync();
                         }
 
                         throw;
@@ -871,12 +862,17 @@ namespace Tubumu.Mediasoup
                 await _channel.RequestAsync(MethodId.ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER, @internal, reqData);
 
                 var activeSpeakerObserver = new ActiveSpeakerObserver(_loggerFactory,
-                    @internal,
-                    _channel,
-                    _payloadChannel,
-                    activeSpeakerObserverOptions.AppData,
-                    m => _producers.TryGetValue(m, out var p) ? p : null);
-
+                                    @internal,
+                                    _channel,
+                                    _payloadChannel,
+                                    activeSpeakerObserverOptions.AppData,
+                                    async m =>
+                                    {
+                                        using (await _producersLock.ReadLockAsync())
+                                        {
+                                            return _producers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    });
                 await ConfigureRtpObserverAsync(activeSpeakerObserver);
 
                 return activeSpeakerObserver;
@@ -909,12 +905,17 @@ namespace Tubumu.Mediasoup
                 await _channel.RequestAsync(MethodId.ROUTER_CREATE_AUDIO_LEVEL_OBSERVER, @internal, reqData);
 
                 var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
-                    @internal,
-                    _channel,
-                    _payloadChannel,
-                    audioLevelObserverOptions.AppData,
-                    m => _producers.TryGetValue(m, out var p) ? p : null);
-
+                                    @internal,
+                                    _channel,
+                                    _payloadChannel,
+                                    audioLevelObserverOptions.AppData,
+                                    async m =>
+                                    {
+                                        using (await _producersLock.ReadLockAsync())
+                                        {
+                                            return _producers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    });
                 await ConfigureRtpObserverAsync(audioLevelObserver);
 
                 return audioLevelObserver;

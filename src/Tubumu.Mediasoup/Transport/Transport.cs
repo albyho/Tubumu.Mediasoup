@@ -289,7 +289,7 @@ namespace Tubumu.Mediasoup
             {
                 foreach (var producer in Producers.Values)
                 {
-                    producer.TransportClosed();
+                    await producer.TransportClosedAsync();
 
                     // Must tell the Router.
                     Emit("@producerclose", producer);
@@ -330,7 +330,7 @@ namespace Tubumu.Mediasoup
             {
                 foreach (var dataProducer in DataProducers.Values)
                 {
-                    dataProducer.TransportClosed();
+                    await dataProducer.TransportClosedAsync();
 
                     // If call by CloseAsync()
                     if (tellRouter)

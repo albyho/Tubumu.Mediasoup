@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -36,13 +37,15 @@ namespace Tubumu.Mediasoup
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
-            Func<string, Producer?> getProducerById
+            Func<string, Task<Producer?>> getProducerById
             ) : base(loggerFactory, rtpObserverInternalData, channel, payloadChannel, appData, getProducerById)
         {
             _logger = loggerFactory.CreateLogger<ActiveSpeakerObserver>();
         }
 
-        protected override void OnChannelMessage(string targetId, string @event, string? data)
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        protected override async void OnChannelMessage(string targetId, string @event, string? data)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             if (targetId != Internal.RtpObserverId)
             {
@@ -60,7 +63,7 @@ namespace Tubumu.Mediasoup
                         {
                             var dominantSpeaker = new ActiveSpeakerObserverActivity
                             {
-                                Producer = GetProducerById(notification.ProducerId)
+                                Producer = await GetProducerById(notification.ProducerId)
                             };
 
                             Emit("dominantspeaker", dominantSpeaker);
