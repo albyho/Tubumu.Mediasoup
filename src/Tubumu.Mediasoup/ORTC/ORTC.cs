@@ -424,7 +424,9 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
+#pragma warning disable IDE0060 // Remove unused parameter
         public static void ValidateNumSctpStreams(NumSctpStreams numStreams)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             // OS is mandatory.
             // 在 Node.js 实现中，判断了 OS 的数据类型。在强类型语言中不需要。
@@ -438,7 +440,9 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
+#pragma warning disable IDE0060 // Remove unused parameter
         public static void ValidateSctpParameters(SctpParameters parameters)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             // port is mandatory.
             // 在 Node.js 实现中，判断了 port 的数据类型。在强类型语言中不需要。
