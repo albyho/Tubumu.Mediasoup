@@ -558,7 +558,7 @@ namespace Tubumu.Meeting.Server
                                     throw new Exception($"ConsumeAsync() | Peer:{PeerId} - ProducerPeer:{producerPeer.PeerId} has no Producer:{producerId}");
                                 }
 
-                                if (_rtpCapabilities == null || !_room!.Router.CanConsume(producer.ProducerId, _rtpCapabilities))
+                                if (_rtpCapabilities == null || !await _room!.Router.CanConsumeAsync(producer.ProducerId, _rtpCapabilities))
                                 {
                                     throw new Exception($"ConsumeAsync() | Peer:{PeerId} Can not consume.");
                                 }

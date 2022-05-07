@@ -62,8 +62,8 @@ namespace Tubumu.Mediasoup
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
-            Func<string, Producer?> getProducerById,
-            Func<string, DataProducer?> getDataProducerById,
+            Func<string, Task<Producer?>> getProducerById,
+            Func<string, Task<DataProducer?>> getDataProducerById,
             bool? rtcpMux,
             bool? comedia,
             TransportTuple tuple,
@@ -152,7 +152,7 @@ namespace Tubumu.Mediasoup
 
             return parameters is PlainTransportConnectParameters connectParameters
                 ? ConnectAsync(connectParameters)
-                : throw new Exception($"{nameof(parameters)} type is not PipTransportConnectParameters");
+                : throw new Exception($"{nameof(parameters)} type is not PlainTransportConnectParameters");
         }
 
         private async Task ConnectAsync(PlainTransportConnectParameters plainTransportConnectParameters)

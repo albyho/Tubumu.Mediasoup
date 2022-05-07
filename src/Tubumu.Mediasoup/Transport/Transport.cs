@@ -97,12 +97,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Method to retrieve a Producer.
         /// </summary>
-        protected readonly Func<string, Producer?> GetProducerById;
+        protected readonly Func<string, Task<Producer?>> GetProducerById;
 
         /// <summary>
         /// Method to retrieve a DataProducer.
         /// </summary>
-        protected readonly Func<string, DataProducer?> GetDataProducerById;
+        protected readonly Func<string, Task<DataProducer?>> GetDataProducerById;
 
         /// <summary>
         /// Producers map.
@@ -206,8 +206,8 @@ namespace Tubumu.Mediasoup
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
-            Func<string, Producer?> getProducerById,
-            Func<string, DataProducer?> getDataProducerById
+            Func<string, Task<Producer?>> getProducerById,
+            Func<string, Task<DataProducer?>> getDataProducerById
             )
         {
             _loggerFactory = loggerFactory;
@@ -241,6 +241,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"CloseAsync() | Transport:{TransportId}");
 
+            // NOTE: 线程安全由子类保证
             Closed = true;
 
             // Remove notification subscriptions.
@@ -265,6 +266,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"RouterClosed() | Transport:{TransportId}");
 
+            // NOTE: 线程安全由子类保证
             Closed = true;
 
             // Remove notification subscriptions.
@@ -376,22 +378,58 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump Transport.
         /// </summary>
-        public Task<string?> DumpAsync()
+        public async Task<string?> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Transport:{TransportId}");
 
-            return Channel.RequestAsync(MethodId.TRANSPORT_DUMP, Internal);
+            await CloseLock.WaitAsync();
+            try
+            {
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
+
+                return await Channel.RequestAsync(MethodId.TRANSPORT_DUMP, Internal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "DumpAsync()");
+                throw;
+            }
+            finally
+            {
+                CloseLock.Set();
+            }
         }
 
         /// <summary>
         /// Get Transport stats.
         /// </summary>
-        public virtual Task<string?> GetStatsAsync()
+        public async Task<string?> GetStatsAsync()
         {
             // 在 Node.js 实现中，Transport 类没有实现 getState 方法。
             _logger.LogDebug($"GetStatsAsync() | Transport:{TransportId}");
 
-            return Channel.RequestAsync(MethodId.TRANSPORT_GET_STATS, Internal);
+            await CloseLock.WaitAsync();
+            try
+            {
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
+
+                return await Channel.RequestAsync(MethodId.TRANSPORT_GET_STATS, Internal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetStatsAsync()");
+                throw;
+            }
+            finally
+            {
+                CloseLock.Set();
+            }
         }
 
         /// <summary>
@@ -406,12 +444,30 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public virtual Task<string?> SetMaxIncomingBitrateAsync(int bitrate)
+        public virtual async Task<string?> SetMaxIncomingBitrateAsync(int bitrate)
         {
             _logger.LogDebug($"SetMaxIncomingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}");
 
-            var reqData = new { Bitrate = bitrate };
-            return Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_INCOMING_BITRATE, Internal, reqData);
+            await CloseLock.WaitAsync();
+            try
+            {
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
+
+                var reqData = new { Bitrate = bitrate };
+                return await Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_INCOMING_BITRATE, Internal, reqData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SetMaxIncomingBitrateAsync()");
+                throw;
+            }
+            finally
+            {
+                CloseLock.Set();
+            }
         }
 
         /// <summary>
@@ -419,12 +475,30 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public virtual Task<string?> SetMaxOutgoingBitrateAsync(int bitrate)
+        public virtual async Task<string?> SetMaxOutgoingBitrateAsync(int bitrate)
         {
             _logger.LogDebug($"setMaxOutgoingBitrate() | Transport:{TransportId} Bitrate:{bitrate}");
 
-            var reqData = new { Bitrate = bitrate };
-            return Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal, reqData);
+            await CloseLock.WaitAsync();
+            try
+            {
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
+
+                var reqData = new { Bitrate = bitrate };
+                return await Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal, reqData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SetMaxOutgoingBitrateAsync()");
+                throw;
+            }
+            finally
+            {
+                CloseLock.Set();
+            }
         }
 
         /// <summary>
@@ -593,7 +667,7 @@ namespace Tubumu.Mediasoup
             // This may throw.
             ORTC.ValidateRtpCapabilities(consumerOptions.RtpCapabilities);
 
-            var producer = GetProducerById(consumerOptions.ProducerId);
+            var producer = await GetProducerById(consumerOptions.ProducerId);
             if (producer == null)
             {
                 throw new NullReferenceException($"Producer with id {consumerOptions.ProducerId} not found");
@@ -844,7 +918,7 @@ namespace Tubumu.Mediasoup
                 throw new Exception("Missing dataProducerId");
             }
 
-            var dataProducer = GetDataProducerById(dataConsumerOptions.DataProducerId);
+            var dataProducer = await GetDataProducerById(dataConsumerOptions.DataProducerId);
             if (dataProducer == null)
             {
                 throw new Exception($"DataProducer with id {dataConsumerOptions.DataProducerId} not found");

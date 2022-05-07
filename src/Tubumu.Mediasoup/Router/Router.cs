@@ -25,7 +25,6 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<Router> _logger;
 
-        // TODO: (alby) _closed 的使用及线程安全。
         /// <summary>
         /// Whether the Router is closed.
         /// </summary>
@@ -34,7 +33,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close locker.
         /// </summary>
-        private readonly AsyncAutoResetEvent _closeLock = new();
+        private readonly AsyncReaderWriterLock _closeLock = new();
 
         #region Internal data.
 
@@ -66,32 +65,32 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Transports map.
         /// </summary>
-        // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<string, Transport> _transports = new();
+        private readonly Dictionary<string, Transport> _transports = new();
+        private readonly AsyncReaderWriterLock _transportsLock = new();
 
         /// <summary>
         /// Producers map.
         /// </summary>
-        // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<string, Producer> _producers = new();
+        private readonly Dictionary<string, Producer> _producers = new();
+        private readonly AsyncReaderWriterLock _producersLock = new();
 
         /// <summary>
         /// RtpObservers map.
         /// </summary>
-        // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<string, RtpObserver> _rtpObservers = new();
+        private readonly Dictionary<string, RtpObserver> _rtpObservers = new();
+        private readonly AsyncReaderWriterLock _rtpObserversLock = new();
 
         /// <summary>
         /// DataProducers map.
         /// </summary>
-        // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<string, DataProducer> _dataProducers = new();
+        private readonly Dictionary<string, DataProducer> _dataProducers = new();
+        private readonly AsyncReaderWriterLock _dataProducersLock = new();
 
         /// <summary>
         /// Router to PipeTransport map.
         /// </summary>
-        // TODO: (alby) 线程安全
-        private readonly ConcurrentDictionary<Router, PipeTransport[]> _mapRouterPipeTransports = new();
+        private readonly Dictionary<Router, PipeTransport[]> _mapRouterPipeTransports = new();
+        private readonly AsyncReaderWriterLock _mapRouterPipeTransportsLock = new();
 
         /// <summary>
         /// App custom data.
@@ -128,7 +127,6 @@ namespace Tubumu.Mediasoup
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Router>();
-            _closeLock.Set();
 
             _internal = new RouterInternalData
             {
@@ -145,24 +143,27 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            if (_closed)
+            _logger.LogDebug($"CloseAsync() | Router:{RouterId}");
+
+            using (await _closeLock.WriteLockAsync())
             {
-                return;
-            }
+                if (_closed)
+                {
+                    return;
+                }
 
-            _logger.LogDebug("CloseAsync() | Router");
+                _closed = true;
 
-            _closed = true;
+                // Fire and forget
+                _channel.RequestAsync(MethodId.ROUTER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
 
-            // Fire and forget
-            _channel.RequestAsync(MethodId.ROUTER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+                await CloseInternalAsync();
 
-            await CloseInternalAsync();
+                Emit("@close");
 
-            Emit("@close");
-
-            // Emit observer event.
-            Observer.Emit("close");
+                // Emit observer event.
+                Observer.Emit("close");
+            };
         }
 
         /// <summary>
@@ -170,58 +171,84 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task WorkerClosedAsync()
         {
-            if (_closed)
-            {
-                return;
-            }
-
             _logger.LogDebug($"WorkerClosedAsync() | Router:{RouterId}");
 
-            _closed = true;
+            using (await _closeLock.WriteLockAsync())
+            {
+                if (_closed)
+                {
+                    return;
+                }
 
-            await CloseInternalAsync();
+                _closed = true;
 
-            Emit("workerclose");
+                await CloseInternalAsync();
 
-            // Emit observer event.
-            Observer.Emit("close");
+                Emit("workerclose");
+
+                // Emit observer event.
+                Observer.Emit("close");
+            }
         }
 
         private async Task CloseInternalAsync()
         {
-            // Close every Transport.
-            foreach (var transport in _transports.Values)
+            using (await _transportsLock.WriteLockAsync())
             {
-                await transport.RouterClosedAsync();
+                // Close every Transport.
+                foreach (var transport in _transports.Values)
+                {
+                    await transport.RouterClosedAsync();
+                }
+
+                _transports.Clear();
             }
 
-            _transports.Clear();
-
-            // Clear the Producers map.
-            _producers.Clear();
-
-            // Close every RtpObserver.
-            foreach (var rtpObserver in _rtpObservers.Values)
+            using (await _producersLock.WriteLockAsync())
             {
-                rtpObserver.RouterClosed();
+                // Clear the Producers map.
+                _producers.Clear();
             }
-            _rtpObservers.Clear();
 
-            // Clear the DataProducers map.
-            _dataProducers.Clear();
+            using (await _rtpObserversLock.WriteLockAsync())
+            {
+                // Close every RtpObserver.
+                foreach (var rtpObserver in _rtpObservers.Values)
+                {
+                    rtpObserver.RouterClosed();
+                }
+                _rtpObservers.Clear();
+            }
 
-            // Clear map of Router/PipeTransports.
-            _mapRouterPipeTransports.Clear();
+            using (await _dataProducersLock.WriteLockAsync())
+            {
+                // Clear the DataProducers map.
+                _dataProducers.Clear();
+            }
+
+            using (await _mapRouterPipeTransportsLock.WriteLockAsync())
+            {
+                // Clear map of Router/PipeTransports.
+                _mapRouterPipeTransports.Clear();
+            }
         }
 
         /// <summary>
         /// Dump Router.
         /// </summary>
-        public Task<string?> DumpAsync()
+        public async Task<string?> DumpAsync()
         {
-            _logger.LogDebug("DumpAsync()");
+            _logger.LogDebug($"DumpAsync() | Router:{RouterId}");
 
-            return _channel.RequestAsync(MethodId.ROUTER_DUMP, _internal);
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("Router closed");
+                }
+
+                return await _channel.RequestAsync(MethodId.ROUTER_DUMP, _internal);
+            }
         }
 
         /// <summary>
@@ -231,82 +258,70 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateWebRtcTransportAsync()");
 
-            var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
-
-            var reqData = new
+            using (await _closeLock.ReadLockAsync())
             {
-                webRtcTransportOptions.ListenIps,
-                webRtcTransportOptions.Port,
-                webRtcTransportOptions.EnableUdp,
-                webRtcTransportOptions.EnableTcp,
-                webRtcTransportOptions.PreferUdp,
-                webRtcTransportOptions.PreferTcp,
-                webRtcTransportOptions.InitialAvailableOutgoingBitrate,
-                webRtcTransportOptions.EnableSctp,
-                webRtcTransportOptions.NumSctpStreams,
-                webRtcTransportOptions.MaxSctpMessageSize,
-                webRtcTransportOptions.MaxSctpSendBufferSize,
-                IsDataChannel = true
-            };
+                if (_closed)
+                {
+                    throw new InvalidStateException("Router closed");
+                }
 
-            var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT, @internal, reqData);
-            var responseData = JsonSerializer.Deserialize<RouterCreateWebRtcTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
 
-            var transport = new WebRtcTransport(_loggerFactory,
-                @internal,
-                sctpParameters: null,
-                sctpState: null,
-                _channel,
-                _payloadChannel,
-                webRtcTransportOptions.AppData,
-                () => RtpCapabilities,
-                m => _producers.TryGetValue(m, out var p) ? p : null,
-                m => _dataProducers.TryGetValue(m, out var p) ? p : null,
-                responseData.IceRole,
-                responseData.IceParameters,
-                responseData.IceCandidates,
-                responseData.IceState,
-                responseData.IceSelectedTuple,
-                responseData.DtlsParameters,
-                responseData.DtlsState,
-                responseData.DtlsRemoteCert
-                );
-            _transports[transport.TransportId] = transport;
+                var reqData = new
+                {
+                    webRtcTransportOptions.ListenIps,
+                    webRtcTransportOptions.Port,
+                    webRtcTransportOptions.EnableUdp,
+                    webRtcTransportOptions.EnableTcp,
+                    webRtcTransportOptions.PreferUdp,
+                    webRtcTransportOptions.PreferTcp,
+                    webRtcTransportOptions.InitialAvailableOutgoingBitrate,
+                    webRtcTransportOptions.EnableSctp,
+                    webRtcTransportOptions.NumSctpStreams,
+                    webRtcTransportOptions.MaxSctpMessageSize,
+                    webRtcTransportOptions.MaxSctpSendBufferSize,
+                    IsDataChannel = true
+                };
 
-            transport.On("@close", (_, _) =>
-            {
-                _transports.TryRemove(transport.TransportId, out var _);
-                return Task.CompletedTask;
-            });
-            transport.On("@newproducer", (_, obj) =>
-            {
-                var producer = (Producer)obj!;
-                _producers[producer.ProducerId] = producer;
-                return Task.CompletedTask;
-            });
-            transport.On("@producerclose", (_, obj) =>
-            {
-                var producer = (Producer)obj!;
-                _producers.TryRemove(producer.ProducerId, out var _);
-                return Task.CompletedTask;
-            });
-            transport.On("@newdataproducer", (_, obj) =>
-            {
-                var dataProducer = (DataProducer)obj!;
-                _dataProducers[dataProducer.DataProducerId] = dataProducer;
-                return Task.CompletedTask;
-            });
-            transport.On("@dataproducerclose", (_, obj) =>
-            {
-                var dataProducer = (DataProducer)obj!;
-                _dataProducers.TryRemove(dataProducer.DataProducerId, out var _);
-                return Task.CompletedTask;
-            });
+                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT, @internal, reqData);
+                var responseData = JsonSerializer.Deserialize<RouterCreateWebRtcTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
-            // Emit observer event.
-            Observer.Emit("newtransport", transport);
+                var transport = new WebRtcTransport(_loggerFactory,
+                                    @internal,
+                                    sctpParameters: null,
+                                    sctpState: null,
+                                    _channel,
+                                    _payloadChannel,
+                                    webRtcTransportOptions.AppData,
+                                    () => RtpCapabilities,
+                                    async m =>
+                                    {
+                                        using (await _producersLock.ReadLockAsync())
+                                        {
+                                            return _producers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    },
+                                    async m =>
+                                    {
+                                        using (await _dataProducersLock.ReadLockAsync())
+                                        {
+                                            return _dataProducers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    },
+                                    responseData.IceRole,
+                                    responseData.IceParameters,
+                                    responseData.IceCandidates,
+                                    responseData.IceState,
+                                    responseData.IceSelectedTuple,
+                                    responseData.DtlsParameters,
+                                    responseData.DtlsState,
+                                    responseData.DtlsRemoteCert
+                                    );
 
-            return transport;
+                await ConfigureTransportAsync(transport);
+
+                return transport;
+            }
         }
 
         /// <summary>
@@ -316,82 +331,70 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreatePlainTransportAsync()");
 
-            if (plainTransportOptions.ListenIp == null || plainTransportOptions.ListenIp.Ip.IsNullOrWhiteSpace())
+            using (await _closeLock.ReadLockAsync())
             {
-                throw new Exception("Missing listenIp");
+                if (_closed)
+                {
+                    throw new InvalidStateException("Router closed");
+                }
+
+                if (plainTransportOptions.ListenIp == null || plainTransportOptions.ListenIp.Ip.IsNullOrWhiteSpace())
+                {
+                    throw new ArgumentException("Missing listenIp");
+                }
+
+                var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
+
+                var reqData = new
+                {
+                    plainTransportOptions.ListenIp,
+                    plainTransportOptions.Port,
+                    plainTransportOptions.Comedia,
+                    plainTransportOptions.EnableSctp,
+                    plainTransportOptions.NumSctpStreams,
+                    plainTransportOptions.MaxSctpMessageSize,
+                    plainTransportOptions.SctpSendBufferSize,
+                    IsDataChannel = false,
+                    plainTransportOptions.EnableSrtp,
+                    plainTransportOptions.SrtpCryptoSuite
+                };
+
+                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PLAIN_TRANSPORT, @internal, reqData);
+                var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+
+                var transport = new PlainTransport(_loggerFactory,
+                                    new TransportInternalData(@internal.RouterId, @internal.TransportId),
+                                    sctpParameters: null,
+                                    sctpState: null,
+                                    _channel,
+                                    _payloadChannel,
+                                    plainTransportOptions.AppData,
+                                    () => RtpCapabilities,
+                                    async m =>
+                                    {
+                                        using (await _producersLock.ReadLockAsync())
+                                        {
+                                            return _producers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    },
+                                    async m =>
+                                    {
+                                        using (await _dataProducersLock.ReadLockAsync())
+                                        {
+                                            return  _dataProducers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    },
+                                    responseData.RtcpMux,
+                                    responseData.Comedia,
+                                    responseData.Tuple,
+                                    responseData.RtcpTuple,
+                                    responseData.SrtpParameters
+                                );
+
+                await ConfigureTransportAsync(transport);
+
+                return transport;
             }
-
-            var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
-
-            var reqData = new
-            {
-                plainTransportOptions.ListenIp,
-                plainTransportOptions.Port,
-                plainTransportOptions.Comedia,
-                plainTransportOptions.EnableSctp,
-                plainTransportOptions.NumSctpStreams,
-                plainTransportOptions.MaxSctpMessageSize,
-                plainTransportOptions.SctpSendBufferSize,
-                IsDataChannel = false,
-                plainTransportOptions.EnableSrtp,
-                plainTransportOptions.SrtpCryptoSuite
-            };
-
-            var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PLAIN_TRANSPORT, @internal, reqData);
-            var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
-
-            var transport = new PlainTransport(_loggerFactory,
-                                new TransportInternalData(@internal.RouterId, @internal.TransportId),
-                                sctpParameters: null,
-                                sctpState: null,
-                                _channel,
-                                _payloadChannel,
-                                plainTransportOptions.AppData,
-                                () => RtpCapabilities,
-                                m => _producers.TryGetValue(m, out var p) ? p : null,
-                                m => _dataProducers.TryGetValue(m, out var p) ? p : null,
-                                responseData.RtcpMux,
-                                responseData.Comedia,
-                                responseData.Tuple,
-                                responseData.RtcpTuple,
-                                responseData.SrtpParameters
-                            );
-            _transports[transport.TransportId] = transport;
-
-            transport.On("@close", (_, _) =>
-            {
-                _transports.TryRemove(transport.TransportId, out var _);
-                return Task.CompletedTask;
-            });
-            transport.On("@newproducer", (_, obj) =>
-            {
-                var producer = (Producer)obj!;
-                _producers[producer.ProducerId] = producer;
-                return Task.CompletedTask;
-            });
-            transport.On("@producerclose", (_, obj) =>
-            {
-                var producer = (Producer)obj!;
-                _producers.TryRemove(producer.ProducerId, out var _);
-                return Task.CompletedTask;
-            });
-            transport.On("@newdataproducer", (_, obj) =>
-            {
-                var dataProducer = (DataProducer)obj!;
-                _dataProducers[dataProducer.DataProducerId] = dataProducer;
-                return Task.CompletedTask;
-            });
-            transport.On("@dataproducerclose", (_, obj) =>
-            {
-                var dataProducer = (DataProducer)obj!;
-                _dataProducers.TryRemove(dataProducer.DataProducerId, out var _);
-                return Task.CompletedTask;
-            });
-
-            // Emit observer event.
-            Observer.Emit("newtransport", transport);
-
-            return transport;
         }
 
         /// <summary>
@@ -401,80 +404,67 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreatePipeTransportAsync()");
 
-            if (pipeTransportOptions.ListenIp == null)
+            using (await _closeLock.ReadLockAsync())
             {
-                throw new ArgumentNullException(nameof(pipeTransportOptions.ListenIp), "Missing listenIp");
+                if (_closed)
+                {
+                    throw new InvalidStateException("Router closed");
+                }
+
+                if (pipeTransportOptions.ListenIp == null)
+                {
+                    throw new ArgumentNullException(nameof(pipeTransportOptions.ListenIp), "Missing listenIp");
+                }
+
+                var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
+
+                var reqData = new
+                {
+                    pipeTransportOptions.ListenIp,
+                    pipeTransportOptions.Port,
+                    pipeTransportOptions.EnableSctp,
+                    pipeTransportOptions.NumSctpStreams,
+                    pipeTransportOptions.MaxSctpMessageSize,
+                    pipeTransportOptions.SctpSendBufferSize,
+                    IsDataChannel = false,
+                    pipeTransportOptions.EnableRtx,
+                    pipeTransportOptions.EnableSrtp,
+                };
+
+                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PIPE_TRANSPORT, @internal, reqData);
+                var responseData = JsonSerializer.Deserialize<RouterCreatePipeTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+
+                var transport = new PipeTransport(_loggerFactory,
+                                    new TransportInternalData(@internal.RouterId, @internal.TransportId),
+                                    sctpParameters: null,
+                                    sctpState: null,
+                                    _channel,
+                                    _payloadChannel,
+                                    pipeTransportOptions.AppData,
+                                    () => RtpCapabilities,
+                                    async m =>
+                                    {
+                                        using (await _producersLock.ReadLockAsync())
+                                        {
+                                            return _producers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    },
+                                    async m =>
+                                    {
+                                        using (await _dataProducersLock.ReadLockAsync())
+                                        {
+                                            return _dataProducers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    },
+                                    responseData.Tuple,
+                                    responseData.Rtx,
+                                    responseData.SrtpParameters
+                                );
+
+                await ConfigureTransportAsync(transport);
+
+                return transport;
             }
-
-            var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
-
-            var reqData = new
-            {
-                pipeTransportOptions.ListenIp,
-                pipeTransportOptions.Port,
-                pipeTransportOptions.EnableSctp,
-                pipeTransportOptions.NumSctpStreams,
-                pipeTransportOptions.MaxSctpMessageSize,
-                pipeTransportOptions.SctpSendBufferSize,
-                IsDataChannel = false,
-                pipeTransportOptions.EnableRtx,
-                pipeTransportOptions.EnableSrtp,
-            };
-
-            var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PIPE_TRANSPORT, @internal, reqData);
-            var responseData = JsonSerializer.Deserialize<RouterCreatePipeTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
-
-            var transport = new PipeTransport(_loggerFactory,
-                                new TransportInternalData(@internal.RouterId, @internal.TransportId),
-                                sctpParameters: null,
-                                sctpState: null,
-                                _channel,
-                                _payloadChannel,
-                                pipeTransportOptions.AppData,
-                                () => RtpCapabilities,
-                                m => _producers.TryGetValue(m, out var p) ? p : null,
-                                m => _dataProducers.TryGetValue(m, out var p) ? p : null,
-                                responseData.Tuple,
-                                responseData.Rtx,
-                                responseData.SrtpParameters
-                            );
-
-            _transports[transport.TransportId] = transport;
-
-            transport.On("@close", (_, _) =>
-            {
-                _transports.TryRemove(transport.TransportId, out var _);
-                return Task.CompletedTask;
-            });
-            transport.On("@newproducer", (_, obj) =>
-            {
-                var producer = (Producer)obj!;
-                _producers[producer.ProducerId] = producer;
-                return Task.CompletedTask;
-            });
-            transport.On("@producerclose", (_, obj) =>
-            {
-                var producer = (Producer)obj!;
-                _producers.TryRemove(producer.ProducerId, out var _);
-                return Task.CompletedTask;
-            });
-            transport.On("@newdataproducer", (_, obj) =>
-            {
-                var dataProducer = (DataProducer)obj!;
-                _dataProducers[dataProducer.DataProducerId] = dataProducer;
-                return Task.CompletedTask;
-            });
-            transport.On("@dataproducerclose", (_, obj) =>
-            {
-                var dataProducer = (DataProducer)obj!;
-                _dataProducers.TryRemove(dataProducer.DataProducerId, out var _);
-                return Task.CompletedTask;
-            });
-
-            // Emit observer event.
-            Observer.Emit("newtransport", transport);
-
-            return transport;
         }
 
         /// <summary>
@@ -486,65 +476,103 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateDirectTransportAsync()");
 
-            var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
-
-            var reqData = new
+            using (await _closeLock.ReadLockAsync())
             {
-                Direct = true,
-                directTransportOptions.MaxMessageSize,
-            };
+                if (_closed)
+                {
+                    throw new InvalidStateException("Router closed");
+                }
 
-            var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_DIRECT_TRANSPORT, @internal, reqData);
-            var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
 
-            var transport = new DirectTransport(_loggerFactory,
-                new TransportInternalData(@internal.RouterId, @internal.TransportId),
-                sctpParameters: null,
-                sctpState: null,
-                _channel,
-                _payloadChannel,
-                directTransportOptions.AppData,
-                () => RtpCapabilities,
-                m => _producers.TryGetValue(m, out var p) ? p : null,
-                m => _dataProducers.TryGetValue(m, out var p) ? p : null
-                );
+                var reqData = new
+                {
+                    Direct = true,
+                    directTransportOptions.MaxMessageSize,
+                };
 
-            _transports[transport.TransportId] = transport;
+                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_DIRECT_TRANSPORT, @internal, reqData);
+                var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
-            transport.On("@close", (_, _) =>
+                var transport = new DirectTransport(_loggerFactory,
+                                    new TransportInternalData(@internal.RouterId, @internal.TransportId),
+                                    sctpParameters: null,
+                                    sctpState: null,
+                                    _channel,
+                                    _payloadChannel,
+                                    directTransportOptions.AppData,
+                                    () => RtpCapabilities,
+                                    async m =>
+                                    {
+                                        using (await _producersLock.ReadLockAsync())
+                                        {
+                                            return _producers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    },
+                                    async m =>
+                                    {
+                                        using (await _dataProducersLock.ReadLockAsync())
+                                        {
+                                            return _dataProducers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    }
+                                    );
+
+                await ConfigureTransportAsync(transport);
+
+                return transport;
+            }
+        }
+
+        private async Task ConfigureTransportAsync(Transport transport)
+        {
+            using (await _transportsLock.WriteLockAsync())
             {
-                _transports.TryRemove(transport.TransportId, out var _);
-                return Task.CompletedTask;
+                _transports[transport.TransportId] = transport;
+            }
+            
+            transport.On("@close", async (_, _) =>
+            {
+                using (await _transportsLock.WriteLockAsync())
+                {
+                    _transports.Remove(transport.TransportId);
+                }
             });
-            transport.On("@newproducer", (_, obj) =>
+            transport.On("@newproducer", async (_, obj) =>
             {
                 var producer = (Producer)obj!;
-                _producers[producer.ProducerId] = producer;
-                return Task.CompletedTask;
+                using (await _producersLock.WriteLockAsync())
+                {
+                    _producers[producer.ProducerId] = producer;
+                }
             });
-            transport.On("@producerclose", (_, obj) =>
+            transport.On("@producerclose", async (_, obj) =>
             {
                 var producer = (Producer)obj!;
-                _producers.TryRemove(producer.ProducerId, out var _);
-                return Task.CompletedTask;
+                using (await _producersLock.WriteLockAsync())
+                {
+                    _producers.Remove(producer.ProducerId);
+                }
             });
-            transport.On("@newdataproducer", (_, obj) =>
+            transport.On("@newdataproducer", async (_, obj) =>
             {
                 var dataProducer = (DataProducer)obj!;
-                _dataProducers[dataProducer.DataProducerId] = dataProducer;
-                return Task.CompletedTask;
+                using (await _dataProducersLock.WriteLockAsync())
+                {
+                    _dataProducers[dataProducer.DataProducerId] = dataProducer;
+                }
             });
-            transport.On("@dataproducerclose", (_, obj) =>
+            transport.On("@dataproducerclose", async (_, obj) =>
             {
                 var dataProducer = (DataProducer)obj!;
-                _dataProducers.TryRemove(dataProducer.DataProducerId, out var _);
-                return Task.CompletedTask;
+                using (await _dataProducersLock.WriteLockAsync())
+                {
+                    _dataProducers.Remove(dataProducer.DataProducerId);
+                }
             });
 
             // Emit observer event.
             Observer.Emit("newtransport", transport);
-
-            return transport;
         }
 
         /// <summary>
@@ -554,244 +582,268 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task<PipeToRouterResult> PipeToRouterAsync(PipeToRouterOptions pipeToRouterOptions)
         {
-            if (pipeToRouterOptions.ListenIp == null)
+            using (await _closeLock.ReadLockAsync())
             {
-                throw new ArgumentNullException(nameof(pipeToRouterOptions.ListenIp), "Missing listenIp");
-            }
-
-            if (pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
-            {
-                throw new ArgumentException("Missing producerId or dataProducerId");
-            }
-
-            if (!pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && !pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
-            {
-                throw new ArgumentException("Just producerId or dataProducerId can be given");
-            }
-
-            if (pipeToRouterOptions.Router == null)
-            {
-                throw new ArgumentNullException(nameof(pipeToRouterOptions.Router), "Router not found");
-            }
-
-            if (pipeToRouterOptions.Router == this)
-            {
-                throw new ArgumentException("Cannot use this Router as destination");
-            }
-
-            Producer? producer = null;
-            DataProducer? dataProducer = null;
-
-            if (!pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace())
-            {
-                if (!_producers.TryGetValue(pipeToRouterOptions.ProducerId!, out producer))
+                if (_closed)
                 {
-                    throw new Exception("Producer not found");
+                    throw new InvalidStateException("Router closed");
                 }
-            }
-            else if (!pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
-            {
-                if (!_dataProducers.TryGetValue(pipeToRouterOptions.DataProducerId!, out dataProducer))
+
+                if (pipeToRouterOptions.ListenIp == null)
                 {
-                    throw new Exception("DataProducer not found");
+                    throw new ArgumentNullException(nameof(pipeToRouterOptions.ListenIp), "Missing listenIp");
                 }
-            }
 
-            // Here we may have to create a new PipeTransport pair to connect source and
-            // destination Routers. We just want to keep a PipeTransport pair for each
-            // pair of Routers. Since this operation is async, it may happen that two
-            // simultaneous calls to router1.pipeToRouter({ producerId: xxx, router: router2 })
-            // would end up generating two pairs of PipeTranports. To prevent that, let's
-            // use an async queue.
-
-            PipeTransport? localPipeTransport = null;
-            PipeTransport? remotePipeTransport = null;
-
-            if (_mapRouterPipeTransports.TryGetValue(pipeToRouterOptions.Router, out var pipeTransportPair))
-            {
-                localPipeTransport = pipeTransportPair[0];
-                remotePipeTransport = pipeTransportPair[1];
-            }
-            else
-            {
-                try
+                if (pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
                 {
-                    var pipeTransports = await Task.WhenAll(CreatePipeTransportAsync(new PipeTransportOptions
-                    {
-                        ListenIp = pipeToRouterOptions.ListenIp,
-                        EnableSctp = pipeToRouterOptions.EnableSctp,
-                        NumSctpStreams = pipeToRouterOptions.NumSctpStreams,
-                        EnableRtx = pipeToRouterOptions.EnableRtx,
-                        EnableSrtp = pipeToRouterOptions.EnableSrtp
-                    }),
-                    pipeToRouterOptions.Router.CreatePipeTransportAsync(new PipeTransportOptions
-                    {
-                        ListenIp = pipeToRouterOptions.ListenIp,
-                        EnableSctp = pipeToRouterOptions.EnableSctp,
-                        NumSctpStreams = pipeToRouterOptions.NumSctpStreams,
-                        EnableRtx = pipeToRouterOptions.EnableRtx,
-                        EnableSrtp = pipeToRouterOptions.EnableSrtp
-                    })
-                    );
-
-                    localPipeTransport = pipeTransports[0];
-                    remotePipeTransport = pipeTransports[1];
-
-                    await Task.WhenAll(localPipeTransport.ConnectAsync(new PipeTransportConnectParameters
-                    {
-                        Ip = remotePipeTransport.Tuple.LocalIp,
-                        Port = remotePipeTransport.Tuple.LocalPort,
-                        SrtpParameters = remotePipeTransport.SrtpParameters,
-                    }),
-                    remotePipeTransport.ConnectAsync(new PipeTransportConnectParameters
-                    {
-                        Ip = localPipeTransport.Tuple.LocalIp,
-                        Port = localPipeTransport.Tuple.LocalPort,
-                        SrtpParameters = localPipeTransport.SrtpParameters,
-                    })
-                    );
-
-                    localPipeTransport.Observer.On("close", async (_, _) =>
-                    {
-                        await remotePipeTransport.CloseAsync();
-                        _mapRouterPipeTransports.TryRemove(pipeToRouterOptions.Router, out var _);
-                    });
-
-                    remotePipeTransport.Observer.On("close", async (_, _) =>
-                    {
-                        await localPipeTransport.CloseAsync();
-                        _mapRouterPipeTransports.TryRemove(pipeToRouterOptions.Router, out var _);
-                    });
-
-                    _mapRouterPipeTransports[pipeToRouterOptions.Router] = new[] { localPipeTransport, remotePipeTransport };
+                    throw new ArgumentException("Missing producerId or dataProducerId");
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"PipeToRouterAsync() | Create PipeTransport pair failed.");
 
-                    if (localPipeTransport != null)
+                if (!pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && !pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
+                {
+                    throw new ArgumentException("Just producerId or dataProducerId can be given");
+                }
+
+                if (pipeToRouterOptions.Router == null)
+                {
+                    throw new ArgumentNullException(nameof(pipeToRouterOptions.Router), "Router not found");
+                }
+
+                if (pipeToRouterOptions.Router == this)
+                {
+                    throw new ArgumentException("Cannot use this Router as destination");
+                }
+
+                Producer? producer = null;
+                DataProducer? dataProducer = null;
+
+                if (!pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace())
+                {
+                    using (await _producersLock.ReadLockAsync())
                     {
-                        await localPipeTransport.CloseAsync();
+                        if (!_producers.TryGetValue(pipeToRouterOptions.ProducerId!, out producer))
+                        {
+                            throw new Exception("Producer not found");
+                        }
                     }
-
-                    if (remotePipeTransport != null)
-                    {
-                        await remotePipeTransport.CloseAsync();
-                    }
-
-                    throw;
                 }
-            }
-
-            if (producer != null)
-            {
-                Consumer? pipeConsumer = null;
-                Producer? pipeProducer = null;
-
-                try
+                else if (!pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
                 {
-                    pipeConsumer = await localPipeTransport.ConsumeAsync(new ConsumerOptions
+                    using (await _dataProducersLock.ReadLockAsync())
                     {
-                        ProducerId = pipeToRouterOptions.ProducerId!
-                    });
-
-                    pipeProducer = await remotePipeTransport.ProduceAsync(new ProducerOptions
-                    {
-                        Id = producer.ProducerId,
-                        Kind = pipeConsumer.Kind,
-                        RtpParameters = pipeConsumer.RtpParameters,
-                        Paused = pipeConsumer.ProducerPaused,
-                        AppData = producer.AppData,
-                    });
-
-                    // Pipe events from the pipe Consumer to the pipe Producer.
-                    pipeConsumer.Observer.On("close", (_, _) =>
-                    {
-                        pipeProducer.Close();
-                        return Task.CompletedTask;
-                    });
-                    pipeConsumer.Observer.On("pause", async (_, _) => await pipeProducer.PauseAsync());
-                    pipeConsumer.Observer.On("resume", async (_, _) => await pipeProducer.ResumeAsync());
-
-                    // Pipe events from the pipe Producer to the pipe Consumer.
-                    pipeProducer.Observer.On("close", async (_, _) => await pipeConsumer.CloseAsync());
-
-                    return new PipeToRouterResult { PipeConsumer = pipeConsumer, PipeProducer = pipeProducer };
+                        if (!_dataProducers.TryGetValue(pipeToRouterOptions.DataProducerId!, out dataProducer))
+                        {
+                            throw new Exception("DataProducer not found");
+                        }
+                    }
                 }
-                catch (Exception ex)
+
+                // Here we may have to create a new PipeTransport pair to connect source and
+                // destination Routers. We just want to keep a PipeTransport pair for each
+                // pair of Routers. Since this operation is async, it may happen that two
+                // simultaneous calls to router1.pipeToRouter({ producerId: xxx, router: router2 })
+                // would end up generating two pairs of PipeTranports. To prevent that, let's
+                // use an async queue.
+
+                PipeTransport? localPipeTransport = null;
+                PipeTransport? remotePipeTransport = null;
+
+                // 因为有可能新增，所以用写锁。
+                using (await _mapRouterPipeTransportsLock.WriteLockAsync())
                 {
-                    _logger.LogError(ex, $"PipeToRouterAsync() | Create pipe Consumer/Producer pair failed");
-
-                    if (pipeConsumer != null)
+                    if (_mapRouterPipeTransports.TryGetValue(pipeToRouterOptions.Router, out var pipeTransportPair))
                     {
-                        await pipeConsumer.CloseAsync();
+                        localPipeTransport = pipeTransportPair[0];
+                        remotePipeTransport = pipeTransportPair[1];
                     }
-
-                    if (pipeProducer != null)
+                    else
                     {
-                        pipeProducer.Close();
-                    }
+                        try
+                        {
+                            var pipeTransports = await Task.WhenAll(CreatePipeTransportAsync(new PipeTransportOptions
+                            {
+                                ListenIp = pipeToRouterOptions.ListenIp,
+                                EnableSctp = pipeToRouterOptions.EnableSctp,
+                                NumSctpStreams = pipeToRouterOptions.NumSctpStreams,
+                                EnableRtx = pipeToRouterOptions.EnableRtx,
+                                EnableSrtp = pipeToRouterOptions.EnableSrtp
+                            }),
+                            pipeToRouterOptions.Router.CreatePipeTransportAsync(new PipeTransportOptions
+                            {
+                                ListenIp = pipeToRouterOptions.ListenIp,
+                                EnableSctp = pipeToRouterOptions.EnableSctp,
+                                NumSctpStreams = pipeToRouterOptions.NumSctpStreams,
+                                EnableRtx = pipeToRouterOptions.EnableRtx,
+                                EnableSrtp = pipeToRouterOptions.EnableSrtp
+                            })
+                            );
 
-                    throw;
+                            localPipeTransport = pipeTransports[0];
+                            remotePipeTransport = pipeTransports[1];
+
+                            await Task.WhenAll(localPipeTransport.ConnectAsync(new PipeTransportConnectParameters
+                            {
+                                Ip = remotePipeTransport.Tuple.LocalIp,
+                                Port = remotePipeTransport.Tuple.LocalPort,
+                                SrtpParameters = remotePipeTransport.SrtpParameters,
+                            }),
+                            remotePipeTransport.ConnectAsync(new PipeTransportConnectParameters
+                            {
+                                Ip = localPipeTransport.Tuple.LocalIp,
+                                Port = localPipeTransport.Tuple.LocalPort,
+                                SrtpParameters = localPipeTransport.SrtpParameters,
+                            })
+                            );
+
+                            localPipeTransport.Observer.On("close", async (_, _) =>
+                            {
+                                await remotePipeTransport.CloseAsync();
+                                using (await _mapRouterPipeTransportsLock.WriteLockAsync())
+                                {
+                                    _mapRouterPipeTransports.Remove(pipeToRouterOptions.Router);
+                                }
+                            });
+
+                            remotePipeTransport.Observer.On("close", async (_, _) =>
+                            {
+                                await localPipeTransport.CloseAsync();
+                                using (await _mapRouterPipeTransportsLock.WriteLockAsync())
+                                {
+                                    _mapRouterPipeTransports.Remove(pipeToRouterOptions.Router);
+                                }
+                            });
+
+                            _mapRouterPipeTransports[pipeToRouterOptions.Router] = new[] { localPipeTransport, remotePipeTransport };
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"PipeToRouterAsync() | Create PipeTransport pair failed.");
+
+                            if (localPipeTransport != null)
+                            {
+                                await localPipeTransport.CloseAsync();
+                            }
+
+                            if (remotePipeTransport != null)
+                            {
+                                await remotePipeTransport.CloseAsync();
+                            }
+
+                            throw;
+                        }
+                    }
                 }
-            }
-            else if (dataProducer != null)
-            {
-                DataConsumer? pipeDataConsumer = null;
-                DataProducer? pipeDataProducer = null;
 
-                try
+                if (producer != null)
                 {
-                    pipeDataConsumer = await localPipeTransport.ConsumeDataAsync(new DataConsumerOptions
-                    {
-                        DataProducerId = pipeToRouterOptions.DataProducerId!
-                    });
+                    Consumer? pipeConsumer = null;
+                    Producer? pipeProducer = null;
 
-                    pipeDataProducer = await remotePipeTransport.ProduceDataAsync(new DataProducerOptions
+                    try
                     {
-                        Id = dataProducer.DataProducerId,
-                        SctpStreamParameters = pipeDataConsumer.SctpStreamParameters,
-                        Label = pipeDataConsumer.Label,
-                        Protocol = pipeDataConsumer.Protocol,
-                        AppData = dataProducer.AppData,
-                    });
+                        pipeConsumer = await localPipeTransport.ConsumeAsync(new ConsumerOptions
+                        {
+                            ProducerId = pipeToRouterOptions.ProducerId!
+                        });
 
-                    // Pipe events from the pipe DataConsumer to the pipe DataProducer.
-                    pipeDataConsumer.Observer.On("close", (_, _) =>
+                        pipeProducer = await remotePipeTransport.ProduceAsync(new ProducerOptions
+                        {
+                            Id = producer.ProducerId,
+                            Kind = pipeConsumer.Kind,
+                            RtpParameters = pipeConsumer.RtpParameters,
+                            Paused = pipeConsumer.ProducerPaused,
+                            AppData = producer.AppData,
+                        });
+
+                        // Pipe events from the pipe Consumer to the pipe Producer.
+                        pipeConsumer.Observer.On("close", (_, _) =>
+                        {
+                            pipeProducer.Close();
+                            return Task.CompletedTask;
+                        });
+                        pipeConsumer.Observer.On("pause", async (_, _) => await pipeProducer.PauseAsync());
+                        pipeConsumer.Observer.On("resume", async (_, _) => await pipeProducer.ResumeAsync());
+
+                        // Pipe events from the pipe Producer to the pipe Consumer.
+                        pipeProducer.Observer.On("close", async (_, _) => await pipeConsumer.CloseAsync());
+
+                        return new PipeToRouterResult { PipeConsumer = pipeConsumer, PipeProducer = pipeProducer };
+                    }
+                    catch (Exception ex)
                     {
-                        pipeDataProducer.Close();
-                        return Task.CompletedTask;
-                    });
+                        _logger.LogError(ex, $"PipeToRouterAsync() | Create pipe Consumer/Producer pair failed");
 
-                    // Pipe events from the pipe DataProducer to the pipe DataConsumer.
-                    pipeDataProducer.Observer.On("close", (_, _) =>
-                    {
-                        pipeDataConsumer.Close();
-                        return Task.CompletedTask;
-                    });
+                        if (pipeConsumer != null)
+                        {
+                            await pipeConsumer.CloseAsync();
+                        }
 
-                    return new PipeToRouterResult { PipeDataConsumer = pipeDataConsumer, PipeDataProducer = pipeDataProducer };
+                        if (pipeProducer != null)
+                        {
+                            pipeProducer.Close();
+                        }
+
+                        throw;
+                    }
                 }
-                catch (Exception ex)
+                else if (dataProducer != null)
                 {
-                    _logger.LogError(ex, $"PipeToRouterAsync() | Create pipe DataConsumer/DataProducer pair failed.");
+                    DataConsumer? pipeDataConsumer = null;
+                    DataProducer? pipeDataProducer = null;
 
-                    if (pipeDataConsumer != null)
+                    try
                     {
-                        pipeDataConsumer.Close();
-                    }
+                        pipeDataConsumer = await localPipeTransport.ConsumeDataAsync(new DataConsumerOptions
+                        {
+                            DataProducerId = pipeToRouterOptions.DataProducerId!
+                        });
 
-                    if (pipeDataProducer != null)
+                        pipeDataProducer = await remotePipeTransport.ProduceDataAsync(new DataProducerOptions
+                        {
+                            Id = dataProducer.DataProducerId,
+                            SctpStreamParameters = pipeDataConsumer.SctpStreamParameters,
+                            Label = pipeDataConsumer.Label,
+                            Protocol = pipeDataConsumer.Protocol,
+                            AppData = dataProducer.AppData,
+                        });
+
+                        // Pipe events from the pipe DataConsumer to the pipe DataProducer.
+                        pipeDataConsumer.Observer.On("close", (_, _) =>
+                        {
+                            pipeDataProducer.Close();
+                            return Task.CompletedTask;
+                        });
+
+                        // Pipe events from the pipe DataProducer to the pipe DataConsumer.
+                        pipeDataProducer.Observer.On("close", (_, _) =>
+                        {
+                            pipeDataConsumer.Close();
+                            return Task.CompletedTask;
+                        });
+
+                        return new PipeToRouterResult { PipeDataConsumer = pipeDataConsumer, PipeDataProducer = pipeDataProducer };
+                    }
+                    catch (Exception ex)
                     {
-                        pipeDataProducer.Close();
-                    }
+                        _logger.LogError(ex, $"PipeToRouterAsync() | Create pipe DataConsumer/DataProducer pair failed.");
 
-                    throw;
+                        if (pipeDataConsumer != null)
+                        {
+                            pipeDataConsumer.Close();
+                        }
+
+                        if (pipeDataProducer != null)
+                        {
+                            pipeDataProducer.Close();
+                        }
+
+                        throw;
+                    }
                 }
-            }
-            else
-            {
-                throw new Exception("Internal error");
+                else
+                {
+                    throw new Exception("Internal error");
+                }
             }
         }
 
@@ -802,33 +854,33 @@ namespace Tubumu.Mediasoup
         {
 		    _logger.LogDebug("CreateActiveSpeakerObserverAsync()");
 
-            var @internal = new RtpObserverInternalData(RouterId, Guid.NewGuid().ToString());
-
-            var reqData = new
+            using (await _closeLock.ReadLockAsync())
             {
-                activeSpeakerObserverOptions.Interval
-            };
+                if (_closed)
+                {
+                    throw new InvalidStateException("Router closed");
+                }
 
-            await _channel.RequestAsync(MethodId.ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER, @internal, reqData);
+                var @internal = new RtpObserverInternalData(RouterId, Guid.NewGuid().ToString());
 
-            var activeSpeakerObserver = new ActiveSpeakerObserver(_loggerFactory,
-                @internal,
-                _channel,
-                _payloadChannel,
-                activeSpeakerObserverOptions.AppData,
-                m => _producers.TryGetValue(m, out var p) ? p : null);
+                var reqData = new
+                {
+                    activeSpeakerObserverOptions.Interval
+                };
 
-            _rtpObservers[activeSpeakerObserver.Internal.RtpObserverId] = activeSpeakerObserver;
-            activeSpeakerObserver.On("@close", (_, _) =>
-            {
-                _rtpObservers.TryRemove(activeSpeakerObserver.Internal.RtpObserverId, out var _);
-                return Task.CompletedTask;
-            });
+                await _channel.RequestAsync(MethodId.ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER, @internal, reqData);
 
-            // Emit observer event.
-            Observer.Emit("newrtpobserver", activeSpeakerObserver);
+                var activeSpeakerObserver = new ActiveSpeakerObserver(_loggerFactory,
+                    @internal,
+                    _channel,
+                    _payloadChannel,
+                    activeSpeakerObserverOptions.AppData,
+                    m => _producers.TryGetValue(m, out var p) ? p : null);
 
-            return activeSpeakerObserver;
+                await ConfigureRtpObserverAsync(activeSpeakerObserver);
+
+                return activeSpeakerObserver;
+            }
         }
 
         /// <summary>
@@ -838,56 +890,75 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("createAudioLevelObserver()");
 
-            var @internal = new RtpObserverInternalData(RouterId, Guid.NewGuid().ToString());
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("Router closed");
+                }
 
-            var reqData = new
+                var @internal = new RtpObserverInternalData(RouterId, Guid.NewGuid().ToString());
+
+                var reqData = new
                 {
                     audioLevelObserverOptions.MaxEntries,
                     audioLevelObserverOptions.Threshold,
                     audioLevelObserverOptions.Interval
                 };
 
-            await _channel.RequestAsync(MethodId.ROUTER_CREATE_AUDIO_LEVEL_OBSERVER, @internal, reqData);
+                await _channel.RequestAsync(MethodId.ROUTER_CREATE_AUDIO_LEVEL_OBSERVER, @internal, reqData);
 
-            var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
-                @internal,
-                _channel,
-                _payloadChannel,
-                audioLevelObserverOptions.AppData,
-                m => _producers.TryGetValue(m, out var p) ? p : null);
+                var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
+                    @internal,
+                    _channel,
+                    _payloadChannel,
+                    audioLevelObserverOptions.AppData,
+                    m => _producers.TryGetValue(m, out var p) ? p : null);
 
-            _rtpObservers[audioLevelObserver.Internal.RtpObserverId] = audioLevelObserver;
-            audioLevelObserver.On("@close", (_, _) =>
+                await ConfigureRtpObserverAsync(audioLevelObserver);
+
+                return audioLevelObserver;
+            }
+        }
+
+        private Task ConfigureRtpObserverAsync(RtpObserver rtpObserver)
+        {
+            _rtpObservers[rtpObserver.Internal.RtpObserverId] = rtpObserver;
+            rtpObserver.On("@close", async (_, _) =>
             {
-                _rtpObservers.TryRemove(audioLevelObserver.Internal.RtpObserverId, out var _);
-                return Task.CompletedTask;
+                using (await _rtpObserversLock.WriteLockAsync())
+                {
+                    _rtpObservers.Remove(rtpObserver.Internal.RtpObserverId);
+                }
             });
 
             // Emit observer event.
-            Observer.Emit("newrtpobserver", audioLevelObserver);
+            Observer.Emit("newrtpobserver", rtpObserver);
 
-            return audioLevelObserver;
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Check whether the given RTP capabilities can consume the given Producer.
         /// </summary>
-        public bool CanConsume(string producerId, RtpCapabilities rtpCapabilities)
+        public async Task<bool> CanConsumeAsync(string producerId, RtpCapabilities rtpCapabilities)
         {
-            if (!_producers.TryGetValue(producerId, out var producer))
+            using (await _producersLock.ReadLockAsync())
             {
-                _logger.LogError($"CanConsume() | Producer with id {producerId} not found");
-                return false;
-            }
-
-            try
-            {
-                return ORTC.CanConsume(producer.ConsumableRtpParameters, rtpCapabilities);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CanConsume() | Unexpected error");
-                return false;
+                if (!_producers.TryGetValue(producerId, out var producer))
+                {
+                    _logger.LogError($"CanConsume() | Producer with id {producerId} not found");
+                    return false;
+                }
+                try
+                {
+                    return ORTC.CanConsume(producer.ConsumableRtpParameters, rtpCapabilities);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "CanConsume() | Unexpected error");
+                    return false;
+                }
             }
         }
 

@@ -40,8 +40,8 @@ namespace Tubumu.Mediasoup
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
-            Func<string, Producer?> getProducerById,
-            Func<string, DataProducer?> getDataProducerById
+            Func<string, Task<Producer?>> getProducerById,
+            Func<string, Task<DataProducer?>> getDataProducerById
             ) : base(loggerFactory, transportInternalData, sctpParameters, sctpState, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
         {
             _logger = loggerFactory.CreateLogger<DirectTransport>();
@@ -153,9 +153,26 @@ namespace Tubumu.Mediasoup
             throw new NotImplementedException("ConsumeAsync() not implemented in DirectTransport");
         }
 
-        public Task SendRtcpAsync(byte[] rtcpPacket)
+        public async Task SendRtcpAsync(byte[] rtcpPacket)
         {
-            return PayloadChannel.NotifyAsync("transport.sendRtcp", Internal, null, rtcpPacket);
+            await CloseLock.WaitAsync();
+            try
+            {
+                if (Closed)
+                {
+                    return;
+                }
+
+                await PayloadChannel.NotifyAsync("transport.sendRtcp", Internal, null, rtcpPacket);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SendRtcpAsync()");
+            }
+            finally
+            {
+                CloseLock.Set();
+            }
         }
 
         #region Event Handlers
