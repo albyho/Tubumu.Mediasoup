@@ -41,5 +41,4 @@ namespace System.Text.Json.Serialization
             writer.WriteStringValue(value.ToString());
         }
     }
-
 }
