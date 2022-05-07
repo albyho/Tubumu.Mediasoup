@@ -24,12 +24,12 @@
 
   <!--
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PackageReference Include="Tubumu.Utils" Version="6.0.0" />
-    <PackageReference Include="Tubumu.Mediasoup" Version="6.0.0" />
-    <PackageReference Include="Tubumu.Mediasoup.Common" Version="6.0.0" />
-    <PackageReference Include="Tubumu.Mediasoup.AspNetCore" Version="6.0.0" />
-    <PackageReference Include="Tubumu.Meeting.Server" Version="6.0.0" />
-    <PackageReference Include="Tubumu.Meeting.Server.Consul" Version="6.0.0" />
+    <PackageReference Include="Tubumu.Utils" Version="6.0.1" />
+    <PackageReference Include="Tubumu.Mediasoup" Version="6.0.1" />
+    <PackageReference Include="Tubumu.Mediasoup.Common" Version="6.0.1" />
+    <PackageReference Include="Tubumu.Mediasoup.AspNetCore" Version="6.0.1" />
+    <PackageReference Include="Tubumu.Meeting.Server" Version="6.0.1" />
+    <PackageReference Include="Tubumu.Meeting.Server.Consul" Version="6.0.1" />
   </ItemGroup>
   -->
 
