@@ -27,20 +27,29 @@ namespace Tubumu.Meeting.Server
         [JsonIgnore]
         public ConcurrentDictionary<string, object> InternalData { get; set; }
 
+        #region IEquatable<T>
+
         public bool Equals(Peer? other)
         {
-            return other is not null && PeerId == other.PeerId;
+            if (other is null)
+            {
+                return false;
+            }
+
+            return PeerId == other.PeerId;
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object? other)
         {
-            return obj is not null && obj is Peer tObj && PeerId == tObj.PeerId;
+            return Equals(other as Peer);
         }
 
         public override int GetHashCode()
         {
             return PeerId.GetHashCode();
         }
+
+        #endregion IEquatable<T>
     }
 
     public partial class Peer

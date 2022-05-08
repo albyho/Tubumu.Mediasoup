@@ -126,11 +126,11 @@
     {
         public bool Equals(IDictionary<TKey, TValue>? x, IDictionary<TKey, TValue>? y)
         {
-            if (x == null)
+            if (x is null)
             {
                 throw new ArgumentNullException(nameof(x));
             }
-            if (y == null)
+            if (y is null)
             {
                 throw new ArgumentNullException(nameof(y));
             }

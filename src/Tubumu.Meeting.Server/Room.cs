@@ -14,20 +14,29 @@ namespace Tubumu.Meeting.Server
 
         public string Name { get; }
 
+        #region IEquatable<T>
+
         public bool Equals(Room? other)
         {
-            return other is not null && RoomId == other.RoomId;
+            if (other is null)
+            {
+                return false;
+            }
+
+            return RoomId == other.RoomId;
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object? other)
         {
-            return obj is not null && obj is Room tObj && RoomId == tObj.RoomId;
+            return Equals(other as Room);
         }
 
         public override int GetHashCode()
         {
             return RoomId.GetHashCode();
         }
+
+        #endregion IEquatable<T>
     }
 
     public partial class Room

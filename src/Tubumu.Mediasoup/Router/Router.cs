@@ -963,7 +963,17 @@ namespace Tubumu.Mediasoup
 
         public bool Equals(Router? other)
         {
-            return other != null && RouterId == other.RouterId;
+            if (other is null)
+            {
+                return false;
+            }
+
+            return RouterId == other.RouterId;
+        }
+
+        public override bool Equals(object? other)
+        {
+            return Equals(other as Router);
         }
 
         public override int GetHashCode()

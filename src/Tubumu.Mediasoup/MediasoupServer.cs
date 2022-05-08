@@ -14,6 +14,9 @@ namespace Tubumu.Mediasoup
 
         private readonly ReaderWriterLockSlim _workersLock = new();
 
+        /// <summary>
+        /// Observer instance.
+        /// </summary>
         public EventEmitter Observer { get; } = new EventEmitter();
 
         /// <summary>

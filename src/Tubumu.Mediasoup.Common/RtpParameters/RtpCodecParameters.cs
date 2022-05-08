@@ -21,6 +21,8 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public RtcpFeedback[]? RtcpFeedback { get; set; }
 
+        #region IEquatable<T>
+
         public bool Equals(RtpCodecParameters? other)
         {
             if (other is null)
@@ -59,7 +61,7 @@ namespace Tubumu.Mediasoup
 
         public override bool Equals(object? other)
         {
-            return other is RtpCodecParameters parameters && Equals(parameters);
+            return Equals(other as RtpCodecParameters);
         }
 
         public override int GetHashCode()
@@ -71,5 +73,7 @@ namespace Tubumu.Mediasoup
             }
             return result;
         }
+
+        #endregion IEquatable<T>
     }
 }

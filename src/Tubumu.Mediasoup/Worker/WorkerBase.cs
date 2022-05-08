@@ -58,6 +58,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public Dictionary<string, object>? AppData { get; }
 
+        /// <summary>
+        /// Observer instance.
+        /// </summary>
         public EventEmitter Observer { get; } = new EventEmitter();
 
         /// <summary>

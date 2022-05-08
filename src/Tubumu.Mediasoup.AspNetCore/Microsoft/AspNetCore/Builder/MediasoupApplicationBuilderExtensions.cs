@@ -27,11 +27,12 @@ namespace Microsoft.AspNetCore.Builder
                     {
                         try
                         {
+                            var threadId = Environment.CurrentManagedThreadId;
                             var worker = app.ApplicationServices.GetRequiredService<WorkerNative>();
                             worker.On("@success", (_, _) =>
                             {
                                 mediasoupServer.AddWorker(worker);
-                                logger.LogInformation($"Worker create success.");
+                                logger.LogInformation($"Worker[{threadId}] create success.");
                                 return Task.CompletedTask;
                             });
                             worker.Run();
@@ -55,7 +56,7 @@ namespace Microsoft.AspNetCore.Builder
                             worker.On("@success", (_, _) =>
                             {
                                 mediasoupServer.AddWorker(worker);
-                                logger.LogInformation($"Worker[pid:{worker.ProcessId}] create success.");
+                                logger.LogInformation($"Worker[{worker.ProcessId}] create success.");
                                 return Task.CompletedTask;
                             });
                         }
