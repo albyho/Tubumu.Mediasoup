@@ -27,28 +27,28 @@ namespace System.Text.Json.Serialization
         private const BindingFlags EnumBindings = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
 
 #if NETSTANDARD2_0
-		private static readonly string[] s_Split = new string[] { ", " };
+		private static readonly string[] _split = new string[] { ", " };
 #endif
 
-        private readonly bool _AllowIntegerValues;
-        private readonly Type _EnumType;
-        private readonly TypeCode _EnumTypeCode;
-        private readonly bool _IsFlags;
-        private readonly Dictionary<TEnum, EnumInfo> _RawToTransformed;
-        private readonly Dictionary<string, EnumInfo> _TransformedToRaw;
+        private readonly bool _allowIntegerValues;
+        private readonly Type _enumType;
+        private readonly TypeCode _enumTypeCode;
+        private readonly bool _isFlags;
+        private readonly Dictionary<TEnum, EnumInfo> _rawToTransformed;
+        private readonly Dictionary<string, EnumInfo> _transformedToRaw;
 
         public JsonStringEnumMemberConverterHelper(JsonNamingPolicy? namingPolicy, bool allowIntegerValues)
         {
-            _AllowIntegerValues = allowIntegerValues;
-            _EnumType = typeof(TEnum);
-            _EnumTypeCode = Type.GetTypeCode(_EnumType);
-            _IsFlags = _EnumType.IsDefined(typeof(FlagsAttribute), true);
+            _allowIntegerValues = allowIntegerValues;
+            _enumType = typeof(TEnum);
+            _enumTypeCode = Type.GetTypeCode(_enumType);
+            _isFlags = _enumType.IsDefined(typeof(FlagsAttribute), true);
 
-            string[] builtInNames = _EnumType.GetEnumNames();
-            Array builtInValues = _EnumType.GetEnumValues();
+            string[] builtInNames = _enumType.GetEnumNames();
+            Array builtInValues = _enumType.GetEnumValues();
 
-            _RawToTransformed = new Dictionary<TEnum, EnumInfo>();
-            _TransformedToRaw = new Dictionary<string, EnumInfo>();
+            _rawToTransformed = new Dictionary<TEnum, EnumInfo>();
+            _transformedToRaw = new Dictionary<string, EnumInfo>();
 
             for (int i = 0; i < builtInNames.Length; i++)
             {
@@ -61,7 +61,7 @@ namespace System.Text.Json.Serialization
                 ulong rawValue = GetEnumValue(enumValue);
 
                 string name = builtInNames[i];
-                FieldInfo field = _EnumType.GetField(name, EnumBindings)!;
+                FieldInfo field = _enumType.GetField(name, EnumBindings)!;
                 EnumMemberAttribute? enumMemberAttribute = field.GetCustomAttribute<EnumMemberAttribute>(true);
                 string transformedName = enumMemberAttribute?.Value ?? namingPolicy?.ConvertName(name) ?? name;
 
@@ -69,8 +69,8 @@ namespace System.Text.Json.Serialization
                 //	throw new NotSupportedException();
                 var typedValue = (TEnum)enumValue;
 
-                _RawToTransformed[typedValue] = new EnumInfo(transformedName, typedValue, rawValue);
-                _TransformedToRaw[transformedName] = new EnumInfo(name, typedValue, rawValue);
+                _rawToTransformed[typedValue] = new EnumInfo(transformedName, typedValue, rawValue);
+                _transformedToRaw[transformedName] = new EnumInfo(name, typedValue, rawValue);
             }
         }
 
@@ -83,24 +83,23 @@ namespace System.Text.Json.Serialization
                 string enumString = reader.GetString()!;
 
                 // Case sensitive search attempted first.
-                if (_TransformedToRaw.TryGetValue(enumString, out EnumInfo? enumInfo))
+                if (_transformedToRaw.TryGetValue(enumString, out EnumInfo? enumInfo))
                 {
                     return enumInfo.EnumValue;
                 }
 
-                if (_IsFlags)
+                if (_isFlags)
                 {
                     ulong calculatedValue = 0;
-
 #if NETSTANDARD2_0
-					string[] flagValues = enumString.Split(s_Split, StringSplitOptions.None);
+					string[] flagValues = enumString.Split(_split, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 #else
                     string[] flagValues = enumString.Split(", ");
 #endif
                     foreach (string flagValue in flagValues)
                     {
                         // Case sensitive search attempted first.
-                        if (_TransformedToRaw.TryGetValue(flagValue, out enumInfo))
+                        if (_transformedToRaw.TryGetValue(flagValue, out enumInfo))
                         {
                             calculatedValue |= enumInfo.RawValue;
                         }
@@ -108,7 +107,7 @@ namespace System.Text.Json.Serialization
                         {
                             // Case insensitive search attempted second.
                             bool matched = false;
-                            foreach (KeyValuePair<string, EnumInfo> enumItem in _TransformedToRaw)
+                            foreach (KeyValuePair<string, EnumInfo> enumItem in _transformedToRaw)
                             {
                                 if (string.Equals(enumItem.Key, flagValue, StringComparison.OrdinalIgnoreCase))
                                 {
@@ -126,16 +125,16 @@ namespace System.Text.Json.Serialization
                         }
                     }
 
-                    TEnum enumValue = (TEnum)Enum.ToObject(_EnumType, calculatedValue);
-                    if (_TransformedToRaw.Count < 64)
+                    TEnum enumValue = (TEnum)Enum.ToObject(_enumType, calculatedValue);
+                    if (_transformedToRaw.Count < 64)
                     {
-                        _TransformedToRaw[enumString] = new EnumInfo(enumString, enumValue, calculatedValue);
+                        _transformedToRaw[enumString] = new EnumInfo(enumString, enumValue, calculatedValue);
                     }
                     return enumValue;
                 }
 
                 // Case insensitive search attempted second.
-                foreach (KeyValuePair<string, EnumInfo> enumItem in _TransformedToRaw)
+                foreach (KeyValuePair<string, EnumInfo> enumItem in _transformedToRaw)
                 {
                     if (string.Equals(enumItem.Key, enumString, StringComparison.OrdinalIgnoreCase))
                     {
@@ -147,60 +146,60 @@ namespace System.Text.Json.Serialization
                 throw new Exception("DeserializeUnableToConvertValue");
             }
 
-            if (token != JsonTokenType.Number || !_AllowIntegerValues)
+            if (token != JsonTokenType.Number || !_allowIntegerValues)
             {
                 //throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType);
                 throw new Exception("DeserializeUnableToConvertValue");
             }
 
-            switch (_EnumTypeCode)
+            switch (_enumTypeCode)
             {
                 case TypeCode.Int32:
                     if (reader.TryGetInt32(out int int32))
                     {
-                        return (TEnum)Enum.ToObject(_EnumType, int32);
+                        return (TEnum)Enum.ToObject(_enumType, int32);
                     }
                     break;
                 case TypeCode.Int64:
                     if (reader.TryGetInt64(out long int64))
                     {
-                        return (TEnum)Enum.ToObject(_EnumType, int64);
+                        return (TEnum)Enum.ToObject(_enumType, int64);
                     }
                     break;
                 case TypeCode.Int16:
                     if (reader.TryGetInt16(out short int16))
                     {
-                        return (TEnum)Enum.ToObject(_EnumType, int16);
+                        return (TEnum)Enum.ToObject(_enumType, int16);
                     }
                     break;
                 case TypeCode.Byte:
                     if (reader.TryGetByte(out byte ubyte8))
                     {
-                        return (TEnum)Enum.ToObject(_EnumType, ubyte8);
+                        return (TEnum)Enum.ToObject(_enumType, ubyte8);
                     }
                     break;
                 case TypeCode.UInt32:
                     if (reader.TryGetUInt32(out uint uint32))
                     {
-                        return (TEnum)Enum.ToObject(_EnumType, uint32);
+                        return (TEnum)Enum.ToObject(_enumType, uint32);
                     }
                     break;
                 case TypeCode.UInt64:
                     if (reader.TryGetUInt64(out ulong uint64))
                     {
-                        return (TEnum)Enum.ToObject(_EnumType, uint64);
+                        return (TEnum)Enum.ToObject(_enumType, uint64);
                     }
                     break;
                 case TypeCode.UInt16:
                     if (reader.TryGetUInt16(out ushort uint16))
                     {
-                        return (TEnum)Enum.ToObject(_EnumType, uint16);
+                        return (TEnum)Enum.ToObject(_enumType, uint16);
                     }
                     break;
                 case TypeCode.SByte:
                     if (reader.TryGetSByte(out sbyte byte8))
                     {
-                        return (TEnum)Enum.ToObject(_EnumType, byte8);
+                        return (TEnum)Enum.ToObject(_enumType, byte8);
                     }
                     break;
                 case TypeCode.Empty:
@@ -231,7 +230,7 @@ namespace System.Text.Json.Serialization
 
         public void Write(Utf8JsonWriter writer, TEnum value)
         {
-            if (_RawToTransformed.TryGetValue(value, out EnumInfo? enumInfo))
+            if (_rawToTransformed.TryGetValue(value, out EnumInfo? enumInfo))
             {
                 writer.WriteStringValue(enumInfo.Name);
                 return;
@@ -239,12 +238,12 @@ namespace System.Text.Json.Serialization
 
             var rawValue = GetEnumValue(value);
 
-            if (_IsFlags)
+            if (_isFlags)
             {
                 ulong calculatedValue = 0;
 
                 var Builder = new StringBuilder();
-                foreach (KeyValuePair<TEnum, EnumInfo> enumItem in _RawToTransformed)
+                foreach (KeyValuePair<TEnum, EnumInfo> enumItem in _rawToTransformed)
                 {
                     enumInfo = enumItem.Value;
                     if (!value.HasFlag(enumInfo.EnumValue)
@@ -266,19 +265,21 @@ namespace System.Text.Json.Serialization
                 if (calculatedValue == rawValue)
                 {
                     string finalName = Builder.ToString();
-                    if (_RawToTransformed.Count < 64)
+                    if (_rawToTransformed.Count < 64)
                     {
-                        _RawToTransformed[value] = new EnumInfo(finalName, value, rawValue);
+                        _rawToTransformed[value] = new EnumInfo(finalName, value, rawValue);
                     }
                     writer.WriteStringValue(finalName);
                     return;
                 }
             }
 
-            if (!_AllowIntegerValues)
-                throw new JsonException($"Enum type {_EnumType} does not have a mapping for integer value '{rawValue.ToString(CultureInfo.CurrentCulture)}'.");
+            if (!_allowIntegerValues)
+            {
+                throw new JsonException($"Enum type {_enumType} does not have a mapping for integer value '{rawValue.ToString(CultureInfo.CurrentCulture)}'.");
+            }
 
-            switch (_EnumTypeCode)
+            switch (_enumTypeCode)
             {
                 case TypeCode.Int32:
                     writer.WriteNumberValue((int)rawValue);
@@ -331,7 +332,7 @@ namespace System.Text.Json.Serialization
 
         private ulong GetEnumValue(object value)
         {
-            return _EnumTypeCode switch
+            return _enumTypeCode switch
             {
                 TypeCode.Int32 => (ulong)(int)value,
                 TypeCode.Int64 => (ulong)(long)value,
@@ -351,7 +352,7 @@ namespace System.Text.Json.Serialization
                 TypeCode.Decimal => throw new NotImplementedException(),
                 TypeCode.DateTime => throw new NotImplementedException(),
                 TypeCode.String => throw new NotImplementedException(),
-                _ => throw new NotSupportedException($"Enum '{value}' of {_EnumTypeCode} type is not supported."),
+                _ => throw new NotSupportedException($"Enum '{value}' of {_enumTypeCode} type is not supported."),
             };
         }
     }
