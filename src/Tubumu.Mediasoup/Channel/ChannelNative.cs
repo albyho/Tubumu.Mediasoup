@@ -81,11 +81,7 @@ namespace Tubumu.Mediasoup
         {
             var channel = (ChannelNative)GCHandle.FromIntPtr(ctx).Target!;
             var requestMessage = channel.ProduceMessage(message, messageLen, messageCtx, handle);
-            if (requestMessage == null)
-            {
-                return null;
-            }
-            return OnChannelReadFree;
+            return requestMessage == null ? null : OnChannelReadFree;
         };
 
         internal static readonly LibMediasoupWorkerNative.ChannelWriteFn OnChannelWrite = (message, messageLen, ctx) =>

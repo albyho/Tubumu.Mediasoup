@@ -38,7 +38,9 @@ namespace System
                 else
                 {
                     if (field.Name == description)
+                    {
                         return (T)field.GetValue(null)!;
+                    }
                 }
             }
             throw new ArgumentException(string.Format("{0} 未能找到对应的枚举.", description), "Description");

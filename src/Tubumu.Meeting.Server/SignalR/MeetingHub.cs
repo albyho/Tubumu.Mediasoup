@@ -1332,7 +1332,10 @@ namespace Tubumu.Meeting.Server
 
         private void SendNotification(IReadOnlyList<string> peerIds, string type, object data)
         {
-            if (peerIds.IsNullOrEmpty()) return;
+            if (peerIds.IsNullOrEmpty())
+            {
+                return;
+            }
 
             var client = _hubContext.Clients.Users(peerIds);
             client.Notify(new MeetingNotification
