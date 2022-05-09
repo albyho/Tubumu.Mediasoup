@@ -155,11 +155,7 @@ namespace Tubumu.Mediasoup
 
                 var reqData = new { DtlsParameters = dtlsParameters };
                 var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
-                if (resData == null)
-                {
-                    throw new Exception($"{nameof(resData)} is null");
-                }
-                var responseData = JsonSerializer.Deserialize<WebRtcTransportConnectResponseData>(resData, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var responseData = JsonSerializer.Deserialize<WebRtcTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.
                 DtlsParameters.Role = responseData.DtlsLocalRole;
@@ -181,11 +177,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var resData = await Channel.RequestAsync(MethodId.TRANSPORT_RESTART_ICE, Internal);
-                if (resData == null)
-                {
-                    throw new Exception($"{nameof(resData)} is null");
-                }
-                var responseData = JsonSerializer.Deserialize<WebRtcTransportRestartIceResponseData>(resData, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var responseData = JsonSerializer.Deserialize<WebRtcTransportRestartIceResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.
                 IceParameters = responseData.IceParameters;

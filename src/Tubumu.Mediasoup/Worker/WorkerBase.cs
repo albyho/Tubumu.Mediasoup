@@ -167,7 +167,9 @@ namespace Tubumu.Mediasoup
                     LogLevel = (workerUpdateableSettings.LogLevel ?? WorkerLogLevel.None).GetEnumMemberValue(),
                     LogTags = logTags.Select(m => m.GetEnumMemberValue()),
                 };
-                await _channel.RequestAsync(MethodId.WORKER_UPDATE_SETTINGS, null, reqData);
+
+                // Fire and forget
+                _channel.RequestAsync(MethodId.WORKER_UPDATE_SETTINGS, null, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
             catch (Exception ex)
             {

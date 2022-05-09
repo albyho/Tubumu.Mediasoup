@@ -207,7 +207,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump DataConsumer.
         /// </summary>
-        public async Task<string?> DumpAsync()
+        public async Task<string> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | DataConsumer:{DataConsumerId}");
 
@@ -218,14 +218,14 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataConsumer closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.DATA_CONSUMER_DUMP, _internal);
+                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_DUMP, _internal))!;
             }
         }
 
         /// <summary>
         /// Get DataConsumer stats. Return: DataConsumerStat[]
         /// </summary>
-        public async Task<string?> GetStatsAsync()
+        public async Task<string> GetStatsAsync()
         {
             _logger.LogDebug($"GetStatsAsync() | DataConsumer:{DataConsumerId}");
 
@@ -236,7 +236,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataConsumer closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_STATS, _internal);
+                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_STATS, _internal))!;
             }
         }
 
@@ -346,7 +346,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        public async Task<string?> GetBufferedAmountAsync()
+        public async Task<string> GetBufferedAmountAsync()
         {
             _logger.LogDebug("GetBufferedAmountAsync()");
 
@@ -358,7 +358,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // 返回的是 JSON 格式，取其 bufferedAmount 属性。
-                return await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_BUFFERED_AMOUNT, _internal);
+                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_BUFFERED_AMOUNT, _internal))!;
             }
         }
 

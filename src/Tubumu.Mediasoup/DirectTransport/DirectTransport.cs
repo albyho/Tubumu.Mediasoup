@@ -86,7 +86,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public override Task<string?> SetMaxIncomingBitrateAsync(int bitrate)
+        public override Task<string> SetMaxIncomingBitrateAsync(int bitrate)
         {
             _logger.LogError($"SetMaxIncomingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
             throw new NotImplementedException("SetMaxIncomingBitrateAsync() not implemented in DirectTransport");
@@ -97,7 +97,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public override Task<string?> SetMaxOutgoingBitrateAsync(int bitrate)
+        public override Task<string> SetMaxOutgoingBitrateAsync(int bitrate)
         {
             _logger.LogError($"SetMaxOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
             throw new NotImplementedException("SetMaxOutgoingBitrateAsync is not implemented in DirectTransport");

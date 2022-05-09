@@ -264,7 +264,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump DataProducer.
         /// </summary>
-        public async Task<string?> DumpAsync()
+        public async Task<string> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Producer:{ProducerId}");
 
@@ -275,14 +275,14 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.PRODUCER_DUMP, _internal);
+                return (await _channel.RequestAsync(MethodId.PRODUCER_DUMP, _internal))!;
             }
         }
 
         /// <summary>
         /// Get DataProducer stats.
         /// </summary>
-        public async Task<string?> GetStatsAsync()
+        public async Task<string> GetStatsAsync()
         {
             _logger.LogDebug($"GetStatsAsync() | Producer:{ProducerId}");
 
@@ -293,7 +293,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.PRODUCER_GET_STATS, _internal);
+                return (await _channel.RequestAsync(MethodId.PRODUCER_GET_STATS, _internal))!;
             }
         }
 

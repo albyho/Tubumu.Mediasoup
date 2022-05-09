@@ -133,7 +133,7 @@ namespace Tubumu.Mediasoup
                 Channel.MessageEvent -= OnChannelMessage;
                 //PayloadChannel.MessageEvent -= OnPayloadChannelMessage;
 
-                // Fire and forget.
+                // Fire and forget
                 Channel.RequestAsync(MethodId.RTP_OBSERVER_CLOSE, Internal).ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("@close");
@@ -189,7 +189,8 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused;
 
-                    await Channel.RequestAsync(MethodId.RTP_OBSERVER_PAUSE, Internal);
+                    // Fire and forget
+                    Channel.RequestAsync(MethodId.RTP_OBSERVER_PAUSE, Internal).ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = true;
 
@@ -229,7 +230,8 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused;
 
-                    await Channel.RequestAsync(MethodId.RTP_OBSERVER_RESUME, Internal);
+                    // Fire and forget
+                    Channel.RequestAsync(MethodId.RTP_OBSERVER_RESUME, Internal).ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = false;
 
@@ -271,7 +273,8 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = new { rtpObserverAddRemoveProducerOptions.ProducerId };
-                await Channel.RequestAsync(MethodId.RTP_OBSERVER_ADD_PRODUCER, Internal, reqData);
+                // Fire and forget
+                Channel.RequestAsync(MethodId.RTP_OBSERVER_ADD_PRODUCER, Internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 // Emit observer event.
                 Observer.Emit("addproducer", producer);
@@ -299,7 +302,8 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = new { rtpObserverAddRemoveProducerOptions.ProducerId };
-                await Channel.RequestAsync(MethodId.RTP_OBSERVER_REMOVE_PRODUCER, Internal, reqData);
+                // Fire and forget
+                Channel.RequestAsync(MethodId.RTP_OBSERVER_REMOVE_PRODUCER, Internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 // Emit observer event.
                 Observer.Emit("removeproducer", producer);

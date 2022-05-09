@@ -398,7 +398,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump Transport.
         /// </summary>
-        public async Task<string?> DumpAsync()
+        public async Task<string> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Transport:{TransportId}");
 
@@ -409,14 +409,14 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                return await Channel.RequestAsync(MethodId.TRANSPORT_DUMP, Internal);
+                return (await Channel.RequestAsync(MethodId.TRANSPORT_DUMP, Internal))!;
             }
         }
 
         /// <summary>
         /// Get Transport stats.
         /// </summary>
-        public async Task<string?> GetStatsAsync()
+        public async Task<string> GetStatsAsync()
         {
             // 在 Node.js 实现中，Transport 类没有实现 getState 方法。
             _logger.LogDebug($"GetStatsAsync() | Transport:{TransportId}");
@@ -428,7 +428,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                return await Channel.RequestAsync(MethodId.TRANSPORT_GET_STATS, Internal);
+                return (await Channel.RequestAsync(MethodId.TRANSPORT_GET_STATS, Internal))!;
             }
         }
 
@@ -444,7 +444,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public virtual async Task<string?> SetMaxIncomingBitrateAsync(int bitrate)
+        public virtual async Task SetMaxIncomingBitrateAsync(int bitrate)
         {
             _logger.LogDebug($"SetMaxIncomingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}");
 
@@ -456,7 +456,8 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = new { Bitrate = bitrate };
-                return await Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_INCOMING_BITRATE, Internal, reqData);
+                // Fire and forget
+                Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_INCOMING_BITRATE, Internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -465,7 +466,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public virtual async Task<string?> SetMaxOutgoingBitrateAsync(int bitrate)
+        public virtual async Task SetMaxOutgoingBitrateAsync(int bitrate)
         {
             _logger.LogDebug($"setMaxOutgoingBitrate() | Transport:{TransportId} Bitrate:{bitrate}");
 
@@ -477,7 +478,8 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = new { Bitrate = bitrate };
-                return await Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal, reqData);
+                // Fire and forget
+                Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -1088,7 +1090,8 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = new { Types = types };
-                await Channel.RequestAsync(MethodId.TRANSPORT_ENABLE_TRACE_EVENT, Internal, reqData);
+                // Fire and forget
+                Channel.RequestAsync(MethodId.TRANSPORT_ENABLE_TRACE_EVENT, Internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 

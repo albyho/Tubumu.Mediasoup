@@ -268,7 +268,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump DataProducer.
         /// </summary>
-        public async Task<string?> DumpAsync()
+        public async Task<string> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Consumer:{ConsumerId}");
 
@@ -279,14 +279,14 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.CONSUMER_DUMP, _internal);
+                return (await _channel.RequestAsync(MethodId.CONSUMER_DUMP, _internal))!;
             }
         }
 
         /// <summary>
         /// Get DataProducer stats.
         /// </summary>
-        public async Task<string?> GetStatsAsync()
+        public async Task<string> GetStatsAsync()
         {
             _logger.LogDebug($"GetStatsAsync() | Consumer:{ConsumerId}");
 
@@ -297,7 +297,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.CONSUMER_GET_STATS, _internal);
+                return (await _channel.RequestAsync(MethodId.CONSUMER_GET_STATS, _internal))!;
             }
         }
 
@@ -320,7 +320,8 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused || ProducerPaused;
 
-                    await _channel.RequestAsync(MethodId.CONSUMER_PAUSE, _internal);
+                    // Fire and forget
+                    _channel.RequestAsync(MethodId.CONSUMER_PAUSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = true;
 
@@ -360,7 +361,8 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused || ProducerPaused;
 
-                    await _channel.RequestAsync(MethodId.CONSUMER_RESUME, _internal);
+                    // Fire and forget
+                    _channel.RequestAsync(MethodId.CONSUMER_RESUME, _internal).ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = false;
 
@@ -481,7 +483,8 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                await _channel.RequestAsync(MethodId.CONSUMER_ENABLE_TRACE_EVENT, _internal, reqData);
+                // Fire and forget
+                _channel.RequestAsync(MethodId.CONSUMER_ENABLE_TRACE_EVENT, _internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 

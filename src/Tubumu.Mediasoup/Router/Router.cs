@@ -235,7 +235,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump Router.
         /// </summary>
-        public async Task<string?> DumpAsync()
+        public async Task<string> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Router:{RouterId}");
 
@@ -246,7 +246,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.ROUTER_DUMP, _internal);
+                return (await _channel.RequestAsync(MethodId.ROUTER_DUMP, _internal))!;
             }
         }
 
@@ -855,7 +855,8 @@ namespace Tubumu.Mediasoup
                     activeSpeakerObserverOptions.Interval
                 };
 
-                await _channel.RequestAsync(MethodId.ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER, @internal, reqData);
+                // Fire and forget
+                _channel.RequestAsync(MethodId.ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER, @internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 var activeSpeakerObserver = new ActiveSpeakerObserver(_loggerFactory,
                                     @internal,
@@ -898,7 +899,8 @@ namespace Tubumu.Mediasoup
                     audioLevelObserverOptions.Interval
                 };
 
-                await _channel.RequestAsync(MethodId.ROUTER_CREATE_AUDIO_LEVEL_OBSERVER, @internal, reqData);
+                // Fire and forget
+                _channel.RequestAsync(MethodId.ROUTER_CREATE_AUDIO_LEVEL_OBSERVER, @internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
                                     @internal,

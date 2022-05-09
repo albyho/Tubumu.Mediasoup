@@ -177,11 +177,6 @@ namespace Tubumu.Meeting.Server
                     CheckRoom("CreateWebRtcTransportAsync()");
 
                     var transport = await _room!.Router.CreateWebRtcTransportAsync(webRtcTransportOptions);
-                    if (transport == null)
-                    {
-                        throw new Exception("CreateWebRtcTransportAsync() | Router.CreateWebRtcTransport faild");
-                    }
-
                     using (await _transportsLock.WriteLockAsync())
                     {
                         if (!isSend && HasConsumingTransport())
@@ -937,7 +932,7 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="transportId"></param>
         /// <returns></returns>
-        public async Task<WebRtcTransportStat?> GetWebRtcTransportStatsAsync(string transportId)
+        public async Task<WebRtcTransportStat> GetWebRtcTransportStatsAsync(string transportId)
         {
             using (await _joinedLock.ReadLockAsync())
             {
@@ -955,13 +950,9 @@ namespace Tubumu.Meeting.Server
                         }
 
                         var stats = await transport!.GetStatsAsync();
-                        if (stats == null)
-                        {
-                            return null;
-                        }
                         // TODO: (alby) 考虑不进行反序列化
                         // TransportStat 系列包括：WebRtcTransportStat、PlainTransportStat、PipeTransportStat 和 DirectTransportStat。
-                        return JsonSerializer.Deserialize<WebRtcTransportStat>(stats);
+                        return JsonSerializer.Deserialize<WebRtcTransportStat>(stats)!;
                     }
                 }
             }
@@ -972,7 +963,7 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="producerId"></param>
         /// <returns></returns>
-        public async Task<ProducerStat?> GetProducerStatsAsync(string producerId)
+        public async Task<ProducerStat> GetProducerStatsAsync(string producerId)
         {
             using (await _joinedLock.ReadLockAsync())
             {
@@ -990,12 +981,8 @@ namespace Tubumu.Meeting.Server
                         }
 
                         var stats = await producer.GetStatsAsync();
-                        if (stats == null)
-                        {
-                            return null;
-                        }
                         // TODO: (alby) 考虑不进行反序列化
-                        return JsonSerializer.Deserialize<ProducerStat>(stats);
+                        return JsonSerializer.Deserialize<ProducerStat>(stats)!;
                     }
                 }
             }
@@ -1006,7 +993,7 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="consumerId"></param>
         /// <returns></returns>
-        public async Task<ConsumerStat?> GetConsumerStatsAsync(string consumerId)
+        public async Task<ConsumerStat> GetConsumerStatsAsync(string consumerId)
         {
             using (await _joinedLock.ReadLockAsync())
             {
@@ -1024,12 +1011,8 @@ namespace Tubumu.Meeting.Server
                         }
 
                         var stats = await consumer.GetStatsAsync();
-                        if (stats == null)
-                        {
-                            return null;
-                        }
                         // TODO: (alby) 考虑不进行反序列化
-                        return JsonSerializer.Deserialize<ConsumerStat>(stats);
+                        return JsonSerializer.Deserialize<ConsumerStat>(stats)!;
                     }
                 }
             }
