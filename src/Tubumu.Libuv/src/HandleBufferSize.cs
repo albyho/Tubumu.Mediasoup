@@ -18,6 +18,7 @@ namespace Tubumu.Libuv
         {
             CheckDisposed();
 
+            // 如果 *value == 0 ，将返回当前接收缓存大小， 否则它将用 *value 设置新的发送接收大小。所以第二个参数不能丢弃。
             var r = function(NativeHandle, out value);
             Ensure.Success(r);
             return r;
