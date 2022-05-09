@@ -10,9 +10,9 @@ namespace Tubumu.Mediasoup
         EventEmitter Observer { get; }
 
         Task CloseAsync();
-        Task<Router?> CreateRouterAsync(RouterOptions routerOptions);
-        Task<string?> DumpAsync();
-        Task<string?> GetResourceUsageAsync();
-        Task<string?> UpdateSettingsAsync(WorkerUpdateableSettings workerUpdateableSettings);
+        Task<Router> CreateRouterAsync(RouterOptions routerOptions);
+        Task<string> DumpAsync();
+        Task<string> GetResourceUsageAsync();
+        Task UpdateSettingsAsync(WorkerUpdateableSettings workerUpdateableSettings);
     }
 }

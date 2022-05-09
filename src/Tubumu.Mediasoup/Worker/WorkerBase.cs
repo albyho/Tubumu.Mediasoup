@@ -93,7 +93,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump Worker.
         /// </summary>
-        public async Task<string?> DumpAsync()
+        public async Task<string> DumpAsync()
         {
             _logger.LogDebug("DumpAsync()");
 
@@ -105,12 +105,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Worker closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.WORKER_DUMP);
+                return (await _channel.RequestAsync(MethodId.WORKER_DUMP))!;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "DumpAsync()");
-                return null;
+                throw;
             }
             finally
             {
@@ -121,7 +121,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Get mediasoup-worker process resource usage.
         /// </summary>
-        public async Task<string?> GetResourceUsageAsync()
+        public async Task<string> GetResourceUsageAsync()
         {
             _logger.LogDebug("GetResourceUsageAsync()");
 
@@ -133,12 +133,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Worker closed");
                 }
 
-                return await _channel.RequestAsync(MethodId.WORKER_GET_RESOURCE_USAGE);
+                return (await _channel.RequestAsync(MethodId.WORKER_GET_RESOURCE_USAGE))!;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetResourceUsageAsync()");
-                return null;
+                throw;
             }
             finally
             {
@@ -149,7 +149,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Updates the worker settings in runtime. Just a subset of the worker settings can be updated.
         /// </summary>
-        public async Task<string?> UpdateSettingsAsync(WorkerUpdateableSettings workerUpdateableSettings)
+        public async Task UpdateSettingsAsync(WorkerUpdateableSettings workerUpdateableSettings)
         {
             _logger.LogDebug("UpdateSettingsAsync()");
 
@@ -167,12 +167,12 @@ namespace Tubumu.Mediasoup
                     LogLevel = (workerUpdateableSettings.LogLevel ?? WorkerLogLevel.None).GetEnumMemberValue(),
                     LogTags = logTags.Select(m => m.GetEnumMemberValue()),
                 };
-                return await _channel.RequestAsync(MethodId.WORKER_UPDATE_SETTINGS, null, reqData);
+                await _channel.RequestAsync(MethodId.WORKER_UPDATE_SETTINGS, null, reqData);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateSettingsAsync()");
-                return null;
+                throw;
             }
             finally
             {
@@ -183,7 +183,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a Router.
         /// </summary>
-        public async Task<Router?> CreateRouterAsync(RouterOptions routerOptions)
+        public async Task<Router> CreateRouterAsync(RouterOptions routerOptions)
         {
             _logger.LogDebug("CreateRouterAsync()");
 
@@ -226,7 +226,7 @@ namespace Tubumu.Mediasoup
             catch (Exception ex)
             {
                 _logger.LogError(ex, "CreateRouterAsync()");
-                return null;
+                throw;
             }
             finally
             {

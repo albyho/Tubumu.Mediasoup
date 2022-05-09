@@ -126,11 +126,6 @@ namespace Tubumu.Meeting.Server
                         {
                             MediaCodecs = mediaCodecs
                         });
-                        if (router == null)
-                        {
-                            throw new Exception($"PeerJoinAsync() | Worker maybe closed.");
-                        }
-
                         room = new Room(_loggerFactory, router, joinRoomRequest.RoomId, "Default");
                         _rooms[room.RoomId] = room;
                     }
