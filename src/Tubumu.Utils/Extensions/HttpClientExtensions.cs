@@ -4,68 +4,178 @@ using System.Threading.Tasks;
 
 namespace System.Net.Http
 {
+    /// <summary>
+    /// HttpClient extension methods.
+    /// <para>See: https://docs.microsoft.com/en-us/dotnet/api/system.net.http.json.httpclientjsonextensions?view=net-6.0</para>
+    /// </summary>
     public static class HttpClientExtensions
     {
-        public static async Task<T?> GetObjectAsync<T>(this HttpClient client, Uri requestUri)
+        #region Get
+
+        /// <summary>
+        /// Sends a GET request to the specified Uri
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <returns></returns>
+        public static async Task<T?> GetFromJsonAsync<T>(this HttpClient client, Uri requestUri)
         {
             var json = await client.GetStringAsync(requestUri);
             return JsonSerializer.Deserialize<T>(json, ObjectExtensions.DefaultJsonSerializerOptions);
         }
 
-        public static Task<T?> GetObjectAsync<T>(this HttpClient client, string requestUri)
+        /// <summary>
+        /// Sends a GET request to the specified Uri
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <returns></returns>
+        public static Task<T?> GetFromJsonAsync<T>(this HttpClient client, string requestUri)
         {
-            return client.GetObjectAsync<T>(new Uri(requestUri));
+            return client.GetFromJsonAsync<T>(new Uri(requestUri));
         }
 
-        public static async Task<T?> PostObjectAsync<T>(this HttpClient client, Uri requestUri, HttpContent? content, CancellationToken cancellationToken)
+        #endregion
+
+        #region Post
+
+        /// <summary>
+        /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <param name="content"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static async Task<T?> PostFromJsonAsync<T>(this HttpClient client, Uri requestUri, HttpContent? content, CancellationToken cancellationToken)
         {
             content ??= new StringContent(string.Empty);
             var message = await client.PostAsync(requestUri, content, cancellationToken);
             message.EnsureSuccessStatusCode();
             var json = await message.Content.ReadAsStringAsync();
+
             return JsonSerializer.Deserialize<T>(json, ObjectExtensions.DefaultJsonSerializerOptions);
         }
 
-        public static Task<T?> PostObjectAsync<T>(this HttpClient client, string requestUri, HttpContent? content, CancellationToken cancellationToken)
+        /// <summary>
+        /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <param name="content"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static Task<T?> PostFromJsonAsync<T>(this HttpClient client, string requestUri, HttpContent? content, CancellationToken cancellationToken)
         {
-            return client.PostObjectAsync<T>(new Uri(requestUri), content, cancellationToken);
+            return client.PostFromJsonAsync<T>(new Uri(requestUri), content, cancellationToken);
         }
 
-        public static Task<T?> PostObjectAsync<T>(this HttpClient client, Uri requestUri, HttpContent? content)
+        /// <summary>
+        /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static Task<T?> PostFromJsonAsync<T>(this HttpClient client, Uri requestUri, HttpContent? content)
         {
-            return client.PostObjectAsync<T>(requestUri, content, default);
+            return client.PostFromJsonAsync<T>(requestUri, content, default);
         }
 
-        public static Task<T?> PostObjectAsync<T>(this HttpClient client, string requestUri, HttpContent? content)
+        /// <summary>
+        /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static Task<T?> PostFromJsonAsync<T>(this HttpClient client, string requestUri, HttpContent? content)
         {
-            return client.PostObjectAsync<T>(new Uri(requestUri), content, default);
+            return client.PostFromJsonAsync<T>(new Uri(requestUri), content, default);
         }
 
-        public static Task<T?> PostObjectAsync<K, T>(this HttpClient client, Uri requestUri, K? obj, CancellationToken cancellationToken)
+        /// <summary>
+        /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <param name="obj"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static Task<T?> PostAsJsonFromJsonAsync<K, T>(this HttpClient client, Uri requestUri, K? obj, CancellationToken cancellationToken)
         {
             StringContent? content = null;
             if (obj != null)
             {
                 var json = obj.ToJson();
                 content = new StringContent(json);
-                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                content.Headers.ContentType = new Headers.MediaTypeHeaderValue("application/json");
             }
-            return client.PostObjectAsync<T>(requestUri, content, cancellationToken);
+
+            return client.PostFromJsonAsync<T>(requestUri, content, cancellationToken);
         }
 
-        public static Task<T?> PostObjectAsync<K, T>(this HttpClient client, string requestUri, K obj, CancellationToken cancellationToken)
+        /// <summary>
+        /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <param name="obj"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static Task<T?> PostAsJsonFromJsonAsync<K, T>(this HttpClient client, string requestUri, K obj, CancellationToken cancellationToken)
         {
-            return client.PostObjectAsync<K, T>(new Uri(requestUri), obj, cancellationToken);
+            return client.PostAsJsonFromJsonAsync<K, T>(new Uri(requestUri), obj, cancellationToken);
         }
 
-        public static Task<T?> PostObjectAsync<K, T>(this HttpClient client, Uri requestUri, K obj)
+        /// <summary>
+        /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static Task<T?> PostAsJsonFromJsonAsync<K, T>(this HttpClient client, Uri requestUri, K obj)
         {
-            return client.PostObjectAsync<K, T>(requestUri, obj, default);
+            return client.PostAsJsonFromJsonAsync<K, T>(requestUri, obj, default);
         }
 
-        public static Task<T?> PostObjectAsync<K, T>(this HttpClient client, string requestUri, K obj)
+        /// <summary>
+        /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
+        /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
+        /// </summary>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="client"></param>
+        /// <param name="requestUri"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static Task<T?> PostAsJsonFromJsonAsync<K, T>(this HttpClient client, string requestUri, K obj)
         {
-            return client.PostObjectAsync<K, T>(new Uri(requestUri), obj, default);
+            return client.PostAsJsonFromJsonAsync<K, T>(new Uri(requestUri), obj, default);
         }
+
+        #endregion
     }
 }
