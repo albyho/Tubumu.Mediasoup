@@ -6,7 +6,7 @@ namespace System.Net.Http
 {
     /// <summary>
     /// HttpClient extension methods.
-    /// <para>See: https://docs.microsoft.com/en-us/dotnet/api/system.net.http.json.httpclientjsonextensions?view=net-6.0</para>
+    /// <see cref="https://docs.microsoft.com/en-us/dotnet/api/system.net.http.json.httpclientjsonextensions?view=net-6.0"/>
     /// </summary>
     public static class HttpClientExtensions
     {
