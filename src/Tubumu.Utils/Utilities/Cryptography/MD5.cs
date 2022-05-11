@@ -17,6 +17,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         public static byte[] EncryptFromByteArrayToByteArray(byte[] inputByteArray)
         {
             var md5 = System.Security.Cryptography.MD5.Create();
+
             return md5.ComputeHash(inputByteArray);
         }
 
@@ -33,6 +34,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             }
 
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
+
             return EncryptFromByteArrayToByteArray(inputByteArray);
         }
 
@@ -44,6 +46,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         public static string EncryptFromByteArrayToBase64(byte[] inputByteArray)
         {
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
+
             return Convert.ToBase64String(encryptBuffer);
         }
 
@@ -61,6 +64,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
 
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
+
             return Convert.ToBase64String(encryptBuffer);
         }
 
@@ -72,6 +76,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         public static string EncryptFromByteArrayToHex(byte[] inputByteArray)
         {
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
+
             return ByteArrayToHex(encryptBuffer);
         }
 
@@ -84,6 +89,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         {
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
+
             return ByteArrayToHex(encryptBuffer);
         }
 
@@ -96,6 +102,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         {
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
+
             return ByteArrayToLowerHex(encryptBuffer);
         }
 
@@ -106,6 +113,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             {
                 sb.AppendFormat("{0:X2}", item);
             }
+
             return sb.ToString();
         }
 
@@ -116,6 +124,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             {
                 sb.AppendFormat("{0:x2}", item);
             }
+
             return sb.ToString();
         }
     }

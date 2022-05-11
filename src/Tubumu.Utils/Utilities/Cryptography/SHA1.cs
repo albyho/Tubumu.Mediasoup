@@ -35,6 +35,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             var salted = Encoding.UTF8.GetBytes(rawString);
             var hasher = System.Security.Cryptography.SHA1.Create();
             var hashed = hasher.ComputeHash(salted);
+
             return hashed;
         }
     }

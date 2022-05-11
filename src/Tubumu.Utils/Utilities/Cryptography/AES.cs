@@ -72,6 +72,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             using var cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(inputByteArray, 0, inputByteArray.Length);
             cs.FlushFinalBlock();
+
             return ms.ToArray();
 
         }
@@ -167,6 +168,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             }
 
             var buffer = ByteArrayFromHexString(decryptString);
+
             return buffer.IsNullOrEmpty() ? Array.Empty<byte>() : DecryptFromByteArrayToByteArray(buffer, key);
         }
 
@@ -198,6 +200,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             }
 
             var buffer = Convert.FromBase64String(decryptString);
+
             return buffer.IsNullOrEmpty() ? Array.Empty<byte>() : DecryptFromByteArrayToByteArray(buffer, key);
         }
 
