@@ -7,7 +7,7 @@ namespace Tubumu.Libuv
     {
         public static string Decorate(string name)
         {
-            return UV.isUnix ? string.Format("lib{0}.so", name) : string.Format("{0}.dll", name);
+            return UV.isUnix ? $"lib{name}.so" : $"{name}.dll";
         }
 
         public static DynamicLibrary Open(string name)

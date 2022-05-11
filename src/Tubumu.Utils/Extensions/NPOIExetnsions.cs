@@ -68,7 +68,7 @@ namespace NPOI
                     break;
 
                 default:
-                    throw new NotSupportedException(string.Format("{0}{1} 不是数字、字符串或基于数字的公式", sourceCellName, sourceRow.RowNum + 1));
+                    throw new NotSupportedException($"{sourceCellName}{(sourceRow.RowNum + 1)} 不是数字、字符串或基于数字的公式");
             }
         }
 

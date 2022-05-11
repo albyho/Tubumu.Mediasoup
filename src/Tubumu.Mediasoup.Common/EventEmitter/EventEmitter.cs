@@ -70,7 +70,7 @@ namespace Tubumu.Mediasoup
             _rwl.EnterReadLock();
             if (!_events.TryGetValue(eventName, out var subscribedMethods))
             {
-                //throw new DoesNotExistException(string.Format("Event [{0}] does not exist in the emitter. Consider calling EventEmitter.On", eventName));
+                //throw new DoesNotExistException($"Event [{eventName}] does not exist in the emitter. Consider calling EventEmitter.On");
             }
             else
             {
@@ -102,14 +102,14 @@ namespace Tubumu.Mediasoup
             {
                 if (!_events.TryGetValue(eventName, out var subscribedMethods))
                 {
-                    throw new DoesNotExistException(string.Format("Event [{0}] does not exist to have listeners removed.", eventName));
+                    throw new DoesNotExistException($"Event [{eventName}] does not exist to have listeners removed.");
                 }
                 else
                 {
                     var _event = subscribedMethods.Exists(e => e == method);
                     if (_event == false)
                     {
-                        throw new DoesNotExistException(string.Format("Func [{0}] does not exist to be removed.", method.Method));
+                        throw new DoesNotExistException($"Func [{method.Method}] does not exist to be removed.");
                     }
                     else
                     {
@@ -132,7 +132,7 @@ namespace Tubumu.Mediasoup
             {
                 if (!_events.TryGetValue(eventName, out var subscribedMethods))
                 {
-                    throw new DoesNotExistException(string.Format("Event [{0}] does not exist to have methods removed.", eventName));
+                    throw new DoesNotExistException($"Event [{eventName}] does not exist to have methods removed.");
                 }
                 else
                 {

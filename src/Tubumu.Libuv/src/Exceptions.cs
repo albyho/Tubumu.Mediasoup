@@ -25,7 +25,7 @@ namespace Tubumu.Libuv
         public string Description { get; protected set; }
 
         public UVException(int systemErrorCode, string name, string description)
-            : base(string.Format("{0}({1}): {2}", name, systemErrorCode, description))
+            : base($"{name}({systemErrorCode}): {description}")
         {
             ErrorCode = Map(name);
             SystemErrorCode = systemErrorCode;

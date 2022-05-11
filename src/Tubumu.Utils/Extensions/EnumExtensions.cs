@@ -16,8 +16,6 @@ namespace System
 
         /// <summary>
         /// 根据 Description 获取枚举
-        /// 说明：
-        /// 单元测试-->通过
         /// </summary>
         /// <typeparam name="T">枚举类型</typeparam>
         /// <param name="description">枚举描述</param>
@@ -43,11 +41,11 @@ namespace System
                     }
                 }
             }
-            throw new ArgumentException(string.Format("{0} 未能找到对应的枚举.", description), "Description");
+            throw new ArgumentException($"{description} 未能找到对应的枚举.", "Description");
         }
 
         /// <summary>
-        /// 获取字段Description
+        /// 获取字段 Description
         /// </summary>
         /// <param name="fieldInfo">FieldInfo</param>
         /// <returns>DescriptionAttribute[] </returns>

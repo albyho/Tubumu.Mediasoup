@@ -23,7 +23,7 @@ namespace Tubumu.Libuv
 
                 case UVErrorCode.ENOENT:
                     var path = name == null ? Directory.GetCurrentDirectory() : Path.Combine(Directory.GetCurrentDirectory(), name);
-                    return new FileNotFoundException(string.Format("Could not find file '{0}'.", path), path);
+                    return new FileNotFoundException("Could not find file", path);
 
                 case UVErrorCode.ENOTSUP:
                     return new NotSupportedException("UVErrorCode.ENOTSUP");
