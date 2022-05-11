@@ -7,39 +7,58 @@ namespace Tubumu.Utils
     [DebuggerStepThrough]
     public static class Check
     {
-        public static T NotNull<T>(T value, string parameterName)
-        {
-            return value != null
-                ? value
-                : throw new ArgumentNullException(parameterName);
-        }
+        #region NotNull
 
-        public static T NotNull<T>(T value, string parameterName, string message)
+        public static T NotNull<T>(T? value, string parameterName, string? message = null)
         {
             return value != null
                 ? value
                 : throw new ArgumentNullException(parameterName, message);
         }
 
-        public static string NotNullOrWhiteSpace(string value, string parameterName)
+        #endregion
+
+        #region NotNullOrWhiteSpace
+
+        public static string NotNullOrWhiteSpace(string? value, string parameterName)
         {
             return !value.IsNullOrWhiteSpace()
-                ? value
-                : throw new ArgumentException($"{parameterName} can not be null, empty or white space!", parameterName);
+                ? value!
+                : throw new ArgumentException($"{parameterName} can not be null or white space!", parameterName);
         }
 
-        public static string NotNullOrEmpty(string value, string parameterName)
+        #endregion
+
+        #region NotNullOrEmpty
+
+        public static string NotNullOrEmpty(string? value, string parameterName)
         {
             return !value.IsNullOrEmpty()
-                ? value
+                ? value!
                 : throw new ArgumentException($"{parameterName} can not be null or empty!", parameterName);
         }
 
-        public static ICollection<T> NotNullOrEmpty<T>(ICollection<T> value, string parameterName)
+        public static ICollection<T> NotNullOrEmpty<T>(ICollection<T>? value, string parameterName)
         {
             return !value.IsNullOrEmpty()
-                ? value
+                ? value!
                 : throw new ArgumentException(parameterName + " can not be null or empty!", parameterName);
         }
+
+        public static IEnumerable<T> NotNullOrEmpty<T>(IEnumerable<T>? value, string parameterName)
+        {
+            return !value.IsNullOrEmpty()
+                ? value!
+                : throw new ArgumentException(parameterName + " can not be null or empty!", parameterName);
+        }
+
+        public static IEnumerable<T> NotNullOrEmpty<T>(T[]? value, string parameterName)
+        {
+            return !value.IsNullOrEmpty()
+                ? value!
+                : throw new ArgumentException(parameterName + " can not be null or empty!", parameterName);
+        }
+
+        #endregion
     }
 }
