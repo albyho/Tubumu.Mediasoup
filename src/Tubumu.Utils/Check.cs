@@ -37,7 +37,7 @@ namespace Tubumu.Utils
 
         public static ICollection<T> NotNullOrEmpty<T>(ICollection<T> value, string parameterName)
         {
-            return value.IsNullOrEmpty()
+            return !value.IsNullOrEmpty()
                 ? value
                 : throw new ArgumentException(parameterName + " can not be null or empty!", parameterName);
         }
