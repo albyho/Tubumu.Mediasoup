@@ -6,7 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <PackageId>Tubumu.Libuv</PackageId>
-    <Version>6.0.1</Version>
+    <Version>6.1.0</Version>
     <Authors>Alby</Authors>
     <Company>Tubumu</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
