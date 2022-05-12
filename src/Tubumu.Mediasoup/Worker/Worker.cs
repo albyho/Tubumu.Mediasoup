@@ -168,8 +168,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CloseAsync() | Worker");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.WriteLockAsync())
             {
                 if (_closed)
                 {
@@ -215,14 +214,6 @@ namespace Tubumu.Mediasoup
 
                 // Emit observer event.
                 Observer.Emit("close");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CloseAsync()");
-            }
-            finally
-            {
-                _closeLock.Set();
             }
         }
 

@@ -32,7 +32,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close locker.
         /// </summary>
-        protected readonly AsyncAutoResetEvent _closeLock = new();
+        protected readonly AsyncReaderWriterLock _closeLock = new();
 
         /// <summary>
         /// Worker process PID.
@@ -65,7 +65,6 @@ namespace Tubumu.Mediasoup
         public PayloadChannelBase(ILogger<PayloadChannel> logger, int processId)
         {
             _logger = logger;
-            _closeLock.Set();
             _workerId = processId;
         }
 
@@ -78,8 +77,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"CloseAsync() | Worker[{_workerId}]");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.WriteLockAsync())
             {
                 if (_closed)
                 {
@@ -89,14 +87,6 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 Cleanup();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}]");
-            }
-            finally
-            {
-                _closeLock.Set();
             }
         }
 
@@ -137,8 +127,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"NotifyAsync() | Worker[{_workerId}] Event:{@event}");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
                 {
@@ -148,22 +137,13 @@ namespace Tubumu.Mediasoup
                 var notification = CreateNotification(@event, @internal, data, payload);
                 SendNotification(notification);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "NotifyAsync()");
-            }
-            finally
-            {
-                _closeLock.Set();
-            }
         }
 
         public async Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null, byte[]? payload = null)
         {
             _logger.LogDebug($"RequestAsync() | Worker[{_workerId}] Method:{methodId.GetEnumMemberValue()}");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
                 {
@@ -209,16 +189,6 @@ namespace Tubumu.Mediasoup
 
                 return await tcs.Task;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "RequestAsync()");
-            }
-            finally
-            {
-                _closeLock.Set();
-            }
-
-            return null;
         }
 
         #region Process Methods

@@ -49,7 +49,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close locker.
         /// </summary>
-        protected readonly AsyncAutoResetEvent _closeLock = new();
+        protected readonly AsyncReaderWriterLock _closeLock = new();
 
         #endregion Protected Fields
 
@@ -79,7 +79,6 @@ namespace Tubumu.Mediasoup
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Worker>();
-            _closeLock.Set();
 
             var workerSettings = mediasoupOptions.MediasoupSettings.WorkerSettings;
 
@@ -97,8 +96,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("DumpAsync()");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
                 {
@@ -106,15 +104,6 @@ namespace Tubumu.Mediasoup
                 }
 
                 return (await _channel.RequestAsync(MethodId.WORKER_DUMP))!;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "DumpAsync()");
-                throw;
-            }
-            finally
-            {
-                _closeLock.Set();
             }
         }
 
@@ -125,8 +114,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetResourceUsageAsync()");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
                 {
@@ -134,15 +122,6 @@ namespace Tubumu.Mediasoup
                 }
 
                 return (await _channel.RequestAsync(MethodId.WORKER_GET_RESOURCE_USAGE))!;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "GetResourceUsageAsync()");
-                throw;
-            }
-            finally
-            {
-                _closeLock.Set();
             }
         }
 
@@ -153,8 +132,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("UpdateSettingsAsync()");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
                 {
@@ -171,15 +149,6 @@ namespace Tubumu.Mediasoup
                 // Fire and forget
                 _channel.RequestAsync(MethodId.WORKER_UPDATE_SETTINGS, null, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "UpdateSettingsAsync()");
-                throw;
-            }
-            finally
-            {
-                _closeLock.Set();
-            }
         }
 
         /// <summary>
@@ -189,8 +158,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateRouterAsync()");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
                 {
@@ -224,15 +192,6 @@ namespace Tubumu.Mediasoup
                 Observer.Emit("newrouter", router);
 
                 return router;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CreateRouterAsync()");
-                throw;
-            }
-            finally
-            {
-                _closeLock.Set();
             }
         }
 

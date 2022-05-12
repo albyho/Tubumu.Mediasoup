@@ -34,7 +34,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close locker.
         /// </summary>
-        protected readonly AsyncAutoResetEvent _closeLock = new();
+        protected readonly AsyncReaderWriterLock _closeLock = new();
 
         /// <summary>
         /// Worker id.
@@ -63,15 +63,13 @@ namespace Tubumu.Mediasoup
         {
             _logger = logger;
             _workerId = workerId;
-            _closeLock.Set();
         }
 
         public async Task CloseAsync()
         {
             _logger.LogDebug($"CloseAsync() | Worker[{_workerId}]");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.WriteLockAsync())
             {
                 if (_closed)
                 {
@@ -81,14 +79,6 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 Cleanup();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}]");
-            }
-            finally
-            {
-                _closeLock.Set();
             }
         }
 
@@ -119,8 +109,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"RequestAsync() | Worker[{_workerId}] Method:{methodId.GetEnumMemberValue()}");
 
-            await _closeLock.WaitAsync();
-            try
+            using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
                 {
@@ -166,16 +155,6 @@ namespace Tubumu.Mediasoup
 
                 return await tcs.Task;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "RequestAsync()");
-            }
-            finally
-            {
-                _closeLock.Set();
-            }
-
-            return null;
         }
 
         #region Event handles
