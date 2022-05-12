@@ -84,12 +84,12 @@ namespace System.Collections.Generic
 
         /// <summary>
         /// Filters a <see cref="IEnumerable{T}"/> by given predicate if given condition is true.
+        /// <para><see cref="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
         /// </summary>
         /// <param name="source">Enumerable to apply filtering</param>
         /// <param name="condition">A boolean value</param>
         /// <param name="predicate">Predicate to filter the enumerable</param>
         /// <returns>Filtered or not filtered enumerable based on <paramref name="condition"/></returns>
-        /// <remarks>https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs</remarks>
         public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> source, bool condition, Func<T, bool> predicate)
         {
             return condition
@@ -99,12 +99,12 @@ namespace System.Collections.Generic
 
         /// <summary>
         /// Filters a <see cref="IEnumerable{T}"/> by given predicate if given condition is true.
+        /// <para><see cref="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
         /// </summary>
         /// <param name="source">Enumerable to apply filtering</param>
         /// <param name="condition">A boolean value</param>
         /// <param name="predicate">Predicate to filter the enumerable</param>
         /// <returns>Filtered or not filtered enumerable based on <paramref name="condition"/></returns>
-        /// <remarks>https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs</remarks>
         public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> source, bool condition, Func<T, int, bool> predicate)
         {
             return condition
@@ -115,12 +115,12 @@ namespace System.Collections.Generic
         /// <summary>
         /// Concatenates the members of a collection, using the specified separator between each member.
         /// This is a shortcut for string.Join(...)
+        /// <para><see cref="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
         /// </summary>
         /// <param name="source">A collection that contains the objects to concatenate.</param>
         /// <param name="separator">The string to use as a separator. separator is included in the returned string only if values has more than one element.</param>
         /// <typeparam name="T">The type of the members of values.</typeparam>
         /// <returns>A string that consists of the members of values delimited by the separator string. If values has no members, the method returns System.String.Empty.</returns>
-        /// <remarks>https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs</remarks>
         public static string JoinAsString<T>(this IEnumerable<T> source, string separator)
         {
             return string.Join(separator, source);

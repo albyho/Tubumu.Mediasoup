@@ -4,7 +4,7 @@ using SkiaSharp;
 namespace System.IO
 {
     /// <summary>
-    /// 参考：https://github.com/dresdf/PicturesASP/blob/ecd168dace09e5185446107e95f51da08fcefb84/PicturesASP/Utils/ImageProcessor.cs
+    /// <see cref="https://github.com/dresdf/PicturesASP/blob/ecd168dace09e5185446107e95f51da08fcefb84/PicturesASP/Utils/ImageProcessor.cs"/>
     /// </summary>
     public static class SkiaSharpExtensions
     {
