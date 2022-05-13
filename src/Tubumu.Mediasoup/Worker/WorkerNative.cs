@@ -53,11 +53,11 @@ namespace Tubumu.Mediasoup
 
             var threadId = Environment.CurrentManagedThreadId;
 
-            _channel = new ChannelNative(_loggerFactory.CreateLogger<Channel>(), threadId);
+            _channel = new ChannelNative(_loggerFactory.CreateLogger<ChannelNative>(), threadId);
             _channel.MessageEvent += OnChannelMessage;
             _channlPtr = GCHandle.ToIntPtr(GCHandle.Alloc(_channel, GCHandleType.Normal));
 
-            _payloadChannel = new PayloadChannelNative(_loggerFactory.CreateLogger<PayloadChannel>(), threadId);
+            _payloadChannel = new PayloadChannelNative(_loggerFactory.CreateLogger<PayloadChannelNative>(), threadId);
             _payloadChannlPtr = GCHandle.ToIntPtr(GCHandle.Alloc(_payloadChannel, GCHandleType.Normal));
         }
 

@@ -17,7 +17,7 @@ namespace Tubumu.Mediasoup
 
         private readonly OutgoingMessageBuffer<RequestMessage> _requestMessageQueue = new();
 
-        public PayloadChannelNative(ILogger<PayloadChannel> logger, int workerId):base(logger, workerId)
+        public PayloadChannelNative(ILogger<PayloadChannelNative> logger, int workerId):base(logger, workerId)
         {
 
         }

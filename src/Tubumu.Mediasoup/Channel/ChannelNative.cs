@@ -9,7 +9,7 @@ namespace Tubumu.Mediasoup
     {
         private readonly OutgoingMessageBuffer<RequestMessage> _requestMessageQueue = new();
 
-        public ChannelNative(ILogger<Channel> logger, int workerId) : base(logger, workerId)
+        public ChannelNative(ILogger<ChannelNative> logger, int workerId) : base(logger, workerId)
         {
 
         }

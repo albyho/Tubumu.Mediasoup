@@ -24,7 +24,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Logger
         /// </summary>
-        protected readonly ILogger<Channel> _logger;
+        protected readonly ILogger<ChannelBase> _logger;
 
         /// <summary>
         /// Closed flag.
@@ -59,7 +59,7 @@ namespace Tubumu.Mediasoup
 
         #endregion Events
 
-        public ChannelBase(ILogger<Channel> logger, int workerId)
+        public ChannelBase(ILogger<ChannelBase> logger, int workerId)
         {
             _logger = logger;
             _workerId = workerId;
