@@ -4,15 +4,14 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
-    <DockerComposeProjectPath>../docker-compose.dcproj</DockerComposeProjectPath>
     <UserSecretsId>3f57799d-6043-4eb3-a4a1-90aceae86f9c</UserSecretsId>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Tubumu.Meeting.Web' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
     <NoWarn>1701;1702;VSTHRD200</NoWarn>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
@@ -20,17 +19,6 @@
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
   </ItemGroup>
-
-  <!--
-  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PackageReference Include="Tubumu.Utils" Version="6.0.1" />
-    <PackageReference Include="Tubumu.Mediasoup" Version="6.0.1" />
-    <PackageReference Include="Tubumu.Mediasoup.Common" Version="6.0.1" />
-    <PackageReference Include="Tubumu.Mediasoup.AspNetCore" Version="6.0.1" />
-    <PackageReference Include="Tubumu.Meeting.Server" Version="6.0.1" />
-    <PackageReference Include="Tubumu.Meeting.Server.Consul" Version="6.0.1" />
-  </ItemGroup>
-  -->
 
   <ItemGroup>
     <ProjectReference Include="..\Tubumu.Mediasoup.Common\Tubumu.Mediasoup.Common.csproj">
