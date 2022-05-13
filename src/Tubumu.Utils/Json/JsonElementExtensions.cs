@@ -7,12 +7,7 @@ namespace Tubumu.Utils.Json
     {
         public static JsonElement? GetNullableJsonElement(this JsonElement jsonElement, string propertyName)
         {
-            if (jsonElement.TryGetProperty(propertyName, out var value))
-            {
-                return value;
-            }
-
-            return null;
+            return jsonElement.TryGetProperty(propertyName, out var value) ? value : null;
         }
 
         public static bool? GetNullableBool(this JsonElement jsonElement)

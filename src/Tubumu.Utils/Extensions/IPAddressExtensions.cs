@@ -59,7 +59,7 @@ namespace System.Net
             var bytes = new byte[4];
             for (var i = 0; i < 4; i++)
             {
-                bytes[3 - i] = (byte)((ip >> 8 * i) & 255);
+                bytes[3 - i] = (byte)((ip >> (8 * i)) & 255);
             }
             return new IPAddress(bytes);
         }
@@ -74,7 +74,7 @@ namespace System.Net
             var bytes = new byte[4];
             for (var i = 0; i < 4; i++)
             {
-                bytes[3 - i] = (byte)((ip >> 8 * i) & 255);
+                bytes[3 - i] = (byte)((ip >> (8 * i)) & 255);
             }
             return new IPAddress(bytes);
         }
