@@ -8,8 +8,8 @@ namespace System.Text.Json.Serialization
     /// </summary>
     public class JsonStringEnumMemberConverter : JsonConverterFactory
     {
-        private readonly JsonNamingPolicy? _NamingPolicy;
-        private readonly bool _AllowIntegerValues;
+        private readonly JsonNamingPolicy? _namingPolicy;
+        private readonly bool _allowIntegerValues;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonStringEnumMemberConverter"/> class.
@@ -31,8 +31,8 @@ namespace System.Text.Json.Serialization
         /// </param>
         public JsonStringEnumMemberConverter(JsonNamingPolicy? namingPolicy = null, bool allowIntegerValues = true)
         {
-            _NamingPolicy = namingPolicy;
-            _AllowIntegerValues = allowIntegerValues;
+            _namingPolicy = namingPolicy;
+            _allowIntegerValues = allowIntegerValues;
         }
 
         /// <inheritdoc/>
@@ -55,13 +55,13 @@ namespace System.Text.Json.Serialization
                     typeof(NullableEnumMemberConverter<>).MakeGenericType(UnderlyingType!)!,
                     BindingFlags.Instance | BindingFlags.Public,
                     binder: null,
-                    args: new object?[] { _NamingPolicy, _AllowIntegerValues },
+                    args: new object?[] { _namingPolicy, _allowIntegerValues },
                     culture: null)!
                 : (JsonConverter)Activator.CreateInstance(
                     typeof(EnumMemberConverter<>).MakeGenericType(typeToConvert)!,
                     BindingFlags.Instance | BindingFlags.Public,
                     binder: null,
-                    args: new object?[] { _NamingPolicy, _AllowIntegerValues },
+                    args: new object?[] { _namingPolicy, _allowIntegerValues },
                     culture: null)!;
         }
 
