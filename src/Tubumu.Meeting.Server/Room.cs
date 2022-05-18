@@ -64,14 +64,19 @@ namespace Tubumu.Meeting.Server
 
         public Router Router { get; private set; }
 
-        public Room(ILoggerFactory loggerFactory, Router router, string roomId, string name)
+        public AudioLevelObserver AudioLevelObserver { get; private set; }
+
+        public Room(ILoggerFactory loggerFactory, Router router, AudioLevelObserver audioLevelObserver, string roomId, string name)
         {
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger<Room>();
             Router = router;
+            AudioLevelObserver = audioLevelObserver;
             RoomId = roomId;
             Name = name.NullOrWhiteSpaceReplace("Default");
             _closed = false;
+
+            HandleAudioLevelObserver();
         }
 
         public async Task<JoinRoomResult> PeerJoinAsync(Peer peer)
@@ -175,6 +180,55 @@ namespace Tubumu.Meeting.Server
 
                 await Router.CloseAsync();
             }
+        }
+
+        private void HandleAudioLevelObserver()
+        {
+            AudioLevelObserver.On("volumes", async (_, volumes) =>
+            {
+                using (await _closeLock.ReadLockAsync())
+                {
+                    if (_closed)
+                    {
+                        return;
+                    }
+
+                    using (await _peersLock.ReadLockAsync())
+                    {
+                        foreach(var peer in _peers.Values)
+                        {
+                            peer.HubClient?.Notify(new MeetingNotification
+                            {
+                                Type = "volumes",
+                                // TODO: (alby)Strongly typed
+                                Data = (volumes as List<AudioLevelObserverVolume>)!.Select(m => new { m.Producer.ProducerId, m.Volume }),
+                            }).ContinueWithOnFaultedLog(_logger);
+                        }
+                    }
+                }
+            });
+
+            AudioLevelObserver.On("silence", async (_, _) =>
+            {
+                using (await _closeLock.ReadLockAsync())
+                {
+                    if (_closed)
+                    {
+                        return;
+                    }
+
+                    using (await _peersLock.ReadLockAsync())
+                    {
+                        foreach (var peer in _peers.Values)
+                        {
+                            peer.HubClient?.Notify(new MeetingNotification
+                            {
+                                Type = "silence",
+                            }).ContinueWithOnFaultedLog(_logger);
+                        }
+                    }
+                }
+            });
         }
     }
 }

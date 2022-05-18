@@ -881,7 +881,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<AudioLevelObserver> CreateAudioLevelObserverAsync(AudioLevelObserverOptions audioLevelObserverOptions)
         {
-            _logger.LogDebug("createAudioLevelObserver()");
+            _logger.LogDebug("CreateAudioLevelObserverAsync()");
 
             using (await _closeLock.ReadLockAsync())
             {

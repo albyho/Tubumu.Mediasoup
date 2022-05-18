@@ -56,7 +56,7 @@ namespace Tubumu.Mediasoup
             {
                 case "volumes":
                     {
-                        var notification = JsonSerializer.Deserialize<AudioLevelObserverVolumeNotificationData[]>(data!)!;
+                        var notification = JsonSerializer.Deserialize<AudioLevelObserverVolumeNotificationData[]>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         var volumes = new List<AudioLevelObserverVolume>();
                         foreach (var item in notification)

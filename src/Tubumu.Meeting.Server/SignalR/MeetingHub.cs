@@ -105,7 +105,8 @@ namespace Tubumu.Meeting.Server
         {
             try
             {
-                _ = await _scheduler.JoinAsync(UserId, ConnectionId, joinRequest);
+                var client = _hubContext.Clients.User(UserId);
+                await _scheduler.JoinAsync(UserId, ConnectionId, client, joinRequest);
                 return MeetingMessage.Success("Join 成功");
             }
             catch (MeetingException ex)

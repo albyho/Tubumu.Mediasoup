@@ -105,7 +105,7 @@ namespace Tubumu.Meeting.Web.Controllers
                 AppData = new Dictionary<string, object> { ["type"] = "Recorder" },
             };
 
-            _ = await _scheduler.JoinAsync(recorderPrepareRequest.PeerId, "", joinRequest);
+            _ = await _scheduler.JoinAsync(recorderPrepareRequest.PeerId, "", null, joinRequest);
 
             // Join room
             var joinRoomRequest = new JoinRoomRequest

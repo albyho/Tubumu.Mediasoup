@@ -56,7 +56,7 @@ namespace Tubumu.Mediasoup
             {
                 case "dominantspeaker":
                     {
-                        var notification = JsonSerializer.Deserialize<ActiveSpeakerObserverNotificationData>(data!)!;
+                        var notification = JsonSerializer.Deserialize<ActiveSpeakerObserverNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         var producer = GetProducerById(notification.ProducerId);
                         if (producer != null)

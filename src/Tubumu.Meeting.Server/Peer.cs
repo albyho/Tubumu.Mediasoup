@@ -15,9 +15,6 @@ namespace Tubumu.Meeting.Server
     {
         public string PeerId { get; }
 
-        [JsonIgnore]
-        public string ConnectionId { get; }
-
         public string DisplayName { get; }
 
         public string[] Sources { get; private set; }
@@ -114,6 +111,12 @@ namespace Tubumu.Meeting.Server
 
         public const string RoleKey = "role";
 
+        [JsonIgnore]
+        public string ConnectionId { get; }
+
+        [JsonIgnore]
+        public IPeer? HubClient { get; private set; }
+
         public Peer(ILoggerFactory loggerFactory,
             WebRtcTransportSettings webRtcTransportSettings,
             PlainTransportSettings plainTransportSettings,
@@ -121,6 +124,7 @@ namespace Tubumu.Meeting.Server
             SctpCapabilities? sctpCapabilities,
             string peerId,
             string connectionId,
+            IPeer hubClient,
             string displayName,
             string[]? sources,
             Dictionary<string, object>? appData)
@@ -133,6 +137,7 @@ namespace Tubumu.Meeting.Server
             _sctpCapabilities = sctpCapabilities;
             PeerId = peerId;
             ConnectionId = connectionId;
+            HubClient = hubClient;
             DisplayName = displayName.NullOrWhiteSpaceReplace("User:" + peerId.ToString().PadLeft(8, '0'));
             Sources = sources ?? Array.Empty<string>();
             AppData = new ConcurrentDictionary<string, object>(appData ?? new Dictionary<string, object>());
@@ -509,6 +514,16 @@ namespace Tubumu.Meeting.Server
 
                             // Store the Producer into the Peer data Object.
                             _producers[producer.ProducerId] = producer;
+
+                            // Add into the audioLevelObserver.
+                            if (producer.Kind == MediaKind.Audio)
+                            {
+                                // Fire and forget
+                                _room!.AudioLevelObserver.AddProducerAsync(new RtpObserverAddRemoveProducerOptions
+                                {
+                                    ProducerId = producer.ProducerId,
+                                }).ContinueWithOnFaultedHandleLog(_logger);
+                            }
 
                             return new PeerProduceResult
                             {
@@ -952,7 +967,7 @@ namespace Tubumu.Meeting.Server
                         var stats = await transport!.GetStatsAsync();
                         // TODO: (alby) 考虑不进行反序列化
                         // TransportStat 系列包括：WebRtcTransportStat、PlainTransportStat、PipeTransportStat 和 DirectTransportStat。
-                        return JsonSerializer.Deserialize<WebRtcTransportStat>(stats)!;
+                        return JsonSerializer.Deserialize<WebRtcTransportStat>(stats, ObjectExtensions.DefaultJsonSerializerOptions)!;
                     }
                 }
             }
@@ -982,7 +997,7 @@ namespace Tubumu.Meeting.Server
 
                         var stats = await producer.GetStatsAsync();
                         // TODO: (alby) 考虑不进行反序列化
-                        return JsonSerializer.Deserialize<ProducerStat>(stats)!;
+                        return JsonSerializer.Deserialize<ProducerStat>(stats, ObjectExtensions.DefaultJsonSerializerOptions)!;
                     }
                 }
             }
@@ -1012,7 +1027,7 @@ namespace Tubumu.Meeting.Server
 
                         var stats = await consumer.GetStatsAsync();
                         // TODO: (alby) 考虑不进行反序列化
-                        return JsonSerializer.Deserialize<ConsumerStat>(stats)!;
+                        return JsonSerializer.Deserialize<ConsumerStat>(stats, ObjectExtensions.DefaultJsonSerializerOptions)!;
                     }
                 }
             }

@@ -45,7 +45,7 @@ namespace Tubumu.Meeting.Web.Controllers
                 AppData = new Dictionary<string, object> { ["type"] = "Device" },
             };
 
-            _ = await _scheduler.JoinAsync(deviceId, "", joinRequest);
+            _ = await _scheduler.JoinAsync(deviceId, "", null, joinRequest);
 
             var joinRoomRequest = new JoinRoomRequest
             {

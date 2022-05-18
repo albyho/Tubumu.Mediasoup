@@ -879,6 +879,14 @@ export default {
           break;
         }
 
+        case 'volumes': {
+          break;
+        }
+
+        case 'silence': {
+          break;
+        }
+
         default: {
           logger.error('unknown data.type, data:%o', data);
         }

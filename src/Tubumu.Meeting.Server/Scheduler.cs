@@ -54,7 +54,7 @@ namespace Tubumu.Meeting.Server
             _roomsLock.Set();
         }
 
-        public async Task<Peer> JoinAsync(string peerId, string connectionId, JoinRequest joinRequest)
+        public async Task<Peer> JoinAsync(string peerId, string connectionId, IPeer hubClient, JoinRequest joinRequest)
         {
             using (await _peersLock.WriteLockAsync())
             {
@@ -74,6 +74,7 @@ namespace Tubumu.Meeting.Server
                     joinRequest.SctpCapabilities,
                     peerId,
                     connectionId,
+                    hubClient,
                     joinRequest.DisplayName,
                     joinRequest.Sources,
                     joinRequest.AppData
@@ -126,7 +127,16 @@ namespace Tubumu.Meeting.Server
                         {
                             MediaCodecs = mediaCodecs
                         });
-                        room = new Room(_loggerFactory, router, joinRoomRequest.RoomId, "Default");
+
+                        // Create a mediasoup AudioLevelObserver.
+                        var audioLevelObserver = await router.CreateAudioLevelObserverAsync(new AudioLevelObserverOptions
+                        { 
+                            MaxEntries = 1,
+				            Threshold = -80,
+				            Interval = 800
+                        });
+
+                        room = new Room(_loggerFactory, router, audioLevelObserver, joinRoomRequest.RoomId, "Default");
                         _rooms[room.RoomId] = room;
                     }
 
