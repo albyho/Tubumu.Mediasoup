@@ -115,7 +115,7 @@ namespace Tubumu.Meeting.Server
         public string ConnectionId { get; }
 
         [JsonIgnore]
-        public IPeer? HubClient { get; private set; }
+        public IHubClient? HubClient { get; private set; }
 
         public Peer(ILoggerFactory loggerFactory,
             WebRtcTransportSettings webRtcTransportSettings,
@@ -124,7 +124,7 @@ namespace Tubumu.Meeting.Server
             SctpCapabilities? sctpCapabilities,
             string peerId,
             string connectionId,
-            IPeer hubClient,
+            IHubClient hubClient,
             string displayName,
             string[]? sources,
             Dictionary<string, object>? appData)

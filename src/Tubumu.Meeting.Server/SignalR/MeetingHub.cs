@@ -10,10 +10,10 @@ using Tubumu.Mediasoup;
 namespace Tubumu.Meeting.Server
 {
     [Authorize]
-    public partial class MeetingHub : Hub<IPeer>
+    public partial class MeetingHub : Hub<IHubClient>
     {
         private readonly ILogger<MeetingHub> _logger;
-        private readonly IHubContext<MeetingHub, IPeer> _hubContext;
+        private readonly IHubContext<MeetingHub, IHubClient> _hubContext;
         private readonly BadDisconnectSocketService _badDisconnectSocketService;
         private readonly Scheduler _scheduler;
         private readonly MeetingServerOptions _meetingServerOptions;
@@ -22,7 +22,7 @@ namespace Tubumu.Meeting.Server
         private string ConnectionId => Context.ConnectionId;
 
         public MeetingHub(ILogger<MeetingHub> logger,
-            IHubContext<MeetingHub, IPeer> hubContext,
+            IHubContext<MeetingHub, IHubClient> hubContext,
             BadDisconnectSocketService badDisconnectSocketService,
             Scheduler scheduler,
             MeetingServerOptions meetingServerOptions)

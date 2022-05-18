@@ -54,7 +54,7 @@ namespace Tubumu.Meeting.Server
             _roomsLock.Set();
         }
 
-        public async Task<Peer> JoinAsync(string peerId, string connectionId, IPeer hubClient, JoinRequest joinRequest)
+        public async Task<Peer> JoinAsync(string peerId, string connectionId, IHubClient hubClient, JoinRequest joinRequest)
         {
             using (await _peersLock.WriteLockAsync())
             {

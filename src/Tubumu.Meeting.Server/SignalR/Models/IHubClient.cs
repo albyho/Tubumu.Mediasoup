@@ -2,7 +2,7 @@
 
 namespace Tubumu.Meeting.Server
 {
-    public interface IPeer
+    public interface IHubClient
     {
         Task Notify(MeetingNotification notification);
     }
