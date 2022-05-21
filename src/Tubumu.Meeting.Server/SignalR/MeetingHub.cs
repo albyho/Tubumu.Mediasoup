@@ -29,8 +29,8 @@ namespace Tubumu.Meeting.Server
         {
             _logger = logger;
             _hubContext = hubContext;
-            _scheduler = scheduler;
             _badDisconnectSocketService = badDisconnectSocketService;
+            _scheduler = scheduler;
             _meetingServerOptions = meetingServerOptions;
         }
 
