@@ -82,6 +82,7 @@ namespace Tubumu.Mediasoup
             catch (Exception ex)
             {
                 Debug.WriteLine($"Add worker failure: {ex.Message}");
+                throw;
             }
             finally
             {
