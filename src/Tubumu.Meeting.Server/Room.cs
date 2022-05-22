@@ -201,7 +201,7 @@ namespace Tubumu.Meeting.Server
                             {
                                 Type = "activeSpeaker",
                                 // TODO: (alby)Strongly typed
-                                Data = (volumes as List<AudioLevelObserverVolume>)!.Select(m => new { m.Producer.ProducerId, m.Volume }),
+                                Data = (volumes as List<AudioLevelObserverVolume>)!.Select(m => new { PeerId = m.Producer.AppData!["peerId"], m.Producer.ProducerId, m.Volume }),
                             }).ContinueWithOnFaultedHandleLog(_logger);
                         }
                     }
