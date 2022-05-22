@@ -158,7 +158,7 @@ export default {
         produce: true,
         produceAudio: true,
         produceVideo: true,
-        useDataChannel: false
+        useDataChannel: true
       },
       rooms: [
         "Room 0",
