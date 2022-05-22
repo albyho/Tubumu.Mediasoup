@@ -879,11 +879,7 @@ export default {
           break;
         }
 
-        case 'volumes': {
-          break;
-        }
-
-        case 'silence': {
+        case 'activeSpeaker': {
           break;
         }
 

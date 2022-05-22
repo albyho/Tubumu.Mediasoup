@@ -199,10 +199,10 @@ namespace Tubumu.Meeting.Server
                         {
                             peer.HubClient?.Notify(new MeetingNotification
                             {
-                                Type = "volumes",
+                                Type = "activeSpeaker",
                                 // TODO: (alby)Strongly typed
                                 Data = (volumes as List<AudioLevelObserverVolume>)!.Select(m => new { m.Producer.ProducerId, m.Volume }),
-                            }).ContinueWithOnFaultedLog(_logger);
+                            }).ContinueWithOnFaultedHandleLog(_logger);
                         }
                     }
                 }
@@ -223,8 +223,8 @@ namespace Tubumu.Meeting.Server
                         {
                             peer.HubClient?.Notify(new MeetingNotification
                             {
-                                Type = "silence",
-                            }).ContinueWithOnFaultedLog(_logger);
+                                Type = "activeSpeaker",
+                            }).ContinueWithOnFaultedHandleLog(_logger);
                         }
                     }
                 }
