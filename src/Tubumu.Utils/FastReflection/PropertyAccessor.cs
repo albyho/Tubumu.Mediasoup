@@ -108,7 +108,7 @@ namespace Tubumu.Utils.FastReflection
                 throw new NotSupportedException("Set method is not defined for this property.");
             }
 
-            _ = _setMethodInvoker!.Invoke(o, new object[] { value });
+            _setMethodInvoker!.Invoke(o, new object[] { value });
         }
 
         #region IPropertyAccessor Members

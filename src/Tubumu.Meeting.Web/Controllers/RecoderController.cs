@@ -40,7 +40,7 @@ namespace Tubumu.Meeting.Web.Controllers
             };
 
             // Join
-            _ = await _scheduler.LeaveAsync(recorderPrepareRequest.PeerId);
+            await _scheduler.LeaveAsync(recorderPrepareRequest.PeerId);
             var joinRequest = new JoinRequest
             {
                 RtpCapabilities = new RtpCapabilities
@@ -105,7 +105,7 @@ namespace Tubumu.Meeting.Web.Controllers
                 AppData = new Dictionary<string, object> { ["type"] = "Recorder" },
             };
 
-            _ = await _scheduler.JoinAsync(recorderPrepareRequest.PeerId, "", null, joinRequest);
+            await _scheduler.JoinAsync(recorderPrepareRequest.PeerId, "", null, joinRequest);
 
             // Join room
             var joinRoomRequest = new JoinRoomRequest

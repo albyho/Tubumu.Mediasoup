@@ -142,7 +142,7 @@ namespace Tubumu.Meeting.Server
 
                     var result = await peer.JoinRoomAsync(room);
 
-                    _ = await peer.SetPeerInternalDataAsync(new SetPeerInternalDataRequest
+                    await peer.SetPeerInternalDataAsync(new SetPeerInternalDataRequest
                     {
                         InternalData = new Dictionary<string, object>
                         {
