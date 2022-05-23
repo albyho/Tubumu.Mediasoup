@@ -51,15 +51,7 @@ namespace Tubumu.Mediasoup
 
         public override void Cleanup()
         {
-            // Close every pending sent.
-            try
-            {
-                _sents.Values.ForEach(m => m.Close?.Invoke());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}] _sents.Values.ForEach(m => m.Close.Invoke())");
-            }
+            base.Cleanup();
 
             // Remove event listeners but leave a fake 'error' hander to avoid
             // propagation.

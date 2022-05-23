@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -84,7 +85,15 @@ namespace Tubumu.Mediasoup
 
         public virtual void Cleanup()
         {
-
+            // Close every pending sent.
+            try
+            {
+                _sents.Values.ForEach(m => m.Close());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Cleanup() | Worker[{_workerId}] _sents.Values.ForEach(m => m.Close.Invoke())");
+            }
         }
 
         private RequestMessage CreateRequestMessage(MethodId methodId, object? @internal = null, object? data = null)
@@ -240,20 +249,20 @@ namespace Tubumu.Mediasoup
                 if (accepted.HasValue && accepted.Value)
                 {
                     _logger.LogDebug($"ProcessMessage() | Worker[{_workerId}] Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
-                    sent.Resolve?.Invoke(data);
+                    sent.Resolve(data);
                 }
                 else if (!error.IsNullOrWhiteSpace())
                 {
                     // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
                     _logger.LogWarning($"ProcessMessage() | Worker[{_workerId}] Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}. payload:{payload}");
 
-                    sent.Reject?.Invoke(new Exception($"Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}. payload:{payload}"));
+                    sent.Reject(new Exception($"Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}. payload:{payload}"));
                 }
                 else
                 {
                     _logger.LogError($"ProcessMessage() | Worker[{_workerId}] Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]. payload:{payload}");
 
-                    sent.Reject?.Invoke(new Exception($"Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]. payload:{payload}"));
+                    sent.Reject(new Exception($"Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]. payload:{payload}"));
                 }
             }
             // If a notification emit it to the corresponding entity.

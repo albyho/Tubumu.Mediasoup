@@ -10,6 +10,6 @@ namespace Tubumu.Mediasoup
 
         public Action<Exception> Reject { get; set; }
 
-        public Action? Close { get; set; }
+        public Action Close { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -70,7 +71,15 @@ namespace Tubumu.Mediasoup
 
         public virtual void Cleanup()
         {
-
+            // Close every pending sent.
+            try
+            {
+                _sents.Values.ForEach(m => m.Close());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Cleanup() | Worker[{_workerId}] _sents.Values.ForEach(m => m.Close.Invoke())");
+            }
         }
 
         public async Task CloseAsync()

@@ -63,6 +63,8 @@ namespace Tubumu.Mediasoup
 
         public override void Cleanup()
         {
+            base.Cleanup();
+
             // Remove event listeners but leave a fake 'error' hander to avoid
             // propagation.
             _consumerSocket.Closed -= ConsumerSocketOnClosed;
@@ -330,14 +332,14 @@ namespace Tubumu.Mediasoup
                     {
                         _logger.LogDebug($"ProcessData() | Worker[{_workerId}] Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]");
 
-                        sent.Resolve?.Invoke(data);
+                        sent.Resolve(data);
                     }
                     else if (!error.IsNullOrWhiteSpace())
                     {
                         // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
                         _logger.LogWarning($"ProcessData() | Worker[{_workerId}] Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {reason}");
 
-                        sent.Reject?.Invoke(new Exception(reason));
+                        sent.Reject(new Exception(reason));
                     }
                     else
                     {
