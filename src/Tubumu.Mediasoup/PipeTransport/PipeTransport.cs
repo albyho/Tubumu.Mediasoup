@@ -18,15 +18,10 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<PipeTransport> _logger;
 
-        #region PipeTransport data.
-
-        public TransportTuple Tuple { get; private set; }
-
-        public bool Rtx { get; private set; }
-
-        public SrtpParameters? SrtpParameters { get; private set; }
-
-        #endregion PipeTransport data.
+        /// <summary>
+        /// PipeTransport data.
+        /// </summary>
+        public PipeTransportData Data { get; set; }
 
         /// <summary>
         /// <para>Events:</para>
@@ -42,9 +37,8 @@ namespace Tubumu.Mediasoup
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="transportInternalData"></param>
-        /// <param name="sctpParameters"></param>
-        /// <param name="sctpState"></param>
+        /// <param name="@internal"></param>
+        /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
@@ -52,27 +46,19 @@ namespace Tubumu.Mediasoup
         /// <param name="getProducerById"></param>
         /// <param name="getDataProducerById"></param>
         public PipeTransport(ILoggerFactory loggerFactory,
-            TransportInternalData transportInternalData,
-            SctpParameters? sctpParameters,
-            SctpState? sctpState,
+            TransportInternal @internal,
+            PipeTransportData data,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
-            Func<string, Task<DataProducer?>> getDataProducerById,
-            TransportTuple tuple,
-            bool rtx,
-            SrtpParameters? srtpParameters
-            ) : base(loggerFactory, transportInternalData, sctpParameters, sctpState, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
+            Func<string, Task<DataProducer?>> getDataProducerById) : base(loggerFactory, @internal, data, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<PipeTransport>();
 
-            // Data
-            Tuple = tuple;
-            Rtx = rtx;
-            SrtpParameters = srtpParameters;
+            Data = data;
 
             HandleWorkerNotifications();
         }
@@ -82,9 +68,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override Task OnCloseAsync()
         {
-            if (SctpState.HasValue)
+            if (Data.SctpState.HasValue)
             {
-                SctpState = Mediasoup.SctpState.Closed;
+                Data.SctpState = SctpState.Closed;
             }
 
             return Task.CompletedTask;
@@ -134,7 +120,7 @@ namespace Tubumu.Mediasoup
                 var responseData = JsonSerializer.Deserialize<PipeTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.
-                Tuple = responseData.Tuple;
+                Data.Tuple = responseData.Tuple;
             }
         }
 
@@ -159,40 +145,38 @@ namespace Tubumu.Mediasoup
             }
 
             // This may throw.
-            var rtpParameters = ORTC.GetPipeConsumerRtpParameters(producer.ConsumableRtpParameters, Rtx);
+            var rtpParameters = ORTC.GetPipeConsumerRtpParameters(producer.Data.ConsumableRtpParameters, Data.Rtx);
 
-            var @internal = new ConsumerInternalData
+            var @internal = new ConsumerInternal
             (
                 Internal.RouterId,
                 Internal.TransportId,
-                consumerOptions.ProducerId,
                 Guid.NewGuid().ToString()
             );
 
             var reqData = new
             {
-                producer.Kind,
+                producer.Data.Kind,
                 RtpParameters = rtpParameters,
                 Type = ConsumerType.Pipe,
-                ConsumableRtpEncodings = producer.ConsumableRtpParameters.Encodings,
+                ConsumableRtpEncodings = producer.Data.ConsumableRtpParameters.Encodings,
             };
 
             var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, @internal, reqData);
             var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
-            var data = new
-            {
-                producer.Kind,
-                RtpParameters = rtpParameters,
-                Type = ConsumerType.Pipe,
-            };
+            var data = new ConsumerData
+            (
+                consumerOptions.ProducerId,
+                producer.Data.Kind,
+                rtpParameters,
+                ConsumerType.Pipe
+            );
 
             // 在 Node.js 实现中， 创建 Consumer 对象时没提供 score 和 preferredLayers 参数，且 score = { score: 10, producerScore: 10 }。
             var consumer = new Consumer(_loggerFactory,
                 @internal,
-                data.Kind,
-                data.RtpParameters,
-                data.Type,
+                data,
                 Channel,
                 PayloadChannel,
                 AppData,
@@ -273,12 +257,12 @@ namespace Tubumu.Mediasoup
                 case "sctpstatechange":
                     {
                         var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
-                        SctpState = notification.SctpState;
+                        Data.SctpState = notification.SctpState;
 
-                        Emit("sctpstatechange", SctpState);
+                        Emit("sctpstatechange", Data.SctpState);
 
                         // Emit observer event.
-                        Observer.Emit("sctpstatechange", SctpState);
+                        Observer.Emit("sctpstatechange", Data.SctpState);
 
                         break;
                     }

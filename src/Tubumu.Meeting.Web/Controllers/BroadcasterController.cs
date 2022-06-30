@@ -45,7 +45,7 @@ namespace Tubumu.Meeting.Web.Controllers
                 AppData = new Dictionary<string, object> { ["type"] = "Device" },
             };
 
-            _ = await _scheduler.JoinAsync(deviceId, "", null, joinRequest);
+            _ = await _scheduler.JoinAsync(deviceId, "", null!, joinRequest);
 
             var joinRoomRequest = new JoinRoomRequest
             {
@@ -125,8 +125,8 @@ namespace Tubumu.Meeting.Web.Controllers
             var result = new CreatePlainTransportResult
             {
                 TransportId = transport.TransportId,
-                Ip = transport.Tuple.LocalIp,
-                Port = transport.Tuple.LocalPort,
+                Ip = transport.Data.Tuple.LocalIp,
+                Port = transport.Data.Tuple.LocalPort,
             };
             return new ApiResult<CreatePlainTransportResult>
             {

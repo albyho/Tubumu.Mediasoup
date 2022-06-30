@@ -6,25 +6,6 @@ using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
-    public class RtpObserverInternalData
-    {
-        /// <summary>
-        /// Router id.
-        /// </summary>
-        public string RouterId { get; }
-
-        /// <summary>
-        /// RtpObserver id.
-        /// </summary>
-        public string RtpObserverId { get; }
-
-        public RtpObserverInternalData(string routerId, string rtpObserverId)
-        {
-            RouterId = routerId;
-            RtpObserverId = rtpObserverId;
-        }
-    }
-
     public abstract class RtpObserver : EventEmitter
     {
         /// <summary>
@@ -47,7 +28,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Internal data.
         /// </summary>
-        public RtpObserverInternalData Internal { get; private set; }
+        public RtpObserverInternal Internal { get; private set; }
 
         /// <summary>
         /// Channel instance.
@@ -86,13 +67,13 @@ namespace Tubumu.Mediasoup
         /// <para>@emits removeproducer - (producer: Producer)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="rtpObserverInternalData"></param>
+        /// <param name="@internal"></param>
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         /// <param name="getProducerById"></param>
         protected RtpObserver(ILoggerFactory loggerFactory,
-            RtpObserverInternalData rtpObserverInternalData,
+            RtpObserverInternal @internal,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
@@ -101,9 +82,7 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<RtpObserver>();
 
-            // Internal
-            Internal = rtpObserverInternalData;
-
+            Internal = @internal;
             Channel = channel;
             PayloadChannel = payloadChannel;
             AppData = appData;

@@ -212,6 +212,19 @@ namespace Tubumu.Mediasoup
                     await router.WorkerClosedAsync();
                 }
 
+                // Close every WebRtcServer.
+                WebRtcServer[] webRtcServersForClose;
+                lock (_webRtcServersLock)
+                {
+                    webRtcServersForClose = _webRtcServers.ToArray();
+                    _webRtcServers.Clear();
+                }
+
+                foreach (var webRtcServer in webRtcServersForClose)
+                {
+                    await webRtcServer.WorkerClosedAsync();
+                }
+
                 // Emit observer event.
                 Observer.Emit("close");
             }

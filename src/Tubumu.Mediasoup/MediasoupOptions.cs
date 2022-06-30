@@ -96,6 +96,26 @@ namespace Tubumu.Mediasoup
                         }
                     },
                 },
+                WebRtcServerSettings = new WebRtcServerSettings
+                {
+                    ListenInfos = new[]
+                    {
+                        new WebRtcServerListenInfo
+                        {
+                            Protocol = TransportProtocol.UDP,
+                            Ip = "0.0.0.0",
+                            AnnouncedIp = null,
+                            Port = 44444,
+                        },
+                        new WebRtcServerListenInfo
+                        {
+                            Protocol = TransportProtocol.TCP,
+                            Ip = "0.0.0.0",
+                            AnnouncedIp = null,
+                            Port = 44444,
+                        }
+                    }
+                },
                 WebRtcTransportSettings = new WebRtcTransportSettings
                 {
                     ListenIps = new[]

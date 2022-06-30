@@ -267,10 +267,10 @@ namespace Tubumu.Meeting.Server
                 return MeetingMessage<CreateWebRtcTransportResult>.Success(new CreateWebRtcTransportResult
                 {
                     TransportId = transport.TransportId,
-                    IceParameters = transport.IceParameters,
-                    IceCandidates = transport.IceCandidates,
-                    DtlsParameters = transport.DtlsParameters,
-                    SctpParameters = transport.SctpParameters,
+                    IceParameters = transport.Data.IceParameters,
+                    IceCandidates = transport.Data.IceCandidates,
+                    DtlsParameters = transport.Data.DtlsParameters,
+                    SctpParameters = transport.Data.SctpParameters,
                 },
                 "CreateWebRtcTransport 成功");
             }
@@ -1226,7 +1226,7 @@ namespace Tubumu.Meeting.Server
                 SendNotification(consumerPeerId, "consumerScore", new ConsumerScoreNotification
                 {
                     ProducerPeerId = producerPeerId,
-                    Kind = producer.Kind,
+                    Kind = producer.Data.Kind,
                     ConsumerId = consumer.ConsumerId,
                     Score = obj
                 });
@@ -1243,7 +1243,7 @@ namespace Tubumu.Meeting.Server
                 SendNotification(consumerPeerId, "consumerClosed", new ConsumerClosedNotification
                 {
                     ProducerPeerId = producerPeerId,
-                    Kind = producer.Kind,
+                    Kind = producer.Data.Kind,
                     ConsumerId = consumer.ConsumerId
                 });
                 return Task.CompletedTask;
@@ -1255,7 +1255,7 @@ namespace Tubumu.Meeting.Server
                 SendNotification(consumerPeerId, "consumerPaused", new ConsumerPausedNotification
                 {
                     ProducerPeerId = producerPeerId,
-                    Kind = producer.Kind,
+                    Kind = producer.Data.Kind,
                     ConsumerId = consumer.ConsumerId
                 });
                 return Task.CompletedTask;
@@ -1267,7 +1267,7 @@ namespace Tubumu.Meeting.Server
                 SendNotification(consumerPeerId, "consumerResumed", new ConsumerResumedNotification
                 {
                     ProducerPeerId = producerPeerId,
-                    Kind = producer.Kind,
+                    Kind = producer.Data.Kind,
                     ConsumerId = consumer.ConsumerId
                 });
                 return Task.CompletedTask;
@@ -1282,7 +1282,7 @@ namespace Tubumu.Meeting.Server
                 SendNotification(consumerPeerId, "consumerLayersChanged", new ConsumerLayersChangedNotification
                 {
                     ProducerPeerId = producerPeerId,
-                    Kind = producer.Kind,
+                    Kind = producer.Data.Kind,
                     ConsumerId = consumer.ConsumerId,
                     Layers = obj
                 });
@@ -1305,11 +1305,11 @@ namespace Tubumu.Meeting.Server
             SendNotification(consumerPeerId, "newConsumer", new NewConsumerNotification
             {
                 ProducerPeerId = producerPeerId,
-                Kind = consumer.Kind,
+                Kind = consumer.Data.Kind,
                 ProducerId = producer.ProducerId,
                 ConsumerId = consumer.ConsumerId,
-                RtpParameters = consumer.RtpParameters,
-                Type = consumer.Type,
+                RtpParameters = consumer.Data.RtpParameters,
+                Type = consumer.Data.Type,
                 ProducerAppData = producer.AppData,
                 ProducerPaused = consumer.ProducerPaused,
             });

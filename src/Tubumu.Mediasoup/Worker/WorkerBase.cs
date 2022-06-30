@@ -42,6 +42,16 @@ namespace Tubumu.Mediasoup
         protected readonly object _routersLock = new();
 
         /// <summary>
+        /// Routers set.
+        /// </summary>
+        protected readonly List<WebRtcServer> _webRtcServers = new();
+
+        /// <summary>
+        /// Locker.
+        /// </summary>
+        protected readonly object _webRtcServersLock = new();
+
+        /// <summary>
         /// Closed flag.
         /// </summary>
         protected bool _closed;
@@ -70,6 +80,7 @@ namespace Tubumu.Mediasoup
         /// <para>@emits @failure - (error: Error)</para>
         /// <para>Observer events:</para>
         /// <para>@emits close</para>
+        /// <para>@emits newwebrtcserver - (webRtcServer: WebRtcServer)</para>
         /// <para>@emits newrouter - (router: Router)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
@@ -148,6 +159,52 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 _channel.RequestAsync(MethodId.WORKER_UPDATE_SETTINGS, null, reqData).ContinueWithOnFaultedHandleLog(_logger);
+            }
+        }
+
+        /// <summary>
+        /// Create a WebRtcServer.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<WebRtcServer> CreateWebRtcServerAsync(WebRtcServerOptions webRtcServerOptions)
+        {
+            _logger.LogDebug("CreateWebRtcServerAsync()");
+
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("Workder closed");
+                }
+                var @internal = new WebRtcServerInternal { WebRtcServerId = Guid.NewGuid().ToString() };
+                var reqData = new { webRtcServerOptions.ListenInfos };
+
+                await _channel.RequestAsync(MethodId.WORKER_CREATE_WEBRTC_SERVER, @internal, reqData);
+
+                var webRtcServer = new WebRtcServer(_loggerFactory,
+                        @internal,
+                        _channel,
+                        webRtcServerOptions.AppData
+                    );
+
+                lock (_webRtcServersLock)
+                {
+                    _webRtcServers.Add(webRtcServer);
+                }
+
+                webRtcServer.On("@close", (_, _) =>
+                {
+                    lock (_webRtcServersLock)
+                    {
+                        _webRtcServers.Remove(webRtcServer);
+                    }
+                    return Task.CompletedTask;
+                });
+
+                // Emit observer event.
+                Observer.Emit("newwebrtcserver", webRtcServer);
+
+                return webRtcServer;
             }
         }
 

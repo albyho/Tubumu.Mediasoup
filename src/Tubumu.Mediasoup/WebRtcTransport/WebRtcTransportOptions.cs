@@ -5,10 +5,15 @@ namespace Tubumu.Mediasoup
     public class WebRtcTransportOptions
     {
         /// <summary>
+        /// 
+        /// </summary>
+        public WebRtcServer? WebRtcServer { get; set; }
+
+        /// <summary>
         /// Listening IP address or addresses in order of preference (first one is the
         /// preferred one).
         /// </summary>
-        public TransportListenIp[] ListenIps { get; set; }
+        public TransportListenIp[]? ListenIps { get; set; }
 
         /// <summary>
         /// Fixed port to listen on instead of selecting automatically from Worker's port

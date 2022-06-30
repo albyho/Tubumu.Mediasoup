@@ -13,8 +13,17 @@ namespace Tubumu.Mediasoup
         [EnumMember(Value = "worker.updateSettings")]
         WORKER_UPDATE_SETTINGS,
 
+        [EnumMember(Value = "worker.createWebRtcServer")]
+        WORKER_CREATE_WEBRTC_SERVER,
+
         [EnumMember(Value = "worker.createRouter")]
         WORKER_CREATE_ROUTER,
+
+        [EnumMember(Value = "webRtcServer.close")]
+        WEBRTCSERVER_CLOSE,
+
+        [EnumMember(Value = "webRtcServer.dump")]
+        WEBRTCSERVER_DUMP,
 
         [EnumMember(Value = "router.close")]
         ROUTER_CLOSE,
@@ -24,6 +33,9 @@ namespace Tubumu.Mediasoup
 
         [EnumMember(Value = "router.createWebRtcTransport")]
         ROUTER_CREATE_WEBRTC_TRANSPORT,
+
+        [EnumMember(Value = "router.createWebRtcTransportWithServer")]
+        ROUTER_CREATE_WEBRTC_TRANSPORT_WITH_SERVER,
 
         [EnumMember(Value = "router.createPlainTransport")]
         ROUTER_CREATE_PLAIN_TRANSPORT,

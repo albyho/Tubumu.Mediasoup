@@ -13,25 +13,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<WebRtcTransport> _logger;
 
-        #region WebRtcTransport data.
-
-        public string IceRole { get; private set; } = "controlled";
-
-        public IceParameters IceParameters { get; private set; }
-
-        public IceCandidate[] IceCandidates { get; private set; }
-
-        public IceState IceState { get; private set; }
-
-        public TransportTuple? IceSelectedTuple { get; private set; }
-
-        public DtlsParameters DtlsParameters { get; private set; }
-
-        public DtlsState DtlsState { get; private set; }
-
-        public string? DtlsRemoteCert { get; private set; }
-
-        #endregion WebRtcTransport data.
+        public WebRtcTransportData Data { get; set; }
 
         /// <summary>
         /// <para>Events:</para>
@@ -53,7 +35,7 @@ namespace Tubumu.Mediasoup
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="transportInternalData"></param>
+        /// <param name="transportInternal"></param>
         /// <param name="sctpParameters"></param>
         /// <param name="sctpState"></param>
         /// <param name="channel"></param>
@@ -71,35 +53,18 @@ namespace Tubumu.Mediasoup
         /// <param name="dtlsState"></param>
         /// <param name="dtlsRemoteCert"></param>
         public WebRtcTransport(ILoggerFactory loggerFactory,
-            TransportInternalData transportInternalData,
-            SctpParameters? sctpParameters,
-            SctpState? sctpState,
+            TransportInternal @internal,
+            WebRtcTransportData data,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
-            Func<string, Task<DataProducer?>> getDataProducerById,
-            string iceRole,
-            IceParameters iceParameters,
-            IceCandidate[] iceCandidates,
-            IceState iceState,
-            TransportTuple? iceSelectedTuple,
-            DtlsParameters dtlsParameters,
-            DtlsState dtlsState,
-            string? dtlsRemoteCert) : base(loggerFactory, transportInternalData, sctpParameters, sctpState, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
+            Func<string, Task<DataProducer?>> getDataProducerById) : base(loggerFactory, @internal, data, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
         {
             _logger = loggerFactory.CreateLogger<WebRtcTransport>();
 
-            // Data
-            IceRole = iceRole;
-            IceParameters = iceParameters;
-            IceCandidates = iceCandidates;
-            IceState = iceState;
-            IceSelectedTuple = iceSelectedTuple;
-            DtlsParameters = dtlsParameters;
-            DtlsState = dtlsState;
-            DtlsRemoteCert = dtlsRemoteCert;
+            Data = data;
 
             HandleWorkerNotifications();
         }
@@ -109,13 +74,13 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override Task OnCloseAsync()
         {
-            IceState = IceState.Closed;
-            IceSelectedTuple = null;
-            DtlsState = DtlsState.Closed;
+            Data.IceState = IceState.Closed;
+            Data.IceSelectedTuple = null;
+            Data.DtlsState = DtlsState.Closed;
 
-            if (SctpState.HasValue)
+            if (Data.SctpState.HasValue)
             {
-                SctpState = Mediasoup.SctpState.Closed;
+                Data.SctpState = SctpState.Closed;
             }
 
             return Task.CompletedTask;
@@ -158,7 +123,7 @@ namespace Tubumu.Mediasoup
                 var responseData = JsonSerializer.Deserialize<WebRtcTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.
-                DtlsParameters.Role = responseData.DtlsLocalRole;
+                Data.DtlsParameters.Role = responseData.DtlsLocalRole;
             }
         }
 
@@ -180,9 +145,9 @@ namespace Tubumu.Mediasoup
                 var responseData = JsonSerializer.Deserialize<WebRtcTransportRestartIceResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.
-                IceParameters = responseData.IceParameters;
+                Data.IceParameters = responseData.IceParameters;
 
-                return IceParameters;
+                return Data.IceParameters;
             }
         }
 
@@ -211,12 +176,12 @@ namespace Tubumu.Mediasoup
                         }
 
                         var notification = JsonSerializer.Deserialize<TransportIceStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
-                        IceState = notification.IceState;
+                        Data.IceState = notification.IceState;
 
-                        Emit("icestatechange", IceState);
+                        Emit("icestatechange", Data.IceState);
 
                         // Emit observer event.
-                        Observer.Emit("icestatechange", IceState);
+                        Observer.Emit("icestatechange", Data.IceState);
 
                         break;
                     }
@@ -230,12 +195,12 @@ namespace Tubumu.Mediasoup
                         }
 
                         var notification = JsonSerializer.Deserialize<TransportIceSelectedTupleChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
-                        IceSelectedTuple = notification.IceSelectedTuple;
+                        Data.IceSelectedTuple = notification.IceSelectedTuple;
 
-                        Emit("iceselectedtuplechange", IceSelectedTuple);
+                        Emit("iceselectedtuplechange", Data.IceSelectedTuple);
 
                         // Emit observer event.
-                        Observer.Emit("iceselectedtuplechange", IceSelectedTuple);
+                        Observer.Emit("iceselectedtuplechange", Data.IceSelectedTuple);
 
                         break;
                     }
@@ -249,17 +214,17 @@ namespace Tubumu.Mediasoup
                         }
 
                         var notification = JsonSerializer.Deserialize<TransportDtlsStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
-                        DtlsState = notification.DtlsState;
+                        Data.DtlsState = notification.DtlsState;
 
-                        if (DtlsState == DtlsState.Connecting)
+                        if (Data.DtlsState == DtlsState.Connecting)
                         {
-                            DtlsRemoteCert = notification.DtlsRemoteCert;
+                            Data.DtlsRemoteCert = notification.DtlsRemoteCert;
                         }
 
-                        Emit("dtlsstatechange", DtlsState);
+                        Emit("dtlsstatechange", Data.DtlsState);
 
                         // Emit observer event.
-                        Observer.Emit("dtlsstatechange", DtlsState);
+                        Observer.Emit("dtlsstatechange", Data.DtlsState);
 
                         break;
                     }
@@ -273,12 +238,12 @@ namespace Tubumu.Mediasoup
                         }
 
                         var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data, ObjectExtensions.DefaultJsonSerializerOptions)!;
-                        SctpState = notification.SctpState;
+                        Data.SctpState = notification.SctpState;
 
-                        Emit("sctpstatechange", SctpState);
+                        Emit("sctpstatechange", Data.SctpState);
 
                         // Emit observer event.
-                        Observer.Emit("sctpstatechange", SctpState);
+                        Observer.Emit("sctpstatechange", Data.SctpState);
 
                         break;
                     }

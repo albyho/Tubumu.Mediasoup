@@ -24,29 +24,25 @@ namespace Tubumu.Mediasoup
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="transportInternalData"></param>
-        /// <param name="sctpParameters"></param>
-        /// <param name="sctpState"></param>
+        /// <param name="@internal"></param>
+        /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="appData"></param>
         /// <param name="getRouterRtpCapabilities"></param>
         /// <param name="getProducerById"></param>
         /// <param name="getDataProducerById"></param>
         public DirectTransport(ILoggerFactory loggerFactory,
-            TransportInternalData transportInternalData,
-            SctpParameters? sctpParameters,
-            SctpState? sctpState,
+            TransportInternal @internal,
+            TransportBaseData data,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
             Func<string, Task<DataProducer?>> getDataProducerById
-            ) : base(loggerFactory, transportInternalData, sctpParameters, sctpState, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
+            ) : base(loggerFactory, @internal, data, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
         {
             _logger = loggerFactory.CreateLogger<DirectTransport>();
-
-            // Data
 
             HandleWorkerNotifications();
         }

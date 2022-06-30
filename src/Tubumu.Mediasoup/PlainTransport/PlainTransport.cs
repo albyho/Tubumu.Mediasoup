@@ -13,19 +13,10 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<PlainTransport> _logger;
 
-        #region Producer data.
-
-        public bool? RtcpMux { get; set; }
-
-        public bool? Comedia { get; set; }
-
-        public TransportTuple Tuple { get; private set; }
-
-        public TransportTuple? RtcpTuple { get; private set; }
-
-        public SrtpParameters? SrtpParameters { get; private set; }
-
-        #endregion Producer data.
+        /// <summary>
+        /// Producer data.
+        /// </summary>
+        public PlainTransportData Data { get; set; }
 
         /// <summary>
         /// <para>Events:</para>
@@ -45,9 +36,8 @@ namespace Tubumu.Mediasoup
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="transportInternalData"></param>
-        /// <param name="sctpParameters"></param>
-        /// <param name="sctpState"></param>
+        /// <param name="@internal"></param>
+        /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
@@ -55,30 +45,19 @@ namespace Tubumu.Mediasoup
         /// <param name="getProducerById"></param>
         /// <param name="getDataProducerById"></param>
         public PlainTransport(ILoggerFactory loggerFactory,
-            TransportInternalData transportInternalData,
-            SctpParameters? sctpParameters,
-            SctpState? sctpState,
+            TransportInternal @internal,
+            PlainTransportData data,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
-            Func<string, Task<DataProducer?>> getDataProducerById,
-            bool? rtcpMux,
-            bool? comedia,
-            TransportTuple tuple,
-            TransportTuple? rtcpTuple,
-            SrtpParameters? srtpParameters
-            ) : base(loggerFactory, transportInternalData, sctpParameters, sctpState, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
+            Func<string, Task<DataProducer?>> getDataProducerById
+            ) : base(loggerFactory, @internal, data, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
         {
             _logger = loggerFactory.CreateLogger<PlainTransport>();
 
-            // Data
-            RtcpMux = rtcpMux;
-            Comedia = comedia;
-            Tuple = tuple;
-            RtcpTuple = rtcpTuple;
-            SrtpParameters = srtpParameters;
+            Data = data;
 
             HandleWorkerNotifications();
         }
@@ -88,9 +67,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override Task OnCloseAsync()
         {
-            if (SctpState.HasValue)
+            if (Data.SctpState.HasValue)
             {
-                SctpState = Mediasoup.SctpState.Closed;
+                Data.SctpState = SctpState.Closed;
             }
 
             return Task.CompletedTask;
@@ -135,15 +114,15 @@ namespace Tubumu.Mediasoup
                 // Update data.
                 if (responseData.Tuple != null)
                 {
-                    Tuple = responseData.Tuple;
+                    Data.Tuple = responseData.Tuple;
                 }
 
                 if (responseData.RtcpTuple != null)
                 {
-                    RtcpTuple = responseData.RtcpTuple;
+                    Data.RtcpTuple = responseData.RtcpTuple;
                 }
 
-                SrtpParameters = responseData.SrtpParameters;
+                Data.SrtpParameters = responseData.SrtpParameters;
             }
         }
 
@@ -167,12 +146,12 @@ namespace Tubumu.Mediasoup
                     {
                         var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
-                        Tuple = notification.Tuple;
+                        Data.Tuple = notification.Tuple;
 
-                        Emit("tuple", Tuple);
+                        Emit("tuple", Data.Tuple);
 
                         // Emit observer event.
-                        Observer.Emit("tuple", Tuple);
+                        Observer.Emit("tuple", Data.Tuple);
 
                         break;
                     }
@@ -181,12 +160,12 @@ namespace Tubumu.Mediasoup
                     {
                         var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
-                        RtcpTuple = notification.RtcpTuple;
+                        Data.RtcpTuple = notification.RtcpTuple;
 
-                        Emit("rtcptuple", RtcpTuple);
+                        Emit("rtcptuple", Data.RtcpTuple);
 
                         // Emit observer event.
-                        Observer.Emit("rtcptuple", RtcpTuple);
+                        Observer.Emit("rtcptuple", Data.RtcpTuple);
 
                         break;
                     }
@@ -195,12 +174,12 @@ namespace Tubumu.Mediasoup
                     {
                         var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
-                        SctpState = notification.SctpState;
+                        Data.SctpState = notification.SctpState;
 
-                        Emit("sctpstatechange", SctpState);
+                        Emit("sctpstatechange", Data.SctpState);
 
                         // Emit observer event.
-                        Observer.Emit("sctpstatechange", SctpState);
+                        Observer.Emit("sctpstatechange", Data.SctpState);
 
                         break;
                     }

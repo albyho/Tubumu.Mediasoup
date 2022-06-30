@@ -7,37 +7,6 @@ using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
-    public class DataConsumerInternalData
-    {
-        /// <summary>
-        /// Router id.
-        /// </summary>
-        public string RouterId { get; }
-
-        /// <summary>
-        /// Transport id.
-        /// </summary>
-        public string TransportId { get; }
-
-        /// <summary>
-        /// Associated DataProducer id.
-        /// </summary>
-        public string DataProducerId { get; }
-
-        /// <summary>
-        /// DataConsumer id.
-        /// </summary>
-        public string DataConsumerId { get; }
-
-        public DataConsumerInternalData(string routerId, string transportId, string dataProducerId, string dataConsumerId)
-        {
-            RouterId = routerId;
-            TransportId = transportId;
-            DataProducerId = dataProducerId;
-            DataConsumerId = dataConsumerId;
-        }
-    }
-
     public class DataConsumer : EventEmitter
     {
         /// <summary>
@@ -54,31 +23,17 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Internal data.
         /// </summary>
-        private readonly DataConsumerInternalData _internal;
+        private readonly DataConsumerInternal _internal;
 
         /// <summary>
         /// DataConsumer id.
         /// </summary>
         public string DataConsumerId => _internal.DataConsumerId;
 
-        #region DataConsumer data.
-
         /// <summary>
-        /// SCTP stream parameters.
+        /// DataChannel data.
         /// </summary>
-        public SctpStreamParameters? SctpStreamParameters { get; }
-
-        /// <summary>
-        /// DataChannel label.
-        /// </summary>
-        public string Label { get; }
-
-        /// <summary>
-        /// DataChannel protocol.
-        /// </summary>
-        public string Protocol { get; }
-
-        #endregion DataConsumer data.
+        public DataConsumerData Data { get; set; }
 
         /// <summary>
         /// Channel instance.
@@ -113,18 +68,14 @@ namespace Tubumu.Mediasoup
         /// <para>@emits close</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="dataConsumerInternalData"></param>
-        /// <param name="sctpStreamParameters"></param>
-        /// <param name="label"></param>
-        /// <param name="protocol"></param>
+        /// <param name="@internal"></param>
+        /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         public DataConsumer(ILoggerFactory loggerFactory,
-            DataConsumerInternalData dataConsumerInternalData,
-            SctpStreamParameters sctpStreamParameters,
-            string label,
-            string protocol,
+            DataConsumerInternal @internal,
+            DataConsumerData data,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData
@@ -132,14 +83,8 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<DataConsumer>();
 
-            // Internal
-            _internal = dataConsumerInternalData;
-
-            // Data
-            SctpStreamParameters = sctpStreamParameters;
-            Label = label;
-            Protocol = protocol;
-
+            _internal = @internal;
+            Data = data;
             _channel = channel;
             _payloadChannel = payloadChannel;
             AppData = appData;

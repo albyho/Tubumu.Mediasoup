@@ -516,7 +516,7 @@ namespace Tubumu.Meeting.Server
                             _producers[producer.ProducerId] = producer;
 
                             // Add into the audioLevelObserver.
-                            if (producer.Kind == MediaKind.Audio)
+                            if (producer.Data.Kind == MediaKind.Audio)
                             {
                                 // Fire and forget
                                 _room!.AudioLevelObserver.AddProducerAsync(new RtpObserverAddRemoveProducerOptions

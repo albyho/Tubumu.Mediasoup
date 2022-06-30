@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Force.DeepCloner;
 using Microsoft.Extensions.Logging;
@@ -8,25 +9,6 @@ using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
-    public class TransportInternalData
-    {
-        /// <summary>
-        /// Router id.
-        /// </summary>
-        public string RouterId { get; }
-
-        /// <summary>
-        /// Trannsport id.
-        /// </summary>
-        public string TransportId { get; }
-
-        public TransportInternalData(string routerId, string transportId)
-        {
-            RouterId = routerId;
-            TransportId = transportId;
-        }
-    }
-
     public abstract class Transport : EventEmitter
     {
         /// <summary>
@@ -52,26 +34,17 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Internal data.
         /// </summary>
-        protected TransportInternalData Internal { get; set; }
+        protected TransportInternal Internal { get; set; }
 
         /// <summary>
         /// Trannsport id.
         /// </summary>
         public string TransportId => Internal.TransportId;
 
-        #region Transport data. This is set by the subclass.
-
         /// <summary>
-        /// SCTP parameters.
+        /// Transport data.
         /// </summary>
-        public SctpParameters? SctpParameters { get; protected set; }
-
-        /// <summary>
-        /// Sctp state.
-        /// </summary>
-        public SctpState? SctpState { get; protected set; }
-
-        #endregion Transport data. This is set by the subclass.
+        public TransportBaseData BaseData { get; }
 
         /// <summary>
         /// Channel instance.
@@ -175,11 +148,14 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// <para>Events:</para>
         /// <para>@emits routerclose</para>
+        /// <para>@emits listenserverclose</para>
+        /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// <para>@emits @close</para>
         /// <para>@emits @newproducer - (producer: Producer)</para>
         /// <para>@emits @producerclose - (producer: Producer)</para>
         /// <para>@emits @newdataproducer - (dataProducer: DataProducer)</para>
         /// <para>@emits @dataproducerclose - (dataProducer: DataProducer)</para>
+        /// <para>@emits @listenserverclose</para>
         /// <para>Observer events:</para>
         /// <para>@emits close</para>
         /// <para>@emits newproducer - (producer: Producer)</para>
@@ -188,9 +164,8 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newdataconsumer - (dataProducer: DataProducer)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="transportInternalData"></param>
-        /// <param name="sctpParameters"></param>
-        /// <param name="sctpState"></param>
+        /// <param name="@internal"></param>
+        /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
@@ -198,9 +173,8 @@ namespace Tubumu.Mediasoup
         /// <param name="getProducerById"></param>
         /// <param name="getDataProducerById"></param>
         protected Transport(ILoggerFactory loggerFactory,
-            TransportInternalData transportInternalData,
-            SctpParameters? sctpParameters,
-            SctpState? sctpState,
+            TransportInternal @internal,
+            TransportBaseData data,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
@@ -212,13 +186,8 @@ namespace Tubumu.Mediasoup
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Transport>();
 
-            // Internal
-            Internal = transportInternalData;
-
-            // Data
-            SctpParameters = sctpParameters;
-            SctpState = sctpState;
-
+            Internal = @internal;
+            BaseData = data;
             Channel = channel;
             PayloadChannel = payloadChannel;
             AppData = appData;
@@ -396,9 +365,43 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
-        /// Dump Transport.
+        /// Listen server was closed (this just happens in WebRtcTransports when their associated WebRtcServer is closed).
         /// </summary>
-        public async Task<string> DumpAsync()
+        /// <returns></returns>
+        public async Task ListenServerClosedAsync()
+	    {
+            using (await CloseLock.WriteLockAsync())
+            {
+                if (Closed)
+                {
+                    return;
+                }
+
+                Closed = true;
+
+                _logger.LogDebug($"ListenServerClosedAsync() | Transport:{TransportId}");
+
+                // Remove notification subscriptions.
+                //_channel.MessageEvent -= OnChannelMessage;
+                //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+
+                await CloseIternalAsync(false);
+
+                // Need to emit this event to let the parent Router know since
+                // transport.listenServerClosed() is called by the listen server.
+                // NOTE: Currently there is just WebRtcServer for WebRtcTransports.
+                Emit("@listenserverclose");
+                Emit("listenserverclose");
+
+                // Emit observer event.
+                Observer.Emit("close");
+            }
+	    }
+
+    /// <summary>
+    /// Dump Transport.
+    /// </summary>
+    public async Task<string> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Transport:{TransportId}");
 
@@ -548,7 +551,7 @@ namespace Tubumu.Mediasoup
                 // This may throw.
                 var consumableRtpParameters = ORTC.GetConsumableRtpParameters(producerOptions.Kind, producerOptions.RtpParameters, routerRtpCapabilities, rtpMapping);
 
-                var @internal = new ProducerInternalData
+                var @internal = new ProducerInternal
                 (
                     Internal.RouterId,
                     Internal.TransportId,
@@ -565,20 +568,17 @@ namespace Tubumu.Mediasoup
 
                 var resData = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE, @internal, reqData);
                 var responseData = JsonSerializer.Deserialize<TransportProduceResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
-                var data = new
+                var data = new ProducerData
                 {
-                    producerOptions.Kind,
-                    producerOptions.RtpParameters,
-                    responseData.Type,
+                    Kind = producerOptions.Kind,
+                    RtpParameters = producerOptions.RtpParameters,
+                    Type = responseData.Type,
                     ConsumableRtpParameters = consumableRtpParameters
                 };
 
                 var producer = new Producer(_loggerFactory,
                     @internal,
-                    data.Kind,
-                    data.RtpParameters,
-                    data.Type,
-                    data.ConsumableRtpParameters,
+                    data,
                     Channel,
                     PayloadChannel,
                     producerOptions.AppData,
@@ -672,7 +672,7 @@ namespace Tubumu.Mediasoup
 
                 var pipe = consumerOptions.Pipe.HasValue && consumerOptions.Pipe.Value;
                 // This may throw.
-                var rtpParameters = ORTC.GetConsumerRtpParameters(producer.ConsumableRtpParameters, consumerOptions.RtpCapabilities, pipe);
+                var rtpParameters = ORTC.GetConsumerRtpParameters(producer.Data.ConsumableRtpParameters, consumerOptions.RtpCapabilities, pipe);
 
                 if (!pipe)
                 {
@@ -697,39 +697,38 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var @internal = new ConsumerInternalData
+                var @internal = new ConsumerInternal
                 (
                     Internal.RouterId,
                     Internal.TransportId,
-                    consumerOptions.ProducerId,
                     Guid.NewGuid().ToString()
                 );
 
                 var reqData = new
                 {
-                    producer.Kind,
+                    producer.Data.Kind,
                     RtpParameters = rtpParameters,
-                    Type = pipe ? ProducerType.Pipe : producer.Type,
-                    ConsumableRtpEncodings = producer.ConsumableRtpParameters.Encodings,
+                    Type = pipe ? ProducerType.Pipe : producer.Data.Type,
+                    ConsumableRtpEncodings = producer.Data.ConsumableRtpParameters.Encodings,
                     consumerOptions.Paused,
-                    consumerOptions.PreferredLayers
+                    consumerOptions.PreferredLayers,
+                    consumerOptions.IgnoreDtx,
                 };
 
                 var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, @internal, reqData);
                 var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
-                var data = new
-                {
-                    producer.Kind,
-                    RtpParameters = rtpParameters,
-                    Type = (ConsumerType)(pipe ? ProducerType.Pipe : producer.Type), // 注意：类型转换。ProducerType 的每一种值在 ConsumerType 都有对应且相同的值。
-                };
+                var data = new ConsumerData
+                (
+                    consumerOptions.ProducerId,
+                    producer.Data.Kind,
+                    rtpParameters,
+                    (ConsumerType)(pipe ? ProducerType.Pipe : producer.Data.Type) // 注意：类型转换。ProducerType 的每一种值在 ConsumerType 都有对应且相同的值。
+                );
 
                 var consumer = new Consumer(_loggerFactory,
                     @internal,
-                    data.Kind,
-                    data.RtpParameters,
-                    data.Type,
+                    data,
                     Channel,
                     PayloadChannel,
                     AppData,
@@ -842,7 +841,7 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var @internal = new DataProducerInternalData
+                var @internal = new DataProducerInternal
                 (
                     Internal.RouterId,
                     Internal.TransportId,
@@ -859,11 +858,15 @@ namespace Tubumu.Mediasoup
 
                 var resData = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE_DATA, @internal, reqData);
                 var responseData = JsonSerializer.Deserialize<TransportDataProduceResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var data = new DataProducerData
+                {
+                    SctpStreamParameters = responseData.SctpStreamParameters,
+                    Label = responseData.Label!,
+                    Protocol = responseData.Protocol!,
+                };
                 var dataProducer = new DataProducer(_loggerFactory,
                     @internal,
-                    responseData.SctpStreamParameters,
-                    responseData.Label!,
-                    responseData.Protocol!,
+                    data,
                     Channel,
                     PayloadChannel,
                     AppData);
@@ -948,7 +951,7 @@ namespace Tubumu.Mediasoup
                 {
                     type = DataProducerType.Sctp;
 
-                    sctpStreamParameters = dataProducer.SctpStreamParameters!.DeepClone();
+                    sctpStreamParameters = dataProducer.Data.SctpStreamParameters!.DeepClone();
                     // This may throw.
                     lock (_sctpStreamIdsLock)
                     {
@@ -976,20 +979,20 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var @internal = new DataConsumerInternalData
+                var @internal = new DataConsumerInternal
                 (
                     Internal.RouterId,
                     Internal.TransportId,
-                    dataConsumerOptions.DataProducerId,
                     Guid.NewGuid().ToString()
                 );
 
                 var reqData = new
                 {
+                    DataProducerId = dataConsumerOptions.DataProducerId,
                     Type = type.GetEnumMemberValue(),
                     SctpStreamParameters = sctpStreamParameters,
-                    dataProducer.Label,
-                    dataProducer.Protocol
+                    Label = dataProducer.Data.Label,
+                    Protocol = dataProducer.Data.Protocol,
                 };
 
                 var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME_DATA, @internal, reqData);
@@ -997,9 +1000,7 @@ namespace Tubumu.Mediasoup
 
                 var dataConsumer = new DataConsumer(_loggerFactory,
                     @internal,
-                    responseData.SctpStreamParameters,
-                    responseData.Label,
-                    responseData.Protocol,
+                    responseData, // 直接使用返回值
                     Channel,
                     PayloadChannel,
                     AppData);
@@ -1099,7 +1100,7 @@ namespace Tubumu.Mediasoup
 
         private int GetNextSctpStreamId()
         {
-            if (SctpParameters == null)
+            if (BaseData.SctpParameters == null)
             {
                 throw new Exception("Missing data.sctpParameters.MIS");
             }
@@ -1108,7 +1109,7 @@ namespace Tubumu.Mediasoup
                 throw new Exception(nameof(_sctpStreamIds));
             }
 
-            var numStreams = SctpParameters.MIS;
+            var numStreams = BaseData.SctpParameters.MIS;
 
             if (_sctpStreamIds.IsNullOrEmpty())
             {

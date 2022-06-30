@@ -8,31 +8,6 @@ using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
-    public class ProducerInternalData
-    {
-        /// <summary>
-        /// Router id.
-        /// </summary>
-        public string RouterId { get; }
-
-        /// <summary>
-        /// Transport id.
-        /// </summary>
-        public string TransportId { get; }
-
-        /// <summary>
-        /// Producer id.
-        /// </summary>
-        public string ProducerId { get; }
-
-        public ProducerInternalData(string routerId, string transportId, string producerId)
-        {
-            RouterId = routerId;
-            TransportId = transportId;
-            ProducerId = producerId;
-        }
-    }
-
     public class Producer : EventEmitter
     {
         /// <summary>
@@ -55,7 +30,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Internal data.
         /// </summary>
-        private readonly ProducerInternalData _internal;
+        private readonly ProducerInternal _internal;
 
         private readonly bool _isCheckConsumer = false;
 
@@ -72,29 +47,10 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public string ProducerId => _internal.ProducerId;
 
-        #region Producer data.
-
         /// <summary>
-        /// Media kind.
+        /// Producer data.
         /// </summary>
-        public MediaKind Kind { get; }
-
-        /// <summary>
-        /// RTP parameters.
-        /// </summary>
-        public RtpParameters RtpParameters { get; }
-
-        /// <summary>
-        /// Producer type.
-        /// </summary>
-        public ProducerType Type { get; }
-
-        /// <summary>
-        /// Consumable RTP parameters.
-        /// </summary>
-        public RtpParameters ConsumableRtpParameters { get; }
-
-        #endregion Producer data.
+        public ProducerData Data { get; set; }
 
         /// <summary>
         /// Channel instance.
@@ -147,20 +103,14 @@ namespace Tubumu.Mediasoup
         /// <para>@emits trace - (trace: ProducerTraceEventData)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="producerInternalData"></param>
-        /// <param name="kind"></param>
-        /// <param name="rtpParameters"></param>
-        /// <param name="type"></param>
-        /// <param name="consumableRtpParameters"></param>
+        /// <param name="@internal"></param>
+        /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="appData"></param>
         /// <param name="paused"></param>
         public Producer(ILoggerFactory loggerFactory,
-            ProducerInternalData producerInternalData,
-            MediaKind kind,
-            RtpParameters rtpParameters,
-            ProducerType type,
-            RtpParameters consumableRtpParameters,
+            ProducerInternal @internal,
+            ProducerData data,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
@@ -169,15 +119,8 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<Producer>();
 
-            // Internal
-            _internal = producerInternalData;
-
-            // Data
-            Kind = kind;
-            RtpParameters = rtpParameters;
-            Type = type;
-            ConsumableRtpParameters = consumableRtpParameters;
-
+            _internal = @internal;
+            Data = data;
             _channel = channel;
             _payloadChannel = payloadChannel;
             AppData = appData;

@@ -105,7 +105,7 @@ namespace Tubumu.Meeting.Web.Controllers
                 AppData = new Dictionary<string, object> { ["type"] = "Recorder" },
             };
 
-            await _scheduler.JoinAsync(recorderPrepareRequest.PeerId, "", null, joinRequest);
+            await _scheduler.JoinAsync(recorderPrepareRequest.PeerId, "", null!, joinRequest);
 
             // Join room
             var joinRoomRequest = new JoinRoomRequest
@@ -118,7 +118,7 @@ namespace Tubumu.Meeting.Web.Controllers
             var transport = await CreatePlainTransport(recorderPrepareRequest.PeerId);
             var remoteRtpIp = "127.0.0.1";
             var remoteRtpPort = 8787;
-            int? remoteRtcpPort = transport.RtcpMux.HasValue && transport.RtcpMux.Value ? null : 8788;
+            int? remoteRtcpPort = transport.Data.RtcpMux.HasValue && transport.Data.RtcpMux.Value ? null : 8788;
             var plainTransportConnectParameters = new PlainTransportConnectParameters
             {
                 Ip = remoteRtpIp,
@@ -167,9 +167,9 @@ namespace Tubumu.Meeting.Web.Controllers
                 recorderPrepareResult.ConsumerParameters.Add(new ConsumerParameters
                 {
                     Source = source,
-                    Kind = consumer.Kind,
-                    PayloadType = consumer.RtpParameters.Codecs[0].PayloadType,
-                    Ssrc = consumer.RtpParameters!.Encodings![0].Ssrc
+                    Kind = consumer.Data.Kind,
+                    PayloadType = consumer.Data.RtpParameters.Codecs[0].PayloadType,
+                    Ssrc = consumer.Data.RtpParameters!.Encodings![0].Ssrc
                 });
             }
 

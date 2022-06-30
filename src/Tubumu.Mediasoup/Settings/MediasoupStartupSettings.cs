@@ -9,5 +9,7 @@
         public string WorkerPath { get; set; }
 
         public int? NumberOfWorkers { get; set; }
+
+        public bool UseWebRtcServer { get; set; }
     }
 }

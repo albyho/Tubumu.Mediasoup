@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
-    internal sealed class RouterInternalData
+    public class RouterInternal
     {
         public string RouterId { get; set; }
     }
@@ -36,7 +36,7 @@ namespace Tubumu.Mediasoup
 
         #region Internal data.
 
-        private readonly RouterInternalData _internal;
+        private readonly RouterInternal _internal;
 
         public string RouterId => _internal.RouterId;
 
@@ -127,7 +127,7 @@ namespace Tubumu.Mediasoup
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Router>();
 
-            _internal = new RouterInternalData
+            _internal = new RouterInternal
             {
                 RouterId = routerId
             };
@@ -257,14 +257,25 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateWebRtcTransportAsync()");
 
+            if(webRtcTransportOptions.WebRtcServer == null && webRtcTransportOptions.ListenIps.IsNullOrEmpty())
+            {
+                throw new ArgumentException("missing webRtcServer and listenIps (one of them is mandatory)");
+            }
+
+            var webRtcServer = webRtcTransportOptions.WebRtcServer;
+            if (webRtcServer != null)
+            {
+                webRtcTransportOptions.ListenIps = null;
+                webRtcTransportOptions.Port = null;
+            }
+
             using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
-
-                var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
+                var @internal = new TransportInternal(RouterId, Guid.NewGuid().ToString(), webRtcServer?.WebRtcServerId);
 
                 var reqData = new
                 {
@@ -282,13 +293,15 @@ namespace Tubumu.Mediasoup
                     IsDataChannel = true
                 };
 
-                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT, @internal, reqData);
+                var resData = await _channel.RequestAsync(webRtcTransportOptions.WebRtcServer != null ?
+                    MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT_WITH_SERVER : MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT,
+                    @internal,
+                    reqData);
                 var responseData = JsonSerializer.Deserialize<RouterCreateWebRtcTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var transport = new WebRtcTransport(_loggerFactory,
                                     @internal,
-                                    sctpParameters: null,
-                                    sctpState: null,
+                                    responseData, // 直接使用返回值
                                     _channel,
                                     _payloadChannel,
                                     webRtcTransportOptions.AppData,
@@ -306,18 +319,10 @@ namespace Tubumu.Mediasoup
                                         {
                                             return _dataProducers.TryGetValue(m, out var p) ? p : null;
                                         }
-                                    },
-                                    responseData.IceRole,
-                                    responseData.IceParameters,
-                                    responseData.IceCandidates,
-                                    responseData.IceState,
-                                    responseData.IceSelectedTuple,
-                                    responseData.DtlsParameters,
-                                    responseData.DtlsState,
-                                    responseData.DtlsRemoteCert
+                                    }
                                     );
 
-                await ConfigureTransportAsync(transport);
+                await ConfigureTransportAsync(transport, webRtcServer);
 
                 return transport;
             }
@@ -342,7 +347,7 @@ namespace Tubumu.Mediasoup
                     throw new ArgumentException("Missing listenIp");
                 }
 
-                var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
+                var @internal = new TransportInternal(RouterId, Guid.NewGuid().ToString());
 
                 var reqData = new
                 {
@@ -362,9 +367,8 @@ namespace Tubumu.Mediasoup
                 var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var transport = new PlainTransport(_loggerFactory,
-                                    new TransportInternalData(@internal.RouterId, @internal.TransportId),
-                                    sctpParameters: null,
-                                    sctpState: null,
+                                    @internal,
+                                    responseData, // 直接使用返回值
                                     _channel,
                                     _payloadChannel,
                                     plainTransportOptions.AppData,
@@ -382,12 +386,7 @@ namespace Tubumu.Mediasoup
                                         {
                                             return  _dataProducers.TryGetValue(m, out var p) ? p : null;
                                         }
-                                    },
-                                    responseData.RtcpMux,
-                                    responseData.Comedia,
-                                    responseData.Tuple,
-                                    responseData.RtcpTuple,
-                                    responseData.SrtpParameters
+                                    }
                                 );
 
                 await ConfigureTransportAsync(transport);
@@ -415,7 +414,7 @@ namespace Tubumu.Mediasoup
                     throw new ArgumentNullException(nameof(pipeTransportOptions.ListenIp), "Missing listenIp");
                 }
 
-                var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
+                var @internal = new TransportInternal(RouterId, Guid.NewGuid().ToString());
 
                 var reqData = new
                 {
@@ -434,9 +433,8 @@ namespace Tubumu.Mediasoup
                 var responseData = JsonSerializer.Deserialize<RouterCreatePipeTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var transport = new PipeTransport(_loggerFactory,
-                                    new TransportInternalData(@internal.RouterId, @internal.TransportId),
-                                    sctpParameters: null,
-                                    sctpState: null,
+                                    @internal,
+                                    responseData, // 直接使用返回值
                                     _channel,
                                     _payloadChannel,
                                     pipeTransportOptions.AppData,
@@ -454,11 +452,7 @@ namespace Tubumu.Mediasoup
                                         {
                                             return _dataProducers.TryGetValue(m, out var p) ? p : null;
                                         }
-                                    },
-                                    responseData.Tuple,
-                                    responseData.Rtx,
-                                    responseData.SrtpParameters
-                                );
+                                    });
 
                 await ConfigureTransportAsync(transport);
 
@@ -482,7 +476,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                var @internal = new TransportInternalData(RouterId, Guid.NewGuid().ToString());
+                var @internal = new TransportInternal(RouterId, Guid.NewGuid().ToString());
 
                 var reqData = new
                 {
@@ -491,12 +485,11 @@ namespace Tubumu.Mediasoup
                 };
 
                 var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_DIRECT_TRANSPORT, @internal, reqData);
-                var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var responseData = JsonSerializer.Deserialize<RouterCreateDirectTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var transport = new DirectTransport(_loggerFactory,
-                                    new TransportInternalData(@internal.RouterId, @internal.TransportId),
-                                    sctpParameters: null,
-                                    sctpState: null,
+                                    @internal,
+                                    responseData, // 直接使用返回值
                                     _channel,
                                     _payloadChannel,
                                     directTransportOptions.AppData,
@@ -523,7 +516,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        private async Task ConfigureTransportAsync(Transport transport)
+        private async Task ConfigureTransportAsync(Transport transport, WebRtcServer? webRtcServer = null)
         {
             using (await _transportsLock.WriteLockAsync())
             {
@@ -531,6 +524,13 @@ namespace Tubumu.Mediasoup
             }
             
             transport.On("@close", async (_, _) =>
+            {
+                using (await _transportsLock.WriteLockAsync())
+                {
+                    _transports.Remove(transport.TransportId);
+                }
+            });
+            transport.On("@listenserverclose", async (_, _) =>
             {
                 using (await _transportsLock.WriteLockAsync())
                 {
@@ -569,6 +569,11 @@ namespace Tubumu.Mediasoup
                     _dataProducers.Remove(dataProducer.DataProducerId);
                 }
             });
+
+            if (webRtcServer != null && transport is WebRtcTransport webRtcTransport)
+            {
+                await webRtcServer.HandleWebRtcTransportAsync(webRtcTransport);
+            }
 
             // Emit observer event.
             Observer.Emit("newtransport", transport);
@@ -682,15 +687,15 @@ namespace Tubumu.Mediasoup
 
                             await Task.WhenAll(localPipeTransport.ConnectAsync(new PipeTransportConnectParameters
                             {
-                                Ip = remotePipeTransport.Tuple.LocalIp,
-                                Port = remotePipeTransport.Tuple.LocalPort,
-                                SrtpParameters = remotePipeTransport.SrtpParameters,
+                                Ip = remotePipeTransport.Data.Tuple.LocalIp,
+                                Port = remotePipeTransport.Data.Tuple.LocalPort,
+                                SrtpParameters = remotePipeTransport.Data.SrtpParameters,
                             }),
                             remotePipeTransport.ConnectAsync(new PipeTransportConnectParameters
                             {
-                                Ip = localPipeTransport.Tuple.LocalIp,
-                                Port = localPipeTransport.Tuple.LocalPort,
-                                SrtpParameters = localPipeTransport.SrtpParameters,
+                                Ip = localPipeTransport.Data.Tuple.LocalIp,
+                                Port = localPipeTransport.Data.Tuple.LocalPort,
+                                SrtpParameters = localPipeTransport.Data.SrtpParameters,
                             })
                             );
 
@@ -748,8 +753,8 @@ namespace Tubumu.Mediasoup
                         pipeProducer = await remotePipeTransport.ProduceAsync(new ProducerOptions
                         {
                             Id = producer.ProducerId,
-                            Kind = pipeConsumer.Kind,
-                            RtpParameters = pipeConsumer.RtpParameters,
+                            Kind = pipeConsumer.Data.Kind,
+                            RtpParameters = pipeConsumer.Data.RtpParameters,
                             Paused = pipeConsumer.ProducerPaused,
                             AppData = producer.AppData,
                         });
@@ -796,9 +801,9 @@ namespace Tubumu.Mediasoup
                         pipeDataProducer = await remotePipeTransport.ProduceDataAsync(new DataProducerOptions
                         {
                             Id = dataProducer.DataProducerId,
-                            SctpStreamParameters = pipeDataConsumer.SctpStreamParameters,
-                            Label = pipeDataConsumer.Label,
-                            Protocol = pipeDataConsumer.Protocol,
+                            SctpStreamParameters = pipeDataConsumer.Data.SctpStreamParameters,
+                            Label = pipeDataConsumer.Data.Label,
+                            Protocol = pipeDataConsumer.Data.Protocol,
                             AppData = dataProducer.AppData,
                         });
 
@@ -848,7 +853,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                var @internal = new RtpObserverInternalData(RouterId, Guid.NewGuid().ToString());
+                var @internal = new RtpObserverInternal(RouterId, Guid.NewGuid().ToString());
 
                 var reqData = new
                 {
@@ -890,7 +895,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                var @internal = new RtpObserverInternalData(RouterId, Guid.NewGuid().ToString());
+                var @internal = new RtpObserverInternal(RouterId, Guid.NewGuid().ToString());
 
                 var reqData = new
                 {
@@ -951,7 +956,7 @@ namespace Tubumu.Mediasoup
                 }
                 try
                 {
-                    return ORTC.CanConsume(producer.ConsumableRtpParameters, rtpCapabilities);
+                    return ORTC.CanConsume(producer.Data.ConsumableRtpParameters, rtpCapabilities);
                 }
                 catch (Exception ex)
                 {

@@ -1,44 +1,23 @@
 ﻿namespace Tubumu.Mediasoup
 {
-    public class RouterCreateWebRtcTransportResponseData
+    public class RouterCreateWebRtcTransportResponseData : WebRtcTransportData
     {
-        public string IceRole { get; set; }
 
-        public IceParameters IceParameters { get; set; }
-
-        public IceCandidate[] IceCandidates { get; set; }
-
-        public IceState IceState { get; set; }
-
-        public TransportTuple? IceSelectedTuple { get; set; }
-
-        public DtlsParameters DtlsParameters { get; set; }
-
-        public DtlsState DtlsState { get; set; }
-
-        public string? DtlsRemoteCert { get; set; }
     }
 
-    public class RouterCreatePlainTransportResponseData
+    public class RouterCreatePlainTransportResponseData : PlainTransportData
     {
-        public bool? RtcpMux { get; set; }
-
-        public bool? Comedia { get; set; }
-
-        public TransportTuple Tuple { get; set; }
-
-        public TransportTuple? RtcpTuple { get; set; }
-
-        public SrtpParameters? SrtpParameters { get; set; }
+        
     }
 
-    public class RouterCreatePipeTransportResponseData
+    public class RouterCreatePipeTransportResponseData : PipeTransportData
     {
-        public TransportTuple Tuple { get; set; }
 
-        public bool Rtx { get; set; }
+    }
 
-        public SrtpParameters? SrtpParameters { get; set; }
+    public class RouterCreateDirectTransportResponseData : PipeTransportData
+    {
+
     }
 
     public class TransportProduceResponseData
@@ -80,27 +59,9 @@
         public string? Protocol { get; set; }
     }
 
-    public class TransportDataConsumeResponseData
+    public class TransportDataConsumeResponseData : DataConsumerData
     {
-        /// <summary>
-        /// DataConsumer id (just for Router.pipeToRouter() method).
-        /// </summary>
-        public string? Id { get; set; }
-
-        /// <summary>
-        /// SCTP parameters defining how the endpoint is sending the data.
-        /// </summary>
-        public SctpStreamParameters SctpStreamParameters { get; set; }
-
-        /// <summary>
-        /// A label which can be used to distinguish this DataChannel from others.
-        /// </summary>
-        public string Label { get; set; }
-
-        /// <summary>
-        /// Name of the sub-protocol used by this DataChannel.
-        /// </summary>
-        public string Protocol { get; set; }
+       
     }
 
     public class ConsumerSetPreferredLayersResponseData : ConsumerLayers
