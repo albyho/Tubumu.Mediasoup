@@ -36,7 +36,10 @@ namespace Microsoft.AspNetCore.Builder
                             {
                                 mediasoupServer.AddWorker(worker);
                                 logger.LogInformation($"Worker[{threadId}] create success.");
-                                await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                if (mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
+                                {
+                                    await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                }
                             });
                             worker.Run();
                         }
@@ -60,7 +63,10 @@ namespace Microsoft.AspNetCore.Builder
                             {
                                 mediasoupServer.AddWorker(worker);
                                 logger.LogInformation($"Worker[{worker.ProcessId}] create success.");
-                                await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                if (mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
+                                {
+                                    await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                }
                             });
                         }
                     });
