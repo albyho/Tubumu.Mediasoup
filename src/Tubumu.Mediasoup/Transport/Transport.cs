@@ -832,15 +832,9 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var @internal = new DataProducerInternal
-                (
-                    Internal.RouterId,
-                    Internal.TransportId,
-                    dataProducerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString())
-                );
-
                 var reqData = new
                 {
+                    DataProducerId = dataProducerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString()),
                     Type = type.GetEnumMemberValue(),
                     dataProducerOptions.SctpStreamParameters,
                     Label = dataProducerOptions.Label!,
@@ -856,7 +850,7 @@ namespace Tubumu.Mediasoup
                     Protocol = responseData.Protocol!,
                 };
                 var dataProducer = new DataProducer(_loggerFactory,
-                    @internal,
+                    new DataProducerInternal(Internal.RouterId, Internal.TransportId, reqData.DataProducerId),
                     data,
                     Channel,
                     PayloadChannel,
