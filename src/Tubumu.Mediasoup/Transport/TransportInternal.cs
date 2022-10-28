@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Tubumu.Mediasoup
+﻿namespace Tubumu.Mediasoup
 {
     public class TransportInternal : RouterInternal
     {
@@ -9,18 +7,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public string TransportId { get; }
 
-        /// <summary>
-        /// WebRtcServer id.
-        /// </summary>
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? WebRtcServerId { get; }
-
-        public TransportInternal(string routerId, string transportId, string? webRtcServerId = null)
+        public TransportInternal(string routerId, string transportId) : base(routerId)
         {
-            RouterId = routerId;
             TransportId = transportId;
-            WebRtcServerId = webRtcServerId;
         }
     }
 }
-

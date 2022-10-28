@@ -39,7 +39,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Custom app data.
         /// </summary>
-        public Dictionary<string, object> AppData { get; private set; }
+        public Dictionary<string, object> AppData { get; }
 
         /// <summary>
         /// Transports map.
@@ -93,8 +93,10 @@ namespace Tubumu.Mediasoup
 
                 _closed = true;
 
+                var reqData = new { WebRtcServerId = _internal.WebRtcServerId };
+
                 // Fire and forget
-                _channel.RequestAsync(MethodId.WEBRTCSERVER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(MethodId.WORKER_CLOSE_WEBRTCSERVER, null, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 await CloseInternalAsync();
 
@@ -161,7 +163,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("WebRtcServer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.WEBRTCSERVER_DUMP, _internal))!;
+                return (await _channel.RequestAsync(MethodId.WEBRTCSERVER_DUMP, _internal.WebRtcServerId))!;
             }
         }
 

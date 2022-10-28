@@ -2,10 +2,13 @@
 
 namespace System
 {
+    /// <summary>
+    /// 拼音扩展方法
+    /// </summary>
     public static class PinYinExtensions
 	{
         /// <summary>
-        /// ConvertToPinYin
+        /// 获取全拼
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
@@ -30,11 +33,11 @@ namespace System
         }
 
         /// <summary>
-        /// ConvertToPinYinPY
+        /// 获取全拼和首字母
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static Tuple<string, string> ConvertToPinYinPY(this string source)
+        public static (string pinYin, string py) ConvertToPinYinPY(this string source)
         {
             var pinYin = "";
             var py = "";
@@ -54,11 +57,11 @@ namespace System
                     py += charString;
                 }
             }
-            return new Tuple<string, string>(pinYin, py);
+            return (pinYin, py);
         }
 
         /// <summary>
-        /// ConvertToPY
+        /// 获取首字母
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>

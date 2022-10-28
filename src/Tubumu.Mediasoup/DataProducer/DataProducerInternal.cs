@@ -1,28 +1,15 @@
 ﻿namespace Tubumu.Mediasoup
 {
-    public class DataProducerInternal
+    public class DataProducerInternal : TransportInternal
     {
-        /// <summary>
-        /// Router id.
-        /// </summary>
-        public string RouterId { get; }
-
-        /// <summary>
-        /// Transport id.
-        /// </summary>
-        public string TransportId { get; }
-
         /// <summary>
         /// DataProducer id.
         /// </summary>
         public string DataProducerId { get; }
 
-        public DataProducerInternal(string routerId, string transportId, string dataProducerId)
+        public DataProducerInternal(string routerId, string transportId, string dataProducerId) : base(routerId, transportId)
         {
-            RouterId = routerId;
-            TransportId = transportId;
             DataProducerId = dataProducerId;
         }
     }
 }
-

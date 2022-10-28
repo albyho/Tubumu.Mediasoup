@@ -22,10 +22,10 @@ namespace Tubumu.Mediasoup
         #endregion
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public object? Internal { get; set; }
+        public string? HandlerId { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public object? Data { get; set; }
+        public string? Data { get; set; }
 
         [JsonIgnore]
         public byte[]? Payload { get; set; }

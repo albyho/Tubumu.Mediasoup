@@ -96,7 +96,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        private RequestMessage CreateRequestMessage(MethodId methodId, object? @internal = null, object? data = null)
+        private RequestMessage CreateRequestMessage(MethodId methodId, string? handlerId = null, object? data = null)
         {
             var id = InterlockedExtensions.Increment(ref _nextId);
             var method = methodId.GetEnumMemberValue();
@@ -105,8 +105,8 @@ namespace Tubumu.Mediasoup
             {
                 Id = id,
                 Method = method,
-                Internal = @internal,
-                Data = data,
+                HandlerId = handlerId,
+                Data = data?.ToJson(),
             };
 
             return requestMesssge;
@@ -114,7 +114,7 @@ namespace Tubumu.Mediasoup
 
         protected abstract void SendRequestMessage(RequestMessage requestMessage, Sent sent);
 
-        public async Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null)
+        public async Task<string?> RequestAsync(MethodId methodId, string? handlerId = null, object? data = null)
         {
             _logger.LogDebug($"RequestAsync() | Worker[{_workerId}] Method:{methodId.GetEnumMemberValue()}");
 
@@ -125,7 +125,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Channel closed");
                 }
 
-                var requestMessage = CreateRequestMessage(methodId, @internal, data);
+                var requestMessage = CreateRequestMessage(methodId, handlerId, data);
 
                 var tcs = new TaskCompletionSource<string?>();
                 var sent = new Sent

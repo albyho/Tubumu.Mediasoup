@@ -128,7 +128,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                await PayloadChannel.NotifyAsync("transport.sendRtcp", Internal, null, rtcpPacket);
+                await PayloadChannel.NotifyAsync("transport.sendRtcp", Internal.TransportId, null, rtcpPacket);
             }
         }
 
@@ -169,7 +169,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        private void OnPayloadChannelMessage(string targetId, string @event, NotifyData notifyData, ArraySegment<byte> payload)
+        private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
         {
             if (targetId != Internal.TransportId)
             {

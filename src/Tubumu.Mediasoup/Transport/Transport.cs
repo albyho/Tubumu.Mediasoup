@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Force.DeepCloner;
 using Microsoft.Extensions.Logging;
@@ -59,7 +58,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// App custom data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; private set; }
+        public Dictionary<string, object> AppData { get; private set; }
 
         /// <summary>
         /// Method to retrieve Router RTP capabilities.
@@ -190,7 +189,7 @@ namespace Tubumu.Mediasoup
             BaseData = data;
             Channel = channel;
             PayloadChannel = payloadChannel;
-            AppData = appData;
+            AppData = appData ?? new Dictionary<string, object>();
             GetRouterRtpCapabilities = getRouterRtpCapabilities;
             GetProducerById = getProducerById;
             GetDataProducerById = getDataProducerById;
@@ -223,8 +222,10 @@ namespace Tubumu.Mediasoup
                 //_channel.MessageEvent -= OnChannelMessage;
                 //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
 
+                var reqData = new { TransportId = Internal.TransportId };
+
                 // Fire and forget
-                Channel.RequestAsync(MethodId.TRANSPORT_CLOSE, Internal).ContinueWithOnFaultedHandleLog(_logger);
+                Channel.RequestAsync(MethodId.ROUTER_CLOSE_TRANSPORT, Internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 await CloseIternalAsync(true);
 
@@ -412,7 +413,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                return (await Channel.RequestAsync(MethodId.TRANSPORT_DUMP, Internal))!;
+                return (await Channel.RequestAsync(MethodId.TRANSPORT_DUMP, Internal.TransportId))!;
             }
         }
 
@@ -431,7 +432,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                return (await Channel.RequestAsync(MethodId.TRANSPORT_GET_STATS, Internal))!;
+                return (await Channel.RequestAsync(MethodId.TRANSPORT_GET_STATS, Internal.TransportId))!;
             }
         }
 
@@ -460,7 +461,7 @@ namespace Tubumu.Mediasoup
 
                 var reqData = new { Bitrate = bitrate };
                 // Fire and forget
-                Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_INCOMING_BITRATE, Internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_INCOMING_BITRATE, Internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -482,7 +483,7 @@ namespace Tubumu.Mediasoup
 
                 var reqData = new { Bitrate = bitrate };
                 // Fire and forget
-                Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -551,14 +552,9 @@ namespace Tubumu.Mediasoup
                 // This may throw.
                 var consumableRtpParameters = ORTC.GetConsumableRtpParameters(producerOptions.Kind, producerOptions.RtpParameters, routerRtpCapabilities, rtpMapping);
 
-                var @internal = new ProducerInternal
-                (
-                    Internal.RouterId,
-                    Internal.TransportId,
-                    producerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString())
-                );
                 var reqData = new
                 {
+                    ProducerId = producerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString()),
                     producerOptions.Kind,
                     producerOptions.RtpParameters,
                     RtpMapping = rtpMapping,
@@ -566,7 +562,7 @@ namespace Tubumu.Mediasoup
                     producerOptions.Paused,
                 };
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE, @internal, reqData);
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE, Internal.TransportId, reqData);
                 var responseData = JsonSerializer.Deserialize<TransportProduceResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                 var data = new ProducerData
                 {
@@ -577,7 +573,7 @@ namespace Tubumu.Mediasoup
                 };
 
                 var producer = new Producer(_loggerFactory,
-                    @internal,
+                    new ProducerInternal(Internal.RouterId, Internal.TransportId, reqData.ProducerId),
                     data,
                     Channel,
                     PayloadChannel,
@@ -697,15 +693,10 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var @internal = new ConsumerInternal
-                (
-                    Internal.RouterId,
-                    Internal.TransportId,
-                    Guid.NewGuid().ToString()
-                );
-
                 var reqData = new
                 {
+                    ConsumerId = Guid.NewGuid().ToString(),
+                    ProducerId = consumerOptions.ProducerId,
                     producer.Data.Kind,
                     RtpParameters = rtpParameters,
                     Type = pipe ? ProducerType.Pipe : producer.Data.Type,
@@ -715,7 +706,7 @@ namespace Tubumu.Mediasoup
                     consumerOptions.IgnoreDtx,
                 };
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, @internal, reqData);
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, Internal.TransportId, reqData);
                 var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var data = new ConsumerData
@@ -727,7 +718,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 var consumer = new Consumer(_loggerFactory,
-                    @internal,
+                    new ConsumerInternal(Internal.RouterId, Internal.TransportId, reqData.ConsumerId),
                     data,
                     Channel,
                     PayloadChannel,
@@ -856,7 +847,7 @@ namespace Tubumu.Mediasoup
                     Protocol = dataProducerOptions.Protocol!
                 };
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE_DATA, @internal, reqData);
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE_DATA, Internal.TransportId, reqData);
                 var responseData = JsonSerializer.Deserialize<TransportDataProduceResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                 var data = new DataProducerData
                 {
@@ -979,15 +970,9 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var @internal = new DataConsumerInternal
-                (
-                    Internal.RouterId,
-                    Internal.TransportId,
-                    Guid.NewGuid().ToString()
-                );
-
                 var reqData = new
                 {
+                    DataConsumerId = Guid.NewGuid().ToString(),
                     DataProducerId = dataConsumerOptions.DataProducerId,
                     Type = type.GetEnumMemberValue(),
                     SctpStreamParameters = sctpStreamParameters,
@@ -995,11 +980,11 @@ namespace Tubumu.Mediasoup
                     Protocol = dataProducer.Data.Protocol,
                 };
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME_DATA, @internal, reqData);
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME_DATA, Internal.TransportId, reqData);
                 var responseData = JsonSerializer.Deserialize<TransportDataConsumeResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var dataConsumer = new DataConsumer(_loggerFactory,
-                    @internal,
+                    new DataConsumerInternal(Internal.RouterId, Internal.TransportId, reqData.DataConsumerId),
                     responseData, // 直接使用返回值
                     Channel,
                     PayloadChannel,
@@ -1092,7 +1077,7 @@ namespace Tubumu.Mediasoup
 
                 var reqData = new { Types = types };
                 // Fire and forget
-                Channel.RequestAsync(MethodId.TRANSPORT_ENABLE_TRACE_EVENT, Internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                Channel.RequestAsync(MethodId.TRANSPORT_ENABLE_TRACE_EVENT, Internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 

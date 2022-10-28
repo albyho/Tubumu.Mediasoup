@@ -5,11 +5,11 @@ namespace Tubumu.Mediasoup
 {
     public interface IPayloadChannel
     {
-        event Action<string, string, NotifyData, ArraySegment<byte>>? MessageEvent;
+        event Action<string, string, string?, ArraySegment<byte>>? MessageEvent;
 
         Task CloseAsync();
-        Task NotifyAsync(string @event, object @internal, NotifyData? data, byte[] payload);
-        Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null, byte[]? payload = null);
+        Task NotifyAsync(string @event, string handlerId, string? data, byte[] payload);
+        Task<string?> RequestAsync(MethodId methodId, string handlerId, string data, byte[] payload);
         void Process(string message, byte[] payload);
     }
 }

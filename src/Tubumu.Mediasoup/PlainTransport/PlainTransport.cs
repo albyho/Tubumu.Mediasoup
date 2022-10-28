@@ -108,7 +108,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = plainTransportConnectParameters;
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal.TransportId, reqData);
                 var responseData = JsonSerializer.Deserialize<PlainTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.

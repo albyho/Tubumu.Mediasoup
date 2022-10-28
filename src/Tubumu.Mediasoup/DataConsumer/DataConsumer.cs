@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
@@ -48,7 +49,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// App custom data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; private set; }
+        public Dictionary<string, object> AppData { get; }
 
         /// <summary>
         /// Observer instance.
@@ -87,7 +88,7 @@ namespace Tubumu.Mediasoup
             Data = data;
             _channel = channel;
             _payloadChannel = payloadChannel;
-            AppData = appData;
+            AppData = appData ?? new Dictionary<string, object>();
 
             HandleWorkerNotifications();
         }
@@ -112,8 +113,10 @@ namespace Tubumu.Mediasoup
                 _channel.MessageEvent -= OnChannelMessage;
                 _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
 
+                var reqData = new { DataConsumerId = _internal.DataConsumerId };
+
                 // Fire and forget
-                _channel.RequestAsync(MethodId.DATA_CONSUMER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(MethodId.TRANSPORT_CLOSE_DATA_CONSUMER, _internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("@close");
 
@@ -163,7 +166,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataConsumer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_DUMP, _internal))!;
+                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_DUMP, _internal.DataConsumerId))!;
             }
         }
 
@@ -181,7 +184,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataConsumer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_STATS, _internal))!;
+                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_STATS, _internal.DataConsumerId))!;
             }
         }
 
@@ -203,7 +206,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = new { Threshold = threshold };
-                await _channel.RequestAsync(MethodId.DATA_CONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD, _internal, reqData);
+                await _channel.RequestAsync(MethodId.DATA_CONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD, _internal.DataConsumerId, reqData);
             }
         }
 
@@ -244,7 +247,7 @@ namespace Tubumu.Mediasoup
                 message = " ";
             }
 
-            var requestData = new NotifyData { PPID = ppid.Value };
+            var requestData = ppid.Value.ToString();
 
             using (await _closeLock.ReadLockAsync())
             {
@@ -253,7 +256,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataConsumer closed");
                 }
 
-                await _payloadChannel.NotifyAsync("dataConsumer.send", _internal, requestData, Encoding.UTF8.GetBytes(message));
+                await _payloadChannel.NotifyAsync("dataConsumer.send", _internal.DataConsumerId, requestData, Encoding.UTF8.GetBytes(message));
             }
         }
 
@@ -278,7 +281,7 @@ namespace Tubumu.Mediasoup
                 message = new byte[1];
             }
 
-            var requestData = new NotifyData { PPID = ppid.Value };
+            var requestData = ppid.Value.ToString();
 
             using (await _closeLock.ReadLockAsync())
             {
@@ -287,7 +290,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataConsumer closed");
                 }
 
-                await _payloadChannel.NotifyAsync("dataConsumer.send", _internal, requestData, message);
+                await _payloadChannel.NotifyAsync("dataConsumer.send", _internal.DataConsumerId, requestData, message);
             }
         }
 
@@ -303,7 +306,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // 返回的是 JSON 格式，取其 bufferedAmount 属性。
-                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_BUFFERED_AMOUNT, _internal))!;
+                return (await _channel.RequestAsync(MethodId.DATA_CONSUMER_GET_BUFFERED_AMOUNT, _internal.DataConsumerId))!;
             }
         }
 
@@ -371,7 +374,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        private void OnPayloadChannelMessage(string targetId, string @event, NotifyData data, ArraySegment<byte> payload)
+        private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
         {
             if (targetId != DataConsumerId)
             {
@@ -382,7 +385,8 @@ namespace Tubumu.Mediasoup
             {
                 case "message":
                     {
-                        var ppid = data.PPID;
+                        var dataJsonDocument = JsonDocument.Parse(data!);
+                        var ppid = dataJsonDocument.RootElement.GetProperty("ppid").GetInt32();
                         var message = payload;
 
                         // Emit 暂不支持超过两个参数

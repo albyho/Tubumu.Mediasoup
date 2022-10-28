@@ -116,7 +116,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = pipeTransportConnectParameters;
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal.TransportId, reqData);
                 var responseData = JsonSerializer.Deserialize<PipeTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.
@@ -146,23 +146,16 @@ namespace Tubumu.Mediasoup
 
             // This may throw.
             var rtpParameters = ORTC.GetPipeConsumerRtpParameters(producer.Data.ConsumableRtpParameters, Data.Rtx);
-
-            var @internal = new ConsumerInternal
-            (
-                Internal.RouterId,
-                Internal.TransportId,
-                Guid.NewGuid().ToString()
-            );
-
             var reqData = new
             {
+                ConsumerId = Guid.NewGuid().ToString(),
                 producer.Data.Kind,
                 RtpParameters = rtpParameters,
                 Type = ConsumerType.Pipe,
                 ConsumableRtpEncodings = producer.Data.ConsumableRtpParameters.Encodings,
             };
 
-            var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, @internal, reqData);
+            var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, Internal.TransportId, reqData);
             var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
             var data = new ConsumerData
@@ -175,7 +168,7 @@ namespace Tubumu.Mediasoup
 
             // 在 Node.js 实现中， 创建 Consumer 对象时没提供 score 和 preferredLayers 参数，且 score = { score: 10, producerScore: 10 }。
             var consumer = new Consumer(_loggerFactory,
-                @internal,
+                new ConsumerInternal(Internal.RouterId, Internal.TransportId, reqData.ConsumerId),
                 data,
                 Channel,
                 PayloadChannel,

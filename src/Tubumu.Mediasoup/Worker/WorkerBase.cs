@@ -66,7 +66,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Custom app data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; }
+        public Dictionary<string, object> AppData { get; }
 
         /// <summary>
         /// Observer instance.
@@ -84,7 +84,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newrouter - (router: Router)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="hostEnvironment"></param>
         /// <param name="mediasoupOptions"></param>
         public WorkerBase(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
         {
@@ -93,7 +92,7 @@ namespace Tubumu.Mediasoup
 
             var workerSettings = mediasoupOptions.MediasoupSettings.WorkerSettings;
 
-            AppData = workerSettings.AppData;
+            AppData = workerSettings.AppData ?? new Dictionary<string, object>();
         }
 
         public abstract Task CloseAsync();
@@ -176,13 +175,18 @@ namespace Tubumu.Mediasoup
                 {
                     throw new InvalidStateException("Workder closed");
                 }
-                var @internal = new WebRtcServerInternal { WebRtcServerId = Guid.NewGuid().ToString() };
-                var reqData = new { webRtcServerOptions.ListenInfos };
+                var reqData = new {
+                    WebRtcServerId = Guid.NewGuid().ToString(),
+                    webRtcServerOptions.ListenInfos
+                };
 
-                await _channel.RequestAsync(MethodId.WORKER_CREATE_WEBRTC_SERVER, @internal, reqData);
+                await _channel.RequestAsync(MethodId.WORKER_CREATE_WEBRTC_SERVER, null, reqData);
 
                 var webRtcServer = new WebRtcServer(_loggerFactory,
-                        @internal,
+                        new WebRtcServerInternal
+                        {
+                            WebRtcServerId = reqData.WebRtcServerId
+                        },
                         _channel,
                         webRtcServerOptions.AppData
                     );
@@ -225,11 +229,19 @@ namespace Tubumu.Mediasoup
                 // This may throw.
                 var rtpCapabilities = ORTC.GenerateRouterRtpCapabilities(routerOptions.MediaCodecs);
 
-                var @internal = new { RouterId = Guid.NewGuid().ToString() };
+                var reqData = new { RouterId = Guid.NewGuid().ToString() };
 
-                await _channel.RequestAsync(MethodId.WORKER_CREATE_ROUTER, @internal);
+                await _channel.RequestAsync(MethodId.WORKER_CREATE_ROUTER, null, reqData);
 
-                var router = new Router(_loggerFactory, @internal.RouterId, rtpCapabilities, _channel, _payloadChannel, AppData);
+                var router = new Router(_loggerFactory,
+                    new RouterInternal(reqData.RouterId),
+                    new RouterData
+                    {
+                        RtpCapabilities = rtpCapabilities
+                    },
+                    _channel,
+                    _payloadChannel,
+                    routerOptions.AppData);
 
                 lock (_routersLock)
                 {

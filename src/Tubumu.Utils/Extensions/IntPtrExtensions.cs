@@ -1,5 +1,8 @@
 ﻿namespace System
 {
+    /// <summary>
+    /// IntPtr 扩展方法
+    /// </summary>
     public static class IntPtrExtensions
     {
         public static byte[] IntPtrToBytes(this IntPtr input)

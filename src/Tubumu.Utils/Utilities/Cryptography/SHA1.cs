@@ -4,7 +4,7 @@ using System.Text;
 namespace Tubumu.Utils.Utilities.Cryptography
 {
     /// <summary>
-    /// SHA1加密算法
+    /// SHA1 加密算法
     /// </summary>
     public static class SHA1
     {

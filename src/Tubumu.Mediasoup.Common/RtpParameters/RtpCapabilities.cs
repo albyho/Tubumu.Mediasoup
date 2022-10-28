@@ -322,6 +322,32 @@ namespace Tubumu.Mediasoup
                     },
                     new RtpCodecCapability {
                         Kind = MediaKind.Video,
+                        MimeType ="video/H264-SVC",
+                        ClockRate = 90000,
+                        Parameters = new Dictionary<string, object> {
+                            { "level-asymmetry-allowed", 1 },
+                        },
+                        RtcpFeedback = new RtcpFeedback[]
+                        {
+                            new RtcpFeedback {
+                                Type = "nack",
+                            },
+                            new RtcpFeedback {
+                                Type = "nack", Parameter = "pli",
+                            },
+                            new RtcpFeedback {
+                                Type = "ccm", Parameter = "fir",
+                            },
+                            new RtcpFeedback {
+                                Type = "goog-remb",
+                            },
+                            new RtcpFeedback {
+                                Type = "transport-cc",
+                            },
+                        }
+                    },
+                    new RtpCodecCapability {
+                        Kind = MediaKind.Video,
                         MimeType ="video/H265",
                         ClockRate = 90000,
                         Parameters = new Dictionary<string, object> {

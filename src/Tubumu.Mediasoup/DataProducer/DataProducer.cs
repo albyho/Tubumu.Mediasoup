@@ -33,7 +33,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// DataProducer data.
         /// </summary>
-        public DataProducerData Data { get; set; }
+        public DataProducerData Data { get; }
 
         /// <summary>
         /// Channel instance.
@@ -48,7 +48,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// App custom data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; private set; }
+        public Dictionary<string, object> AppData { get; }
 
         /// <summary>
         /// Observer instance.
@@ -82,7 +82,7 @@ namespace Tubumu.Mediasoup
             Data = data;
             _channel = channel;
             _payloadChannel = payloadChannel;
-            AppData = appData;
+            AppData = appData ?? new Dictionary<string, object>();
 
             HandleWorkerNotifications();
         }
@@ -106,8 +106,10 @@ namespace Tubumu.Mediasoup
                 // Remove notification subscriptions.
                 //_channel.MessageEvent -= OnChannelMessage;
 
+                var reqData = new { DataProducerId = _internal.DataProducerId };
+
                 // Fire and forget
-                _channel.RequestAsync(MethodId.DATA_PRODUCER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(MethodId.TRANSPORT_CLOSE_DATA_PRODUCER, _internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("close");
 
@@ -157,7 +159,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.DATA_PRODUCER_DUMP, _internal))!;
+                return (await _channel.RequestAsync(MethodId.DATA_PRODUCER_DUMP, _internal.DataProducerId))!;
             }
         }
 
@@ -175,7 +177,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.DATA_PRODUCER_GET_STATS, _internal))!;
+                return (await _channel.RequestAsync(MethodId.DATA_PRODUCER_GET_STATS, _internal.DataProducerId))!;
             }
         }
 
@@ -213,17 +215,9 @@ namespace Tubumu.Mediasoup
                 message = " ";
             }
 
-            var notifyData = new NotifyData { PPID = ppid.Value };
+            var notifyData = ppid.Value.ToString();
 
-            using (await _closeLock.ReadLockAsync())
-            {
-                if (_closed)
-                {
-                    throw new InvalidStateException("DataProducer closed");
-                }
-
-                await _payloadChannel.NotifyAsync("dataProducer.send", _internal, notifyData, Encoding.UTF8.GetBytes(message));
-            }
+            await SendInternalAsync(notifyData, Encoding.UTF8.GetBytes(message));
         }
 
         /// <summary>
@@ -244,8 +238,13 @@ namespace Tubumu.Mediasoup
                 message = new byte[1];
             }
 
-            var notifyData = new NotifyData { PPID = ppid.Value };
+            var notifyData = ppid.Value.ToString();
 
+            await SendInternalAsync(notifyData, message);
+        }
+
+        private async Task SendInternalAsync(string notifyData, byte[] message)
+        {
             using (await _closeLock.ReadLockAsync())
             {
                 if (_closed)
@@ -253,7 +252,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                await _payloadChannel.NotifyAsync("dataProducer.send", _internal, notifyData, message);
+                await _payloadChannel.NotifyAsync("dataProducer.send", _internal.DataProducerId, notifyData, message);
             }
         }
 

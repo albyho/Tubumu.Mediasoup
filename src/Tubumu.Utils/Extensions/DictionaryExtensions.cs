@@ -1,12 +1,12 @@
 ﻿namespace System.Collections.Generic
 {
     /// <summary>
-    /// DictionaryExtensions
+    /// 字典扩展方法
     /// </summary>
     public static class DictionaryExtensions
     {
         /// <summary>
-        /// 将目标字典的全部元素累复制入源字典中
+        /// 将目标字典的全部元素复制入源字典中
         /// </summary>
         /// <typeparam name="TDictionary">源字典类型</typeparam>
         /// <typeparam name="TKey">键类型</typeparam>
@@ -27,7 +27,7 @@
         }
 
         /// <summary>
-        /// 将目标字典的指定元素累复制入源字典中
+        /// 将目标字典的指定元素复制入源字典中
         /// </summary>
         /// <typeparam name="TDictionary">源字典类型</typeparam>
         /// <typeparam name="TKey">键类型</typeparam>
@@ -51,7 +51,7 @@
         }
 
         /// <summary>
-        /// 将目标字典的全部元素累从源字典中移除
+        /// 将目标字典的按指定 Key 移除
         /// </summary>
         /// <typeparam name="TDictionary">源字典类型</typeparam>
         /// <typeparam name="TKey">键类型</typeparam>
@@ -73,7 +73,7 @@
         }
 
         /// <summary>
-        /// 将目标字典的指定元素累从源字典中移除
+        /// 将目标字典的按指定 Key 移除
         /// </summary>
         /// <typeparam name="TKey">键类型</typeparam>
         /// <typeparam name="TValue">值类型</typeparam>
@@ -92,6 +92,14 @@
             return source;
         }
 
+        /// <summary>
+        /// 合并两个字典，返回新的字典
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
         public static Dictionary<TKey, TValue> Merge<TKey, TValue>(
             this IDictionary<TKey, TValue> first,
             IDictionary<TKey, TValue> second)
@@ -109,12 +117,27 @@
             return result;
         }
 
+        /// <summary>
+        /// 比较两个字典是否相同
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
         public static bool DeepEquals<TKey, TValue>(this IDictionary<TKey, TValue> first, IDictionary<TKey, TValue> second) where TKey : notnull
         {
             var comparer = new DictionaryComparer<TKey, TValue>();
             return comparer.Equals(first, second);
         }
 
+        /// <summary>
+        /// 获取字典的 HashCode
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="dic"></param>
+        /// <returns></returns>
         public static int DeepGetHashCode<TKey, TValue>(this IDictionary<TKey, TValue> dic) where TKey : notnull
         {
             var comparer = new DictionaryComparer<TKey, TValue>();
@@ -122,6 +145,11 @@
         }
     }
 
+    /// <summary>
+    /// 字典比较器
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     public class DictionaryComparer<TKey, TValue> : IEqualityComparer<IDictionary<TKey, TValue>> where TKey : notnull
     {
         public bool Equals(IDictionary<TKey, TValue>? x, IDictionary<TKey, TValue>? y)

@@ -2,6 +2,9 @@
 
 namespace System.Threading
 {
+    /// <summary>
+    /// Interlocked 扩展方法
+    /// </summary>
     public class InterlockedExtensions
     {
         /// <summary>

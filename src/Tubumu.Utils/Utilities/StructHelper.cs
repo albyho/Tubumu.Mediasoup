@@ -46,7 +46,7 @@ namespace Tubumu.Utils.Utilities
             // byte 数组长度小于结构体的大小
             if (size > bytes.Length)
             {
-                throw new ArgumentException("bytes 的长度不足", nameof(bytes));
+                throw new ArgumentException("长度不足", nameof(bytes));
                 // 返回空
                 //return default(T);
             }
@@ -76,7 +76,7 @@ namespace Tubumu.Utils.Utilities
             // byte 数组长度小于结构体的大小
             if (size > bytes.Length - offset)
             {
-                throw new ArgumentException("bytes 的长度不足", nameof(bytes));
+                throw new ArgumentException("长度不足", nameof(bytes));
                 // 返回空
                 //return default(T);
             }
@@ -97,12 +97,12 @@ namespace Tubumu.Utils.Utilities
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
-        public static string ByteArrayToString(IEnumerable<byte> buffer)
+        public static string ByteArrayToString(IEnumerable<byte> buffer, bool lower)
         {
             var sb = new StringBuilder();
             foreach (byte item in buffer)
             {
-                sb.AppendFormat("{0:X2}", item);
+                sb.AppendFormat(lower ? "{0:x2}" : "{0:X2}", item);
             }
             return sb.ToString();
         }

@@ -12,7 +12,7 @@ using Tubumu.Utils.FastReflection;
 namespace System
 {
     /// <summary>
-    /// ObjectExtensions
+    /// Object 扩展方法
     /// </summary>
     public static class ObjectExtensions
     {

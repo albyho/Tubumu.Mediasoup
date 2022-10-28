@@ -1,6 +1,6 @@
 ﻿namespace System
 {
-    public static class NumericExtensions
+    public static class FileSizeExtensions
     {
         private const double FileSizeMod = 1024.0;
         private static readonly string[] FileSizeUnits = new[] { "", "K", "M", "G", "T", "P" };

@@ -4,8 +4,11 @@ namespace Tubumu.Mediasoup
 {
     public enum MethodId
     {
+        [EnumMember(Value = "worker.close")]
+        WORKER_CLOSE,
+
         [EnumMember(Value = "worker.dump")]
-        WORKER_DUMP = 1,
+        WORKER_DUMP,
 
         [EnumMember(Value = "worker.getResourceUsage")]
         WORKER_GET_RESOURCE_USAGE,
@@ -19,14 +22,14 @@ namespace Tubumu.Mediasoup
         [EnumMember(Value = "worker.createRouter")]
         WORKER_CREATE_ROUTER,
 
-        [EnumMember(Value = "webRtcServer.close")]
-        WEBRTCSERVER_CLOSE,
+        [EnumMember(Value = "worker.closeWebRtcServer")]
+        WORKER_CLOSE_WEBRTCSERVER,
 
         [EnumMember(Value = "webRtcServer.dump")]
         WEBRTCSERVER_DUMP,
 
-        [EnumMember(Value = "router.close")]
-        ROUTER_CLOSE,
+        [EnumMember(Value = "worker.closeRouter")]
+        WORKER_CLOSE_ROUTER,
 
         [EnumMember(Value = "router.dump")]
         ROUTER_DUMP,
@@ -46,14 +49,17 @@ namespace Tubumu.Mediasoup
         [EnumMember(Value = "router.createDirectTransport")]
         ROUTER_CREATE_DIRECT_TRANSPORT,
 
+        [EnumMember(Value = "router.closeTransport")]
+        ROUTER_CLOSE_TRANSPORT,
+
         [EnumMember(Value = "router.createActiveSpeakerObserver")]
         ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER,
 
         [EnumMember(Value = "router.createAudioLevelObserver")]
         ROUTER_CREATE_AUDIO_LEVEL_OBSERVER,
 
-        [EnumMember(Value = "transport.close")]
-        TRANSPORT_CLOSE,
+        [EnumMember(Value = "router.closeRtpObserver")]
+        ROUTER_CLOSE_RTP_OBSERVER,
 
         [EnumMember(Value = "transport.dump")]
         TRANSPORT_DUMP,
@@ -88,8 +94,17 @@ namespace Tubumu.Mediasoup
         [EnumMember(Value = "transport.enableTraceEvent")]
         TRANSPORT_ENABLE_TRACE_EVENT,
 
-        [EnumMember(Value = "producer.close")]
-        PRODUCER_CLOSE,
+        [EnumMember(Value = "transport.closeProducer")]
+        TRANSPORT_CLOSE_PRODUCER,
+
+        [EnumMember(Value = "transport.closeConsumer")]
+        TRANSPORT_CLOSE_CONSUMER,
+
+        [EnumMember(Value = "transport.closeDataProducer")]
+        TRANSPORT_CLOSE_DATA_PRODUCER,
+
+        [EnumMember(Value = "transport.closeDataConsumer")]
+        TRANSPORT_CLOSE_DATA_CONSUMER,
 
         [EnumMember(Value = "producer.dump")]
         PRODUCER_DUMP,
@@ -105,9 +120,6 @@ namespace Tubumu.Mediasoup
 
         [EnumMember(Value = "producer.enableTraceEvent")]
         PRODUCER_ENABLE_TRACE_EVENT,
-
-        [EnumMember(Value = "consumer.close")]
-        CONSUMER_CLOSE,
 
         [EnumMember(Value = "consumer.dump")]
         CONSUMER_DUMP,
@@ -133,9 +145,6 @@ namespace Tubumu.Mediasoup
         [EnumMember(Value = "consumer.enableTraceEvent")]
         CONSUMER_ENABLE_TRACE_EVENT,
 
-        [EnumMember(Value = "dataProducer.close")]
-        DATA_PRODUCER_CLOSE,
-
         [EnumMember(Value = "dataProducer.dump")]
         DATA_PRODUCER_DUMP,
 
@@ -143,9 +152,6 @@ namespace Tubumu.Mediasoup
         DATA_PRODUCER_GET_STATS,
 
         [EnumMember(Value = "dataConsumer.dump")]
-        DATA_CONSUMER_CLOSE,
-
-        [EnumMember(Value = "dataConsumer.close")]
         DATA_CONSUMER_DUMP,
 
         [EnumMember(Value = "dataConsumer.getStats")]
@@ -156,9 +162,6 @@ namespace Tubumu.Mediasoup
 
         [EnumMember(Value = "dataConsumer.setBufferedAmountLowThreshold")]
         DATA_CONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD,
-
-        [EnumMember(Value = "rtpObserver.close")]
-        RTP_OBSERVER_CLOSE,
 
         [EnumMember(Value = "rtpObserver.pause")]
         RTP_OBSERVER_PAUSE,

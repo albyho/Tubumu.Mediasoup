@@ -7,7 +7,7 @@ using System.Text;
 namespace Tubumu.Utils.Utilities.Cryptography
 {
     /// <summary>
-    /// AES加密解密算法
+    /// AES 加密解密算法
     /// </summary>
     public static class AES
     {
@@ -96,14 +96,14 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <param name="encryptString"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string EncryptFromStringToHex(string encryptString, string? key = null)
+        public static string EncryptFromStringToHex(string encryptString, string? key = null, bool lower = false)
         {
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray, key);
             var sb = new StringBuilder();
             foreach (var item in encryptBuffer)
             {
-                sb.AppendFormat("{0:X2}", item);
+                sb.AppendFormat(lower ? "{0:x2}" : "{0:X2}", item);
             }
 
             return sb.ToString();
@@ -229,7 +229,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             {
                 var keyBytes = Encoding.UTF8.GetBytes(key);
                 return keyBytes.Length < 16
-                    ? throw new ArgumentOutOfRangeException(nameof(key), "key的经过UTF8编码后的长度至少需要16个字节")
+                    ? throw new ArgumentOutOfRangeException(nameof(key), "key 经过 UTF8 编码后的长度至少需要 16 个字节")
                     : keyBytes.Length == 16 ? keyBytes : keyBytes[0..16];
             }
 

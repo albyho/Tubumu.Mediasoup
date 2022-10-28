@@ -2,25 +2,8 @@
 
 namespace Tubumu.Mediasoup
 {
-    public class WebRtcTransportOptions
+    public class WebRtcTransportOptionsBase
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public WebRtcServer? WebRtcServer { get; set; }
-
-        /// <summary>
-        /// Listening IP address or addresses in order of preference (first one is the
-        /// preferred one).
-        /// </summary>
-        public TransportListenIp[]? ListenIps { get; set; }
-
-        /// <summary>
-        /// Fixed port to listen on instead of selecting automatically from Worker's port
-        /// range.
-        /// </summary>
-        public ushort? Port { get; set; } = 0; // mediasoup-work needs >= 0
-
         /// <summary>
         /// Listen in UDP. Default true.
         /// </summary>
@@ -72,5 +55,49 @@ namespace Tubumu.Mediasoup
         /// Custom application data.
         /// </summary>
         public Dictionary<string, object>? AppData { get; set; }
+    }
+
+    public class WebRtcTransportListenServer
+    {
+        /// <summary>
+        /// Instance of WebRtcServer. Mandatory unless listenIps is given.
+        /// </summary>
+        public WebRtcServer WebRtcServer { get; set; }
+    }
+
+    public class WebRtcTransportListenIndividual
+    {
+        /// <summary>
+        /// Listening IP address or addresses in order of preference (first one is the
+        /// preferred one).
+        /// </summary>
+        public TransportListenIp[]? ListenIps { get; set; }
+
+        /// <summary>
+        /// Fixed port to listen on instead of selecting automatically from Worker's port
+        /// range.
+        /// </summary>
+        public ushort? Port { get; set; } = 0; // mediasoup-work needs >= 0
+    }
+
+    public class WebRtcTransportOptions : WebRtcTransportOptionsBase
+    {
+        /// <summary>
+        /// Instance of WebRtcServer. Mandatory unless listenIps is given.
+        /// </summary>
+        public WebRtcServer? WebRtcServer { get; set; }
+
+        /// <summary>
+        /// Listening IP address or addresses in order of preference (first one is the
+        /// preferred one).
+        /// </summary>
+        public TransportListenIp[]? ListenIps { get; set; }
+
+        /// <summary>
+        /// Fixed port to listen on instead of selecting automatically from Worker's port
+        /// range.
+        /// <para>mediasoup-work needs >= 0</para>
+        /// </summary>
+        public ushort? Port { get; set; } = 0;
     }
 }

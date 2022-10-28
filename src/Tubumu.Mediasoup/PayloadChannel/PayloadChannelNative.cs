@@ -11,7 +11,7 @@ namespace Tubumu.Mediasoup
     {
         #region Events
 
-        public override event Action<string, string, NotifyData, ArraySegment<byte>>? MessageEvent;
+        public override event Action<string, string, string?, ArraySegment<byte>>? MessageEvent;
 
         #endregion Events
 
@@ -71,8 +71,16 @@ namespace Tubumu.Mediasoup
                 return null;
             }
 
-            var requestMessageJson = _requestMessageQueue.ToJson();
-            var requestMessageBytes = Encoding.UTF8.GetBytes(requestMessageJson);
+            string requestMessageString;
+            if (requestMessage.Event.IsNullOrWhiteSpace())
+            {
+                requestMessageString = $"n:{requestMessage.Event}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
+            }
+            else
+            {
+                requestMessageString = $"r:{requestMessage.Id}:{requestMessage.Method}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
+            }
+            var requestMessageBytes = Encoding.UTF8.GetBytes(requestMessageString);
 
             if (requestMessageBytes.Length > MessageMaxLen)
             {
@@ -176,12 +184,11 @@ namespace Tubumu.Mediasoup
             // If a notification emit it to the corresponding entity.
             else if (!targetId.IsNullOrWhiteSpace() && !@event.IsNullOrWhiteSpace())
             {
-                var notifyData = JsonSerializer.Deserialize<NotifyData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                 _ongoingNotification = new OngoingNotification
                 {
                     TargetId = targetId!,
                     Event = @event!,
-                    Data = notifyData,
+                    Data = data,
                 };
             }
             else

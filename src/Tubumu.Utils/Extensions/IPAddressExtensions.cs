@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace System.Net
 {
     /// <summary>
-    /// IPAddressExtensions
+    /// IPAddress 扩展方法
     /// </summary>
     public static class IPAddressExtensions
     {

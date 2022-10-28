@@ -1159,6 +1159,7 @@ namespace Tubumu.Mediasoup
                         break;
                     }
                 case "video/h264":
+                case "video/h264-svc":
                     {
                         // If strict matching check profile-level-id.
                         if (strict)

@@ -7,11 +7,6 @@ using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
-    public class RouterInternal
-    {
-        public string RouterId { get; set; }
-    }
-
     public sealed class Router : EventEmitter, IEquatable<Router>
     {
         /// <summary>
@@ -44,10 +39,7 @@ namespace Tubumu.Mediasoup
 
         #region Router data.
 
-        /// <summary>
-        /// RTC capabilities of the Router.
-        /// </summary>
-        public RtpCapabilities RtpCapabilities { get; }
+        public RouterData _data { get; }
 
         #endregion Router data.
 
@@ -94,7 +86,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// App custom data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; private set; }
+        public Dictionary<string, object> AppData { get; }
 
         /// <summary>
         /// Observer instance.
@@ -111,14 +103,14 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newrtpobserver - (rtpObserver: RtpObserver)</para>
         /// </summary>
         /// <param name="logger"></param>
-        /// <param name="routerId"></param>
+        /// <param name="@internal"></param>
         /// <param name="rtpCapabilities"></param>
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         public Router(ILoggerFactory loggerFactory,
-            string routerId,
-            RtpCapabilities rtpCapabilities,
+            RouterInternal @internal,
+            RouterData data,
             IChannel channel,
             IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData
@@ -127,14 +119,11 @@ namespace Tubumu.Mediasoup
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Router>();
 
-            _internal = new RouterInternal
-            {
-                RouterId = routerId
-            };
-            RtpCapabilities = rtpCapabilities;
+            _internal = @internal;
+            _data = data;
             _channel = channel;
             _payloadChannel = payloadChannel;
-            AppData = appData;
+            AppData = appData ?? new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -154,7 +143,8 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Fire and forget
-                _channel.RequestAsync(MethodId.ROUTER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+                var reqData = _internal;
+                _channel.RequestAsync(MethodId.WORKER_CLOSE_ROUTER, null, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 await CloseInternalAsync();
 
@@ -246,7 +236,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.ROUTER_DUMP, _internal))!;
+                return (await _channel.RequestAsync(MethodId.ROUTER_DUMP, _internal.RouterId))!;
             }
         }
 
@@ -275,10 +265,11 @@ namespace Tubumu.Mediasoup
                 {
                     throw new InvalidStateException("Router closed");
                 }
-                var @internal = new TransportInternal(RouterId, Guid.NewGuid().ToString(), webRtcServer?.WebRtcServerId);
 
                 var reqData = new
                 {
+                    TransportId = Guid.NewGuid().ToString(),
+                    webRtcServer?.WebRtcServerId,
                     webRtcTransportOptions.ListenIps,
                     webRtcTransportOptions.Port,
                     webRtcTransportOptions.EnableUdp,
@@ -295,17 +286,17 @@ namespace Tubumu.Mediasoup
 
                 var resData = await _channel.RequestAsync(webRtcTransportOptions.WebRtcServer != null ?
                     MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT_WITH_SERVER : MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT,
-                    @internal,
+                    _internal.RouterId,
                     reqData);
                 var responseData = JsonSerializer.Deserialize<RouterCreateWebRtcTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var transport = new WebRtcTransport(_loggerFactory,
-                                    @internal,
+                                    new TransportInternal(_internal.RouterId, reqData.TransportId),
                                     responseData, // 直接使用返回值
                                     _channel,
                                     _payloadChannel,
                                     webRtcTransportOptions.AppData,
-                                    () => RtpCapabilities,
+                                    () => _data.RtpCapabilities,
                                     async m =>
                                     {
                                         using (await _producersLock.ReadLockAsync())
@@ -347,10 +338,9 @@ namespace Tubumu.Mediasoup
                     throw new ArgumentException("Missing listenIp");
                 }
 
-                var @internal = new TransportInternal(RouterId, Guid.NewGuid().ToString());
-
                 var reqData = new
                 {
+                    TransportId = Guid.NewGuid().ToString(),
                     plainTransportOptions.ListenIp,
                     plainTransportOptions.Port,
                     plainTransportOptions.Comedia,
@@ -363,16 +353,16 @@ namespace Tubumu.Mediasoup
                     plainTransportOptions.SrtpCryptoSuite
                 };
 
-                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PLAIN_TRANSPORT, @internal, reqData);
+                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PLAIN_TRANSPORT, _internal.RouterId, reqData);
                 var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var transport = new PlainTransport(_loggerFactory,
-                                    @internal,
+                                    new TransportInternal(_internal.RouterId, reqData.TransportId),
                                     responseData, // 直接使用返回值
                                     _channel,
                                     _payloadChannel,
                                     plainTransportOptions.AppData,
-                                    () => RtpCapabilities,
+                                    () => _data.RtpCapabilities,
                                     async m =>
                                     {
                                         using (await _producersLock.ReadLockAsync())
@@ -414,10 +404,9 @@ namespace Tubumu.Mediasoup
                     throw new ArgumentNullException(nameof(pipeTransportOptions.ListenIp), "Missing listenIp");
                 }
 
-                var @internal = new TransportInternal(RouterId, Guid.NewGuid().ToString());
-
                 var reqData = new
                 {
+                    TransportId = Guid.NewGuid().ToString(),
                     pipeTransportOptions.ListenIp,
                     pipeTransportOptions.Port,
                     pipeTransportOptions.EnableSctp,
@@ -429,16 +418,16 @@ namespace Tubumu.Mediasoup
                     pipeTransportOptions.EnableSrtp,
                 };
 
-                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PIPE_TRANSPORT, @internal, reqData);
+                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PIPE_TRANSPORT, _internal.RouterId, reqData);
                 var responseData = JsonSerializer.Deserialize<RouterCreatePipeTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var transport = new PipeTransport(_loggerFactory,
-                                    @internal,
+                                    new TransportInternal(_internal.RouterId, reqData.TransportId),
                                     responseData, // 直接使用返回值
                                     _channel,
                                     _payloadChannel,
                                     pipeTransportOptions.AppData,
-                                    () => RtpCapabilities,
+                                    () => _data.RtpCapabilities,
                                     async m =>
                                     {
                                         using (await _producersLock.ReadLockAsync())
@@ -476,24 +465,23 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                var @internal = new TransportInternal(RouterId, Guid.NewGuid().ToString());
-
                 var reqData = new
                 {
+                    TransportId = Guid.NewGuid().ToString(),
                     Direct = true,
                     directTransportOptions.MaxMessageSize,
                 };
 
-                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_DIRECT_TRANSPORT, @internal, reqData);
+                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_DIRECT_TRANSPORT, _internal.RouterId, reqData);
                 var responseData = JsonSerializer.Deserialize<RouterCreateDirectTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 var transport = new DirectTransport(_loggerFactory,
-                                    @internal,
+                                    new TransportInternal(RouterId, reqData.TransportId),
                                     responseData, // 直接使用返回值
                                     _channel,
                                     _payloadChannel,
                                     directTransportOptions.AppData,
-                                    () => RtpCapabilities,
+                                    () => _data.RtpCapabilities,
                                     async m =>
                                     {
                                         using (await _producersLock.ReadLockAsync())
@@ -759,6 +747,20 @@ namespace Tubumu.Mediasoup
                             AppData = producer.AppData,
                         });
 
+                        // Ensure that the producer has not been closed in the meanwhile.
+                        if (producer.Closed)
+                            throw new InvalidStateException("original Producer closed");
+
+                        // Ensure that producer.paused has not changed in the meanwhile and, if
+                        // so, sync the pipeProducer.
+                        if (pipeProducer.Paused != producer.Paused)
+                        {
+                            if (producer.Paused)
+                                await pipeProducer.PauseAsync();
+                            else
+                                await pipeProducer.ResumeAsync();
+                        }
+
                         // Pipe events from the pipe Consumer to the pipe Producer.
                         pipeConsumer.Observer.On("close", async (_, _) => await pipeProducer.CloseAsync());
                         pipeConsumer.Observer.On("pause", async (_, _) => await pipeProducer.PauseAsync());
@@ -853,18 +855,17 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                var @internal = new RtpObserverInternal(RouterId, Guid.NewGuid().ToString());
-
                 var reqData = new
                 {
+                    RtpObserverId = Guid.NewGuid().ToString(),
                     activeSpeakerObserverOptions.Interval
                 };
 
                 // Fire and forget
-                _channel.RequestAsync(MethodId.ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER, @internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(MethodId.ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER, _internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 var activeSpeakerObserver = new ActiveSpeakerObserver(_loggerFactory,
-                                    @internal,
+                                    new RtpObserverInternal(_internal.RouterId, reqData.RtpObserverId),
                                     _channel,
                                     _payloadChannel,
                                     activeSpeakerObserverOptions.AppData,
@@ -895,20 +896,19 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                var @internal = new RtpObserverInternal(RouterId, Guid.NewGuid().ToString());
-
                 var reqData = new
                 {
+                    RtpObserverId = Guid.NewGuid().ToString(),
                     audioLevelObserverOptions.MaxEntries,
                     audioLevelObserverOptions.Threshold,
                     audioLevelObserverOptions.Interval
                 };
 
                 // Fire and forget
-                _channel.RequestAsync(MethodId.ROUTER_CREATE_AUDIO_LEVEL_OBSERVER, @internal, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(MethodId.ROUTER_CREATE_AUDIO_LEVEL_OBSERVER, _internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
                 var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
-                                    @internal,
+                                    new RtpObserverInternal(_internal.RouterId, reqData.RtpObserverId),
                                     _channel,
                                     _payloadChannel,
                                     audioLevelObserverOptions.AppData,

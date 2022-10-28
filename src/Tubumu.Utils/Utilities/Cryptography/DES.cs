@@ -6,7 +6,7 @@ using System.Text;
 namespace Tubumu.Utils.Utilities.Cryptography
 {
     /// <summary>
-    /// DES加密解密算法(默认采用的是ECB模式)
+    /// DES 加密解密算法(默认采用的是ECB模式)
     /// </summary>
     public static class DES
     {
@@ -299,12 +299,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
             if (key != null)
             {
                 var keyBytes = Encoding.UTF8.GetBytes(key);
-                if (keyBytes.Length < 8)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(key), "key应该是经过UTF8编码后的长度至少需要8个字节的字符串");
-                }
-
-                return keyBytes.Length == 8 ? keyBytes : keyBytes[0..8];
+                return keyBytes.Length < 8
+                    ? throw new ArgumentOutOfRangeException(nameof(key), "key 经过 UTF8 编码后的长度至少需要 8 个字节")
+                    : keyBytes.Length == 8 ? keyBytes : keyBytes[0..8];
             }
 
             return Encoding.UTF8.GetBytes(DefaultKey);

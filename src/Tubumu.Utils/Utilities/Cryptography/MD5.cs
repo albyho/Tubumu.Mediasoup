@@ -5,7 +5,7 @@ using System.Text;
 namespace Tubumu.Utils.Utilities.Cryptography
 {
     /// <summary>
-    /// MD5加密算法
+    /// MD5 加密算法
     /// </summary>
     public static class MD5
     {
@@ -73,11 +73,11 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         /// <param name="inputByteArray"></param>
         /// <returns></returns>
-        public static string EncryptFromByteArrayToHex(byte[] inputByteArray)
+        public static string EncryptFromByteArrayToHex(byte[] inputByteArray, bool lower = false)
         {
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
 
-            return ByteArrayToHex(encryptBuffer);
+            return ByteArrayToHex(encryptBuffer, lower);
         }
 
         /// <summary>
@@ -85,44 +85,20 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         /// <param name="encryptString"></param>
         /// <returns></returns>
-        public static string EncryptFromStringToHex(string encryptString)
+        public static string EncryptFromStringToHex(string encryptString, bool lower = false)
         {
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
 
-            return ByteArrayToHex(encryptBuffer);
+            return ByteArrayToHex(encryptBuffer, lower);
         }
 
-        /// <summary>
-        /// EncryptFromStringToLowerHex
-        /// </summary>
-        /// <param name="encryptString"></param>
-        /// <returns></returns>
-        public static string EncryptFromStringToLowerHex(string encryptString)
-        {
-            var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
-            var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
-
-            return ByteArrayToLowerHex(encryptBuffer);
-        }
-
-        private static string ByteArrayToHex(IEnumerable<byte> inputByteArray)
+        private static string ByteArrayToHex(IEnumerable<byte> inputByteArray, bool lower)
         {
             var sb = new StringBuilder();
             foreach (var item in inputByteArray)
             {
-                sb.AppendFormat("{0:X2}", item);
-            }
-
-            return sb.ToString();
-        }
-
-        private static string ByteArrayToLowerHex(IEnumerable<byte> inputByteArray)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in inputByteArray)
-            {
-                sb.AppendFormat("{0:x2}", item);
+                sb.AppendFormat(lower ? "{0:x2}" : "{0:X2}", item);
             }
 
             return sb.ToString();

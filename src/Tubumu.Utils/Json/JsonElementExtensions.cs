@@ -3,6 +3,9 @@ using System.Text.Json;
 
 namespace Tubumu.Utils.Json
 {
+    /// <summary>
+    /// JsonElementExtensions 扩展方法
+    /// </summary>
     public static class JsonElementExtensions
     {
         public static JsonElement? GetNullableJsonElement(this JsonElement jsonElement, string propertyName)

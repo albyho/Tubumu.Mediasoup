@@ -1,7 +1,6 @@
-﻿using System;
-namespace Tubumu.Mediasoup
+﻿namespace Tubumu.Mediasoup
 {
-	public class PipeTransportData : TransportBaseData
+    public class PipeTransportData : TransportBaseData
 	{
         public TransportTuple Tuple { get; set; }
 

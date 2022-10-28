@@ -1,6 +1,6 @@
 ﻿{
   "MediasoupStartupSettings": {
-    "MediasoupVersion": "3.9.10",
+    "MediasoupVersion": "3.10.12",
     "WorkerInProcess": true,
     //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release/mediasoup-worker",
     //"WorkerPath": "/Users/alby/Workspace/Tubumu.Mediasoup/Tubumu.Mediasoup.Executable/runtimes/osx/native/mediasoup-worker",

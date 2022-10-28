@@ -8,6 +8,9 @@ using NPOI.XSSF.UserModel;
 
 namespace NPOI
 {
+    /// <summary>
+    /// NPOI 扩展方法
+    /// </summary>
     public static class NPOIExetnsion
     {
         /// <summary>

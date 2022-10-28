@@ -42,7 +42,7 @@ namespace Tubumu.Mediasoup
 
         #region Events
 
-        public override event Action<string, string, NotifyData, ArraySegment<byte>>? MessageEvent;
+        public override event Action<string, string, string?, ArraySegment<byte>>? MessageEvent;
 
         #endregion Events
 
@@ -96,8 +96,8 @@ namespace Tubumu.Mediasoup
 
         protected override void SendNotification(RequestMessage notification)
         {
-            var messageJson = notification.ToJson();
-            var messageBytes = Encoding.UTF8.GetBytes(messageJson);
+            var messageString = $"n:{notification.Event}:{notification.HandlerId}:{notification.Data ?? "undefined"}";
+            var messageBytes = Encoding.UTF8.GetBytes(messageString);
             var payloadBytes = notification.Payload!;
 
             Loop.Default.Sync(() =>
@@ -158,7 +158,7 @@ namespace Tubumu.Mediasoup
 
         protected override void SendRequestMessage(RequestMessage requestMessage, Sent sent)
         {
-            var requestMessageJson = requestMessage.ToJson();
+            var requestMessageJson = $"r:{requestMessage.Id}:{requestMessage.Method}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
             var requestMessageBytes = Encoding.UTF8.GetBytes(requestMessageJson);
 
             if (requestMessageBytes.Length > MessageMaxLen)
@@ -349,12 +349,11 @@ namespace Tubumu.Mediasoup
                 // If a notification emit it to the corresponding entity.
                 else if (!targetId.IsNullOrWhiteSpace() && !@event.IsNullOrWhiteSpace())
                 {
-                    var notifyData = JsonSerializer.Deserialize<NotifyData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
                     _ongoingNotification = new OngoingNotification
                     {
                         TargetId = targetId!,
                         Event = @event!,
-                        Data = notifyData,
+                        Data = data,
                     };
                 }
                 else

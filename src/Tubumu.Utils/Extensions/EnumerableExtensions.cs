@@ -4,7 +4,7 @@ using System.Linq;
 namespace System.Collections.Generic
 {
     /// <summary>
-    /// EnumerableExtensions
+    /// 枚举器扩展方法
     /// </summary>
     public static class EnumerableExtensions
     {

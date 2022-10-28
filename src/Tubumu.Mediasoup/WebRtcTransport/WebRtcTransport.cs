@@ -35,23 +35,14 @@ namespace Tubumu.Mediasoup
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="transportInternal"></param>
-        /// <param name="sctpParameters"></param>
-        /// <param name="sctpState"></param>
+        /// <param name="internal"></param>
+        /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         /// <param name="getRouterRtpCapabilities"></param>
         /// <param name="getProducerById"></param>
         /// <param name="getDataProducerById"></param>
-        /// <param name="iceRole"></param>
-        /// <param name="iceParameters"></param>
-        /// <param name="iceCandidates"></param>
-        /// <param name="iceState"></param>
-        /// <param name="iceSelectedTuple"></param>
-        /// <param name="dtlsParameters"></param>
-        /// <param name="dtlsState"></param>
-        /// <param name="dtlsRemoteCert"></param>
         public WebRtcTransport(ILoggerFactory loggerFactory,
             TransportInternal @internal,
             WebRtcTransportData data,
@@ -119,7 +110,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = new { DtlsParameters = dtlsParameters };
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal, reqData);
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal.TransportId, reqData);
                 var responseData = JsonSerializer.Deserialize<WebRtcTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.
@@ -141,7 +132,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_RESTART_ICE, Internal);
+                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_RESTART_ICE, Internal.TransportId);
                 var responseData = JsonSerializer.Deserialize<WebRtcTransportRestartIceResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                 // Update data.

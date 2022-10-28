@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 namespace System
 {
     /// <summary>
-    /// TypeExtensions
+    /// Type 扩展方法
     /// </summary>
     public static class TypeExtensions
     {

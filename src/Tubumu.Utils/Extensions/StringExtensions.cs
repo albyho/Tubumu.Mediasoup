@@ -3,7 +3,7 @@
 namespace System
 {
     /// <summary>
-    /// StringExtensions
+    /// String 扩展方法
     /// </summary>
     public static class StringExtensions
     {

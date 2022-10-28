@@ -6,6 +6,6 @@
 
         public string Event { get; set; }
 
-        public NotifyData Data { get; set; }
+        public string? Data { get; set; }
     }
 }

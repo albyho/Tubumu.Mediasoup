@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
@@ -85,15 +84,11 @@ namespace Tubumu.Mediasoup
 
         protected override void SendRequestMessage(RequestMessage requestMessage, Sent sent)
         {
-            var messageJson = requestMessage.ToJson();
-            var messageBytes = Encoding.UTF8.GetBytes(messageJson);
-            if (messageBytes.Length > PayloadMaxLen)
+            var messageString = $"{requestMessage.Id}:{requestMessage.Method}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
+            var messageBytes = Encoding.UTF8.GetBytes(messageString);
+            if (messageBytes.Length > MessageMaxLen)
             {
-                throw new Exception("Channel request message too big");
-            }
-            if (messageBytes.Length + sizeof(int) > MessageMaxLen)
-            {
-                throw new Exception("Channel request payload too big");
+                throw new Exception("Channel request too big");
             }
 
             Loop.Default.Sync(() =>

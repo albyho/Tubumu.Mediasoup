@@ -43,9 +43,9 @@ namespace Tubumu.Mediasoup
                 return null;
             }
 
-            var messageJson = requestMessage.ToJson();
-            var messageBytes = Encoding.UTF8.GetBytes(messageJson);
-            if (messageBytes.Length > PayloadMaxLen)
+            var messageString = $"{requestMessage.Id}:{requestMessage.Method}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
+            var messageBytes = Encoding.UTF8.GetBytes(messageString);
+            if (messageBytes.Length > MessageMaxLen)
             {
                 throw new Exception("Channel request too big");
             }

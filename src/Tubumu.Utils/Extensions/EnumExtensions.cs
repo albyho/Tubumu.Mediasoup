@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace System
 {
     /// <summary>
-    /// EnumExtensions
+    /// 枚举扩展方法
     /// </summary>
     public static class EnumExtensions
     {

@@ -18,13 +18,13 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Whether the Producer is closed.
         /// </summary>
-        private bool _closed;
+        public bool Closed { get; private set; }
         private readonly AsyncReaderWriterLock _closeLock = new();
 
         /// <summary>
         /// Paused flag.
         /// </summary>
-        private bool _paused;
+        public bool Paused { get; private set; }
         private readonly AsyncAutoResetEvent _pauseLock = new();
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// App custom data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; private set; }
+        public Dictionary<string, object> AppData { get; private set; }
 
         /// <summary>
         /// [扩展]Consumers
@@ -123,8 +123,8 @@ namespace Tubumu.Mediasoup
             Data = data;
             _channel = channel;
             _payloadChannel = payloadChannel;
-            AppData = appData;
-            _paused = paused;
+            AppData = appData ?? new Dictionary<string, object>();
+            Paused = paused;
             _pauseLock.Set();
 
             if (_isCheckConsumer)
@@ -150,12 +150,12 @@ namespace Tubumu.Mediasoup
 
         private void CloseInternal()
         {
-            if (_closed)
+            if (Closed)
             {
                 return;
             }
 
-            _closed = true;
+            Closed = true;
 
             _checkConsumersTimer?.Dispose();
 
@@ -163,8 +163,10 @@ namespace Tubumu.Mediasoup
             _channel.MessageEvent -= OnChannelMessage;
             //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
 
+            var reqData = new { ProducerId = _internal.ProducerId };
+
             // Fire and forget
-            _channel.RequestAsync(MethodId.PRODUCER_CLOSE, _internal).ContinueWithOnFaultedHandleLog(_logger);
+            _channel.RequestAsync(MethodId.TRANSPORT_CLOSE_PRODUCER, _internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
 
             Emit("@close");
 
@@ -181,12 +183,12 @@ namespace Tubumu.Mediasoup
 
             using (await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     return;
                 }
 
-                _closed = true;
+                Closed = true;
 
                 if (_checkConsumersTimer != null)
                 {
@@ -213,12 +215,12 @@ namespace Tubumu.Mediasoup
 
             using (await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.PRODUCER_DUMP, _internal))!;
+                return (await _channel.RequestAsync(MethodId.PRODUCER_DUMP, _internal.ProducerId))!;
             }
         }
 
@@ -231,12 +233,12 @@ namespace Tubumu.Mediasoup
 
             using (await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.PRODUCER_GET_STATS, _internal))!;
+                return (await _channel.RequestAsync(MethodId.PRODUCER_GET_STATS, _internal.ProducerId))!;
             }
         }
 
@@ -249,7 +251,7 @@ namespace Tubumu.Mediasoup
 
             using (await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -257,11 +259,11 @@ namespace Tubumu.Mediasoup
                 await _pauseLock.WaitAsync();
                 try
                 {
-                    var wasPaused = _paused;
+                    var wasPaused = Paused;
 
-                    await _channel.RequestAsync(MethodId.PRODUCER_PAUSE, _internal);
+                    await _channel.RequestAsync(MethodId.PRODUCER_PAUSE, _internal.ProducerId);
 
-                    _paused = true;
+                    Paused = true;
 
                     // Emit observer event.
                     if (!wasPaused)
@@ -289,7 +291,7 @@ namespace Tubumu.Mediasoup
 
             using (await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -297,11 +299,11 @@ namespace Tubumu.Mediasoup
                 await _pauseLock.WaitAsync();
                 try
                 {
-                    var wasPaused = _paused;
+                    var wasPaused = Paused;
 
-                    await _channel.RequestAsync(MethodId.PRODUCER_RESUME, _internal);
+                    await _channel.RequestAsync(MethodId.PRODUCER_RESUME, _internal.ProducerId);
 
-                    _paused = false;
+                    Paused = false;
 
                     // Emit observer event.
                     if (wasPaused)
@@ -329,7 +331,7 @@ namespace Tubumu.Mediasoup
 
             using (await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -339,7 +341,7 @@ namespace Tubumu.Mediasoup
                     Types = types ?? Array.Empty<TraceEventType>()
                 };
 
-                await _channel.RequestAsync(MethodId.PRODUCER_ENABLE_TRACE_EVENT, _internal, reqData);
+                await _channel.RequestAsync(MethodId.PRODUCER_ENABLE_TRACE_EVENT, _internal.ProducerId, reqData);
             }
         }
 
@@ -351,12 +353,12 @@ namespace Tubumu.Mediasoup
         {
             using (await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
 
-                await _payloadChannel.NotifyAsync("producer.send", _internal, null, rtpPacket);
+                await _payloadChannel.NotifyAsync("producer.send", _internal.ProducerId, null, rtpPacket);
             }
         }
 
@@ -364,7 +366,7 @@ namespace Tubumu.Mediasoup
         {
             using (await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -455,7 +457,7 @@ namespace Tubumu.Mediasoup
             // NOTE: 使用写锁
             using (await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if (Closed)
                 {
                     _checkConsumersTimer?.Dispose();
                     return;

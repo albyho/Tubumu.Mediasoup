@@ -59,7 +59,7 @@ namespace Tubumu.Mediasoup
 
         #region Events
 
-        public abstract event Action<string, string, NotifyData, ArraySegment<byte>>? MessageEvent;
+        public abstract event Action<string, string, string?, ArraySegment<byte>>? MessageEvent;
 
         #endregion Events
 
@@ -102,7 +102,7 @@ namespace Tubumu.Mediasoup
         protected abstract void SendNotification(RequestMessage notification);
         protected abstract void SendRequestMessage(RequestMessage requestMessage, Sent sent);
 
-        private RequestMessage CreateRequestMessage(MethodId methodId, object? @internal = null, object? data = null, byte[]? payload = null)
+        private RequestMessage CreateRequestMessage(MethodId methodId, string handlerId, string data, byte[] payload)
         {
             var id = InterlockedExtensions.Increment(ref _nextId);
             var method = methodId.GetEnumMemberValue();
@@ -111,7 +111,7 @@ namespace Tubumu.Mediasoup
             {
                 Id = id,
                 Method = method,
-                Internal = @internal,
+                HandlerId = handlerId,
                 Data = data,
                 Payload = payload,
             };
@@ -119,12 +119,12 @@ namespace Tubumu.Mediasoup
             return requestMesssge;
         }
 
-        private RequestMessage CreateNotification(string @event, object @internal, NotifyData? data, byte[] payload)
+        private RequestMessage CreateNotification(string @event, string handlerId, string? data, byte[] payload)
         {
             var notification = new RequestMessage
             {
                 Event = @event,
-                Internal = @internal,
+                HandlerId = handlerId,
                 Data = data,
                 Payload = payload,
             };
@@ -132,7 +132,7 @@ namespace Tubumu.Mediasoup
             return notification;
         }
 
-        public async Task NotifyAsync(string @event, object @internal, NotifyData? data, byte[] payload)
+        public async Task NotifyAsync(string @event, string handlerId, string? data, byte[] payload)
         {
             _logger.LogDebug($"NotifyAsync() | Worker[{_workerId}] Event:{@event}");
 
@@ -143,12 +143,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("PayloadChannel closed");
                 }
 
-                var notification = CreateNotification(@event, @internal, data, payload);
+                var notification = CreateNotification(@event, handlerId, data, payload);
                 SendNotification(notification);
             }
         }
 
-        public async Task<string?> RequestAsync(MethodId methodId, object? @internal = null, object? data = null, byte[]? payload = null)
+        public async Task<string?> RequestAsync(MethodId methodId, string handlerId, string data, byte[] payload)
         {
             _logger.LogDebug($"RequestAsync() | Worker[{_workerId}] Method:{methodId.GetEnumMemberValue()}");
 
@@ -159,7 +159,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Channel closed");
                 }
 
-                var requestMessage = CreateRequestMessage(methodId, @internal, data);
+                var requestMessage = CreateRequestMessage(methodId, handlerId, data, payload);
 
                 var tcs = new TaskCompletionSource<string?>();
                 var sent = new Sent

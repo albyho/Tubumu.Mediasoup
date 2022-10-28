@@ -2,6 +2,9 @@
 
 namespace System.Threading.Tasks
 {
+    /// <summary>
+    /// Task 扩展方法
+    /// </summary>
     public static class TaskExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // 造成编译器优化调用
