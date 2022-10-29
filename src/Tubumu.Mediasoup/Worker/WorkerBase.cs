@@ -32,22 +32,22 @@ namespace Tubumu.Mediasoup
         protected IPayloadChannel _payloadChannel;
 
         /// <summary>
-        /// Routers set.
+        /// Router set.
         /// </summary>
         protected readonly List<Router> _routers = new();
 
         /// <summary>
-        /// Locker.
+        /// _routers locker.
         /// </summary>
         protected readonly object _routersLock = new();
 
         /// <summary>
-        /// Routers set.
+        /// WebRtcServers set.
         /// </summary>
         protected readonly List<WebRtcServer> _webRtcServers = new();
 
         /// <summary>
-        /// Locker.
+        /// _webRtcServer locker.
         /// </summary>
         protected readonly object _webRtcServersLock = new();
 

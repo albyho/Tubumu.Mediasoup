@@ -1,4 +1,6 @@
-﻿namespace Tubumu.Mediasoup
+﻿using System.Text.Json.Serialization;
+
+namespace Tubumu.Mediasoup
 {
     public class WebRtcServerListenInfo
 	{
@@ -18,10 +20,11 @@
 		/// </summary>
 		public string? AnnouncedIp { get; set; }
 
-		/// <summary>
-		/// Listening port.
-		/// </summary>
-		public ushort Port { get; set; }
+        /// <summary>
+        /// Listening port.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+		public ushort? Port { get; set; }
 	}
 }
 

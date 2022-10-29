@@ -160,6 +160,7 @@ namespace Tubumu.Meeting.Server
                 MaxSctpMessageSize = _webRtcTransportSettings.MaxSctpMessageSize,
                 EnableSctp = createWebRtcTransportRequest.SctpCapabilities != null,
                 NumSctpStreams = createWebRtcTransportRequest.SctpCapabilities?.NumStreams,
+                WebRtcServer = null, // TODO: Support WebRtcServer
                 AppData = new Dictionary<string, object>
                     {
                         { "Consuming", !isSend },

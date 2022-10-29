@@ -82,7 +82,10 @@ namespace Microsoft.AspNetCore.Builder
             var listenInfos = webRtcServerSettings.ListenInfos;
             foreach (var listenInfo in listenInfos)
             {
-                listenInfo.Port += portIncrement;
+                if (listenInfo.Port.HasValue)
+                {
+                    listenInfo.Port = (ushort)(listenInfo.Port.Value + portIncrement);
+                }
             }
 
             var webRtcServerOptions = new WebRtcServerOptions
