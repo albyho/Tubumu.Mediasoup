@@ -1,4 +1,6 @@
-﻿namespace Tubumu.Mediasoup
+﻿using System.Text.Json.Serialization;
+
+namespace Tubumu.Mediasoup
 {
     public class SctpParameters
     {
@@ -10,11 +12,13 @@
         /// <summary>
         /// Initially requested number of outgoing SCTP streams.
         /// </summary>
+        [JsonPropertyName("OS")]
         public int OS { get; set; }
 
         /// <summary>
         /// Maximum number of incoming SCTP streams.
         /// </summary>
+        [JsonPropertyName("MIS")]
         public int MIS { get; set; }
 
         /// <summary>

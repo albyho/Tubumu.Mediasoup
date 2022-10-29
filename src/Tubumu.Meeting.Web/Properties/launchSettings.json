@@ -1,4 +1,4 @@
-﻿{
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -17,8 +17,6 @@
     },
     "Tubumu.Meeting.Web": {
       "commandName": "Project",
-      "launchBrowser": false,
-      "applicationUrl": "",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DYLD_LIBRARY_PATH": "/opt/homebrew/Cellar/libuv/1.44.1/lib:/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release"

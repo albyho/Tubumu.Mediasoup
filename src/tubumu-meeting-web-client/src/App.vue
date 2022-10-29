@@ -474,7 +474,7 @@ export default {
       result = await this.connection.invoke('CreateRecvWebRtcTransport', {
         forceTcp: this.forceTcp,
         sctpCapabilities: this.form.useDataChannel
-							? this._mediasoupDevice.sctpCapabilities
+							? this.mediasoupDevice.sctpCapabilities
 							: undefined
       });
 

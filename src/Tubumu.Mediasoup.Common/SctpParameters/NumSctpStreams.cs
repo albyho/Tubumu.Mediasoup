@@ -1,4 +1,6 @@
-﻿namespace Tubumu.Mediasoup
+﻿using System.Text.Json.Serialization;
+
+namespace Tubumu.Mediasoup
 {
     /// <summary>
     /// Both OS and MIS are part of the SCTP INIT+ACK handshake. OS refers to the
@@ -27,11 +29,13 @@
         /// <summary>
         /// Initially requested number of outgoing SCTP streams.
         /// </summary>
+        [JsonPropertyName("OS")]
         public int OS { get; set; }
 
         /// <summary>
         /// Maximum number of incoming SCTP streams.
         /// </summary>
+        [JsonPropertyName("MIS")]
         public int MIS { get; set; }
     }
 }
