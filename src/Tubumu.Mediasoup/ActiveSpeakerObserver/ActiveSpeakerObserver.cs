@@ -61,7 +61,7 @@ namespace Tubumu.Mediasoup
                         var producer = GetProducerById(notification.ProducerId);
                         if (producer != null)
                         {
-                            var dominantSpeaker = new ActiveSpeakerObserverActivity
+                            var dominantSpeaker = new ActiveSpeakerObserverDominantSpeaker
                             {
                                 Producer = await GetProducerById(notification.ProducerId)
                             };

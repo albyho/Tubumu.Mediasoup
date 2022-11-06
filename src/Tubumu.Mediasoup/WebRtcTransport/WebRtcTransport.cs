@@ -13,7 +13,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<WebRtcTransport> _logger;
 
-        public WebRtcTransportData Data { get; set; }
+        public WebRtcTransportData Data { get; }
 
         /// <summary>
         /// <para>Events:</para>

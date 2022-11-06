@@ -17,12 +17,12 @@ namespace Tubumu.Meeting.Server
 
         public string DisplayName { get; }
 
-        public string[] Sources { get; private set; }
+        public string[] Sources { get; }
 
-        public ConcurrentDictionary<string, object> AppData { get; set; }
+        public ConcurrentDictionary<string, object> AppData { get; }
 
         [JsonIgnore]
-        public ConcurrentDictionary<string, object> InternalData { get; set; }
+        public ConcurrentDictionary<string, object> InternalData { get; }
 
         #region IEquatable<T>
 
@@ -115,7 +115,7 @@ namespace Tubumu.Meeting.Server
         public string ConnectionId { get; }
 
         [JsonIgnore]
-        public IHubClient? HubClient { get; private set; }
+        public IHubClient? HubClient { get; }
 
         public Peer(ILoggerFactory loggerFactory,
             WebRtcTransportSettings webRtcTransportSettings,

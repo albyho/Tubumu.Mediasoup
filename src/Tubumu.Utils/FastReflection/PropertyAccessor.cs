@@ -35,7 +35,7 @@ namespace Tubumu.Utils.FastReflection
         /// <summary>
         /// PropertyInfo
         /// </summary>
-        public PropertyInfo PropertyInfo { get; private set; }
+        public PropertyInfo PropertyInfo { get; }
 
         /// <summary>
         /// Constructor

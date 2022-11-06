@@ -29,7 +29,7 @@ namespace Tubumu.Utils.FastReflection
         /// <summary>
         /// MethodInfo
         /// </summary>
-        public MethodInfo MethodInfo { get; private set; }
+        public MethodInfo MethodInfo { get; }
 
         /// <summary>
         /// Constructor

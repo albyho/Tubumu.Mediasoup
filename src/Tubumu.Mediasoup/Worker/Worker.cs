@@ -30,7 +30,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Worker process PID.
         /// </summary>
-        public int ProcessId { get; private set; }
+        public int ProcessId { get; }
 
         /// <summary>
         /// Is spawn done?

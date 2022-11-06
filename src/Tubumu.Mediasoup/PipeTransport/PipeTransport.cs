@@ -21,7 +21,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// PipeTransport data.
         /// </summary>
-        public PipeTransportData Data { get; set; }
+        public PipeTransportData Data { get; }
 
         /// <summary>
         /// <para>Events:</para>

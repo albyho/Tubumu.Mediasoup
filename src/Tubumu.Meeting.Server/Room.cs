@@ -62,9 +62,9 @@ namespace Tubumu.Meeting.Server
 
         private readonly AsyncReaderWriterLock _peersLock = new();
 
-        public Router Router { get; private set; }
+        public Router Router { get; }
 
-        public AudioLevelObserver AudioLevelObserver { get; private set; }
+        public AudioLevelObserver AudioLevelObserver { get; }
 
         public Room(ILoggerFactory loggerFactory, Router router, AudioLevelObserver audioLevelObserver, string roomId, string name)
         {

@@ -1,6 +1,6 @@
 ﻿{
   "MediasoupStartupSettings": {
-    "MediasoupVersion": "3.9.10",
+    "MediasoupVersion": "0.0.1",
     "WorkerInProcess": false, // 设置为 true 则使用 libmediasoup-worker，否则使用 mediasoup-worker。
     "WorkerPath": null, // 指定 mediasoup-worker 路径或引用 Tubumu.Mediasoup.Excultable 包。
     "NumberOfWorkers": null, // 如果为 null，则使用 CPU 核心数。

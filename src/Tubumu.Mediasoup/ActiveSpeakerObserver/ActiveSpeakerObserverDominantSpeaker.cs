@@ -1,6 +1,6 @@
 ﻿namespace Tubumu.Mediasoup
 {
-    public class ActiveSpeakerObserverActivity
+    public class ActiveSpeakerObserverDominantSpeaker
     {
         /// <summary>
         /// The producer instance.

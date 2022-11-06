@@ -16,7 +16,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Producer data.
         /// </summary>
-        public PlainTransportData Data { get; set; }
+        public PlainTransportData Data { get; }
 
         /// <summary>
         /// <para>Events:</para>

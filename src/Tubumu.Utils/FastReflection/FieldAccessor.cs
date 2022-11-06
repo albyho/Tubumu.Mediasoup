@@ -27,7 +27,7 @@ namespace Tubumu.Utils.FastReflection
         /// <summary>
         /// FieldInfo
         /// </summary>
-        public FieldInfo FieldInfo { get; private set; }
+        public FieldInfo FieldInfo { get; }
 
         /// <summary>
         /// Constructor

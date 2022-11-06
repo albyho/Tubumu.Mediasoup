@@ -35,7 +35,7 @@ namespace Tubumu.Meeting.Server
 
         #endregion Private Fields
 
-        public RtpCapabilities DefaultRtpCapabilities { get; private set; }
+        public RtpCapabilities DefaultRtpCapabilities { get; }
 
         public Scheduler(ILoggerFactory loggerFactory,
             MediasoupOptions mediasoupOptions,

@@ -1,7 +1,7 @@
 ﻿namespace Tubumu.Meeting.Server
 {
     /// <summary>
-    /// 服务器模式
+    /// 服务模式
     /// </summary>
     public enum ServeMode
     {

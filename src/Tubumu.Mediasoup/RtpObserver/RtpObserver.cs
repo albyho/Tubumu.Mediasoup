@@ -28,7 +28,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Internal data.
         /// </summary>
-        public RtpObserverInternal Internal { get; private set; }
+        public RtpObserverInternal Internal { get; }
 
         /// <summary>
         /// Channel instance.
@@ -43,7 +43,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// App custom data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; private set; }
+        public Dictionary<string, object>? AppData { get; }
 
         /// <summary>
         /// Method to retrieve a Producer.

@@ -23,7 +23,7 @@ namespace Tubumu.Libuv
 
         public bool HasRef => true;
 
-        public Loop Loop { get; private set; }
+        public Loop Loop { get; }
 
         public bool IsClosed => uvfile == null;
 

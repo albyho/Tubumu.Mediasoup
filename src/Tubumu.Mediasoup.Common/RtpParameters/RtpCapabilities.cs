@@ -469,14 +469,14 @@ namespace Tubumu.Mediasoup
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.Audio,
                         Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
                         PreferredId = 13,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.Video,
                         Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
                         PreferredId= 13,
                         PreferredEncrypt = false,

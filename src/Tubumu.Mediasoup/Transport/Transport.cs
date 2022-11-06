@@ -33,7 +33,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Internal data.
         /// </summary>
-        protected TransportInternal Internal { get; set; }
+        protected TransportInternal Internal { get; }
 
         /// <summary>
         /// Trannsport id.
@@ -58,7 +58,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// App custom data.
         /// </summary>
-        public Dictionary<string, object> AppData { get; private set; }
+        public Dictionary<string, object> AppData { get; }
 
         /// <summary>
         /// Method to retrieve Router RTP capabilities.

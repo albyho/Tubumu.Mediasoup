@@ -215,13 +215,7 @@ export default {
         if(this.connection) {
          await this.connection.stop();
         }
-        this.connectForm.isConnected = false;
-        this.roomForm.isJoinedRoom = false;
-        this.camClosed();
-        this.micClosed();
-        this.peersForm.peers = [];
-        this.remoteVideoStreams = {};
-        this.remoteAudioStreams = {};
+        this.reset();
         return;
       }
 
@@ -255,11 +249,7 @@ export default {
           .build();
 
         this.connection.onclose(e => {
-          this.connectForm.isConnected = false;
-          this.roomForm.isJoinedRoom = false;
-          this.peersForm.peers = [];
-          this.disableMic().catch(() => {});
-          this.disableCam().catch(() => {});
+          this.reset();
           if(e) {
             logger.error(e)
           }
@@ -274,6 +264,19 @@ export default {
       } catch (e) {
         logger.debug(e.message);
       }
+    },
+    reset() {
+      this.connectForm.isConnected = false;
+      this.roomForm.isJoinedRoom = false;
+      this.disableMic().catch(() => { });
+      this.disableCam().catch(() => { });
+      this.peersForm.peers = [];
+      this.remoteVideoStreams = {};
+      this.remoteAudioStreams = {};
+      this.producers = {};
+      this.dataProducer = null,
+      this.consumers = {};
+      this.dataConsumers = {};
     },
     async start() {
       let result = await this.connection.invoke('GetServeMode');
@@ -444,7 +447,7 @@ export default {
 					try
 					{
 						// eslint-disable-next-line no-shadow
-						const { id } = await this._protoo.request(
+						const { id } = await this.connection.invoke(
 							'ProduceData',
 							{
 								transportId : this.sendTransport.id,
