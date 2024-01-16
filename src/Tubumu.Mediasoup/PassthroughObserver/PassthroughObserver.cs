@@ -6,44 +6,39 @@ using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
 {
-    public class ActiveSpeakerObserver : RtpObserver
+    public class PassthroughObserver : RtpObserver
     {
         /// <summary>
         /// Logger.
         /// </summary>
-        private readonly ILogger<ActiveSpeakerObserver> _logger;
+        private readonly ILogger<PassthroughObserver> _logger;
 
         /// <summary>
         /// <para>Events:</para>
-        /// <para>@emits volumes - (volumes: AudioLevelObserverVolume[])</para>
-        /// <para>@emits silence</para>
+        /// <para>@emits rtp</para>
         /// <para>Observer events:</para>
         /// <para>@emits close</para>
         /// <para>@emits pause</para>
         /// <para>@emits resume</para>
         /// <para>@emits addproducer - (producer: Producer)</para>
         /// <para>@emits removeproducer - (producer: Producer)</para>
-        /// <para>@emits volumes - (volumes: AudioLevelObserverVolume[])</para>
-        /// <para>@emits silence</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
         /// <param name="@internal"></param>
         /// <param name="channel"></param>
         /// <param name="appData"></param>
         /// <param name="getProducerById"></param>
-        public ActiveSpeakerObserver(ILoggerFactory loggerFactory,
+        public PassthroughObserver(ILoggerFactory loggerFactory,
             RtpObserverInternal @internal,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
             ) : base(loggerFactory, @internal, channel, appData, getProducerById)
         {
-            _logger = loggerFactory.CreateLogger<ActiveSpeakerObserver>();
+            _logger = loggerFactory.CreateLogger<PassthroughObserver>();
         }
 
-#pragma warning disable VSTHRD100 // Avoid async void methods
-        protected override async void OnChannelMessage(string targetId, string @event, string? data)
-#pragma warning restore VSTHRD100 // Avoid async void methods
+        protected override void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
         {
             if (targetId != Internal.RtpObserverId)
             {
@@ -52,29 +47,21 @@ namespace Tubumu.Mediasoup
 
             switch (@event)
             {
-                case "dominantspeaker":
+                case "rtp":
                     {
                         var notification = JsonSerializer.Deserialize<ActiveSpeakerObserverNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
 
                         var producer = GetProducerById(notification.ProducerId);
                         if (producer != null)
                         {
-                            var dominantSpeaker = new ActiveSpeakerObserverDominantSpeaker
-                            {
-                                Producer = await GetProducerById(notification.ProducerId)
-                            };
-
-                            Emit("dominantspeaker", dominantSpeaker);
-
-                            // Emit observer event.
-                            Observer.Emit("dominantspeaker", dominantSpeaker);
+                            Emit("rtp", payload);
                         }
 
                         break;
                     }
                 default:
                     {
-                        _logger.LogError($"OnChannelMessage() | Ignoring unknown event{@event}");
+                        _logger.LogError($"OnPayloadChannelMessage() | Ignoring unknown event{@event}");
                         break;
                     }
             }

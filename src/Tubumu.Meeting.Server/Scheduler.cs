@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 using Tubumu.Mediasoup;
@@ -136,6 +137,12 @@ namespace Tubumu.Meeting.Server
 				            Interval = 800
                         });
 
+                        /*
+                        // Create a mediasoup AudioLevelObserver.
+                        var passthroughObserver = await router.CreatePassthroughObserverAsync(new PassthroughObserverOptions());
+
+                        room = new Room(_loggerFactory, router, audioLevelObserver, passthroughObserver, joinRoomRequest.RoomId, "Default");
+                        */
                         room = new Room(_loggerFactory, router, audioLevelObserver, joinRoomRequest.RoomId, "Default");
                         _rooms[room.RoomId] = room;
                     }

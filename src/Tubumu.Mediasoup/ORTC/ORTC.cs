@@ -293,9 +293,8 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
-        /// Validates RtpHeaderExtensionParameteters. It may modify given data by adding missing
-        /// fields with default values.
-        /// It throws if invalid.
+        /// Validates RtpHeaderExtensionParameteters. It may modify given data by adding
+        /// missing fields with default values. It throws if invalid.
         /// </summary>
         public static void ValidateRtpHeaderExtensionParameters(RtpHeaderExtensionParameters ext)
         {
@@ -645,7 +644,7 @@ namespace Tubumu.Mediasoup
                 // Search for the same media codec in capabilities.
                 var matchedCapCodec = caps.Codecs!
                     .FirstOrDefault(capCodec => MatchCodecs(codec, capCodec, true, true));
-                codecToCapCodec[codec] = matchedCapCodec ?? throw new NotSupportedException($"Unsupported codec[mimeType:{ codec.MimeType }, payloadType:{ codec.PayloadType }, Channels:{ codec.Channels }]");
+                codecToCapCodec[codec] = matchedCapCodec ?? throw new NotSupportedException($"Unsupported codec[mimeType:{codec.MimeType}, payloadType:{codec.PayloadType}, Channels:{codec.Channels}]");
             }
 
             // Match parameters RTX codecs to capabilities RTX codecs.
@@ -662,7 +661,7 @@ namespace Tubumu.Mediasoup
 
                 if (associatedMediaCodec == null)
                 {
-                    throw new Exception($"missing media codec found for RTX PT { codec.PayloadType}");
+                    throw new Exception($"missing media codec found for RTX PT {codec.PayloadType}");
                 }
 
                 var capMediaCodec = codecToCapCodec[associatedMediaCodec];
@@ -670,7 +669,7 @@ namespace Tubumu.Mediasoup
                 // Ensure that the capabilities media codec has a RTX codec.
                 var associatedCapRtxCodec = caps.Codecs!
                     .FirstOrDefault(capCodec => IsRtxMimeType(capCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(capMediaCodec.PreferredPayloadType, capCodec.Parameters));
-                codecToCapCodec[codec] = associatedCapRtxCodec ?? throw new Exception($"no RTX codec for capability codec PT { capMediaCodec.PreferredPayloadType}");
+                codecToCapCodec[codec] = associatedCapRtxCodec ?? throw new Exception($"no RTX codec for capability codec PT {capMediaCodec.PreferredPayloadType}");
             }
 
             // Generate codecs mapping.
@@ -966,7 +965,7 @@ namespace Tubumu.Mediasoup
                 {
                     var scalabilityModeObject = ScalabilityMode.Parse(scalabilityMode!);
 
-                    scalabilityMode = $"S{ consumableParams.Encodings.Count }T{ scalabilityModeObject.TemporalLayers }";
+                    scalabilityMode = $"S{consumableParams.Encodings.Count}T{scalabilityModeObject.TemporalLayers}";
                 }
 
                 if (!scalabilityMode.IsNullOrWhiteSpace())

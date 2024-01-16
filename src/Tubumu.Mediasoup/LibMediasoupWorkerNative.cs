@@ -2,8 +2,6 @@
 using System.Runtime.InteropServices;
 using ChannelReadCtx = System.IntPtr;
 using ChannelWriteCtx = System.IntPtr;
-using PayloadChannelReadCtx = System.IntPtr;
-using PayloadChannelWriteCtx = System.IntPtr;
 using size_t = System.IntPtr;
 
 namespace Tubumu.Mediasoup
@@ -58,36 +56,6 @@ namespace Tubumu.Mediasoup
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void PayloadChannelReadFreeFn(IntPtr message, uint messageLen, size_t messageCtx);
 
-        /// <summary>
-        /// Write to PayloadChannel
-        /// </summary>
-        /// <param name="message">uint8_t**</param>
-        /// <param name="messageLen">uint32_t*</param>
-        /// <param name="messageCtx">size_t*</param>
-        /// <param name="payload">uint8_t**</param>
-        /// <param name="payloadLen">uint32_t*</param>
-        /// <param name="payloadCapacity">size_t*</param>
-        /// <param name="handle">const void*</param>
-        /// <param name="ctx">void*</param>
-        /// <returns>Returns `PayloadChannelReadFree` on successful read that must be used to free `message`</returns>
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate PayloadChannelReadFreeFn? PayloadChannelReadFn(IntPtr message, IntPtr messageLen, IntPtr messageCtx,
-            IntPtr payload, IntPtr payloadLen, IntPtr payloadCapacity,
-            IntPtr handle, ChannelReadCtx ctx);
-
-        /// <summary>
-        /// Read from PayloadChannel
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="messageLen"></param>
-        /// <param name="payload"></param>
-        /// <param name="payloadLen"></param>
-        /// <param name="ctx"></param>
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate void PayloadChannelWriteFn([MarshalAs(UnmanagedType.LPStr)] string message, uint messageLen,
-            IntPtr payload, uint payloadLen,
-            PayloadChannelWriteCtx ctx);
-
         #endregion
 
         /// <summary>
@@ -124,16 +92,12 @@ namespace Tubumu.Mediasoup
             string version,
             int consumerChannelFd,
             int producerChannelFd,
-            int payloadConsumeChannelFd,
-            int payloadProduceChannelFd,
+            int /*payloadConsumeChannelFd*/_t1,
+            int /*payloadProduceChannelFd*/_t2,
             ChannelReadFn channelReadFn,
             ChannelReadCtx channelReadCtx,
             ChannelWriteFn channelWriteFn,
-            ChannelWriteCtx channelWriteCtx,
-            PayloadChannelReadFn payloadChannelReadFn,
-            PayloadChannelReadCtx payloadChannelReadCtx,
-            PayloadChannelWriteFn payloadChannelWriteFn,
-            PayloadChannelWriteCtx payloadChannelWriteCtx
+            ChannelWriteCtx channelWriteCtx
             );
     }
 }

@@ -58,6 +58,9 @@ namespace Tubumu.Mediasoup
         [EnumMember(Value = "router.createAudioLevelObserver")]
         ROUTER_CREATE_AUDIO_LEVEL_OBSERVER,
 
+        [EnumMember(Value = "router.createPassthroughObserver")]
+        ROUTER_CREATE_PASSTHROUGH_OBSERVER,
+
         [EnumMember(Value = "router.closeRtpObserver")]
         ROUTER_CLOSE_RTP_OBSERVER,
 
@@ -75,6 +78,9 @@ namespace Tubumu.Mediasoup
 
         [EnumMember(Value = "transport.setMaxOutgoingBitrate")]
         TRANSPORT_SET_MAX_OUTGOING_BITRATE,
+
+        [EnumMember(Value = "transport.setMinOutgoingBitrate")]
+        TRANSPORT_SET_MIN_OUTGOING_BITRATE,
 
         [EnumMember(Value = "transport.restartIce")]
         TRANSPORT_RESTART_ICE,

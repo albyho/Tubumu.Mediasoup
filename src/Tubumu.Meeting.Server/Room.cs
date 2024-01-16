@@ -66,12 +66,19 @@ namespace Tubumu.Meeting.Server
 
         public AudioLevelObserver AudioLevelObserver { get; }
 
-        public Room(ILoggerFactory loggerFactory, Router router, AudioLevelObserver audioLevelObserver, string roomId, string name)
+        //public PassthroughObserver PassthroughObserver { get; }
+
+        public Room(ILoggerFactory loggerFactory,
+            Router router,
+            AudioLevelObserver audioLevelObserver,
+            //PassthroughObserver passthroughObserver,
+            string roomId, string name)
         {
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger<Room>();
             Router = router;
             AudioLevelObserver = audioLevelObserver;
+            //PassthroughObserver = passthroughObserver;
             RoomId = roomId;
             Name = name.NullOrWhiteSpaceReplace("Default");
             _closed = false;

@@ -38,7 +38,6 @@ namespace Tubumu.Mediasoup
         /// <param name="internal"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
-        /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         /// <param name="getRouterRtpCapabilities"></param>
         /// <param name="getProducerById"></param>
@@ -47,7 +46,6 @@ namespace Tubumu.Mediasoup
             TransportInternal @internal,
             WebRtcTransportData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,

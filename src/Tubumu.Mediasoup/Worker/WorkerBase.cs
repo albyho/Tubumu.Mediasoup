@@ -27,11 +27,6 @@ namespace Tubumu.Mediasoup
         protected IChannel _channel;
 
         /// <summary>
-        /// PayloadChannel instance.
-        /// </summary>
-        protected IPayloadChannel _payloadChannel;
-
-        /// <summary>
         /// Router set.
         /// </summary>
         protected readonly List<Router> _routers = new();
@@ -240,7 +235,6 @@ namespace Tubumu.Mediasoup
                         RtpCapabilities = rtpCapabilities
                     },
                     _channel,
-                    _payloadChannel,
                     routerOptions.AppData);
 
                 lock (_routersLock)

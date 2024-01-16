@@ -51,11 +51,6 @@ namespace Tubumu.Mediasoup
         protected readonly IChannel Channel;
 
         /// <summary>
-        /// PayloadChannel instance.
-        /// </summary>
-        protected readonly IPayloadChannel PayloadChannel;
-
-        /// <summary>
         /// App custom data.
         /// </summary>
         public Dictionary<string, object> AppData { get; }
@@ -166,7 +161,6 @@ namespace Tubumu.Mediasoup
         /// <param name="@internal"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
-        /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         /// <param name="getRouterRtpCapabilities"></param>
         /// <param name="getProducerById"></param>
@@ -175,7 +169,6 @@ namespace Tubumu.Mediasoup
             TransportInternal @internal,
             TransportBaseData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
@@ -188,7 +181,6 @@ namespace Tubumu.Mediasoup
             Internal = @internal;
             BaseData = data;
             Channel = channel;
-            PayloadChannel = payloadChannel;
             AppData = appData ?? new Dictionary<string, object>();
             GetRouterRtpCapabilities = getRouterRtpCapabilities;
             GetProducerById = getProducerById;
@@ -351,7 +343,7 @@ namespace Tubumu.Mediasoup
             {
                 foreach (var dataConsumer in DataConsumers.Values)
                 {
-                   await dataConsumer.TransportClosedAsync();
+                    await dataConsumer.TransportClosedAsync();
                 }
                 DataConsumers.Clear();
             }
@@ -366,11 +358,12 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
-        /// Listen server was closed (this just happens in WebRtcTransports when their associated WebRtcServer is closed).
+        /// Listen server was closed (this just happens in WebRtcTransports when their
+        /// associated WebRtcServer is closed).
         /// </summary>
         /// <returns></returns>
         public async Task ListenServerClosedAsync()
-	    {
+        {
             using (await CloseLock.WriteLockAsync())
             {
                 if (Closed)
@@ -397,12 +390,12 @@ namespace Tubumu.Mediasoup
                 // Emit observer event.
                 Observer.Emit("close");
             }
-	    }
+        }
 
-    /// <summary>
-    /// Dump Transport.
-    /// </summary>
-    public async Task<string> DumpAsync()
+        /// <summary>
+        /// Dump Transport.
+        /// </summary>
+        public async Task<string> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Transport:{TransportId}");
 
@@ -474,7 +467,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"setMaxOutgoingBitrate() | Transport:{TransportId} Bitrate:{bitrate}");
 
-            using(await CloseLock.ReadLockAsync())
+            using (await CloseLock.ReadLockAsync())
             {
                 if (Closed)
                 {
@@ -484,6 +477,28 @@ namespace Tubumu.Mediasoup
                 var reqData = new { Bitrate = bitrate };
                 // Fire and forget
                 Channel.RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+            }
+        }
+
+        /// <summary>
+        /// Set minimum outgoing bitrate for sending media.
+        /// </summary>
+        /// <param name="bitrate"></param>
+        /// <returns></returns>
+        public virtual async Task SetMinOutgoingBitrateAsync(int bitrate)
+        {
+            _logger.LogDebug($"setMinOutgoingBitrate() | Transport:{TransportId} Bitrate:{bitrate}");
+
+            using (await CloseLock.ReadLockAsync())
+            {
+                if (Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
+
+                var reqData = new { Bitrate = bitrate };
+                // Fire and forget
+                Channel.RequestAsync(MethodId.TRANSPORT_SET_MIN_OUTGOING_BITRATE, Internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -576,7 +591,6 @@ namespace Tubumu.Mediasoup
                     new ProducerInternal(Internal.RouterId, Internal.TransportId, reqData.ProducerId),
                     data,
                     Channel,
-                    PayloadChannel,
                     producerOptions.AppData,
                     producerOptions.Paused!.Value);
 
@@ -721,7 +735,6 @@ namespace Tubumu.Mediasoup
                     new ConsumerInternal(Internal.RouterId, Internal.TransportId, reqData.ConsumerId),
                     data,
                     Channel,
-                    PayloadChannel,
                     AppData,
                     responseData.Paused,
                     responseData.ProducerPaused,
@@ -853,7 +866,6 @@ namespace Tubumu.Mediasoup
                     new DataProducerInternal(Internal.RouterId, Internal.TransportId, reqData.DataProducerId),
                     data,
                     Channel,
-                    PayloadChannel,
                     AppData);
 
                 dataProducer.On("@close", async (_, _) =>

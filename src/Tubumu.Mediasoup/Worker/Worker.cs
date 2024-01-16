@@ -16,7 +16,7 @@ namespace Tubumu.Mediasoup
     {
         #region Constants
 
-        private const int StdioCount = 7;
+        private const int StdioCount = 5;
 
         #endregion Constants
 
@@ -115,8 +115,6 @@ namespace Tubumu.Mediasoup
             // fd 2 (stderr)  : Same as stdout.
             // fd 3 (channel) : Producer Channel fd.
             // fd 4 (channel) : Consumer Channel fd.
-            // fd 5 (channel) : Producer PayloadChannel fd.
-            // fd 6 (channel) : Consumer PayloadChannel fd.
             for (var i = 1; i < StdioCount; i++)
             {
                 _pipes[i] = new Pipe() { Writeable = true, Readable = true };
@@ -158,8 +156,6 @@ namespace Tubumu.Mediasoup
             _channel = new Channel(_loggerFactory.CreateLogger<Channel>(), _pipes[3], _pipes[4], ProcessId);
             _channel.MessageEvent += OnChannelMessage;
 
-            _payloadChannel = new PayloadChannel(_loggerFactory.CreateLogger<PayloadChannel>(), _pipes[5], _pipes[6], ProcessId);
-
             _pipes.ForEach(m => m?.Resume());
         }
 
@@ -190,12 +186,6 @@ namespace Tubumu.Mediasoup
                 if (_channel != null)
                 {
                     await _channel.CloseAsync();
-                }
-
-                // Close the PayloadChannel instance.
-                if (_payloadChannel != null)
-                {
-                    await _payloadChannel.CloseAsync();
                 }
 
                 // Close every Router.
@@ -239,22 +229,23 @@ namespace Tubumu.Mediasoup
 
         private void OnChannelMessage(string targetId, string @event, string? data)
         {
-            if (@event != "running")
-            {
-                return;
-            }
-
-            _channel.MessageEvent -= OnChannelMessage;
-
-            if (!_spawnDone)
+            if (!_spawnDone && @event == "running")
             {
                 _spawnDone = true;
+                _logger.LogDebug($"worker process running [pid:{ProcessId}]");
                 Emit("@success");
+                _channel.MessageEvent -= OnChannelMessage;
             }
         }
 
         private void OnExit(Process process)
         {
+            // If killed by ourselves, do nothing.
+            if (!process.IsAlive)
+            {
+                return;
+            }
+
             _child = null;
             CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 

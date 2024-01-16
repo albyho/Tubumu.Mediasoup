@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -161,7 +162,7 @@ namespace Tubumu.Mediasoup
 
             // Remove notification subscriptions.
             _channel.MessageEvent -= OnChannelMessage;
-            //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+            _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
 
             var reqData = new { ProducerId = _internal.ProducerId };
 
@@ -197,7 +198,7 @@ namespace Tubumu.Mediasoup
 
                 // Remove notification subscriptions.
                 _channel.MessageEvent -= OnChannelMessage;
-                //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
 
                 Emit("transportclose");
 
@@ -391,6 +392,7 @@ namespace Tubumu.Mediasoup
         private void HandleWorkerNotifications()
         {
             _channel.MessageEvent += OnChannelMessage;
+            _payloadChannel.MessageEvent += OnPayloadChannelMessage;
         }
 
         private void OnChannelMessage(string targetId, string @event, string? data)
@@ -441,6 +443,39 @@ namespace Tubumu.Mediasoup
                         _logger.LogError($"OnChannelMessage() | Ignoring unknown event{@event}");
                         break;
                     }
+            }
+        }
+
+        private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
+        {
+            if (targetId != ProducerId)
+            {
+                return;
+            }
+
+            switch (@event)
+            {
+                case "rtp":
+                    {
+                        Emit("rtp", payload);
+                        //AppendAllBytes($"/Users/alby/Downloads/{targetId}.rtp", payload.Array!);
+                        break;
+                    }
+                default:
+                    {
+                        _logger.LogError($"OnPayloadChannelMessage() | Ignoring unknown event{@event}");
+                        break;
+                    }
+            }
+        }
+
+        private static void AppendAllBytes(string path, byte[] bytes)
+        {
+            //argument-checking here.
+
+            using (var stream = new FileStream(path, FileMode.Append))
+            {
+                stream.Write(bytes, 0, bytes.Length);
             }
         }
 

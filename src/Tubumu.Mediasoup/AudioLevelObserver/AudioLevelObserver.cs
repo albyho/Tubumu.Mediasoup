@@ -35,10 +35,9 @@ namespace Tubumu.Mediasoup
         public AudioLevelObserver(ILoggerFactory loggerFactory,
             RtpObserverInternal @internal,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
-            ) : base(loggerFactory, @internal, channel, payloadChannel, appData, getProducerById)
+            ) : base(loggerFactory, @internal, channel, appData, getProducerById)
         {
             _logger = loggerFactory.CreateLogger<AudioLevelObserver>();
         }

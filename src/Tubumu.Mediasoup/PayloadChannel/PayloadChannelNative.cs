@@ -218,27 +218,6 @@ namespace Tubumu.Mediasoup
             }
         };
 
-        internal static readonly LibMediasoupWorkerNative.PayloadChannelReadFn OnPayloadChannelRead = (message, messageLen, messageCtx,
-            payload, payloadLen, payloadCapacity,
-            handle, ctx) =>
-        {
-            var payloadChannel = (PayloadChannelNative)GCHandle.FromIntPtr(ctx).Target!;
-            var requestMessage = payloadChannel.ProduceMessage(message, messageLen, messageCtx,
-                payload, payloadLen, payloadCapacity,
-                handle);
-            return requestMessage == null ? null : OnPayloadChannelReadFree;
-        };
-
-        internal static readonly LibMediasoupWorkerNative.PayloadChannelWriteFn OnPayloadchannelWrite = (message, messageLen, payload, payloadLen, ctx) =>
-        {
-            var handle = GCHandle.FromIntPtr(ctx);
-            var payloadChannel = (IPayloadChannel)handle.Target!;
-
-            var payloadBytes = new byte[payloadLen];
-            Marshal.Copy(payload, payloadBytes, 0, (int)payloadLen);
-            payloadChannel.Process(message, payloadBytes);
-        };
-
         #endregion
     }
 }

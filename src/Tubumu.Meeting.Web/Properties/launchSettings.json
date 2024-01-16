@@ -19,7 +19,7 @@
       "commandName": "Project",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DYLD_LIBRARY_PATH": "/opt/homebrew/Cellar/libuv/1.44.1/lib:/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release"
+        "DYLD_LIBRARY_PATH": "/opt/homebrew/Cellar/libuv/1.47.0/lib:/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release"
       }
     }
   }

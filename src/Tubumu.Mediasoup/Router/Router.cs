@@ -49,11 +49,6 @@ namespace Tubumu.Mediasoup
         private readonly IChannel _channel;
 
         /// <summary>
-        /// PayloadChannel instance.
-        /// </summary>
-        private readonly IPayloadChannel _payloadChannel;
-
-        /// <summary>
         /// Transports map.
         /// </summary>
         private readonly Dictionary<string, Transport> _transports = new();
@@ -112,7 +107,6 @@ namespace Tubumu.Mediasoup
             RouterInternal @internal,
             RouterData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData
             )
         {
@@ -122,7 +116,6 @@ namespace Tubumu.Mediasoup
             _internal = @internal;
             _data = data;
             _channel = channel;
-            _payloadChannel = payloadChannel;
             AppData = appData ?? new Dictionary<string, object>();
         }
 
@@ -247,7 +240,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateWebRtcTransportAsync()");
 
-            if(webRtcTransportOptions.WebRtcServer == null && webRtcTransportOptions.ListenIps.IsNullOrEmpty())
+            if (webRtcTransportOptions.WebRtcServer == null && webRtcTransportOptions.ListenIps.IsNullOrEmpty())
             {
                 throw new ArgumentException("missing webRtcServer and listenIps (one of them is mandatory)");
             }
@@ -294,7 +287,6 @@ namespace Tubumu.Mediasoup
                                     new TransportInternal(_internal.RouterId, reqData.TransportId),
                                     responseData, // 直接使用返回值
                                     _channel,
-                                    _payloadChannel,
                                     webRtcTransportOptions.AppData,
                                     () => _data.RtpCapabilities,
                                     async m =>
@@ -360,7 +352,6 @@ namespace Tubumu.Mediasoup
                                     new TransportInternal(_internal.RouterId, reqData.TransportId),
                                     responseData, // 直接使用返回值
                                     _channel,
-                                    _payloadChannel,
                                     plainTransportOptions.AppData,
                                     () => _data.RtpCapabilities,
                                     async m =>
@@ -374,7 +365,7 @@ namespace Tubumu.Mediasoup
                                     {
                                         using (await _dataProducersLock.ReadLockAsync())
                                         {
-                                            return  _dataProducers.TryGetValue(m, out var p) ? p : null;
+                                            return _dataProducers.TryGetValue(m, out var p) ? p : null;
                                         }
                                     }
                                 );
@@ -425,7 +416,6 @@ namespace Tubumu.Mediasoup
                                     new TransportInternal(_internal.RouterId, reqData.TransportId),
                                     responseData, // 直接使用返回值
                                     _channel,
-                                    _payloadChannel,
                                     pipeTransportOptions.AppData,
                                     () => _data.RtpCapabilities,
                                     async m =>
@@ -479,7 +469,6 @@ namespace Tubumu.Mediasoup
                                     new TransportInternal(RouterId, reqData.TransportId),
                                     responseData, // 直接使用返回值
                                     _channel,
-                                    _payloadChannel,
                                     directTransportOptions.AppData,
                                     () => _data.RtpCapabilities,
                                     async m =>
@@ -510,7 +499,7 @@ namespace Tubumu.Mediasoup
             {
                 _transports[transport.TransportId] = transport;
             }
-            
+
             transport.On("@close", async (_, _) =>
             {
                 using (await _transportsLock.WriteLockAsync())
@@ -558,13 +547,13 @@ namespace Tubumu.Mediasoup
                 }
             });
 
+            // Emit observer event.
+            Observer.Emit("newtransport", transport);
+
             if (webRtcServer != null && transport is WebRtcTransport webRtcTransport)
             {
                 await webRtcServer.HandleWebRtcTransportAsync(webRtcTransport);
             }
-
-            // Emit observer event.
-            Observer.Emit("newtransport", transport);
         }
 
         /// <summary>
@@ -572,7 +561,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="pipeToRouterOptions">ListenIp 传入 127.0.0.1, EnableSrtp 传入 true 。</param>
         /// <returns></returns>
-        public async Task<PipeToRouterResult> PipeToRouterAsync(PipeToRouterOptions pipeToRouterOptions)
+        public async Task<PipeToRouterResult> PipeToRouteAsync(PipeToRouterOptions pipeToRouterOptions)
         {
             using (await _closeLock.ReadLockAsync())
             {
@@ -782,7 +771,7 @@ namespace Tubumu.Mediasoup
 
                         if (pipeProducer != null)
                         {
-                           await pipeProducer.CloseAsync();
+                            await pipeProducer.CloseAsync();
                         }
 
                         throw;
@@ -846,7 +835,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<ActiveSpeakerObserver> CreateActiveSpeakerObserverAsync(ActiveSpeakerObserverOptions activeSpeakerObserverOptions)
         {
-		    _logger.LogDebug("CreateActiveSpeakerObserverAsync()");
+            _logger.LogDebug("CreateActiveSpeakerObserverAsync()");
 
             using (await _closeLock.ReadLockAsync())
             {
@@ -867,7 +856,6 @@ namespace Tubumu.Mediasoup
                 var activeSpeakerObserver = new ActiveSpeakerObserver(_loggerFactory,
                                     new RtpObserverInternal(_internal.RouterId, reqData.RtpObserverId),
                                     _channel,
-                                    _payloadChannel,
                                     activeSpeakerObserverOptions.AppData,
                                     async m =>
                                     {
@@ -910,7 +898,6 @@ namespace Tubumu.Mediasoup
                 var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
                                     new RtpObserverInternal(_internal.RouterId, reqData.RtpObserverId),
                                     _channel,
-                                    _payloadChannel,
                                     audioLevelObserverOptions.AppData,
                                     async m =>
                                     {
@@ -922,6 +909,45 @@ namespace Tubumu.Mediasoup
                 await ConfigureRtpObserverAsync(audioLevelObserver);
 
                 return audioLevelObserver;
+            }
+        }
+
+        /// <summary>
+        /// Create an PassthroughObserver.
+        /// </summary>
+        public async Task<PassthroughObserver> CreatePassthroughObserverAsync(PassthroughObserverOptions passthroughObserverOptions)
+        {
+            _logger.LogDebug("CreatePassthroughObserverAsync()");
+
+            using (await _closeLock.ReadLockAsync())
+            {
+                if (_closed)
+                {
+                    throw new InvalidStateException("Router closed");
+                }
+
+                var reqData = new
+                {
+                    RtpObserverId = Guid.NewGuid().ToString()
+                };
+
+                // Fire and forget
+                _channel.RequestAsync(MethodId.ROUTER_CREATE_PASSTHROUGH_OBSERVER, _internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+
+                var passthroughObserver = new PassthroughObserver(_loggerFactory,
+                                    new RtpObserverInternal(_internal.RouterId, reqData.RtpObserverId),
+                                    _channel,
+                                    passthroughObserverOptions.AppData,
+                                    async m =>
+                                    {
+                                        using (await _producersLock.ReadLockAsync())
+                                        {
+                                            return _producers.TryGetValue(m, out var p) ? p : null;
+                                        }
+                                    });
+                await ConfigureRtpObserverAsync(passthroughObserver);
+
+                return passthroughObserver;
             }
         }
 

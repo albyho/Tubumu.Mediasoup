@@ -39,7 +39,6 @@ namespace Tubumu.Mediasoup
         /// <param name="@internal"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
-        /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         /// <param name="getRouterRtpCapabilities"></param>
         /// <param name="getProducerById"></param>
@@ -48,12 +47,11 @@ namespace Tubumu.Mediasoup
             TransportInternal @internal,
             PlainTransportData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
             Func<string, Task<DataProducer?>> getDataProducerById
-            ) : base(loggerFactory, @internal, data, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
+            ) : base(loggerFactory, @internal, data, channel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
         {
             _logger = loggerFactory.CreateLogger<PlainTransport>();
 

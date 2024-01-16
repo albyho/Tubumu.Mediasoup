@@ -36,11 +36,6 @@ namespace Tubumu.Mediasoup
         protected readonly IChannel Channel;
 
         /// <summary>
-        /// PayloadChannel instance.
-        /// </summary>
-        protected readonly IPayloadChannel PayloadChannel;
-
-        /// <summary>
         /// App custom data.
         /// </summary>
         public Dictionary<string, object>? AppData { get; }
@@ -69,13 +64,11 @@ namespace Tubumu.Mediasoup
         /// <param name="loggerFactory"></param>
         /// <param name="@internal"></param>
         /// <param name="channel"></param>
-        /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         /// <param name="getProducerById"></param>
         protected RtpObserver(ILoggerFactory loggerFactory,
             RtpObserverInternal @internal,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
             )
@@ -84,7 +77,6 @@ namespace Tubumu.Mediasoup
 
             Internal = @internal;
             Channel = channel;
-            PayloadChannel = payloadChannel;
             AppData = appData ?? new Dictionary<string, object>();
             GetProducerById = getProducerById;
             _pauseLock.Set();
@@ -110,7 +102,7 @@ namespace Tubumu.Mediasoup
 
                 // Remove notification subscriptions.
                 Channel.MessageEvent -= OnChannelMessage;
-                //PayloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                PayloadChannel.MessageEvent -= OnPayloadChannelMessage; ;
 
                 var reqData = new { RtpObserverId = Internal.RtpObserverId };
 
@@ -296,9 +288,16 @@ namespace Tubumu.Mediasoup
         private void HandleWorkerNotifications()
         {
             Channel.MessageEvent += OnChannelMessage;
+            PayloadChannel.MessageEvent += OnPayloadChannelMessage;
         }
 
-        protected abstract void OnChannelMessage(string targetId, string @event, string? data);
+        protected virtual void OnChannelMessage(string targetId, string @event, string? data)
+        {
+        }
+
+        protected virtual void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
+        {
+        }
 
         #endregion Event Handlers
     }

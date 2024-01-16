@@ -35,7 +35,6 @@ namespace Tubumu.Mediasoup
             TransportInternal @internal,
             TransportBaseData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
@@ -97,6 +96,17 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogError($"SetMaxOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
             throw new NotImplementedException("SetMaxOutgoingBitrateAsync is not implemented in DirectTransport");
+        }
+
+        /// <summary>
+        /// Set minimum outgoing bitrate for sending media.
+        /// </summary>
+        /// <param name="bitrate"></param>
+        /// <returns></returns>
+        public override Task<string> SetMinOutgoingBitrateAsync(int bitrate)
+        {
+            _logger.LogError($"SetMinOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
+            throw new NotImplementedException("SetMinOutgoingBitrateAsync is not implemented in DirectTransport");
         }
 
         /// <summary>
