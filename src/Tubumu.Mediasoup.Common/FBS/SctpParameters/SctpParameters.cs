@@ -94,9 +94,15 @@ namespace FBS.SctpParameters
     {
         [JsonPropertyName("port")]
         public ushort Port { get; set; }
-        [JsonPropertyName("os")]
+        /// <summary>
+        /// OS. Renamed.
+        /// </summary>
+        [JsonPropertyName("OS")]
         public ushort Os { get; set; }
-        [JsonPropertyName("mis")]
+        /// <summary>
+        /// MIS. Renamed.
+        /// </summary>
+        [JsonPropertyName("MIS")]
         public ushort Mis { get; set; }
         [JsonPropertyName("max_message_size")]
         public uint MaxMessageSize { get; set; }

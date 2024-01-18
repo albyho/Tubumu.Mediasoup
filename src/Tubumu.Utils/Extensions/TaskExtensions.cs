@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 
 namespace System.Threading.Tasks
 {
@@ -10,6 +11,31 @@ namespace System.Threading.Tasks
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // 造成编译器优化调用
         public static void NoWarning(this Task _)
         {
+        }
+
+        public static void ContinueWithOnFaultedLog(this Task task, ILogger logger)
+        {
+            task.ContinueWith(val =>
+            {
+                // we need to access val.Exception property otherwise unobserved exception will be thrown
+                // ReSharper disable once PossibleNullReferenceException
+                foreach(var ex in val.Exception!.Flatten().InnerExceptions)
+                {
+                    logger.LogError(ex, $"Task exception");
+                }
+            }, TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+        public static void ContinueWithOnFaultedHandleLog(this Task task, ILogger logger)
+        {
+            task.ContinueWith(val =>
+            {
+                val.Exception!.Handle(ex =>
+                {
+                    logger.LogError(ex, $"Task exception");
+                    return true;
+                });
+            }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         /// <summary>
@@ -27,9 +53,9 @@ namespace System.Threading.Tasks
             using var timerCancellation = new CancellationTokenSource();
             var timeoutTask = Task.Delay(timeout, timerCancellation.Token);
             var firstCompletedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
-            if (firstCompletedTask == timeoutTask)
+            if(firstCompletedTask == timeoutTask)
             {
-                if (cancelled == null)
+                if(cancelled == null)
                 {
                     throw new TimeoutException();
                 }
@@ -88,7 +114,7 @@ namespace System.Threading.Tasks
         /// <returns>Whether the transfer could be completed.</returns>
         public static bool TrySetFromTask<TResult>(this TaskCompletionSource<TResult> resultSetter, Task task)
         {
-            switch (task.Status)
+            switch(task.Status)
             {
                 case TaskStatus.RanToCompletion:
 #pragma warning disable CS8604 // Possible null reference argument.
@@ -143,7 +169,7 @@ namespace System.Threading.Tasks
             timer = new Timer(state =>
             {
                 timer?.Dispose();
-                if (taskCompletionSource.Task.Status != TaskStatus.RanToCompletion)
+                if(taskCompletionSource.Task.Status != TaskStatus.RanToCompletion)
                 {
                     taskCompletionSource.TrySetCanceled();
                     cancelled?.Invoke();
@@ -260,7 +286,7 @@ namespace System.Threading.Tasks
             {
                 await task.ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch(OperationCanceledException)
             {
             }
         }
@@ -280,7 +306,7 @@ namespace System.Threading.Tasks
             {
                 await task.ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch(OperationCanceledException)
             {
             }
         }
@@ -399,7 +425,7 @@ namespace System.Threading.Tasks
         /// </returns>
         public bool TryGetResult(out TResult? operationResult)
         {
-            if (IsComplete)
+            if(IsComplete)
             {
                 operationResult = _exception != null ? throw _exception : _result;
                 return true;
@@ -421,7 +447,7 @@ namespace System.Threading.Tasks
             {
                 _result = await task.ConfigureAwait(false);
             }
-            catch (Exception exception)
+            catch(Exception exception)
             {
                 _exception = exception;
             }
@@ -443,7 +469,7 @@ namespace System.Threading.Tasks
             {
                 _result = await task.ConfigureAwait(false);
             }
-            catch (Exception exception)
+            catch(Exception exception)
             {
                 _exception = exception;
             }
@@ -510,7 +536,7 @@ namespace System.Threading.Tasks
         public void GetResult()
         {
             _manualResetEvent.WaitOne();
-            if (_exception != null)
+            if(_exception != null)
             {
                 throw _exception;
             }
@@ -531,10 +557,10 @@ namespace System.Threading.Tasks
             {
                 await task.ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch(OperationCanceledException)
             {
             }
-            catch (Exception exception)
+            catch(Exception exception)
             {
                 _exception = exception;
             }
@@ -559,10 +585,10 @@ namespace System.Threading.Tasks
             {
                 await task.ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch(OperationCanceledException)
             {
             }
-            catch (Exception exception)
+            catch(Exception exception)
             {
                 _exception = exception;
             }

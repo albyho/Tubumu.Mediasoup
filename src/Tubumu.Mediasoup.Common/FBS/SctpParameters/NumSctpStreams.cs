@@ -62,9 +62,15 @@ namespace FBS.SctpParameters
 
     public class NumSctpStreamsT
     {
-        [JsonPropertyName("os")]
+        /// <summary>
+        /// OS. Renamed.
+        /// </summary>
+        [JsonPropertyName("OS")]
+        /// <summary>
+        /// MIS. Renamed.
+        /// </summary>
         public ushort Os { get; set; }
-        [JsonPropertyName("mis")]
+        [JsonPropertyName("MIS")]
         public ushort Mis { get; set; }
 
         public NumSctpStreamsT()

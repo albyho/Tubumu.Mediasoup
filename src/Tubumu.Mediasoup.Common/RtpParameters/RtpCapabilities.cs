@@ -39,7 +39,10 @@ namespace Tubumu.Mediasoup
                         Channels = 2,
                         RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedbackT{
+                            new RtcpFeedbackT {
+                                Type = "nacc",
+                            },
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
@@ -57,6 +60,9 @@ namespace Tubumu.Mediasoup
                         },
                         RtcpFeedback = new RtcpFeedbackT[]
                         {
+                            new RtcpFeedbackT {
+                                Type = "nacc",
+                            },
                             new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
@@ -76,6 +82,9 @@ namespace Tubumu.Mediasoup
                         RtcpFeedback = new RtcpFeedbackT[]
                         {
                             new RtcpFeedbackT {
+                                Type = "nacc",
+                            },
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
@@ -93,6 +102,9 @@ namespace Tubumu.Mediasoup
                         },
                         RtcpFeedback = new RtcpFeedbackT[]
                         {
+                            new RtcpFeedbackT {
+                                Type = "nacc",
+                            },
                             new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },

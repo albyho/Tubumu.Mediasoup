@@ -10,7 +10,7 @@
     <Company>Tubumu</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
-    <RepositoryUrl>https://github.com/albyho/Tubumu.Utils</RepositoryUrl> 
+    <RepositoryUrl>https://github.com/albyho/Tubumu.Utils</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
   </PropertyGroup>
@@ -20,10 +20,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
     <PackageReference Include="MessagePack" Version="2.4.35" />
-    <PackageReference Include="MessagePackAnalyzer" Version="2.4.35"><IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-<PrivateAssets>all</PrivateAssets>
-</PackageReference>
+    <PackageReference Include="MessagePackAnalyzer" Version="2.4.35">
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="PinYinConverterCore" Version="1.0.2" />
     <PackageReference Include="SkiaSharp" Version="2.88.3" />
     <PackageReference Include="NPOI" Version="2.5.6" />

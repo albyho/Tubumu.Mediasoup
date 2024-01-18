@@ -121,7 +121,10 @@ namespace FBS.Worker
     {
         [JsonPropertyName("pid")]
         public uint Pid { get; set; }
-        [JsonPropertyName("web_rtc_server_ids")]
+        /// <summary>
+        /// webRtcServerIds. Renamed.
+        /// </summary>
+        [JsonPropertyName("webRtcServerIds")]
         public List<string> WebRtcServerIds { get; set; }
         [JsonPropertyName("router_ids")]
         public List<string> RouterIds { get; set; }

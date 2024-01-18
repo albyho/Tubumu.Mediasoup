@@ -6,7 +6,7 @@ namespace Tubumu.Mediasoup
     /// <summary>
     /// Direction of RTP header extension.
     /// </summary>
-    [JsonConverter( typeof( JsonStringEnumMemberConverter ) )]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum RtpHeaderExtensionDirection
     {
         [EnumMember(Value = "sendrecv")]

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Tubumu.Mediasoup
 {
-    [JsonConverter( typeof( JsonStringEnumMemberConverter ) )]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum WorkerLogTag
     {
         /// <summary>
