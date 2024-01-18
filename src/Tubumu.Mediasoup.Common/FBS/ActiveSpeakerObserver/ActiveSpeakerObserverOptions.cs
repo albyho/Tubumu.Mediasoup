@@ -64,5 +64,4 @@ namespace FBS.ActiveSpeakerObserver
             this.Interval = 0;
         }
     }
-
 }

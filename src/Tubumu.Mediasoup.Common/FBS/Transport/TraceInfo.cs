@@ -7,13 +7,10 @@ using System.Text.Json.Serialization;
 
 namespace FBS.Transport
 {
-    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum TraceInfo : byte
     {
-        [EnumMember(Value = "none")]
         NONE = 0,
 
-        [EnumMember(Value = "bweTraceInfo")]
         BweTraceInfo = 1,
     }
 

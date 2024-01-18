@@ -7,22 +7,16 @@ using System.Text.Json.Serialization;
 
 namespace FBS.Message
 {
-    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum Body : byte
     {
-        [EnumMember(Value = "none")]
         NONE = 0,
 
-        [EnumMember(Value = "request")]
         Request = 1,
 
-        [EnumMember(Value = "response")]
         Response = 2,
 
-        [EnumMember(Value = "notification")]
         Notification = 3,
 
-        [EnumMember(Value = "log")]
         Log = 4,
     };
 

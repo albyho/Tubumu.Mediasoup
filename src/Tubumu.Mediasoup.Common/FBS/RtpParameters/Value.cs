@@ -10,25 +10,18 @@ using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
-    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum Value : byte
     {
-        [EnumMember(Value = "none")]
         NONE = 0,
 
-        [EnumMember(Value = "boolean")]
         Boolean = 1,
 
-        [EnumMember(Value = "integer32")]
         Integer32 = 2,
 
-        [EnumMember(Value = "double")]
         Double = 3,
 
-        [EnumMember(Value = "string")]
         String = 4,
 
-        [EnumMember(Value = "integer32Array")]
         Integer32Array = 5,
     }
 

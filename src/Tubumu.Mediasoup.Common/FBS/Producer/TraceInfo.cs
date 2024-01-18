@@ -7,25 +7,18 @@ using System.Text.Json.Serialization;
 
 namespace FBS.Producer
 {
-    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum TraceInfo : byte
     {
-        [EnumMember(Value = "none")]
         NONE = 0,
 
-        [EnumMember(Value = "keyFrameTraceInfo")]
         KeyFrameTraceInfo = 1,
 
-        [EnumMember(Value = "firTraceInfo")]
         FirTraceInfo = 2,
 
-        [EnumMember(Value = "pliTraceInfo")]
         PliTraceInfo = 3,
 
-        [EnumMember(Value = "rtpTraceInfo")]
         RtpTraceInfo = 4,
 
-        [EnumMember(Value = "srTraceInfo")]
         SrTraceInfo = 5,
     };
 

@@ -7,19 +7,14 @@ using System.Text.Json.Serialization;
 
 namespace FBS.RtpStream
 {
-    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum StatsData : byte
     {
-        [EnumMember(Value = "none")]
         NONE = 0,
 
-        [EnumMember(Value = "baseStats")]
         BaseStats = 1,
 
-        [EnumMember(Value = "recvStats")]
         RecvStats = 2,
 
-        [EnumMember(Value = "sendStats")]
         SendStats = 3,
     }
 

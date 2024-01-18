@@ -10,16 +10,12 @@ using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
-    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum Listen : byte
     {
-        [EnumMember(Value = "none")]
         NONE = 0,
 
-        [EnumMember(Value = "listenIndividual")]
         ListenIndividual = 1,
 
-        [EnumMember(Value = "listenServer")]
         ListenServer = 2,
     }
 
