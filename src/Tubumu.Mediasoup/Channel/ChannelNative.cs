@@ -9,12 +9,10 @@ namespace Tubumu.Mediasoup
     {
         private readonly OutgoingMessageBuffer<RequestMessage> _requestMessageQueue = new();
 
-        public ChannelNative(ILogger<ChannelNative> logger, int workerId) : base(logger, workerId)
-        {
+        public ChannelNative(ILogger<ChannelNative> logger, int workerId)
+            : base(logger, workerId) { }
 
-        }
-
-        protected override void SendRequestMessage(RequestMessage requestMessage, Sent sent)
+        protected override void SendRequest(RequestMessage requestMessage, Sent sent)
         {
             _requestMessageQueue.Queue.Enqueue(requestMessage);
 
@@ -29,8 +27,26 @@ namespace Tubumu.Mediasoup
             }
             catch (Exception ex)
             {
-                _logger.LogError("uv_async_send call failed");
+                _logger.LogError(ex, "uv_async_send call failed");
                 sent.Reject(ex);
+            }
+        }
+
+        protected override void SendNotification(RequestMessage requestMessage)
+        {
+            _requestMessageQueue.Queue.Enqueue(requestMessage);
+
+            try
+            {
+                // Notify worker that there is something to read
+                if (LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
+                {
+                    _logger.LogError("uv_async_send call failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "uv_async_send call failed");
             }
         }
 
@@ -43,7 +59,8 @@ namespace Tubumu.Mediasoup
                 return null;
             }
 
-            var messageString = $"{requestMessage.Id}:{requestMessage.Method}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
+            var messageString =
+                $"{requestMessage.Id}:{requestMessage.Method}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
             var messageBytes = Encoding.UTF8.GetBytes(messageString);
             if (messageBytes.Length > MessageMaxLen)
             {
@@ -68,7 +85,11 @@ namespace Tubumu.Mediasoup
 
         #region P/Invoke Channel
 
-        internal static readonly LibMediasoupWorkerNative.ChannelReadFreeFn OnChannelReadFree = (message, messageLen, messageCtx) =>
+        internal static readonly LibMediasoupWorkerNative.ChannelReadFreeFn OnChannelReadFree = (
+            message,
+            messageLen,
+            messageCtx
+        ) =>
         {
             if (messageLen != 0)
             {
@@ -77,7 +98,13 @@ namespace Tubumu.Mediasoup
             }
         };
 
-        internal static readonly LibMediasoupWorkerNative.ChannelReadFn OnChannelRead = (message, messageLen, messageCtx, handle, ctx) =>
+        internal static readonly LibMediasoupWorkerNative.ChannelReadFn OnChannelRead = (
+            message,
+            messageLen,
+            messageCtx,
+            handle,
+            ctx
+        ) =>
         {
             var channel = (ChannelNative)GCHandle.FromIntPtr(ctx).Target!;
             var requestMessage = channel.ProduceMessage(message, messageLen, messageCtx, handle);

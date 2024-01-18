@@ -4,6 +4,10 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using FBS.Notification;
+using FBS.Producer;
+using FBS.Request;
+using FBS.RtpStream;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -59,11 +63,6 @@ namespace Tubumu.Mediasoup
         private readonly IChannel _channel;
 
         /// <summary>
-        /// Channel instance.
-        /// </summary>
-        private readonly IPayloadChannel _payloadChannel;
-
-        /// <summary>
         /// App custom data.
         /// </summary>
         public Dictionary<string, object> AppData { get; }
@@ -81,7 +80,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Current score.
         /// </summary>
-        public ProducerScore[] Score = Array.Empty<ProducerScore>();
+        public List<ScoreT> Score = new List<ScoreT>(0);
 
         /// <summary>
         /// Observer instance.
@@ -109,29 +108,32 @@ namespace Tubumu.Mediasoup
         /// <param name="channel"></param>
         /// <param name="appData"></param>
         /// <param name="paused"></param>
-        public Producer(ILoggerFactory loggerFactory,
+        public Producer(
+            ILoggerFactory loggerFactory,
             ProducerInternal @internal,
             ProducerData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             bool paused
-            )
+        )
         {
             _logger = loggerFactory.CreateLogger<Producer>();
 
             _internal = @internal;
             Data = data;
             _channel = channel;
-            _payloadChannel = payloadChannel;
             AppData = appData ?? new Dictionary<string, object>();
             Paused = paused;
             _pauseLock.Set();
 
             if (_isCheckConsumer)
             {
-                _checkConsumersTimer = new Timer(CheckConsumers, null, TimeSpan.FromSeconds(CheckConsumersTimeSeconds), TimeSpan.FromMilliseconds(-1));
-
+                _checkConsumersTimer = new Timer(
+                    CheckConsumers,
+                    null,
+                    TimeSpan.FromSeconds(CheckConsumersTimeSeconds),
+                    TimeSpan.FromMilliseconds(-1)
+                );
             }
             HandleWorkerNotifications();
         }
@@ -143,7 +145,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"CloseAsync() | Producer:{ProducerId}");
 
-            using(await _closeLock.WriteLockAsync())
+            using (await _closeLock.WriteLockAsync())
             {
                 CloseInternal();
             }
@@ -161,13 +163,21 @@ namespace Tubumu.Mediasoup
             _checkConsumersTimer?.Dispose();
 
             // Remove notification subscriptions.
-            _channel.MessageEvent -= OnChannelMessage;
-            _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+            _channel.OnNotification -= OnNotificationHandle;
 
-            var reqData = new { ProducerId = _internal.ProducerId };
+            var requestOffset = FBS.Transport.CloseProducerRequest.Pack( _channel.BufferBuilder, new FBS.Transport.CloseProducerRequestT
+            {
+                ProducerId = _internal.ProducerId
+            } );
 
             // Fire and forget
-            _channel.RequestAsync(MethodId.TRANSPORT_CLOSE_PRODUCER, _internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+            _channel.RequestAsync(
+                Method.TRANSPORT_CLOSE_CONSUMER,
+                FBS.Request.Body.Transport_CloseConsumerRequest,
+                requestOffset.Value,
+                _internal.TransportId
+                )
+                .ContinueWithOnFaultedHandleLog( _logger );
 
             Emit("@close");
 
@@ -193,12 +203,11 @@ namespace Tubumu.Mediasoup
 
                 if (_checkConsumersTimer != null)
                 {
-                  await _checkConsumersTimer.DisposeAsync();
+                    await _checkConsumersTimer.DisposeAsync();
                 }
 
                 // Remove notification subscriptions.
-                _channel.MessageEvent -= OnChannelMessage;
-                _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                _channel.OnNotification -= OnNotificationHandle;
 
                 Emit("transportclose");
 
@@ -210,7 +219,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump DataProducer.
         /// </summary>
-        public async Task<string> DumpAsync()
+        public async Task<DumpResponseT> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Producer:{ProducerId}");
 
@@ -221,14 +230,16 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.PRODUCER_DUMP, _internal.ProducerId))!;
+                var response = await _channel.RequestAsync( Method.PRODUCER_DUMP, null, null, _internal.ProducerId );
+                var data = response.Value.BodyAsProducer_DumpResponse().UnPack();
+                return data;
             }
         }
 
         /// <summary>
         /// Get DataProducer stats.
         /// </summary>
-        public async Task<string> GetStatsAsync()
+        public async Task<List<StatsT>> GetStatsAsync()
         {
             _logger.LogDebug($"GetStatsAsync() | Producer:{ProducerId}");
 
@@ -239,7 +250,9 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.PRODUCER_GET_STATS, _internal.ProducerId))!;
+                var response = await _channel.RequestAsync( Method.PRODUCER_GET_STATS, null, null, _internal.ProducerId );
+                var stats = response.Value.BodyAsProducer_GetStatsResponse().UnPack().Stats;
+                return stats;
             }
         }
 
@@ -262,7 +275,7 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = Paused;
 
-                    await _channel.RequestAsync(MethodId.PRODUCER_PAUSE, _internal.ProducerId);
+                    await _channel.RequestAsync(Method.PRODUCER_PAUSE, null, null, _internal.ProducerId);
 
                     Paused = true;
 
@@ -272,7 +285,7 @@ namespace Tubumu.Mediasoup
                         Observer.Emit("pause");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "PauseAsync()");
                 }
@@ -302,7 +315,7 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = Paused;
 
-                    await _channel.RequestAsync(MethodId.PRODUCER_RESUME, _internal.ProducerId);
+                    await _channel.RequestAsync(Method.PRODUCER_RESUME, null, null, _internal.ProducerId);
 
                     Paused = false;
 
@@ -326,7 +339,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Enable 'trace' event.
         /// </summary>
-        public async Task EnableTraceEventAsync(TraceEventType[] types)
+        public async Task EnableTraceEventAsync(List<TraceEventType> types)
         {
             _logger.LogDebug($"EnableTraceEventAsync() | Producer:{ProducerId}");
 
@@ -337,12 +350,18 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                var reqData = new
+                var requestOffset = FBS.Producer.EnableTraceEventRequest.Pack( _channel.BufferBuilder, new FBS.Producer.EnableTraceEventRequestT
                 {
-                    Types = types ?? Array.Empty<TraceEventType>()
-                };
+                    Events = types ?? new List<TraceEventType>(0)
+                } );
 
-                await _channel.RequestAsync(MethodId.PRODUCER_ENABLE_TRACE_EVENT, _internal.ProducerId, reqData);
+                // Fire and forget
+                _channel
+                    .RequestAsync( Method.CONSUMER_ENABLE_TRACE_EVENT,
+                    FBS.Request.Body.Consumer_EnableTraceEventRequest,
+                    requestOffset.Value,
+                     _internal.ProducerId )
+                    .ContinueWithOnFaultedHandleLog( _logger );
             }
         }
 
@@ -359,7 +378,21 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                await _payloadChannel.NotifyAsync("producer.send", _internal.ProducerId, null, rtpPacket);
+                var builder = _channel.BufferBuilder;
+		        var dataOffset = FBS.Producer.SendNotification.CreateDataVector(
+                    builder,
+                    rtpPacket
+                );
+                var notificationOffset =
+                    FBS.Producer.SendNotification.CreateSendNotification( builder, dataOffset );
+
+                // Fire and forget
+                _channel.NotifyAsync(
+			        FBS.Notification.Event.PRODUCER_SEND,
+			        FBS.Notification.Body.Producer_SendNotification,
+			        notificationOffset.Value,
+			        _internal.ProducerId
+		        ).ContinueWithOnFaultedHandleLog( _logger );
             }
         }
 
@@ -391,91 +424,61 @@ namespace Tubumu.Mediasoup
 
         private void HandleWorkerNotifications()
         {
-            _channel.MessageEvent += OnChannelMessage;
-            _payloadChannel.MessageEvent += OnPayloadChannelMessage;
+            _channel.OnNotification += OnNotificationHandle;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string handlerId, Event @event, Notification notification)
         {
-            if (targetId != ProducerId)
+            if ( handlerId != ProducerId)
             {
                 return;
             }
 
             switch (@event)
             {
-                case "score":
-                    {
-                        var score = JsonSerializer.Deserialize<ProducerScore[]>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
-                        Score = score;
+                case Event.PRODUCER_SCORE:
+                {
+                    var scoreNotification = notification.BodyAsProducer_ScoreNotification();
+                    var score = scoreNotification.UnPack().Scores;
+                    Score = score;
 
-                        Emit("score", score);
+                    Emit( "score", score);
 
-                        // Emit observer event.
-                        Observer.Emit("score", score);
+                    // Emit observer event.
+                    Observer.Emit("score", score);
 
-                        break;
-                    }
-                case "videoorientationchange":
-                    {
-                        var videoOrientation = JsonSerializer.Deserialize<ProducerVideoOrientation>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                    break;
+                }
+                case Event.PRODUCER_VIDEO_ORIENTATION_CHANGE:
+                {
+                    var videoOrientationChangeNotification = notification.BodyAsProducer_VideoOrientationChangeNotification();
+                    var videoOrientation = videoOrientationChangeNotification.UnPack();
 
-                        Emit("videoorientationchange", videoOrientation);
 
-                        // Emit observer event.
-                        Observer.Emit("videoorientationchange", videoOrientation);
+                    Emit("videoorientationchange", videoOrientation );
 
-                        break;
-                    }
-                case "trace":
-                    {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                    // Emit observer event.
+                    Observer.Emit("videoorientationchange", videoOrientation);
 
-                        Emit("trace", trace);
+                    break;
+                }
+                case Event.PRODUCER_TRACE:
+                {
+                    var traceNotification = notification.BodyAsProducer_TraceNotification();
+                    var trace = traceNotification.UnPack();
 
-                        // Emit observer event.
-                        Observer.Emit("trace", trace);
+                    Emit("trace", trace);
 
-                        break;
-                    }
+                    // Emit observer event.
+                    Observer.Emit("trace", trace);
+
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError($"OnChannelMessage() | Ignoring unknown event{@event}");
-                        break;
-                    }
-            }
-        }
-
-        private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
-        {
-            if (targetId != ProducerId)
-            {
-                return;
-            }
-
-            switch (@event)
-            {
-                case "rtp":
-                    {
-                        Emit("rtp", payload);
-                        //AppendAllBytes($"/Users/alby/Downloads/{targetId}.rtp", payload.Array!);
-                        break;
-                    }
-                default:
-                    {
-                        _logger.LogError($"OnPayloadChannelMessage() | Ignoring unknown event{@event}");
-                        break;
-                    }
-            }
-        }
-
-        private static void AppendAllBytes(string path, byte[] bytes)
-        {
-            //argument-checking here.
-
-            using (var stream = new FileStream(path, FileMode.Append))
-            {
-                stream.Write(bytes, 0, bytes.Length);
+                {
+                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                    break;
+                }
             }
         }
 
@@ -505,7 +508,10 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    _checkConsumersTimer?.Change(TimeSpan.FromSeconds(CheckConsumersTimeSeconds), TimeSpan.FromMilliseconds(-1));
+                    _checkConsumersTimer?.Change(
+                        TimeSpan.FromSeconds(CheckConsumersTimeSeconds),
+                        TimeSpan.FromMilliseconds(-1)
+                    );
                 }
             }
         }

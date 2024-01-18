@@ -12,12 +12,13 @@ namespace Tubumu.Mediasoup
         private readonly string _version;
         private readonly IntPtr _channlPtr;
 
-        public WorkerNative(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions) : base(loggerFactory, mediasoupOptions)
+        public WorkerNative(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
+            : base(loggerFactory, mediasoupOptions)
         {
             var workerSettings = mediasoupOptions.MediasoupSettings.WorkerSettings;
             var argv = new List<string>
             {
-               "" // Ignore `workerPath`
+                "" // Ignore `workerPath`
             };
             if (workerSettings.LogLevel.HasValue)
             {
@@ -43,6 +44,10 @@ namespace Tubumu.Mediasoup
             {
                 argv.Add($"--dtlsPrivateKeyFile={workerSettings.DtlsPrivateKeyFile}");
             }
+            if (!workerSettings.LibwebrtcFieldTrials.IsNullOrWhiteSpace())
+            {
+                argv.Add($"--libwebrtcFieldTrials={workerSettings.LibwebrtcFieldTrials}");
+            }
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
             argv.Add(null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
@@ -53,24 +58,25 @@ namespace Tubumu.Mediasoup
             var threadId = Environment.CurrentManagedThreadId;
 
             _channel = new ChannelNative(_loggerFactory.CreateLogger<ChannelNative>(), threadId);
-            _channel.MessageEvent += OnChannelMessage;
+            _channel.OnNotification += OnNotificationHandle;
             _channlPtr = GCHandle.ToIntPtr(GCHandle.Alloc(_channel, GCHandleType.Normal));
         }
 
         public void Run()
         {
-            var workerRunResult = LibMediasoupWorkerNative.MediasoupWorkerRun(_argv.Length - 1,
-             _argv,
-             _version,
-             0,
-             0,
-             0,
-             0,
-             ChannelNative.OnChannelRead,
-             _channlPtr,
-             ChannelNative.OnChannelWrite,
-             _channlPtr
-             );
+            var workerRunResult = LibMediasoupWorkerNative.MediasoupWorkerRun(
+                _argv.Length - 1,
+                _argv,
+                _version,
+                0,
+                0,
+                0,
+                0,
+                ChannelNative.OnChannelRead,
+                _channlPtr,
+                ChannelNative.OnChannelWrite,
+                _channlPtr
+            );
 
             void OnExit()
             {
@@ -79,7 +85,6 @@ namespace Tubumu.Mediasoup
                     _logger.LogError($"OnExit() | Worker run failed due to wrong settings");
                     Emit("@failure", new Exception("Worker run failed due to wrong settings"));
                 }
-
                 else if (workerRunResult == 0)
                 {
                     _logger.LogError($"OnExit() | Worker died unexpectedly");
@@ -114,14 +119,14 @@ namespace Tubumu.Mediasoup
 
         #region Event handles
 
-        private void OnChannelMessage(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string targetId, string @event, string? data)
         {
             if (@event != "running")
             {
                 return;
             }
 
-            _channel.MessageEvent -= OnChannelMessage;
+            _channel.OnNotification -= OnNotificationHandle;
             Emit("@success");
         }
 

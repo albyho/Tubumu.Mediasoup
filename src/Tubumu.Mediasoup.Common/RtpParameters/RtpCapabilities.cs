@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using FBS.RtpParameters;
 
 namespace Tubumu.Mediasoup
 {
@@ -32,19 +33,19 @@ namespace Tubumu.Mediasoup
                 Codecs = new List<RtpCodecCapability>
                 {
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType = "audio/opus",
                         ClockRate = 48000,
                         Channels = 2,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT{
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType = "audio/multiopus",
                         ClockRate = 48000,
                         Channels = 4,
@@ -54,15 +55,15 @@ namespace Tubumu.Mediasoup
                             { "num_streams", 2 },
                             { "coupled_streams", 2 },
                         },
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType = "audio/multiopus",
                         ClockRate = 48000,
                         Channels = 6,
@@ -72,15 +73,15 @@ namespace Tubumu.Mediasoup
                             { "num_streams", 4 },
                             { "coupled_streams", 2 },
                         },
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType = "audio/multiopus",
                         ClockRate = 48000,
                         Channels = 8,
@@ -90,284 +91,284 @@ namespace Tubumu.Mediasoup
                             { "num_streams", 5 },
                             { "coupled_streams", 4 },
                         },
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/PCMU",
                         PreferredPayloadType= 0,
                         ClockRate = 8000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/PCMA",
                         PreferredPayloadType= 8,
                         ClockRate = 8000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/ISAC",
                         ClockRate = 32000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/ISAC",
                         ClockRate = 16000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/G722",
                         PreferredPayloadType= 9,
                         ClockRate = 8000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/iLBC",
                         ClockRate = 8000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/SILK",
                         ClockRate = 24000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/SILK",
                         ClockRate = 16000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/SILK",
                         ClockRate = 12000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/SILK",
                         ClockRate = 8000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback{
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/CN",
                         PreferredPayloadType= 13,
                         ClockRate = 32000
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/CN",
                         PreferredPayloadType= 13,
                         ClockRate = 16000
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/CN",
                         PreferredPayloadType= 13,
                         ClockRate = 8000
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/telephone-event",
                         ClockRate = 48000
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/telephone-event",
                         ClockRate = 32000
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/telephone-event",
                         ClockRate = 16000
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         MimeType ="audio/telephone-event",
                         ClockRate = 8000
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         MimeType ="video/VP8",
                         ClockRate = 90000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack", Parameter = "pli",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "ccm", Parameter = "fir",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "goog-remb",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         MimeType ="video/VP9",
                         ClockRate = 90000,
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack", Parameter = "pli",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "ccm", Parameter = "fir",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "goog-remb",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         MimeType ="video/H264",
                         ClockRate = 90000,
                         Parameters = new Dictionary<string, object> {
                             { "level-asymmetry-allowed", 1 },
                         },
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack", Parameter = "pli",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "ccm", Parameter = "fir",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "goog-remb",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         MimeType ="video/H264-SVC",
                         ClockRate = 90000,
                         Parameters = new Dictionary<string, object> {
                             { "level-asymmetry-allowed", 1 },
                         },
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack", Parameter = "pli",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "ccm", Parameter = "fir",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "goog-remb",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
                     },
                     new RtpCodecCapability {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         MimeType ="video/H265",
                         ClockRate = 90000,
                         Parameters = new Dictionary<string, object> {
                             { "level-asymmetry-allowed", 1 },
                         },
-                        RtcpFeedback = new RtcpFeedback[]
+                        RtcpFeedback = new RtcpFeedbackT[]
                         {
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "nack", Parameter = "pli",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "ccm", Parameter = "fir",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "goog-remb",
                             },
-                            new RtcpFeedback {
+                            new RtcpFeedbackT {
                                 Type = "transport-cc",
                             },
                         }
@@ -376,42 +377,42 @@ namespace Tubumu.Mediasoup
                 HeaderExtensions = new RtpHeaderExtension[]
                 {
                      new RtpHeaderExtension {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         Uri = "urn:ietf:params:rtp-hdrext:sdes:mid",
                         PreferredId = 1,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "urn:ietf:params:rtp-hdrext:sdes:mid",
                         PreferredId = 1,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id",
                         PreferredId = 2,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.ReceiveOnly
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id",
                         PreferredId = 3,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.ReceiveOnly
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
                         PreferredId = 4,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
                         PreferredId = 4,
                         PreferredEncrypt = false,
@@ -419,14 +420,14 @@ namespace Tubumu.Mediasoup
                     },
 		            // NOTE: For audio we just enable transport-wide-cc-01 when receiving media.
 		            new RtpHeaderExtension {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         Uri = "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
                         PreferredId = 5,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.ReceiveOnly,
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
                         PreferredId = 5,
                         PreferredEncrypt = false,
@@ -434,49 +435,49 @@ namespace Tubumu.Mediasoup
                     },
 		            // NOTE: Remove this once framemarking draft becomes RFC.
 		            new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "http://tools.ietf.org/html/draft-ietf-avtext-framemarking-07",
                         PreferredId = 6,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "urn:ietf:params:rtp-hdrext:framemarking",
                         PreferredId = 7,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         Uri = "urn:ietf:params:rtp-hdrext:ssrc-audio-level",
                         PreferredId = 10,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "urn:3gpp:video-orientation",
                         PreferredId = 11,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "urn:ietf:params:rtp-hdrext:toffset",
                         PreferredId = 12,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Audio,
+                        Kind = MediaKind.AUDIO,
                         Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
                         PreferredId = 13,
                         PreferredEncrypt = false,
                         Direction = RtpHeaderExtensionDirection.SendReceive
                     },
                     new RtpHeaderExtension {
-                        Kind = MediaKind.Video,
+                        Kind = MediaKind.VIDEO,
                         Uri = "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time",
                         PreferredId= 13,
                         PreferredEncrypt = false,

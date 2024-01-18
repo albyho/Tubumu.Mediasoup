@@ -4,9 +4,9 @@ namespace Tubumu.Mediasoup
 {
     public class ProduceRequest
     {
-        public MediaKind Kind { get; set; }
+        public FBS.RtpParameters.MediaKind Kind { get; set; }
 
-        public RtpParameters RtpParameters { get; set; }
+        public FBS.RtpParameters.RtpParametersT RtpParameters { get; set; }
 
         public string Source { get; set; }
 

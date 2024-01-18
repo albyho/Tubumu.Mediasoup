@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using FBS.RtpParameters;
+using FBS.SctpParameters;
 using Force.DeepCloner;
 
 namespace Tubumu.Mediasoup
@@ -66,7 +68,7 @@ namespace Tubumu.Mediasoup
             }
 
             // Just override kind with media component in mimeType.
-            codec.Kind = mimeType.StartsWith("video") ? MediaKind.Video : MediaKind.Audio;
+            codec.Kind = mimeType.StartsWith("video") ? MediaKind.VIDEO : MediaKind.AUDIO;
 
             // preferredPayloadType is optional.
             // 在 Node.js 实现中，判断了 preferredPayloadType 在有值的情况下的数据类型。在强类型语言中不需要。
@@ -75,7 +77,7 @@ namespace Tubumu.Mediasoup
             // 在 Node.js 实现中，判断了 mandatory 的数据类型。在强类型语言中不需要。
 
             // channels is optional. If unset, set it to 1 (just if audio).
-            if (codec.Kind == MediaKind.Audio && (!codec.Channels.HasValue || codec.Channels < 1))
+            if (codec.Kind == MediaKind.AUDIO && (!codec.Channels.HasValue || codec.Channels < 1))
             {
                 codec.Channels = 1;
             }
@@ -105,7 +107,7 @@ namespace Tubumu.Mediasoup
             }
 
             // rtcpFeedback is optional. If unset, set it to an empty array.
-            codec.RtcpFeedback ??= Array.Empty<RtcpFeedback>();
+            codec.RtcpFeedback ??= Array.Empty<RtcpFeedbackT>();
 
             foreach (var fb in codec.RtcpFeedback)
             {
@@ -118,7 +120,7 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
-        public static void ValidateRtcpFeedback(RtcpFeedback fb)
+        public static void ValidateRtcpFeedback(RtcpFeedbackT fb)
         {
             if (fb == null)
             {
@@ -178,7 +180,7 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
-        public static void ValidateRtpParameters(RtpParameters parameters)
+        public static void ValidateRtpParameters(RtpParametersT parameters)
         {
             if (parameters == null)
             {
@@ -199,7 +201,7 @@ namespace Tubumu.Mediasoup
             }
 
             // headerExtensions is optional. If unset, fill with an empty array.
-            parameters.HeaderExtensions ??= new List<RtpHeaderExtensionParameters>();
+            parameters.HeaderExtensions ??= new List<RtpHeaderExtensionParametersT>();
 
             foreach (var ext in parameters.HeaderExtensions)
             {
@@ -207,7 +209,7 @@ namespace Tubumu.Mediasoup
             }
 
             // encodings is optional. If unset, fill with an empty array.
-            parameters.Encodings ??= new List<RtpEncodingParameters>();
+            parameters.Encodings ??= new List<RtpEncodingParametersT>();
 
             foreach (var encoding in parameters.Encodings)
             {
@@ -440,7 +442,7 @@ namespace Tubumu.Mediasoup
         /// It throws if invalid.
         /// </summary>
 #pragma warning disable IDE0060 // Remove unused parameter
-        public static void ValidateSctpParameters(SctpParameters parameters)
+        public static void ValidateSctpParameters(SctpParametersT parameters)
 #pragma warning restore IDE0060 // Remove unused parameter
         {
             // port is mandatory.
@@ -944,7 +946,7 @@ namespace Tubumu.Mediasoup
 
             if (!pipe)
             {
-                var consumerEncoding = new RtpEncodingParameters
+                var consumerEncoding = new RtpEncodingParametersT
                 {
                     Ssrc = Utils.GenerateRandomNumber()
                 };

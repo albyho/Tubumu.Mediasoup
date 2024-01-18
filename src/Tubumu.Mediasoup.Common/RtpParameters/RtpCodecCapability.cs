@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using FBS.RtpParameters;
 
 namespace Tubumu.Mediasoup
 {
@@ -37,6 +38,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Transport layer and codec-specific feedback messages for this codec.
         /// </summary>
-        public RtcpFeedback[]? RtcpFeedback { get; set; }
+        public RtcpFeedbackT[]? RtcpFeedback { get; set; }
     }
 }

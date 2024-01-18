@@ -1,4 +1,6 @@
 ﻿using System.Text.Json.Serialization;
+using FBS.Notification;
+using FBS.Request;
 
 namespace Tubumu.Mediasoup
 {
@@ -10,25 +12,21 @@ namespace Tubumu.Mediasoup
         public uint? Id { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Method { get; set; }
+        public Method? Method { get; set; }
 
         #endregion
 
         #region Notification
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Event { get; set; }
+        public Event? Event { get; set; }
 
         #endregion
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? HandlerId { get; set; }
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Data { get; set; }
-
-        [JsonIgnore]
-        public byte[]? Payload { get; set; }
+        public byte[] Payload { get; set; }
     }
 
     // Note: For testing.

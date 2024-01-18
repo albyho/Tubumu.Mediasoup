@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using FBS.Notification;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
 
@@ -55,7 +56,8 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="loggerFactory"></param>
         /// <param name="mediasoupOptions"></param>
-        public Worker(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions) : base(loggerFactory, mediasoupOptions)
+        public Worker(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
+            : base(loggerFactory, mediasoupOptions)
         {
             var workerPath = mediasoupOptions.MediasoupStartupSettings.WorkerPath;
             if (workerPath.IsNullOrWhiteSpace())
@@ -77,36 +79,37 @@ namespace Tubumu.Mediasoup
 
             var env = new[] { $"MEDIASOUP_VERSION={mediasoupOptions.MediasoupStartupSettings.MediasoupVersion}" };
 
-            var args = new List<string>
-            {
-               workerPath
-            };
+            var argv = new List<string> { workerPath };
             if (workerSettings.LogLevel.HasValue)
             {
-                args.Add($"--logLevel={workerSettings.LogLevel.Value.GetEnumMemberValue()}");
+                argv.Add($"--logLevel={workerSettings.LogLevel.Value.GetEnumMemberValue()}");
             }
             if (!workerSettings.LogTags.IsNullOrEmpty())
             {
-                workerSettings.LogTags!.ForEach(m => args.Add($"--logTag={m.GetEnumMemberValue()}"));
+                workerSettings.LogTags!.ForEach(m => argv.Add($"--logTag={m.GetEnumMemberValue()}"));
             }
             if (workerSettings.RtcMinPort.HasValue)
             {
-                args.Add($"--rtcMinPort={workerSettings.RtcMinPort}");
+                argv.Add($"--rtcMinPort={workerSettings.RtcMinPort}");
             }
             if (workerSettings.RtcMaxPort.HasValue)
             {
-                args.Add($"--rtcMaxPort={workerSettings.RtcMaxPort}");
+                argv.Add($"--rtcMaxPort={workerSettings.RtcMaxPort}");
             }
             if (!workerSettings.DtlsCertificateFile.IsNullOrWhiteSpace())
             {
-                args.Add($"--dtlsCertificateFile={workerSettings.DtlsCertificateFile}");
+                argv.Add($"--dtlsCertificateFile={workerSettings.DtlsCertificateFile}");
             }
             if (!workerSettings.DtlsPrivateKeyFile.IsNullOrWhiteSpace())
             {
-                args.Add($"--dtlsPrivateKeyFile={workerSettings.DtlsPrivateKeyFile}");
+                argv.Add($"--dtlsPrivateKeyFile={workerSettings.DtlsPrivateKeyFile}");
+            }
+            if (!workerSettings.LibwebrtcFieldTrials.IsNullOrWhiteSpace())
+            {
+                argv.Add($"--libwebrtcFieldTrials={workerSettings.LibwebrtcFieldTrials}");
             }
 
-            _logger.LogDebug($"Worker() | Spawning worker process: {args.JoinAsString(" ")}");
+            _logger.LogDebug($"Worker() | Spawning worker process: {argv.JoinAsString(" ")}");
 
             _pipes = new Pipe[StdioCount];
 
@@ -123,14 +126,17 @@ namespace Tubumu.Mediasoup
             try
             {
                 // 和 Node.js 不同，_child 没有 error 事件。不过，Process.Spawn 可抛出异常。
-                _child = Process.Spawn(new ProcessOptions()
-                {
-                    File = workerPath,
-                    Arguments = args.ToArray(),
-                    Environment = env,
-                    Detached = false,
-                    Streams = _pipes,
-                }, OnExit);
+                _child = Process.Spawn(
+                    new ProcessOptions()
+                    {
+                        File = workerPath,
+                        Arguments = argv.ToArray(),
+                        Environment = env,
+                        Detached = false,
+                        Streams = _pipes,
+                    },
+                    OnExit
+                );
 
                 ProcessId = _child.Id;
             }
@@ -154,7 +160,7 @@ namespace Tubumu.Mediasoup
             }
 
             _channel = new Channel(_loggerFactory.CreateLogger<Channel>(), _pipes[3], _pipes[4], ProcessId);
-            _channel.MessageEvent += OnChannelMessage;
+            _channel.OnNotification += OnNotificationHandle;
 
             _pipes.ForEach(m => m?.Resume());
         }
@@ -170,7 +176,6 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Worker closed");
                 }
 
-
                 _closed = true;
 
                 // Kill the worker process.
@@ -178,7 +183,9 @@ namespace Tubumu.Mediasoup
                 {
                     // Remove event listeners but leave a fake 'error' hander to avoid
                     // propagation.
-                    _child.Kill(15/*SIGTERM*/);
+                    _child.Kill(
+                        15 /*SIGTERM*/
+                    );
                     _child = null;
                 }
 
@@ -227,14 +234,14 @@ namespace Tubumu.Mediasoup
 
         #region Event handles
 
-        private void OnChannelMessage(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string HandlerId, Event @event, Notification notification)
         {
-            if (!_spawnDone && @event == "running")
+            if (!_spawnDone && @event == Event.WORKER_RUNNING)
             {
                 _spawnDone = true;
                 _logger.LogDebug($"worker process running [pid:{ProcessId}]");
                 Emit("@success");
-                _channel.MessageEvent -= OnChannelMessage;
+                _channel.OnNotification -= OnNotificationHandle;
             }
         }
 
@@ -260,14 +267,28 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    _logger.LogError($"OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]");
-                    Emit("@failure", new Exception($"Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"));
+                    _logger.LogError(
+                        $"OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"
+                    );
+                    Emit(
+                        "@failure",
+                        new Exception(
+                            $"Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"
+                        )
+                    );
                 }
             }
             else
             {
-                _logger.LogError($"OnExit() | Worker process died unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]");
-                Emit("died", new Exception($"Worker process died unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"));
+                _logger.LogError(
+                    $"OnExit() | Worker process died unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"
+                );
+                Emit(
+                    "died",
+                    new Exception(
+                        $"Worker process died unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"
+                    )
+                );
             }
         }
 

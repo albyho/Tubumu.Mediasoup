@@ -45,19 +45,6 @@ namespace Tubumu.Mediasoup
 
         #endregion
 
-        #region P/Invoke PayloadChannel
-
-        /// <summary>
-        /// Free memory
-        /// </summary>
-        /// <param name="message">uint8_t*</param>
-        /// <param name="messageLen">uint32_t</param>
-        /// <param name="messageCtx">size_t</param>
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate void PayloadChannelReadFreeFn(IntPtr message, uint messageLen, size_t messageCtx);
-
-        #endregion
-
         /// <summary>
         /// Call when wrote some messages to Channel or PayloadChannel
         /// </summary>

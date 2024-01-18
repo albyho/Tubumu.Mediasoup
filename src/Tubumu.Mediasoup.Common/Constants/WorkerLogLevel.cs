@@ -1,7 +1,9 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Tubumu.Mediasoup
 {
+    [JsonConverter( typeof( JsonStringEnumMemberConverter ) )]
     public enum WorkerLogLevel
     {
         /// <summary>

@@ -1,6 +1,8 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.Consumer;
+
+namespace Tubumu.Mediasoup
 {
-    public class SetConsumerPreferedLayersRequest : ConsumerLayers
+    public class SetConsumerPreferedLayersRequest : ConsumerLayersT
     {
         public string ConsumerId { get; set; }
     }

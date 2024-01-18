@@ -41,11 +41,6 @@ namespace Tubumu.Mediasoup
         private readonly IChannel _channel;
 
         /// <summary>
-        /// PayloadChannel instance.
-        /// </summary>
-        private readonly IPayloadChannel _payloadChannel;
-
-        /// <summary>
         /// App custom data.
         /// </summary>
         public Dictionary<string, object> AppData { get; }
@@ -68,20 +63,19 @@ namespace Tubumu.Mediasoup
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
-        public DataProducer(ILoggerFactory loggerFactory,
+        public DataProducer(
+            ILoggerFactory loggerFactory,
             DataProducerInternal @internal,
             DataProducerData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData
-            )
+        )
         {
             _logger = loggerFactory.CreateLogger<DataProducer>();
 
             _internal = @internal;
             Data = data;
             _channel = channel;
-            _payloadChannel = payloadChannel;
             AppData = appData ?? new Dictionary<string, object>();
 
             HandleWorkerNotifications();
@@ -104,12 +98,14 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Remove notification subscriptions.
-                //_channel.MessageEvent -= OnChannelMessage;
+                //_channel.OnNotification -= OnNotificationHandle;
 
                 var reqData = new { DataProducerId = _internal.DataProducerId };
 
                 // Fire and forget
-                _channel.RequestAsync(MethodId.TRANSPORT_CLOSE_DATA_PRODUCER, _internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(MethodId.TRANSPORT_CLOSE_DATA_PRODUCER, _internal.TransportId, reqData)
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("close");
 
@@ -135,8 +131,8 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Remove notification subscriptions.
-                //_channel.MessageEvent -= OnChannelMessage;
-                //_payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                //_channel.OnNotification -= OnNotificationHandle;
+                //_payloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 Emit("transportclose");
 

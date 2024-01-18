@@ -42,11 +42,6 @@ namespace Tubumu.Mediasoup
         private readonly IChannel _channel;
 
         /// <summary>
-        /// PayloadChannel instance.
-        /// </summary>
-        private readonly IPayloadChannel _payloadChannel;
-
-        /// <summary>
         /// App custom data.
         /// </summary>
         public Dictionary<string, object> AppData { get; }
@@ -74,20 +69,19 @@ namespace Tubumu.Mediasoup
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
-        public DataConsumer(ILoggerFactory loggerFactory,
+        public DataConsumer(
+            ILoggerFactory loggerFactory,
             DataConsumerInternal @internal,
             DataConsumerData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData
-            )
+        )
         {
             _logger = loggerFactory.CreateLogger<DataConsumer>();
 
             _internal = @internal;
             Data = data;
             _channel = channel;
-            _payloadChannel = payloadChannel;
             AppData = appData ?? new Dictionary<string, object>();
 
             HandleWorkerNotifications();
@@ -110,13 +104,15 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Remove notification subscriptions.
-                _channel.MessageEvent -= OnChannelMessage;
-                _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                _channel.OnNotification -= OnNotificationHandle;
+                _payloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 var reqData = new { DataConsumerId = _internal.DataConsumerId };
 
                 // Fire and forget
-                _channel.RequestAsync(MethodId.TRANSPORT_CLOSE_DATA_CONSUMER, _internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(MethodId.TRANSPORT_CLOSE_DATA_CONSUMER, _internal.TransportId, reqData)
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("@close");
 
@@ -142,8 +138,8 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Remove notification subscriptions.
-                _channel.MessageEvent -= OnChannelMessage;
-                _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                _channel.OnNotification -= OnNotificationHandle;
+                _payloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 Emit("transportclose");
 
@@ -161,7 +157,7 @@ namespace Tubumu.Mediasoup
 
             using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -206,7 +202,11 @@ namespace Tubumu.Mediasoup
                 }
 
                 var reqData = new { Threshold = threshold };
-                await _channel.RequestAsync(MethodId.DATA_CONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD, _internal.DataConsumerId, reqData);
+                await _channel.RequestAsync(
+                    MethodId.DATA_CONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD,
+                    _internal.DataConsumerId,
+                    reqData
+                );
             }
         }
 
@@ -256,7 +256,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataConsumer closed");
                 }
 
-                await _payloadChannel.NotifyAsync("dataConsumer.send", _internal.DataConsumerId, requestData, Encoding.UTF8.GetBytes(message));
+                await _payloadChannel.NotifyAsync(
+                    "dataConsumer.send",
+                    _internal.DataConsumerId,
+                    requestData,
+                    Encoding.UTF8.GetBytes(message)
+                );
             }
         }
 
@@ -314,12 +319,12 @@ namespace Tubumu.Mediasoup
 
         private void HandleWorkerNotifications()
         {
-            _channel.MessageEvent += OnChannelMessage;
-            _payloadChannel.MessageEvent += OnPayloadChannelMessage;
+            _channel.OnNotification += OnNotificationHandle;
+            _payloadChannel.OnNotification += OnPayloadChannelMessage;
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
-        private async void OnChannelMessage(string targetId, string @event, string? data)
+        private async void OnNotificationHandle(string targetId, string @event, string? data)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
             if (targetId != DataConsumerId)
@@ -330,47 +335,47 @@ namespace Tubumu.Mediasoup
             switch (@event)
             {
                 case "dataproducerclose":
+                {
+                    using (await _closeLock.WriteLockAsync())
                     {
-                        using (await _closeLock.WriteLockAsync())
+                        if (_closed)
                         {
-                            if (_closed)
-                            {
-                                break;
-                            }
-
-                            _closed = true;
-
-                            // Remove notification subscriptions.
-                            _channel.MessageEvent -= OnChannelMessage;
-                            _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
-
-                            Emit("@dataproducerclose");
-                            Emit("dataproducerclose");
-
-                            // Emit observer event.
-                            Observer.Emit("close");
+                            break;
                         }
-                        break;
+
+                        _closed = true;
+
+                        // Remove notification subscriptions.
+                        _channel.OnNotification -= OnNotificationHandle;
+                        _payloadChannel.OnNotification -= OnPayloadChannelMessage;
+
+                        Emit("@dataproducerclose");
+                        Emit("dataproducerclose");
+
+                        // Emit observer event.
+                        Observer.Emit("close");
                     }
+                    break;
+                }
                 case "sctpsendbufferfull":
-                    {
-                        Emit("sctpsendbufferfull");
+                {
+                    Emit("sctpsendbufferfull");
 
-                        break;
-                    }
+                    break;
+                }
                 case "bufferedamount":
-                    {
-                        var bufferedAmount = int.Parse(data!);
+                {
+                    var bufferedAmount = int.Parse(data!);
 
-                        Emit("bufferedamountlow", bufferedAmount);
+                    Emit("bufferedamountlow", bufferedAmount);
 
-                        break;
-                    }
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError($"OnChannelMessage() | Ignoring unknown event \"{@event}\" in channel listener");
-                        break;
-                    }
+                {
+                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event \"{@event}\" in channel listener");
+                    break;
+                }
             }
         }
 
@@ -384,21 +389,23 @@ namespace Tubumu.Mediasoup
             switch (@event)
             {
                 case "message":
-                    {
-                        var dataJsonDocument = JsonDocument.Parse(data!);
-                        var ppid = dataJsonDocument.RootElement.GetProperty("ppid").GetInt32();
-                        var message = payload;
+                {
+                    var dataJsonDocument = JsonDocument.Parse(data!);
+                    var ppid = dataJsonDocument.RootElement.GetProperty("ppid").GetInt32();
+                    var message = payload;
 
-                        // Emit 暂不支持超过两个参数
-                        Emit("message", new NotifyMessage { Message = message, PPID = ppid });
+                    // Emit 暂不支持超过两个参数
+                    Emit("message", new NotifyMessage { Message = message, PPID = ppid });
 
-                        break;
-                    }
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError($"OnPayloadChannelMessage() | Ignoring unknown event \"{@event}\" in payload channel listener");
-                        break;
-                    }
+                {
+                    _logger.LogError(
+                        $"OnPayloadChannelMessage() | Ignoring unknown event \"{@event}\" in payload channel listener"
+                    );
+                    break;
+                }
             }
         }
 

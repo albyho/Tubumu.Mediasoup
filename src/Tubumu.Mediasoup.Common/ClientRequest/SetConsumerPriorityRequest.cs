@@ -4,6 +4,6 @@
     {
         public string ConsumerId { get; set; }
 
-        public int Priority { get; set; }
+        public byte Priority { get; set; }
     }
 }

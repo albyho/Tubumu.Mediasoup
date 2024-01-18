@@ -66,12 +66,13 @@ namespace Tubumu.Mediasoup
         /// <param name="channel"></param>
         /// <param name="appData"></param>
         /// <param name="getProducerById"></param>
-        protected RtpObserver(ILoggerFactory loggerFactory,
+        protected RtpObserver(
+            ILoggerFactory loggerFactory,
             RtpObserverInternal @internal,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
-            )
+        )
         {
             _logger = loggerFactory.CreateLogger<RtpObserver>();
 
@@ -101,13 +102,16 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Remove notification subscriptions.
-                Channel.MessageEvent -= OnChannelMessage;
-                PayloadChannel.MessageEvent -= OnPayloadChannelMessage; ;
+                Channel.OnNotification -= OnNotificationHandle;
+                PayloadChannel.OnNotification -= OnPayloadChannelMessage;
+                ;
 
                 var reqData = new { RtpObserverId = Internal.RtpObserverId };
 
                 // Fire and forget
-                Channel.RequestAsync(MethodId.ROUTER_CLOSE_RTP_OBSERVER, Internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                Channel
+                    .RequestAsync(MethodId.ROUTER_CLOSE_RTP_OBSERVER, Internal.RouterId, reqData)
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("@close");
 
@@ -133,8 +137,8 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Remove notification subscriptions.
-                Channel.MessageEvent -= OnChannelMessage;
-                //PayloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                Channel.OnNotification -= OnNotificationHandle;
+                //PayloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 Emit("routerclose");
 
@@ -163,7 +167,9 @@ namespace Tubumu.Mediasoup
                     var wasPaused = _paused;
 
                     // Fire and forget
-                    Channel.RequestAsync(MethodId.RTP_OBSERVER_PAUSE, Internal.RtpObserverId).ContinueWithOnFaultedHandleLog(_logger);
+                    Channel
+                        .RequestAsync(MethodId.RTP_OBSERVER_PAUSE, Internal.RtpObserverId)
+                        .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = true;
 
@@ -173,7 +179,7 @@ namespace Tubumu.Mediasoup
                         Observer.Emit("pause");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "PauseAsync()");
                 }
@@ -204,7 +210,9 @@ namespace Tubumu.Mediasoup
                     var wasPaused = _paused;
 
                     // Fire and forget
-                    Channel.RequestAsync(MethodId.RTP_OBSERVER_RESUME, Internal.RtpObserverId).ContinueWithOnFaultedHandleLog(_logger);
+                    Channel
+                        .RequestAsync(MethodId.RTP_OBSERVER_RESUME, Internal.RtpObserverId)
+                        .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = false;
 
@@ -247,7 +255,9 @@ namespace Tubumu.Mediasoup
 
                 var reqData = new { rtpObserverAddRemoveProducerOptions.ProducerId };
                 // Fire and forget
-                Channel.RequestAsync(MethodId.RTP_OBSERVER_ADD_PRODUCER, Internal.RtpObserverId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                Channel
+                    .RequestAsync(MethodId.RTP_OBSERVER_ADD_PRODUCER, Internal.RtpObserverId, reqData)
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 // Emit observer event.
                 Observer.Emit("addproducer", producer);
@@ -276,7 +286,9 @@ namespace Tubumu.Mediasoup
 
                 var reqData = new { rtpObserverAddRemoveProducerOptions.ProducerId };
                 // Fire and forget
-                Channel.RequestAsync(MethodId.RTP_OBSERVER_REMOVE_PRODUCER, Internal.RtpObserverId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                Channel
+                    .RequestAsync(MethodId.RTP_OBSERVER_REMOVE_PRODUCER, Internal.RtpObserverId, reqData)
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 // Emit observer event.
                 Observer.Emit("removeproducer", producer);
@@ -287,17 +299,18 @@ namespace Tubumu.Mediasoup
 
         private void HandleWorkerNotifications()
         {
-            Channel.MessageEvent += OnChannelMessage;
-            PayloadChannel.MessageEvent += OnPayloadChannelMessage;
+            Channel.OnNotification += OnNotificationHandle;
+            PayloadChannel.OnNotification += OnPayloadChannelMessage;
         }
 
-        protected virtual void OnChannelMessage(string targetId, string @event, string? data)
-        {
-        }
+        protected virtual void OnNotificationHandle(string targetId, string @event, string? data) { }
 
-        protected virtual void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
-        {
-        }
+        protected virtual void OnPayloadChannelMessage(
+            string targetId,
+            string @event,
+            string? data,
+            ArraySegment<byte> payload
+        ) { }
 
         #endregion Event Handlers
     }

@@ -1,4 +1,6 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.RtpParameters;
+
+namespace Tubumu.Mediasoup
 {
     public class ConsumerData
     {
@@ -15,7 +17,7 @@
         /// <summary>
         /// RTP parameters.
         /// </summary>
-        public RtpParameters RtpParameters { get; }
+        public RtpParametersT RtpParameters { get; }
 
         /// <summary>
         /// Consumer type.

@@ -1,11 +1,13 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.SctpParameters;
+
+namespace Tubumu.Mediasoup
 {
     public class TransportBaseData
     {
         /// <summary>
         /// SCTP parameters.
         /// </summary>
-        public SctpParameters? SctpParameters { get; set; }
+        public SctpParametersT? SctpParameters { get; set; }
 
         /// <summary>
         /// Sctp state.

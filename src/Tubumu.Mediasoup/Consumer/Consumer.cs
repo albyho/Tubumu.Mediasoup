@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.Consumer;
+using FBS.Notification;
+using FBS.Request;
+using FBS.RtpStream;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -52,11 +55,6 @@ namespace Tubumu.Mediasoup
         private readonly IChannel _channel;
 
         /// <summary>
-        /// PayloadChannel instance.
-        /// </summary>
-        private readonly IPayloadChannel _payloadChannel;
-
-        /// <summary>
         /// App custom data.
         /// </summary>
         public Dictionary<string, object> AppData { get; }
@@ -79,17 +77,17 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Current score.
         /// </summary>
-        public ConsumerScore? Score;
+        public ConsumerScoreT? Score;
 
         /// <summary>
         /// Preferred layers.
         /// </summary>
-        public ConsumerLayers? PreferredLayers { get; private set; }
+        public ConsumerLayersT? PreferredLayers { get; private set; }
 
         /// <summary>
         /// Curent layers.
         /// </summary>
-        public ConsumerLayers? CurrentLayers { get; private set; }
+        public ConsumerLayersT? CurrentLayers { get; private set; }
 
         /// <summary>
         /// Observer instance.
@@ -125,24 +123,23 @@ namespace Tubumu.Mediasoup
         /// <param name="producerPaused"></param>
         /// <param name="score"></param>
         /// <param name="preferredLayers"></param>
-        public Consumer(ILoggerFactory loggerFactory,
+        public Consumer(
+            ILoggerFactory loggerFactory,
             ConsumerInternal @internal,
             ConsumerData data,
             IChannel channel,
-            IPayloadChannel payloadChannel,
             Dictionary<string, object>? appData,
             bool paused,
             bool producerPaused,
-            ConsumerScore? score,
-            ConsumerLayers? preferredLayers
-            )
+            FBS.Consumer.ConsumerScoreT? score,
+            ConsumerLayersT? preferredLayers
+        )
         {
             _logger = loggerFactory.CreateLogger<Consumer>();
 
             _internal = @internal;
             Data = data;
             _channel = channel;
-            _payloadChannel = payloadChannel;
             AppData = appData ?? new Dictionary<string, object>();
             _paused = paused;
             ProducerPaused = producerPaused;
@@ -160,9 +157,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"CloseAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -170,13 +167,21 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Remove notification subscriptions.
-                _channel.MessageEvent -= OnChannelMessage;
-                _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                _channel.OnNotification -= OnNotificationHandle;
 
-                var reqData = new { ConsumerId = _internal.ConsumerId };
+                var requestOffset = FBS.Transport.CloseConsumerRequest.Pack(_channel.BufferBuilder, new FBS.Transport.CloseConsumerRequestT
+                {
+                    ConsumerId = _internal.ConsumerId
+                });
 
                 // Fire and forget
-                _channel.RequestAsync(MethodId.TRANSPORT_CLOSE_CONSUMER, _internal.TransportId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(
+                    Method.TRANSPORT_CLOSE_CONSUMER,
+                    FBS.Request.Body.Transport_CloseConsumerRequest,
+                    requestOffset.Value,
+                    _internal.TransportId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("@close");
 
@@ -192,9 +197,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"TransportClosed() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -202,8 +207,7 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Remove notification subscriptions.
-                _channel.MessageEvent -= OnChannelMessage;
-                _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                _channel.OnNotification -= OnNotificationHandle;
 
                 Emit("transportclose");
 
@@ -215,36 +219,40 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump DataProducer.
         /// </summary>
-        public async Task<string> DumpAsync()
+        public async Task<DumpResponseT> DumpAsync()
         {
             _logger.LogDebug($"DumpAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
                 if(_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.CONSUMER_DUMP, _internal.ConsumerId))!;
+                var response = await _channel.RequestAsync(Method.CONSUMER_DUMP, null, null, _internal.ConsumerId);
+                var data = response.Value.BodyAsConsumer_DumpResponse().UnPack();
+                return data;
             }
         }
 
         /// <summary>
         /// Get DataProducer stats.
         /// </summary>
-        public async Task<string> GetStatsAsync()
+        public async Task<List<StatsT>> GetStatsAsync()
         {
             _logger.LogDebug($"GetStatsAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.CONSUMER_GET_STATS, _internal.ConsumerId))!;
+                var response = await _channel.RequestAsync(Method.CONSUMER_GET_STATS, null, null, _internal.ConsumerId);
+                var stats = response.Value.BodyAsConsumer_GetStatsResponse().UnPack().Stats;
+                return stats;
             }
         }
 
@@ -255,9 +263,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"PauseAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
@@ -268,12 +276,14 @@ namespace Tubumu.Mediasoup
                     var wasPaused = _paused || ProducerPaused;
 
                     // Fire and forget
-                    _channel.RequestAsync(MethodId.CONSUMER_PAUSE, _internal.ConsumerId).ContinueWithOnFaultedHandleLog(_logger);
+                    _channel
+                        .RequestAsync(Method.CONSUMER_PAUSE, null, null, _internal.ConsumerId)
+                        .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = true;
 
                     // Emit observer event.
-                    if (!wasPaused)
+                    if(!wasPaused)
                     {
                         Observer.Emit("pause");
                     }
@@ -296,9 +306,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"ResumeAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
@@ -309,17 +319,19 @@ namespace Tubumu.Mediasoup
                     var wasPaused = _paused || ProducerPaused;
 
                     // Fire and forget
-                    _channel.RequestAsync(MethodId.CONSUMER_RESUME, _internal.ConsumerId).ContinueWithOnFaultedHandleLog(_logger);
+                    _channel
+                        .RequestAsync(Method.CONSUMER_RESUME, null, null, _internal.ConsumerId)
+                        .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = false;
 
                     // Emit observer event.
-                    if (wasPaused && !ProducerPaused)
+                    if(wasPaused && !ProducerPaused)
                     {
                         Observer.Emit("resume");
                     }
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     _logger.LogError(ex, "ResumeAsync()");
                 }
@@ -337,60 +349,71 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"SetPreferredLayersAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var reqData = consumerLayers;
-                var resData = await _channel.RequestAsync(MethodId.CONSUMER_SET_PREFERRED_LAYERS, _internal.ConsumerId, reqData);
-                var responseData = JsonSerializer.Deserialize<ConsumerSetPreferredLayersResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions);
-                PreferredLayers = responseData;
+                var preferredLayersOffset =
+                    FBS.Consumer.ConsumerLayers.CreateConsumerLayers(
+                        _channel.BufferBuilder,
+                        consumerLayers.SpatialLayer,
+                        consumerLayers.TemporalLayer);
+
+                var requestOffset =
+                    FBS.Consumer.SetPreferredLayersRequest.CreateSetPreferredLayersRequest(
+                        _channel.BufferBuilder,
+                        preferredLayersOffset);
+
+                var response = await _channel.RequestAsync(
+                    Method.CONSUMER_SET_PREFERRED_LAYERS,
+                    FBS.Request.Body.Consumer_SetPreferredLayersRequest,
+                    requestOffset.Value,
+                    _internal.ConsumerId);
+                var preferredLayers = response.Value.BodyAsConsumer_SetPreferredLayersResponse().UnPack().PreferredLayers;
+
+                PreferredLayers = preferredLayers;
             }
         }
 
         /// <summary>
         /// Set priority.
         /// </summary>
-        public async Task SetPriorityAsync(int priority)
+        public async Task SetPriorityAsync(byte priority)
         {
             _logger.LogDebug($"SetPriorityAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
+                var requestOffset =
+                    FBS.Consumer.SetPriorityRequest.CreateSetPriorityRequest(
+                        _channel.BufferBuilder, priority);
 
-                var reqData = new { Priority = priority };
-                var resData = await _channel.RequestAsync(MethodId.CONSUMER_SET_PRIORITY, _internal.ConsumerId, reqData);
-                var responseData = JsonSerializer.Deserialize<ConsumerSetOrUnsetPriorityResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions);
-                Priority = responseData!.Priority;
+                var response = await _channel.RequestAsync(
+                    Method.CONSUMER_SET_PRIORITY,
+                    FBS.Request.Body.Consumer_SetPriorityRequest,
+                    requestOffset.Value,
+                    _internal.ConsumerId);
+                var priorityResponse = response.Value.BodyAsConsumer_SetPriorityResponse().UnPack().Priority;
+
+                Priority = priorityResponse;
             }
         }
 
         /// <summary>
         /// Unset priority.
         /// </summary>
-        public async Task UnsetPriorityAsync()
+        public Task UnsetPriorityAsync()
         {
             _logger.LogDebug($"UnsetPriorityAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
-            {
-                if (_closed)
-                {
-                    throw new InvalidStateException("Consumer closed");
-                }
-
-                var reqData = new { Priority = 1 };
-                var resData = await _channel.RequestAsync(MethodId.CONSUMER_SET_PRIORITY, _internal.ConsumerId, reqData);
-                var responseData = JsonSerializer.Deserialize<ConsumerSetOrUnsetPriorityResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions);
-                Priority = responseData!.Priority;
-            }
+            return SetPriorityAsync(1);
         }
 
         /// <summary>
@@ -400,38 +423,47 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"RequestKeyFrameAsync() | Consumer:{ConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                await _channel.RequestAsync(MethodId.CONSUMER_REQUEST_KEY_FRAME, _internal.ConsumerId);
+                await _channel.RequestAsync(
+                    Method.CONSUMER_REQUEST_KEY_FRAME,
+                    null,
+                    null,
+                    _internal.ConsumerId);
             }
         }
 
         /// <summary>
         /// Enable 'trace' event.
         /// </summary>
-        public async Task EnableTraceEventAsync(TraceEventType[] types)
+        public async Task EnableTraceEventAsync(List<TraceEventType> types)
         {
             _logger.LogDebug($"EnableTraceEventAsync() | Consumer:{ConsumerId}");
 
-            var reqData = new
+            using(await _closeLock.ReadLockAsync())
             {
-                Types = types ?? Array.Empty<TraceEventType>()
-            };
-
-            using (await _closeLock.ReadLockAsync())
-            {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
 
+                var requestOffset = FBS.Consumer.EnableTraceEventRequest.Pack(_channel.BufferBuilder, new FBS.Consumer.EnableTraceEventRequestT
+                {
+                    Events = types ?? new List<TraceEventType>(0)
+                });
+
                 // Fire and forget
-                _channel.RequestAsync(MethodId.CONSUMER_ENABLE_TRACE_EVENT, _internal.ConsumerId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(Method.CONSUMER_ENABLE_TRACE_EVENT,
+                    FBS.Request.Body.Consumer_EnableTraceEventRequest,
+                    requestOffset.Value,
+                     _internal.ConsumerId)
+                    .ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -439,26 +471,25 @@ namespace Tubumu.Mediasoup
 
         private void HandleWorkerNotifications()
         {
-            _channel.MessageEvent += OnChannelMessage;
-            _payloadChannel.MessageEvent += OnPayloadChannelMessage;
+            _channel.OnNotification += OnNotificationHandle;
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
-        private async void OnChannelMessage(string targetId, string @event, string? data)
+        private async void OnNotificationHandle(string handlerId, Event @event, Notification notification)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            if (targetId != ConsumerId)
+            if(handlerId != ConsumerId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
-                case "producerclose":
+                case Event.CONSUMER_PRODUCER_CLOSE:
                     {
-                        using (await _closeLock.WriteLockAsync())
+                        using(await _closeLock.WriteLockAsync())
                         {
-                            if (_closed)
+                            if(_closed)
                             {
                                 break;
                             }
@@ -466,8 +497,7 @@ namespace Tubumu.Mediasoup
                             _closed = true;
 
                             // Remove notification subscriptions.
-                            _channel.MessageEvent -= OnChannelMessage;
-                            _payloadChannel.MessageEvent -= OnPayloadChannelMessage;
+                            _channel.OnNotification -= OnNotificationHandle;
 
                             Emit("@producerclose");
                             Emit("producerclose");
@@ -478,9 +508,9 @@ namespace Tubumu.Mediasoup
 
                         break;
                     }
-                case "producerpause":
+                case Event.CONSUMER_PRODUCER_PAUSE:
                     {
-                        if (ProducerPaused)
+                        if(ProducerPaused)
                         {
                             break;
                         }
@@ -492,16 +522,16 @@ namespace Tubumu.Mediasoup
                         Emit("producerpause");
 
                         // Emit observer event.
-                        if (!wasPaused)
+                        if(!wasPaused)
                         {
                             Observer.Emit("pause");
                         }
 
                         break;
                     }
-                case "producerresume":
+                case Event.CONSUMER_PRODUCER_RESUME:
                     {
-                        if (!ProducerPaused)
+                        if(!ProducerPaused)
                         {
                             break;
                         }
@@ -513,41 +543,43 @@ namespace Tubumu.Mediasoup
                         Emit("producerresume");
 
                         // Emit observer event.
-                        if (wasPaused && !_paused)
+                        if(wasPaused && !_paused)
                         {
                             Observer.Emit("resume");
                         }
 
                         break;
                     }
-                case "score":
+                case Event.CONSUMER_SCORE:
                     {
-                        var score = JsonSerializer.Deserialize<ConsumerScore>(data!, ObjectExtensions.DefaultJsonSerializerOptions);
+                        var scoreNotification = notification.BodyAsConsumer_ScoreNotification();
+                        var score = scoreNotification.Score!.Value.UnPack();
                         Score = score;
 
-                        Emit("score", score);
+                        Emit("score", Score);
 
                         // Emit observer event.
-                        Observer.Emit("score", score);
+                        Observer.Emit("score", Score);
 
                         break;
                     }
-                case "layerschange":
+                case Event.CONSUMER_LAYERS_CHANGE:
                     {
-                        var layers = !data.IsNullOrWhiteSpace() ? JsonSerializer.Deserialize<ConsumerLayers>(data!, ObjectExtensions.DefaultJsonSerializerOptions) : null;
+                        var layersChangeNotification = notification.BodyAsConsumer_LayersChangeNotification();
+                        var currentLayers = layersChangeNotification.Layers!.Value.UnPack();
+                        CurrentLayers = currentLayers;
 
-                        CurrentLayers = layers;
-
-                        Emit("layerschange", layers);
+                        Emit("layerschange", CurrentLayers);
 
                         // Emit observer event.
-                        Observer.Emit("layersChange", layers);
+                        Observer.Emit("layersChange", CurrentLayers);
 
                         break;
                     }
-                case "trace":
+                case Event.CONSUMER_TRACE:
                     {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions);
+                        var traceNotification = notification.BodyAsConsumer_TraceNotification();
+                        var trace = traceNotification.UnPack();
 
                         Emit("trace", trace);
 
@@ -558,7 +590,7 @@ namespace Tubumu.Mediasoup
                     }
                 default:
                     {
-                        _logger.LogError($"OnChannelMessage() | Ignoring unknown event{@event}");
+                        _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
                         break;
                     }
             }
@@ -566,12 +598,12 @@ namespace Tubumu.Mediasoup
 
         private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
         {
-            if (targetId != ConsumerId)
+            if(targetId != ConsumerId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
                 case "rtp":
                     {

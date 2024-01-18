@@ -1,11 +1,13 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.SctpParameters;
+
+namespace Tubumu.Mediasoup
 {
     public class DataProducerData
 	{
         /// <summary>
         /// SCTP stream parameters.
         /// </summary>
-        public SctpStreamParameters? SctpStreamParameters { get; init; }
+        public SctpStreamParametersT? SctpStreamParameters { get; init; }
 
         /// <summary>
         /// DataChannel label.

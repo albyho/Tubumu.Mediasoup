@@ -1,10 +1,12 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Tubumu.Mediasoup
 {
     /// <summary>
     /// Direction of RTP header extension.
     /// </summary>
+    [JsonConverter( typeof( JsonStringEnumMemberConverter ) )]
     public enum RtpHeaderExtensionDirection
     {
         [EnumMember(Value = "sendrecv")]

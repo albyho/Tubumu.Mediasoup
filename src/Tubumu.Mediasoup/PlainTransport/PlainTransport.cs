@@ -43,7 +43,8 @@ namespace Tubumu.Mediasoup
         /// <param name="getRouterRtpCapabilities"></param>
         /// <param name="getProducerById"></param>
         /// <param name="getDataProducerById"></param>
-        public PlainTransport(ILoggerFactory loggerFactory,
+        public PlainTransport(
+            ILoggerFactory loggerFactory,
             TransportInternal @internal,
             PlainTransportData data,
             IChannel channel,
@@ -51,7 +52,17 @@ namespace Tubumu.Mediasoup
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
             Func<string, Task<DataProducer?>> getDataProducerById
-            ) : base(loggerFactory, @internal, data, channel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
+        )
+            : base(
+                loggerFactory,
+                @internal,
+                data,
+                channel,
+                appData,
+                getRouterRtpCapabilities,
+                getProducerById,
+                getDataProducerById
+            )
         {
             _logger = loggerFactory.CreateLogger<PlainTransport>();
 
@@ -107,7 +118,10 @@ namespace Tubumu.Mediasoup
 
                 var reqData = plainTransportConnectParameters;
                 var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal.TransportId, reqData);
-                var responseData = JsonSerializer.Deserialize<PlainTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var responseData = JsonSerializer.Deserialize<PlainTransportConnectResponseData>(
+                    resData!,
+                    ObjectExtensions.DefaultJsonSerializerOptions
+                )!;
 
                 // Update data.
                 if (responseData.Tuple != null)
@@ -128,10 +142,10 @@ namespace Tubumu.Mediasoup
 
         private void HandleWorkerNotifications()
         {
-            Channel.MessageEvent += OnChannelMessage;
+            Channel.OnNotification += OnNotificationHandle;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string targetId, string @event, string? data)
         {
             if (targetId != Internal.TransportId)
             {
@@ -141,64 +155,76 @@ namespace Tubumu.Mediasoup
             switch (@event)
             {
                 case "tuple":
-                    {
-                        var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                {
+                    var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(
+                        data!,
+                        ObjectExtensions.DefaultJsonSerializerOptions
+                    )!;
 
-                        Data.Tuple = notification.Tuple;
+                    Data.Tuple = notification.Tuple;
 
-                        Emit("tuple", Data.Tuple);
+                    Emit("tuple", Data.Tuple);
 
-                        // Emit observer event.
-                        Observer.Emit("tuple", Data.Tuple);
+                    // Emit observer event.
+                    Observer.Emit("tuple", Data.Tuple);
 
-                        break;
-                    }
+                    break;
+                }
 
                 case "rtcptuple":
-                    {
-                        var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                {
+                    var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(
+                        data!,
+                        ObjectExtensions.DefaultJsonSerializerOptions
+                    )!;
 
-                        Data.RtcpTuple = notification.RtcpTuple;
+                    Data.RtcpTuple = notification.RtcpTuple;
 
-                        Emit("rtcptuple", Data.RtcpTuple);
+                    Emit("rtcptuple", Data.RtcpTuple);
 
-                        // Emit observer event.
-                        Observer.Emit("rtcptuple", Data.RtcpTuple);
+                    // Emit observer event.
+                    Observer.Emit("rtcptuple", Data.RtcpTuple);
 
-                        break;
-                    }
+                    break;
+                }
 
                 case "sctpstatechange":
-                    {
-                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                {
+                    var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
+                        data!,
+                        ObjectExtensions.DefaultJsonSerializerOptions
+                    )!;
 
-                        Data.SctpState = notification.SctpState;
+                    Data.SctpState = notification.SctpState;
 
-                        Emit("sctpstatechange", Data.SctpState);
+                    Emit("sctpstatechange", Data.SctpState);
 
-                        // Emit observer event.
-                        Observer.Emit("sctpstatechange", Data.SctpState);
+                    // Emit observer event.
+                    Observer.Emit("sctpstatechange", Data.SctpState);
 
-                        break;
-                    }
+                    break;
+                }
 
                 case "trace":
-                    {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                {
+                    var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
+                        data!,
+                        ObjectExtensions.DefaultJsonSerializerOptions
+                    )!;
 
-                        Emit("trace", trace);
+                    Emit("trace", trace);
 
-                        // Emit observer event.
-                        Observer.Emit("trace", trace);
+                    // Emit observer event.
+                    Observer.Emit("trace", trace);
 
-                        break;
-                    }
+                    break;
+                }
 
                 default:
-                    {
-                        _logger.LogError($"OnChannelMessage() | Ignoring unknown event{@event}");
-                        break;
-                    }
+                {
+                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                    break;
+                }
             }
         }
 

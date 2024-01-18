@@ -31,18 +31,20 @@ namespace Tubumu.Mediasoup
         /// <param name="channel"></param>
         /// <param name="appData"></param>
         /// <param name="getProducerById"></param>
-        public ActiveSpeakerObserver(ILoggerFactory loggerFactory,
+        public ActiveSpeakerObserver(
+            ILoggerFactory loggerFactory,
             RtpObserverInternal @internal,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
-            ) : base(loggerFactory, @internal, channel, appData, getProducerById)
+        )
+            : base(loggerFactory, @internal, channel, appData, getProducerById)
         {
             _logger = loggerFactory.CreateLogger<ActiveSpeakerObserver>();
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
-        protected override async void OnChannelMessage(string targetId, string @event, string? data)
+        protected override async void OnNotificationHandle(string targetId, string @event, string? data)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
             if (targetId != Internal.RtpObserverId)
@@ -53,30 +55,33 @@ namespace Tubumu.Mediasoup
             switch (@event)
             {
                 case "dominantspeaker":
-                    {
-                        var notification = JsonSerializer.Deserialize<ActiveSpeakerObserverNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                {
+                    var notification = JsonSerializer.Deserialize<ActiveSpeakerObserverNotificationData>(
+                        data!,
+                        ObjectExtensions.DefaultJsonSerializerOptions
+                    )!;
 
-                        var producer = GetProducerById(notification.ProducerId);
-                        if (producer != null)
+                    var producer = GetProducerById(notification.ProducerId);
+                    if (producer != null)
+                    {
+                        var dominantSpeaker = new ActiveSpeakerObserverDominantSpeaker
                         {
-                            var dominantSpeaker = new ActiveSpeakerObserverDominantSpeaker
-                            {
-                                Producer = await GetProducerById(notification.ProducerId)
-                            };
+                            Producer = await GetProducerById(notification.ProducerId)
+                        };
 
-                            Emit("dominantspeaker", dominantSpeaker);
+                        Emit("dominantspeaker", dominantSpeaker);
 
-                            // Emit observer event.
-                            Observer.Emit("dominantspeaker", dominantSpeaker);
-                        }
-
-                        break;
+                        // Emit observer event.
+                        Observer.Emit("dominantspeaker", dominantSpeaker);
                     }
+
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError($"OnChannelMessage() | Ignoring unknown event{@event}");
-                        break;
-                    }
+                {
+                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                    break;
+                }
             }
         }
     }

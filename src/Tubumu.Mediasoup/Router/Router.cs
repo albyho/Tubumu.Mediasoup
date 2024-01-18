@@ -912,45 +912,6 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        /// <summary>
-        /// Create an PassthroughObserver.
-        /// </summary>
-        public async Task<PassthroughObserver> CreatePassthroughObserverAsync(PassthroughObserverOptions passthroughObserverOptions)
-        {
-            _logger.LogDebug("CreatePassthroughObserverAsync()");
-
-            using (await _closeLock.ReadLockAsync())
-            {
-                if (_closed)
-                {
-                    throw new InvalidStateException("Router closed");
-                }
-
-                var reqData = new
-                {
-                    RtpObserverId = Guid.NewGuid().ToString()
-                };
-
-                // Fire and forget
-                _channel.RequestAsync(MethodId.ROUTER_CREATE_PASSTHROUGH_OBSERVER, _internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
-
-                var passthroughObserver = new PassthroughObserver(_loggerFactory,
-                                    new RtpObserverInternal(_internal.RouterId, reqData.RtpObserverId),
-                                    _channel,
-                                    passthroughObserverOptions.AppData,
-                                    async m =>
-                                    {
-                                        using (await _producersLock.ReadLockAsync())
-                                        {
-                                            return _producers.TryGetValue(m, out var p) ? p : null;
-                                        }
-                                    });
-                await ConfigureRtpObserverAsync(passthroughObserver);
-
-                return passthroughObserver;
-            }
-        }
-
         private Task ConfigureRtpObserverAsync(RtpObserver rtpObserver)
         {
             _rtpObservers[rtpObserver.Internal.RtpObserverId] = rtpObserver;

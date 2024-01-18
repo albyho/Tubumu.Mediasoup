@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Text;
+using FBS.Message;
+using Google.FlatBuffers;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
 
@@ -33,7 +36,8 @@ namespace Tubumu.Mediasoup
 
         #endregion Private Fields
 
-        public Channel(ILogger<Channel> logger, UVStream producerSocket, UVStream consumerSocket, int processId) : base(logger, processId)
+        public Channel(ILogger<Channel> logger, UVStream producerSocket, UVStream consumerSocket, int processId)
+            : base(logger, processId)
         {
             _producerSocket = producerSocket;
             _consumerSocket = consumerSocket;
@@ -67,7 +71,7 @@ namespace Tubumu.Mediasoup
             {
                 _producerSocket.Close();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}] _producerSocket.Close()");
             }
@@ -76,51 +80,60 @@ namespace Tubumu.Mediasoup
             {
                 _consumerSocket.Close();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}] _consumerSocket.Close()");
             }
         }
 
-        protected override void SendRequestMessage(RequestMessage requestMessage, Sent sent)
+        protected override void SendRequest(RequestMessage requestMessage, Sent sent)
         {
-            var messageString = $"{requestMessage.Id}:{requestMessage.Method}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
-            var messageBytes = Encoding.UTF8.GetBytes(messageString);
-            if (messageBytes.Length > MessageMaxLen)
-            {
-                throw new Exception("Channel request too big");
-            }
-
             Loop.Default.Sync(() =>
             {
                 try
                 {
-                    var messageBytesLengthBytes = BitConverter.GetBytes(messageBytes.Length);
-
                     // This may throw if closed or remote side ended.
-                    _producerSocket.Write(messageBytesLengthBytes, ex =>
-                    {
-                        if (ex != null)
+                    _producerSocket.Write(
+                        requestMessage.Payload,
+                        ex =>
                         {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
-                            sent.Reject(ex);
+                            if(ex != null)
+                            {
+                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
+                                sent.Reject(ex);
+                            }
                         }
-                    });
-                    // This may throw if closed or remote side ended.
-                    _producerSocket.Write(messageBytes, ex =>
-                    {
-                        if (ex != null)
-                        {
-                            _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
-                            sent.Reject(ex);
-                        }
-                    });
-
+                    );
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                     sent.Reject(ex);
+                }
+            });
+        }
+
+        protected override void SendNotification(RequestMessage requestMessage)
+        {
+            Loop.Default.Sync(() =>
+            {
+                try
+                {
+                    // This may throw if closed or remote side ended.
+                    _producerSocket.Write(
+                        requestMessage.Payload,
+                        ex =>
+                        {
+                            if(ex != null)
+                            {
+                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
+                            }
+                        }
+                    );
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
                 }
             });
         }
@@ -129,16 +142,13 @@ namespace Tubumu.Mediasoup
 
         private void ConsumerSocketOnData(ArraySegment<byte> data)
         {
-            if (data.Count > MessageMaxLen)
-            {
-                _logger.LogError($"ConsumerSocketOnData() | Worker[{_workerId}] Receiving data too large, ignore it");
-                return;
-            }
-
             // 数据回调通过单一线程进入，所以 _recvBuffer 是 Thread-safe 的。
-            if (_recvBufferCount + data.Count > RecvBufferMaxLen)
+            if(_recvBufferCount + data.Count > RecvBufferMaxLen)
             {
-                _logger.LogError($"ConsumerSocketOnData() | Worker[{_workerId}] Receiving buffer is full, discarding all data into it");
+                _logger.LogError(
+                    $"ConsumerSocketOnData() | Worker[{_workerId}] Receiving buffer is full, discarding all data into it"
+                );
+                _recvBufferCount = 0;
                 return;
             }
 
@@ -148,11 +158,11 @@ namespace Tubumu.Mediasoup
             try
             {
                 var readCount = 0;
-                while (readCount < _recvBufferCount - sizeof(int) - 1)
+                while(readCount < _recvBufferCount - sizeof(int) - 1)
                 {
                     var msgLen = BitConverter.ToInt32(_recvBuffer, readCount);
                     readCount += sizeof(int);
-                    if (readCount >= _recvBufferCount)
+                    if(readCount >= _recvBufferCount)
                     {
                         // Incomplete data.
                         break;
@@ -162,12 +172,13 @@ namespace Tubumu.Mediasoup
                     Array.Copy(_recvBuffer, readCount, messageBytes, 0, msgLen);
                     readCount += msgLen;
 
-                    var message = Encoding.UTF8.GetString(messageBytes, 0, messageBytes.Length);
+                    var buf = new ByteBuffer(messageBytes);
+                    var message = Message.GetRootAsMessage(buf);
                     ProcessMessage(message);
                 }
 
                 var remainingLength = _recvBufferCount - readCount;
-                if (remainingLength == 0)
+                if(remainingLength == 0)
                 {
                     _recvBufferCount = 0;
                 }
@@ -178,9 +189,12 @@ namespace Tubumu.Mediasoup
                     Array.Copy(temp, 0, _recvBuffer, 0, remainingLength);
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                _logger.LogError(ex, $"ConsumerSocketOnData() | Worker[{_workerId}] Invalid data received from the worker process.");
+                _logger.LogError(
+                    ex,
+                    $"ConsumerSocketOnData() | Worker[{_workerId}] Invalid data received from the worker process."
+                );
                 return;
             }
         }

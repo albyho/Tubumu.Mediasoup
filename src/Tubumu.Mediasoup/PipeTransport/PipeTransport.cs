@@ -44,14 +44,27 @@ namespace Tubumu.Mediasoup
         /// <param name="getRouterRtpCapabilities"></param>
         /// <param name="getProducerById"></param>
         /// <param name="getDataProducerById"></param>
-        public PipeTransport(ILoggerFactory loggerFactory,
+        public PipeTransport(
+            ILoggerFactory loggerFactory,
             TransportInternal @internal,
             PipeTransportData data,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
-            Func<string, Task<DataProducer?>> getDataProducerById) : base(loggerFactory, @internal, data, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
+            Func<string, Task<DataProducer?>> getDataProducerById
+        )
+            : base(
+                loggerFactory,
+                @internal,
+                data,
+                channel,
+                payloadChannel,
+                appData,
+                getRouterRtpCapabilities,
+                getProducerById,
+                getDataProducerById
+            )
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<PipeTransport>();
@@ -115,7 +128,10 @@ namespace Tubumu.Mediasoup
 
                 var reqData = pipeTransportConnectParameters;
                 var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal.TransportId, reqData);
-                var responseData = JsonSerializer.Deserialize<PipeTransportConnectResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var responseData = JsonSerializer.Deserialize<PipeTransportConnectResponseData>(
+                    resData!,
+                    ObjectExtensions.DefaultJsonSerializerOptions
+                )!;
 
                 // Update data.
                 Data.Tuple = responseData.Tuple;
@@ -154,18 +170,16 @@ namespace Tubumu.Mediasoup
             };
 
             var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, Internal.TransportId, reqData);
-            var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+            var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(
+                resData!,
+                ObjectExtensions.DefaultJsonSerializerOptions
+            )!;
 
-            var data = new ConsumerData
-            (
-                consumerOptions.ProducerId,
-                producer.Data.Kind,
-                rtpParameters,
-                ConsumerType.Pipe
-            );
+            var data = new ConsumerData(consumerOptions.ProducerId, producer.Data.Kind, rtpParameters, ConsumerType.Pipe);
 
             // 在 Node.js 实现中， 创建 Consumer 对象时没提供 score 和 preferredLayers 参数，且 score = { score: 10, producerScore: 10 }。
-            var consumer = new Consumer(_loggerFactory,
+            var consumer = new Consumer(
+                _loggerFactory,
                 new ConsumerInternal(Internal.RouterId, Internal.TransportId, reqData.ConsumerId),
                 data,
                 Channel,
@@ -174,9 +188,12 @@ namespace Tubumu.Mediasoup
                 responseData.Paused,
                 responseData.ProducerPaused,
                 responseData.Score,
-                responseData.PreferredLayers);
+                responseData.PreferredLayers
+            );
 
-            consumer.On("@close", async (_, _) =>
+            consumer.On(
+                "@close",
+                async (_, _) =>
                 {
                     await ConsumersLock.WaitAsync();
                     try
@@ -191,30 +208,34 @@ namespace Tubumu.Mediasoup
                     {
                         ConsumersLock.Set();
                     }
-                });
-            consumer.On("@producerclose", async (_, _) =>
-            {
-                await ConsumersLock.WaitAsync();
-                try
-                {
-                    Consumers.Remove(consumer.ConsumerId);
                 }
-                catch (Exception ex)
+            );
+            consumer.On(
+                "@producerclose",
+                async (_, _) =>
                 {
-                    _logger.LogError(ex, "@producerclose");
+                    await ConsumersLock.WaitAsync();
+                    try
+                    {
+                        Consumers.Remove(consumer.ConsumerId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "@producerclose");
+                    }
+                    finally
+                    {
+                        ConsumersLock.Set();
+                    }
                 }
-                finally
-                {
-                    ConsumersLock.Set();
-                }
-            });
+            );
 
             await ConsumersLock.WaitAsync();
             try
             {
                 Consumers[consumer.ConsumerId] = consumer;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "ConsumeAsync()");
             }
@@ -233,10 +254,10 @@ namespace Tubumu.Mediasoup
 
         private void HandleWorkerNotifications()
         {
-            Channel.MessageEvent += OnChannelMessage;
+            Channel.OnNotification += OnNotificationHandle;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string targetId, string @event, string? data)
         {
             if (targetId != Internal.TransportId)
             {
@@ -246,35 +267,41 @@ namespace Tubumu.Mediasoup
             switch (@event)
             {
                 case "sctpstatechange":
-                    {
-                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
-                        Data.SctpState = notification.SctpState;
+                {
+                    var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
+                        data!,
+                        ObjectExtensions.DefaultJsonSerializerOptions
+                    )!;
+                    Data.SctpState = notification.SctpState;
 
-                        Emit("sctpstatechange", Data.SctpState);
+                    Emit("sctpstatechange", Data.SctpState);
 
-                        // Emit observer event.
-                        Observer.Emit("sctpstatechange", Data.SctpState);
+                    // Emit observer event.
+                    Observer.Emit("sctpstatechange", Data.SctpState);
 
-                        break;
-                    }
+                    break;
+                }
 
                 case "trace":
-                    {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                {
+                    var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
+                        data!,
+                        ObjectExtensions.DefaultJsonSerializerOptions
+                    )!;
 
-                        Emit("trace", trace);
+                    Emit("trace", trace);
 
-                        // Emit observer event.
-                        Observer.Emit("trace", trace);
+                    // Emit observer event.
+                    Observer.Emit("trace", trace);
 
-                        break;
-                    }
+                    break;
+                }
 
                 default:
-                    {
-                        _logger.LogError($"OnChannelMessage() | Ignoring unknown event{@event}");
-                        break;
-                    }
+                {
+                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                    break;
+                }
             }
         }
 

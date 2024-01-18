@@ -1,4 +1,5 @@
 ﻿using System;
+using FBS.Response;
 
 namespace Tubumu.Mediasoup
 {
@@ -6,7 +7,7 @@ namespace Tubumu.Mediasoup
     {
         public RequestMessage RequestMessage { get; set; }
 
-        public Action<string?> Resolve { get; set; }
+        public Action<Response?> Resolve { get; set; }
 
         public Action<Exception> Reject { get; set; }
 

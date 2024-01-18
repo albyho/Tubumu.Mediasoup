@@ -170,35 +170,33 @@ namespace Tubumu.Mediasoup
                 {
                     throw new InvalidStateException("Workder closed");
                 }
-                var reqData = new {
-                    WebRtcServerId = Guid.NewGuid().ToString(),
-                    webRtcServerOptions.ListenInfos
-                };
+                var reqData = new { WebRtcServerId = Guid.NewGuid().ToString(), webRtcServerOptions.ListenInfos };
 
                 await _channel.RequestAsync(MethodId.WORKER_CREATE_WEBRTC_SERVER, null, reqData);
 
-                var webRtcServer = new WebRtcServer(_loggerFactory,
-                        new WebRtcServerInternal
-                        {
-                            WebRtcServerId = reqData.WebRtcServerId
-                        },
-                        _channel,
-                        webRtcServerOptions.AppData
-                    );
+                var webRtcServer = new WebRtcServer(
+                    _loggerFactory,
+                    new WebRtcServerInternal { WebRtcServerId = reqData.WebRtcServerId },
+                    _channel,
+                    webRtcServerOptions.AppData
+                );
 
                 lock (_webRtcServersLock)
                 {
                     _webRtcServers.Add(webRtcServer);
                 }
 
-                webRtcServer.On("@close", (_, _) =>
-                {
-                    lock (_webRtcServersLock)
+                webRtcServer.On(
+                    "@close",
+                    (_, _) =>
                     {
-                        _webRtcServers.Remove(webRtcServer);
+                        lock (_webRtcServersLock)
+                        {
+                            _webRtcServers.Remove(webRtcServer);
+                        }
+                        return Task.CompletedTask;
                     }
-                    return Task.CompletedTask;
-                });
+                );
 
                 // Emit observer event.
                 Observer.Emit("newwebrtcserver", webRtcServer);
@@ -228,28 +226,30 @@ namespace Tubumu.Mediasoup
 
                 await _channel.RequestAsync(MethodId.WORKER_CREATE_ROUTER, null, reqData);
 
-                var router = new Router(_loggerFactory,
+                var router = new Router(
+                    _loggerFactory,
                     new RouterInternal(reqData.RouterId),
-                    new RouterData
-                    {
-                        RtpCapabilities = rtpCapabilities
-                    },
+                    new RouterData { RtpCapabilities = rtpCapabilities },
                     _channel,
-                    routerOptions.AppData);
+                    routerOptions.AppData
+                );
 
                 lock (_routersLock)
                 {
                     _routers.Add(router);
                 }
 
-                router.On("@close", (_, _) =>
-                {
-                    lock (_routersLock)
+                router.On(
+                    "@close",
+                    (_, _) =>
                     {
-                        _routers.Remove(router);
+                        lock (_routersLock)
+                        {
+                            _routers.Remove(router);
+                        }
+                        return Task.CompletedTask;
                     }
-                    return Task.CompletedTask;
-                });
+                );
 
                 // Emit observer event.
                 Observer.Emit("newrouter", router);
@@ -264,15 +264,9 @@ namespace Tubumu.Mediasoup
 
         private bool disposedValue = false; // 要检测冗余调用
 
-        protected virtual void DestoryManaged()
-        {
+        protected virtual void DestoryManaged() { }
 
-        }
-
-        protected virtual void DestoryUnmanaged()
-        {
-
-        }
+        protected virtual void DestoryUnmanaged() { }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -305,7 +299,7 @@ namespace Tubumu.Mediasoup
             // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
             Dispose(true);
             // TODO: 如果在以上内容中替代了终结器，则取消注释以下行。
-             GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support

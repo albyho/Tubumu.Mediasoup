@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Tubumu.Mediasoup
 {
@@ -9,6 +10,7 @@ namespace Tubumu.Mediasoup
         public UserRole Role { get; set; }
     }
 
+    [JsonConverter( typeof( JsonStringEnumMemberConverter ) )]
     public enum UserRole
     {
         [EnumMember(Value = "normal")]

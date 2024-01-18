@@ -31,7 +31,8 @@ namespace Tubumu.Mediasoup
         /// <param name="getRouterRtpCapabilities"></param>
         /// <param name="getProducerById"></param>
         /// <param name="getDataProducerById"></param>
-        public DirectTransport(ILoggerFactory loggerFactory,
+        public DirectTransport(
+            ILoggerFactory loggerFactory,
             TransportInternal @internal,
             TransportBaseData data,
             IChannel channel,
@@ -39,7 +40,17 @@ namespace Tubumu.Mediasoup
             Func<RtpCapabilities> getRouterRtpCapabilities,
             Func<string, Task<Producer?>> getProducerById,
             Func<string, Task<DataProducer?>> getDataProducerById
-            ) : base(loggerFactory, @internal, data, channel, payloadChannel, appData, getRouterRtpCapabilities, getProducerById, getDataProducerById)
+        )
+            : base(
+                loggerFactory,
+                @internal,
+                data,
+                channel,
+                appData,
+                getRouterRtpCapabilities,
+                getProducerById,
+                getDataProducerById
+            )
         {
             _logger = loggerFactory.CreateLogger<DirectTransport>();
 
@@ -146,11 +157,11 @@ namespace Tubumu.Mediasoup
 
         private void HandleWorkerNotifications()
         {
-            Channel.MessageEvent += OnChannelMessage;
-            PayloadChannel.MessageEvent += OnPayloadChannelMessage;
+            Channel.OnNotification += OnNotificationHandle;
+            PayloadChannel.OnNotification += OnPayloadChannelMessage;
         }
 
-        private void OnChannelMessage(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string targetId, string @event, string? data)
         {
             if (targetId != Internal.TransportId)
             {
@@ -160,22 +171,25 @@ namespace Tubumu.Mediasoup
             switch (@event)
             {
                 case "trace":
-                    {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(data!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                {
+                    var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
+                        data!,
+                        ObjectExtensions.DefaultJsonSerializerOptions
+                    )!;
 
-                        Emit("trace", trace);
+                    Emit("trace", trace);
 
-                        // Emit observer event.
-                        Observer.Emit("trace", trace);
+                    // Emit observer event.
+                    Observer.Emit("trace", trace);
 
-                        break;
-                    }
+                    break;
+                }
 
                 default:
-                    {
-                        _logger.LogError($"OnChannelMessage() | DiectTransport:{TransportId} Ignoring unknown event{@event}");
-                        break;
-                    }
+                {
+                    _logger.LogError($"OnNotificationHandle() | DiectTransport:{TransportId} Ignoring unknown event{@event}");
+                    break;
+                }
             }
         }
 
@@ -189,17 +203,17 @@ namespace Tubumu.Mediasoup
             switch (@event)
             {
                 case "rtcp":
-                    {
-                        Emit("rtcp", payload);
+                {
+                    Emit("rtcp", payload);
 
-                        break;
-                    }
+                    break;
+                }
 
                 default:
-                    {
-                        _logger.LogError($"Ignoring unknown event \"{@event}\"");
-                        break;
-                    }
+                {
+                    _logger.LogError($"Ignoring unknown event \"{@event}\"");
+                    break;
+                }
             }
         }
 
