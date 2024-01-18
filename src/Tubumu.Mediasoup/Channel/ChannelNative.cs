@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
+using FBS.Message;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -19,13 +20,13 @@ namespace Tubumu.Mediasoup
             try
             {
                 // Notify worker that there is something to read
-                if (LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
+                if(LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
                 {
                     _logger.LogError("uv_async_send call failed");
                     sent.Reject(new Exception("uv_async_send call failed"));
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.LogError(ex, "uv_async_send call failed");
                 sent.Reject(ex);
@@ -39,12 +40,12 @@ namespace Tubumu.Mediasoup
             try
             {
                 // Notify worker that there is something to read
-                if (LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
+                if(LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
                 {
                     _logger.LogError("uv_async_send call failed");
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.LogError(ex, "uv_async_send call failed");
             }
@@ -54,30 +55,32 @@ namespace Tubumu.Mediasoup
         {
             _requestMessageQueue.Handle = handle;
 
-            if (!_requestMessageQueue.Queue.TryDequeue(out var requestMessage))
+            if(!_requestMessageQueue.Queue.TryDequeue(out var requestMessage))
             {
                 return null;
             }
 
-            var messageString =
-                $"{requestMessage.Id}:{requestMessage.Method}:{requestMessage.HandlerId}:{requestMessage.Data ?? "undefined"}";
-            var messageBytes = Encoding.UTF8.GetBytes(messageString);
-            if (messageBytes.Length > MessageMaxLen)
+            if(requestMessage!.Payload == null || requestMessage!.Payload.Length == 0)
             {
-                throw new Exception("Channel request too big");
+                throw new Exception("Channel request failed. Zero length.");
             }
 
-            // message
-            var messageBytesHandle = GCHandle.Alloc(messageBytes, GCHandleType.Pinned);
-            var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(messageBytes, 0);
+            if(requestMessage!.Payload.Length > MessageMaxLen)
+            {
+                throw new Exception("Channel request failed. Invalid length.");
+            }
+
+            // 将数据的指针写入 message
+            var messageBytesHandle = GCHandle.Alloc(requestMessage!.Payload, GCHandleType.Pinned);
+            var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(requestMessage!.Payload, 0);
             var temp = messagePtr.IntPtrToBytes();
             Marshal.Copy(temp, 0, message, temp.Length);
 
-            // messageLen
-            temp = BitConverter.GetBytes(messageBytes.Length);
+            // 将数据的长度写入 messageLen
+            temp = BitConverter.GetBytes(requestMessage!.Payload.Length);
             Marshal.Copy(temp, 0, messageLen, temp.Length);
 
-            // messageCtx
+            // 将消息句柄写入 messageCtx，以便 OnChannelReadFree 释放。
             temp = GCHandle.ToIntPtr(messageBytesHandle).IntPtrToBytes();
             Marshal.Copy(temp, 0, messageCtx, temp.Length);
             return requestMessage;
@@ -91,11 +94,13 @@ namespace Tubumu.Mediasoup
             messageCtx
         ) =>
         {
-            if (messageLen != 0)
+            if(messageLen != 0)
             {
-                var messageBytesHandle = GCHandle.FromIntPtr(messageCtx);
-                messageBytesHandle.Free();
+                return;
             }
+
+            var messageBytesHandle = GCHandle.FromIntPtr(messageCtx);
+            messageBytesHandle.Free();
         };
 
         internal static readonly LibMediasoupWorkerNative.ChannelReadFn OnChannelRead = (
@@ -111,10 +116,16 @@ namespace Tubumu.Mediasoup
             return requestMessage == null ? null : OnChannelReadFree;
         };
 
-        internal static readonly LibMediasoupWorkerNative.ChannelWriteFn OnChannelWrite = (message, messageLen, ctx) =>
+        internal static readonly LibMediasoupWorkerNative.ChannelWriteFn OnChannelWrite = (payload, payloadLen, channelWriteCtx) =>
         {
-            var channel = (IChannel)GCHandle.FromIntPtr(ctx).Target!;
-            channel.ProcessMessage(message);
+            // 因为 ProcessMessage 会在子线程处理数据，故拷贝一份。
+            var messageBytes = new byte[payloadLen];
+            Marshal.Copy(payload, messageBytes, 0, (int)payloadLen);
+            var byteBuffer = new ByteBuffer(messageBytes);
+            var fbsMessage = Message.GetRootAsMessage(byteBuffer);
+
+            var channel = (IChannel)GCHandle.FromIntPtr(channelWriteCtx).Target!;
+            channel.ProcessMessage(fbsMessage);
         };
 
         #endregion

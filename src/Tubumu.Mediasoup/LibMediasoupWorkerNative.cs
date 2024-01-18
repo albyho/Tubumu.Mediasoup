@@ -37,11 +37,11 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Read from Channel
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="messageLen"></param>
-        /// <param name="ctx"></param>
+        /// <param name="message">const uint8_t*</param>
+        /// <param name="messageLen">uint32_t</param>
+        /// <param name="ctx">ChannelWriteCtx</param>
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate void ChannelWriteFn([MarshalAs(UnmanagedType.LPStr)] string message, uint messageLen, ChannelWriteCtx ctx);
+        internal delegate void ChannelWriteFn(IntPtr message, uint messageLen, ChannelWriteCtx ctx);
 
         #endregion
 
@@ -62,16 +62,12 @@ namespace Tubumu.Mediasoup
         /// <param name="version"></param>
         /// <param name="consumerChannelFd"></param>
         /// <param name="producerChannelFd"></param>
-        /// <param name="payloadConsumeChannelFd"></param>
-        /// <param name="payloadProduceChannelFd"></param>
+        /// <param name="_payloadConsumeChannelFd">已不使用</param>
+        /// <param name="_payloadProduceChannelFd">已不使用</param>
         /// <param name="channelReadFn"></param>
         /// <param name="channelReadCtx"></param>
         /// <param name="channelWriteFn"></param>
         /// <param name="channelWriteCtx"></param>
-        /// <param name="payloadChannelReadFn"></param>
-        /// <param name="payloadChannelReadCtx"></param>
-        /// <param name="payloadChannelWriteFn"></param>
-        /// <param name="payloadChannelWriteCtx"></param>
         /// <returns>Returns `0` on success, or an error code `< 0` on failure</returns>
         [DllImport(Lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "mediasoup_worker_run")]
         internal static extern int MediasoupWorkerRun(int argc,
@@ -79,8 +75,8 @@ namespace Tubumu.Mediasoup
             string version,
             int consumerChannelFd,
             int producerChannelFd,
-            int /*payloadConsumeChannelFd*/_t1,
-            int /*payloadProduceChannelFd*/_t2,
+            int _payloadConsumeChannelFd,
+            int _payloadProduceChannelFd,
             ChannelReadFn channelReadFn,
             ChannelReadCtx channelReadCtx,
             ChannelWriteFn channelWriteFn,

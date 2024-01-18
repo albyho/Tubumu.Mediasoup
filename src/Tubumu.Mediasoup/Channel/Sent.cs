@@ -7,7 +7,7 @@ namespace Tubumu.Mediasoup
     {
         public RequestMessage RequestMessage { get; set; }
 
-        public Action<Response?> Resolve { get; set; }
+        public Action<Response> Resolve { get; set; }
 
         public Action<Exception> Reject { get; set; }
 

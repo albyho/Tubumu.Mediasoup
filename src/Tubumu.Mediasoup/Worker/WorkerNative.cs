@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using FBS.Notification;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -20,31 +21,31 @@ namespace Tubumu.Mediasoup
             {
                 "" // Ignore `workerPath`
             };
-            if (workerSettings.LogLevel.HasValue)
+            if(workerSettings.LogLevel.HasValue)
             {
                 argv.Add($"--logLevel={workerSettings.LogLevel.Value.GetEnumMemberValue()}");
             }
-            if (!workerSettings.LogTags.IsNullOrEmpty())
+            if(!workerSettings.LogTags.IsNullOrEmpty())
             {
                 workerSettings.LogTags!.ForEach(m => argv.Add($"--logTag={m.GetEnumMemberValue()}"));
             }
-            if (workerSettings.RtcMinPort.HasValue)
+            if(workerSettings.RtcMinPort.HasValue)
             {
                 argv.Add($"--rtcMinPort={workerSettings.RtcMinPort}");
             }
-            if (workerSettings.RtcMaxPort.HasValue)
+            if(workerSettings.RtcMaxPort.HasValue)
             {
                 argv.Add($"--rtcMaxPort={workerSettings.RtcMaxPort}");
             }
-            if (!workerSettings.DtlsCertificateFile.IsNullOrWhiteSpace())
+            if(!workerSettings.DtlsCertificateFile.IsNullOrWhiteSpace())
             {
                 argv.Add($"--dtlsCertificateFile={workerSettings.DtlsCertificateFile}");
             }
-            if (!workerSettings.DtlsPrivateKeyFile.IsNullOrWhiteSpace())
+            if(!workerSettings.DtlsPrivateKeyFile.IsNullOrWhiteSpace())
             {
                 argv.Add($"--dtlsPrivateKeyFile={workerSettings.DtlsPrivateKeyFile}");
             }
-            if (!workerSettings.LibwebrtcFieldTrials.IsNullOrWhiteSpace())
+            if(!workerSettings.LibwebrtcFieldTrials.IsNullOrWhiteSpace())
             {
                 argv.Add($"--libwebrtcFieldTrials={workerSettings.LibwebrtcFieldTrials}");
             }
@@ -80,12 +81,12 @@ namespace Tubumu.Mediasoup
 
             void OnExit()
             {
-                if (workerRunResult == 42)
+                if(workerRunResult == 42)
                 {
                     _logger.LogError($"OnExit() | Worker run failed due to wrong settings");
                     Emit("@failure", new Exception("Worker run failed due to wrong settings"));
                 }
-                else if (workerRunResult == 0)
+                else if(workerRunResult == 0)
                 {
                     _logger.LogError($"OnExit() | Worker died unexpectedly");
                     Emit("died", new Exception("Worker died unexpectedly"));
@@ -107,10 +108,10 @@ namespace Tubumu.Mediasoup
 
         protected override void DestoryUnmanaged()
         {
-            if (_channlPtr != IntPtr.Zero)
+            if(_channlPtr != IntPtr.Zero)
             {
                 var handle = GCHandle.FromIntPtr(_channlPtr);
-                if (handle.IsAllocated)
+                if(handle.IsAllocated)
                 {
                     handle.Free();
                 }
@@ -119,9 +120,9 @@ namespace Tubumu.Mediasoup
 
         #region Event handles
 
-        private void OnNotificationHandle(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string handlerId, Event @event, Notification notification)
         {
-            if (@event != "running")
+            if(@event != Event.WORKER_RUNNING)
             {
                 return;
             }

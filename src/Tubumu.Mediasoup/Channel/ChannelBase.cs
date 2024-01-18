@@ -337,14 +337,14 @@ namespace Tubumu.Mediasoup
         {
             var id = InterlockedExtensions.Increment(ref _nextId);
 
-            var handlerIdOffset = _bufferBuilder.CreateString(handlerId ?? "");
+            var handlerIdOffset = BufferBuilder.CreateString(handlerId ?? "");
 
             Offset<Request> requestOffset;
 
             if(bodyType.HasValue && bodyOffset.HasValue)
             {
                 requestOffset = Request.CreateRequest(
-                    _bufferBuilder,
+                    BufferBuilder,
                     id,
                     method,
                     handlerIdOffset,
@@ -354,20 +354,20 @@ namespace Tubumu.Mediasoup
             }
             else
             {
-                requestOffset = Request.CreateRequest(_bufferBuilder, id, method, handlerIdOffset, FBS.Request.Body.NONE, 0);
+                requestOffset = Request.CreateRequest(BufferBuilder, id, method, handlerIdOffset, FBS.Request.Body.NONE, 0);
             }
 
-            var messageOffset = Message.CreateMessage(_bufferBuilder, FBS.Message.Body.Request, requestOffset.Value);
+            var messageOffset = Message.CreateMessage(BufferBuilder, FBS.Message.Body.Request, requestOffset.Value);
 
             // Finalizes the buffer and adds a 4 byte prefix with the size of the buffer.
-            _bufferBuilder.FinishSizePrefixed(messageOffset.Value);
+            BufferBuilder.FinishSizePrefixed(messageOffset.Value);
 
             // Create a new buffer with this data so multiple contiguous flatbuffers
             // do not point to the builder buffer overriding others info.
-            var buffer = _bufferBuilder.DataBuffer.ToFullArray();
+            var buffer = BufferBuilder.DataBuffer.ToFullArray();
 
             // Clear the buffer builder so it's reused for the next request.
-            _bufferBuilder.Clear();
+            BufferBuilder.Clear();
 
             if(buffer.Length > MessageMaxLen)
             {
@@ -390,14 +390,14 @@ namespace Tubumu.Mediasoup
             string? handlerId
         )
         {
-            var handlerIdOffset = _bufferBuilder.CreateString(handlerId ?? "");
+            var handlerIdOffset = BufferBuilder.CreateString(handlerId ?? "");
 
             Offset<Notification> notificationOffset;
 
             if(bodyType.HasValue && bodyOffset.HasValue)
             {
                 notificationOffset = Notification.CreateNotification(
-                    _bufferBuilder,
+                    BufferBuilder,
                     handlerIdOffset,
                     @event,
                     bodyType.Value,
@@ -407,7 +407,7 @@ namespace Tubumu.Mediasoup
             else
             {
                 notificationOffset = Notification.CreateNotification(
-                    _bufferBuilder,
+                    BufferBuilder,
                     handlerIdOffset,
                     @event,
                     FBS.Notification.Body.NONE,
@@ -415,17 +415,17 @@ namespace Tubumu.Mediasoup
                 );
             }
 
-            var messageOffset = Message.CreateMessage(_bufferBuilder, FBS.Message.Body.Notification, notificationOffset.Value);
+            var messageOffset = Message.CreateMessage(BufferBuilder, FBS.Message.Body.Notification, notificationOffset.Value);
 
             // Finalizes the buffer and adds a 4 byte prefix with the size of the buffer.
-            _bufferBuilder.FinishSizePrefixed(messageOffset.Value);
+            BufferBuilder.FinishSizePrefixed(messageOffset.Value);
 
             // Create a new buffer with this data so multiple contiguous flatbuffers
             // do not point to the builder buffer overriding others info.
-            var buffer = _bufferBuilder.DataBuffer.ToFullArray();
+            var buffer = BufferBuilder.DataBuffer.ToFullArray();
 
             // Clear the buffer builder so it's reused for the next request.
-            _bufferBuilder.Clear();
+            BufferBuilder.Clear();
 
             if(buffer.Length > MessageMaxLen)
             {

@@ -21,12 +21,16 @@ namespace Tubumu.Mediasoup
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Event? Event { get; set; }
 
-        #endregion
-
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? HandlerId { get; set; }
 
+        #endregion
+
+        #region Common
+
         public byte[] Payload { get; set; }
+
+        #endregion
     }
 
     // Note: For testing.
