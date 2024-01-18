@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using FBS.RtpParameters;
+using FBS.Transport;
 
 namespace Tubumu.Mediasoup
 {
@@ -46,13 +48,13 @@ namespace Tubumu.Mediasoup
                     {
                         new RtpCodecCapability
                         {
-                            Kind      = MediaKind.Audio,
+                            Kind      = MediaKind.AUDIO,
                             MimeType  = "audio/opus",
                             ClockRate = 48000,
                             Channels  = 2
                         },
                         new RtpCodecCapability {
-                            Kind       = MediaKind.Video,
+                            Kind       = MediaKind.VIDEO,
                             MimeType   = "video/VP8",
                             ClockRate  = 90000,
                             Parameters = new Dictionary<string, object>
@@ -61,7 +63,7 @@ namespace Tubumu.Mediasoup
                             }
                         },
                         new RtpCodecCapability {
-                            Kind       = MediaKind.Video,
+                            Kind       = MediaKind.VIDEO,
                             MimeType   = "video/VP9",
                             ClockRate  = 90000,
                             Parameters = new Dictionary<string, object>
@@ -71,7 +73,7 @@ namespace Tubumu.Mediasoup
                             }
                         },
                         new RtpCodecCapability {
-                            Kind       = MediaKind.Video,
+                            Kind       = MediaKind.VIDEO,
                             MimeType   = "video/h264",
                             ClockRate  = 90000,
                             Parameters = new Dictionary<string, object>
@@ -83,7 +85,7 @@ namespace Tubumu.Mediasoup
                             }
                         },
                         new RtpCodecCapability {
-                            Kind       = MediaKind.Video,
+                            Kind       = MediaKind.VIDEO,
                             MimeType   = "video/h264",
                             ClockRate  = 90000,
                             Parameters = new Dictionary<string, object>
@@ -102,14 +104,14 @@ namespace Tubumu.Mediasoup
                     {
                         new WebRtcServerListenInfo
                         {
-                            Protocol = TransportProtocol.UDP,
+                            Protocol = Protocol.UDP,
                             Ip = "0.0.0.0",
                             AnnouncedIp = null,
                             Port = 44444,
                         },
                         new WebRtcServerListenInfo
                         {
-                            Protocol = TransportProtocol.TCP,
+                            Protocol = Protocol.TCP,
                             Ip = "0.0.0.0",
                             AnnouncedIp = null,
                             Port = 44444,
