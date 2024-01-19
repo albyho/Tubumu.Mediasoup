@@ -91,10 +91,21 @@ namespace FBS.Consumer
 
     public class ConsumerScoreT
     {
+        /// <summary>
+        /// score
+        /// </summary>
         [JsonPropertyName("score")]
         public byte Score { get; set; }
-        [JsonPropertyName("producer_score")]
+
+        /// <summary>
+        /// producerScore. Renamed.
+        /// </summary>
+        [JsonPropertyName("producerScore")]
         public byte ProducerScore { get; set; }
+
+        /// <summary>
+        /// producerScores. Renamed.
+        /// </summary>
         [JsonPropertyName("producer_scores")]
         public List<byte> ProducerScores { get; set; }
 

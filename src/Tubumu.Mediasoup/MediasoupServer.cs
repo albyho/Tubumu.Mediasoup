@@ -37,12 +37,12 @@ namespace Tubumu.Mediasoup
             _workersLock.EnterReadLock();
             try
             {
-                if (_nextMediasoupWorkerIndex > _workers.Count - 1)
+                if(_nextMediasoupWorkerIndex > _workers.Count - 1)
                 {
                     throw new Exception("None worker");
                 }
 
-                if (++_nextMediasoupWorkerIndex == _workers.Count)
+                if(++_nextMediasoupWorkerIndex == _workers.Count)
                 {
                     _nextMediasoupWorkerIndex = 0;
                 }
@@ -66,7 +66,7 @@ namespace Tubumu.Mediasoup
         /// <param name="worker"></param>
         public void AddWorker(IWorker worker)
         {
-            if (worker == null)
+            if(worker == null)
             {
                 throw new ArgumentNullException(nameof(worker));
             }
@@ -79,7 +79,7 @@ namespace Tubumu.Mediasoup
                 // Emit observer event.
                 Observer.Emit("newworker", worker);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Debug.WriteLine($"Add worker failure: {ex.Message}");
                 throw;

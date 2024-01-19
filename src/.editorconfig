@@ -56,3 +56,47 @@ csharp_space_between_square_brackets = false
 # Wrap options
 csharp_preserve_single_line_statements = false
 csharp_preserve_single_line_blocks = true
+
+# Roslynator
+# CA1822:将成员标记为 static
+dotnet_diagnostic.CA1822.severity = warning
+
+# Add blank line after embedded statement
+dotnet_diagnostic.rcs0001.severity = suggestion
+# Add blank line after #region
+dotnet_diagnostic.rcs0002.severity = suggestion
+# Add blank line after using directive list
+dotnet_diagnostic.rcs0003.severity = suggestion
+# Add blank line before #endregion
+dotnet_diagnostic.rcs0005.severity = suggestion
+# Add blank line between accessors
+dotnet_diagnostic.rcs0007.severity = suggestion
+# Add blank line between closing brace and next statement
+dotnet_diagnostic.rcs0008.severity = suggestion
+# Add blank line between declaration and documentation comment
+dotnet_diagnostic.rcs0009.severity = suggestion
+# Add blank line between declarations
+dotnet_diagnostic.rcs0010.severity = suggestion
+# Add/remove blank line between single-line accessors
+dotnet_diagnostic.rcs0011.severity = suggestion
+# Options: roslynator_blank_line_between_single_line_accessors
+# Add blank line between single-line declarations
+dotnet_diagnostic.rcs0012.severity = suggestion
+# Add blank line between single-line declarations of different kind
+dotnet_diagnostic.rcs0013.severity = suggestion
+# Add/remove blank line between using directives
+dotnet_diagnostic.rcs0015.severity = suggestion
+# Options: roslynator_blank_line_between_using_directives
+# Add blank line after top comment
+dotnet_diagnostic.rcs0049.severity = suggestion
+# Add blank line before top declaration
+dotnet_diagnostic.rcs0050.severity = suggestion
+# Add/remove new line before 'while' in 'do' statement
+dotnet_diagnostic.rcs0051.severity = suggestion
+# Options: roslynator_new_line_before_while_in_do_statement
+# Place new line after/before equals token
+dotnet_diagnostic.rcs0052.severity = suggestion
+# Options: roslynator_equals_token_new_line
+# Add/remove blank line between switch sections
+dotnet_diagnostic.rcs0061.severity = suggestion
+# Options: roslynator_blank_line_between_switch_sections

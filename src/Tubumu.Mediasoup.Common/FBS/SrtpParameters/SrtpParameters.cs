@@ -71,9 +71,16 @@ namespace FBS.SrtpParameters
 
     public class SrtpParametersT
     {
-        [JsonPropertyName("crypto_suite")]
+        /// <summary>
+        /// cryptoSuite. Renamed.
+        /// </summary>
+        [JsonPropertyName("cryptoSuite")]
         public FBS.SrtpParameters.SrtpCryptoSuite CryptoSuite { get; set; }
-        [JsonPropertyName("key_base64")]
+
+        /// <summary>
+        /// keyBase64. Renamed.
+        /// </summary>
+        [JsonPropertyName("keyBase64")]
         public string KeyBase64 { get; set; }
 
         public SrtpParametersT()

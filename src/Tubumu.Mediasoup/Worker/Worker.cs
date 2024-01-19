@@ -60,7 +60,7 @@ namespace Tubumu.Mediasoup
             : base(loggerFactory, mediasoupOptions)
         {
             var workerPath = mediasoupOptions.MediasoupStartupSettings.WorkerPath;
-            if (workerPath.IsNullOrWhiteSpace())
+            if(workerPath.IsNullOrWhiteSpace())
             {
                 // 见：https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
                 string rid = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
@@ -80,36 +80,42 @@ namespace Tubumu.Mediasoup
             var env = new[] { $"MEDIASOUP_VERSION={mediasoupOptions.MediasoupStartupSettings.MediasoupVersion}" };
 
             var argv = new List<string> { workerPath };
-            if (workerSettings.LogLevel.HasValue)
+            if(workerSettings.LogLevel.HasValue)
             {
                 argv.Add($"--logLevel={workerSettings.LogLevel.Value.GetEnumMemberValue()}");
             }
-            if (!workerSettings.LogTags.IsNullOrEmpty())
+
+            if(!workerSettings.LogTags.IsNullOrEmpty())
             {
                 workerSettings.LogTags!.ForEach(m => argv.Add($"--logTag={m.GetEnumMemberValue()}"));
             }
-            if (workerSettings.RtcMinPort.HasValue)
+
+            if(workerSettings.RtcMinPort.HasValue)
             {
                 argv.Add($"--rtcMinPort={workerSettings.RtcMinPort}");
             }
-            if (workerSettings.RtcMaxPort.HasValue)
+
+            if(workerSettings.RtcMaxPort.HasValue)
             {
                 argv.Add($"--rtcMaxPort={workerSettings.RtcMaxPort}");
             }
-            if (!workerSettings.DtlsCertificateFile.IsNullOrWhiteSpace())
+
+            if(!workerSettings.DtlsCertificateFile.IsNullOrWhiteSpace())
             {
                 argv.Add($"--dtlsCertificateFile={workerSettings.DtlsCertificateFile}");
             }
-            if (!workerSettings.DtlsPrivateKeyFile.IsNullOrWhiteSpace())
+
+            if(!workerSettings.DtlsPrivateKeyFile.IsNullOrWhiteSpace())
             {
                 argv.Add($"--dtlsPrivateKeyFile={workerSettings.DtlsPrivateKeyFile}");
             }
-            if (!workerSettings.LibwebrtcFieldTrials.IsNullOrWhiteSpace())
+
+            if(!workerSettings.LibwebrtcFieldTrials.IsNullOrWhiteSpace())
             {
                 argv.Add($"--libwebrtcFieldTrials={workerSettings.LibwebrtcFieldTrials}");
             }
 
-            _logger.LogDebug($"Worker() | Spawning worker process: {argv.JoinAsString(" ")}");
+            _logger.LogDebug("Worker() | Spawning worker process: {Arguments}", argv.JoinAsString(" "));
 
             _pipes = new Pipe[StdioCount];
 
@@ -118,9 +124,9 @@ namespace Tubumu.Mediasoup
             // fd 2 (stderr)  : Same as stdout.
             // fd 3 (channel) : Producer Channel fd.
             // fd 4 (channel) : Consumer Channel fd.
-            for (var i = 1; i < StdioCount; i++)
+            for(var i = 1; i < StdioCount; i++)
             {
-                _pipes[i] = new Pipe() { Writeable = true, Readable = true };
+                _pipes[i] = new Pipe { Writeable = true, Readable = true };
             }
 
             try
@@ -140,21 +146,21 @@ namespace Tubumu.Mediasoup
 
                 ProcessId = _child.Id;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _child = null;
                 CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
-                if (!_spawnDone)
+                if(!_spawnDone)
                 {
                     _spawnDone = true;
-                    _logger.LogError(ex, $"Worker() | Worker process failed [pid:{ProcessId}]");
+                    _logger.LogError(ex, "Worker() | Worker process failed [pid:{ProcessId}]", ProcessId);
                     Emit("@failure", ex);
                 }
                 else
                 {
                     // 执行到这里的可能性？
-                    _logger.LogError(ex, $"Worker() | Worker process error [pid:{ProcessId}]");
+                    _logger.LogError(ex, "Worker() | Worker process error [pid:{ProcessId}]", ProcessId);
                     Emit("died", ex);
                 }
             }
@@ -169,9 +175,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CloseAsync() | Worker");
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Worker closed");
                 }
@@ -179,7 +185,7 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Kill the worker process.
-                if (_child != null)
+                if(_child != null)
                 {
                     // Remove event listeners but leave a fake 'error' hander to avoid
                     // propagation.
@@ -190,33 +196,33 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Close the Channel instance.
-                if (_channel != null)
+                if(_channel != null)
                 {
                     await _channel.CloseAsync();
                 }
 
                 // Close every Router.
                 Router[] routersForClose;
-                lock (_routersLock)
+                lock(_routersLock)
                 {
                     routersForClose = _routers.ToArray();
                     _routers.Clear();
                 }
 
-                foreach (var router in routersForClose)
+                foreach(var router in routersForClose)
                 {
                     await router.WorkerClosedAsync();
                 }
 
                 // Close every WebRtcServer.
                 WebRtcServer[] webRtcServersForClose;
-                lock (_webRtcServersLock)
+                lock(_webRtcServersLock)
                 {
                     webRtcServersForClose = _webRtcServers.ToArray();
                     _webRtcServers.Clear();
                 }
 
-                foreach (var webRtcServer in webRtcServersForClose)
+                foreach(var webRtcServer in webRtcServersForClose)
                 {
                     await webRtcServer.WorkerClosedAsync();
                 }
@@ -236,10 +242,10 @@ namespace Tubumu.Mediasoup
 
         private void OnNotificationHandle(string HandlerId, Event @event, Notification notification)
         {
-            if (!_spawnDone && @event == Event.WORKER_RUNNING)
+            if(!_spawnDone && @event == Event.WORKER_RUNNING)
             {
                 _spawnDone = true;
-                _logger.LogDebug($"worker process running [pid:{ProcessId}]");
+                _logger.LogDebug("worker process running [pid:{ProcessId}]", ProcessId);
                 Emit("@success");
                 _channel.OnNotification -= OnNotificationHandle;
             }
@@ -248,7 +254,7 @@ namespace Tubumu.Mediasoup
         private void OnExit(Process process)
         {
             // If killed by ourselves, do nothing.
-            if (!process.IsAlive)
+            if(!process.IsAlive)
             {
                 return;
             }
@@ -256,20 +262,18 @@ namespace Tubumu.Mediasoup
             _child = null;
             CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
-            if (!_spawnDone)
+            if(!_spawnDone)
             {
                 _spawnDone = true;
 
-                if (process.ExitCode == 42)
+                if(process.ExitCode == 42)
                 {
-                    _logger.LogError($"OnExit() | Worker process failed due to wrong settings [pid:{ProcessId}]");
+                    _logger.LogError("OnExit() | Worker process failed due to wrong settings [pid:{ProcessId}]", ProcessId);
                     Emit("@failure", new Exception($"Worker process failed due to wrong settings [pid:{ProcessId}]"));
                 }
                 else
                 {
-                    _logger.LogError(
-                        $"OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"
-                    );
+                    _logger.LogError("OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]", ProcessId, process.ExitCode, process.TermSignal);
                     Emit(
                         "@failure",
                         new Exception(
@@ -280,9 +284,7 @@ namespace Tubumu.Mediasoup
             }
             else
             {
-                _logger.LogError(
-                    $"OnExit() | Worker process died unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"
-                );
+                _logger.LogError("OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]", ProcessId, process.ExitCode, process.TermSignal);
                 Emit(
                     "died",
                     new Exception(

@@ -146,7 +146,10 @@ namespace FBS.RtpParameters
         public string Mid { get; set; }
         [JsonPropertyName("codecs")]
         public List<FBS.RtpParameters.RtpCodecParametersT> Codecs { get; set; }
-        [JsonPropertyName("header_extensions")]
+        /// <summary>
+        /// headerExtensions. Renamed.
+        /// </summary>
+        [JsonPropertyName("headerExtensions")]
         public List<FBS.RtpParameters.RtpHeaderExtensionParametersT> HeaderExtensions { get; set; }
         [JsonPropertyName("encodings")]
         public List<FBS.RtpParameters.RtpEncodingParametersT> Encodings { get; set; }

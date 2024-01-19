@@ -1,28 +1,32 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.Consumer;
+using FBS.SctpParameters;
+using FBS.SrtpParameters;
+using FBS.WebRtcTransport;
+
+namespace Tubumu.Mediasoup
 {
     public class RouterCreateWebRtcTransportResponseData : WebRtcTransportData
     {
-
     }
 
     public class RouterCreatePlainTransportResponseData : PlainTransportData
     {
-        
     }
 
     public class RouterCreatePipeTransportResponseData : PipeTransportData
     {
-
     }
 
     public class RouterCreateDirectTransportResponseData : PipeTransportData
     {
-
     }
 
     public class TransportProduceResponseData
     {
-        public ProducerType Type { get; set; }
+        /// <summary>
+        /// Producer donot support `pipe`
+        /// </summary>
+        public FBS.RtpParameters.Type Type { get; set; }
     }
 
     public class TransportConsumeResponseData
@@ -31,9 +35,9 @@
 
         public bool ProducerPaused { get; set; }
 
-        public ConsumerScore Score { get; set; }
+        public ConsumerScoreT Score { get; set; }
 
-        public ConsumerLayers PreferredLayers { get; set; }
+        public ConsumerLayersT PreferredLayers { get; set; }
     }
 
     public class TransportDataProduceResponseData
@@ -46,7 +50,7 @@
         /// <summary>
         /// SCTP parameters defining how the endpoint is sending the data.
         /// </summary>
-        public SctpStreamParameters SctpStreamParameters { get; set; }
+        public SctpStreamParametersT SctpStreamParameters { get; set; }
 
         /// <summary>
         /// A label which can be used to distinguish this DataChannel from others.
@@ -61,10 +65,9 @@
 
     public class TransportDataConsumeResponseData : DataConsumerData
     {
-       
     }
 
-    public class ConsumerSetPreferredLayersResponseData : ConsumerLayers
+    public class ConsumerSetPreferredLayersResponseData : ConsumerLayersT
     {
     }
 
@@ -82,7 +85,7 @@
     {
         public TransportTuple Tuple { get; set; }
 
-        public SrtpParameters? SrtpParameters { get; set; }
+        public SrtpParametersT? SrtpParameters { get; set; }
     }
 
     public class PlainTransportConnectResponseData
@@ -91,11 +94,11 @@
 
         public TransportTuple? RtcpTuple { get; set; }
 
-        public SrtpParameters? SrtpParameters { get; set; }
+        public SrtpParametersT? SrtpParameters { get; set; }
     }
 
     public class WebRtcTransportRestartIceResponseData
     {
-        public IceParameters IceParameters { get; set; }
+        public IceParametersT IceParameters { get; set; }
     }
 }

@@ -126,7 +126,6 @@ namespace FBS.WebRtcTransport
             }
         }
         [JsonPropertyName("listen")]
-        [JsonConverter(typeof(FBS.WebRtcTransport.ListenUnion_JsonConverter))]
         public FBS.WebRtcTransport.ListenUnion Listen { get; set; }
         [JsonPropertyName("enable_udp")]
         public bool EnableUdp { get; set; }

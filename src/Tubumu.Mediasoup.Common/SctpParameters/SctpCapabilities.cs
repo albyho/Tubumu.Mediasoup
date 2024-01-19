@@ -4,6 +4,6 @@ namespace Tubumu.Mediasoup
 {
     public class SctpCapabilities
     {
-        public NumSctpStreamsT NumStreams { get; set; }
+        public NumSctpStreams NumStreams { get; set; }
     }
 }

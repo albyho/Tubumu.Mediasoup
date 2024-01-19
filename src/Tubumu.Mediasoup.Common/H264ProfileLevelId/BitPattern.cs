@@ -1,4 +1,4 @@
-﻿namespace Tubumu.Mediasoup
+﻿namespace Tubumu.H264ProfileLevelId
 {
     /// <summary>
     /// Class for matching bit patterns such as "x1xx0000" where 'x' is allowed to be
@@ -7,6 +7,7 @@
     public class BitPattern
     {
         private readonly int _mask;
+
         private readonly int _maskedValue;
 
         public BitPattern(string str)
@@ -20,9 +21,9 @@
             return _maskedValue == (value & _mask);
         }
 
-        private int ByteMaskString(char c, string str)
+        private static int ByteMaskString(char c, string str)
         {
-            return 
+            return
                 ((str[0] == c) ? 1 << 7 : 0) |
                 ((str[1] == c) ? 1 << 6 : 0) |
                 ((str[2] == c) ? 1 << 5 : 0) |

@@ -62,9 +62,16 @@ namespace FBS.Consumer
 
     public class ConsumerLayersT
     {
-        [JsonPropertyName("spatial_layer")]
+        /// <summary>
+        /// spatialLayer. Renamed.
+        /// </summary>
+        [JsonPropertyName("spatialLayer")]
         public byte SpatialLayer { get; set; }
-        [JsonPropertyName("temporal_layer")]
+
+        /// <summary>
+        /// temporalLayer. Renamed.
+        /// </summary>
+        [JsonPropertyName("temporalLayer")]
         public byte? TemporalLayer { get; set; }
 
         public ConsumerLayersT()

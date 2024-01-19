@@ -74,13 +74,28 @@ namespace FBS.SctpParameters
 
     public class SctpStreamParametersT
     {
-        [JsonPropertyName("stream_id")]
+        /// <summary>
+        /// streamId. Renamed.
+        /// </summary>
+        [JsonPropertyName("streamId")]
         public ushort StreamId { get; set; }
+
+        /// <summary>
+        /// ordered
+        /// </summary>
         [JsonPropertyName("ordered")]
         public bool? Ordered { get; set; }
-        [JsonPropertyName("max_packet_life_time")]
+
+        /// <summary>
+        /// maxPacketLifeTime. Renamed.
+        /// </summary>
+        [JsonPropertyName("maxPacketLifeTime")]
         public ushort? MaxPacketLifeTime { get; set; }
-        [JsonPropertyName("max_retransmits")]
+
+        /// <summary>
+        /// maxRetransmits. Renamed.
+        /// </summary>
+        [JsonPropertyName("maxRetransmits")]
         public ushort? MaxRetransmits { get; set; }
 
         public SctpStreamParametersT()

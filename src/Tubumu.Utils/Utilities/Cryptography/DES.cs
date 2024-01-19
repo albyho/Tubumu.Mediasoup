@@ -7,19 +7,18 @@ namespace Tubumu.Utils.Utilities.Cryptography
 {
     /// <summary>
     /// DES 加密解密算法(默认采用的是ECB模式)
+    /// <para>字节数组 -> 字节数组</para>
+    /// <para>字节数组 -> Base64</para>
+    /// <para>字符串   -> 字节数组</para>
+    /// <para>字符串   -> Base64</para>
+    /// <para>字符串   -> Base64(指定填充模式)</para>
+    /// <para>字符串   -> Hex</para>
     /// </summary>
     public static class DES
     {
         private const string DefaultKey = "$uo@5%8*";
 
         #region 加密
-
-        // 字节数组 -> 字节数组
-        // 字节数组 -> Base64
-        // 字符串   -> 字节数组
-        // 字符串   -> Base64
-        // 字符串   -> Base64(指定填充模式)
-        // 字符串   -> Hex
 
         /// <summary>
         /// 核心方法 EncryptFromByteArrayToByteArray

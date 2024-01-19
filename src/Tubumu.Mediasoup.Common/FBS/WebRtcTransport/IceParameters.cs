@@ -85,11 +85,22 @@ namespace FBS.WebRtcTransport
 
     public class IceParametersT
     {
-        [JsonPropertyName("username_fragment")]
+        /// <summary>
+        /// usernameFragment. Renamed.
+        /// </summary>
+        [JsonPropertyName("usernameFragment")]
         public string UsernameFragment { get; set; }
+
+        /// <summary>
+        /// password
+        /// </summary>
         [JsonPropertyName("password")]
         public string Password { get; set; }
-        [JsonPropertyName("ice_lite")]
+
+        /// <summary>
+        /// iceLite. Renamed.
+        /// </summary>
+        [JsonPropertyName("iceLite")]
         public bool IceLite { get; set; }
 
         public IceParametersT()

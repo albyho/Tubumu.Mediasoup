@@ -10,7 +10,9 @@ namespace Tubumu.Mediasoup
     public class WorkerNative : WorkerBase
     {
         private readonly string[] _argv;
+
         private readonly string _version;
+
         private readonly IntPtr _channlPtr;
 
         public WorkerNative(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
@@ -21,30 +23,37 @@ namespace Tubumu.Mediasoup
             {
                 "" // Ignore `workerPath`
             };
+
             if(workerSettings.LogLevel.HasValue)
             {
                 argv.Add($"--logLevel={workerSettings.LogLevel.Value.GetEnumMemberValue()}");
             }
+
             if(!workerSettings.LogTags.IsNullOrEmpty())
             {
                 workerSettings.LogTags!.ForEach(m => argv.Add($"--logTag={m.GetEnumMemberValue()}"));
             }
+
             if(workerSettings.RtcMinPort.HasValue)
             {
                 argv.Add($"--rtcMinPort={workerSettings.RtcMinPort}");
             }
+
             if(workerSettings.RtcMaxPort.HasValue)
             {
                 argv.Add($"--rtcMaxPort={workerSettings.RtcMaxPort}");
             }
+
             if(!workerSettings.DtlsCertificateFile.IsNullOrWhiteSpace())
             {
                 argv.Add($"--dtlsCertificateFile={workerSettings.DtlsCertificateFile}");
             }
+
             if(!workerSettings.DtlsPrivateKeyFile.IsNullOrWhiteSpace())
             {
                 argv.Add($"--dtlsPrivateKeyFile={workerSettings.DtlsPrivateKeyFile}");
             }
+
             if(!workerSettings.LibwebrtcFieldTrials.IsNullOrWhiteSpace())
             {
                 argv.Add($"--libwebrtcFieldTrials={workerSettings.LibwebrtcFieldTrials}");
@@ -83,17 +92,17 @@ namespace Tubumu.Mediasoup
             {
                 if(workerRunResult == 42)
                 {
-                    _logger.LogError($"OnExit() | Worker run failed due to wrong settings");
+                    _logger.LogError("OnExit() | Worker run failed due to wrong settings");
                     Emit("@failure", new Exception("Worker run failed due to wrong settings"));
                 }
                 else if(workerRunResult == 0)
                 {
-                    _logger.LogError($"OnExit() | Worker died unexpectedly");
+                    _logger.LogError("OnExit() | Worker died unexpectedly");
                     Emit("died", new Exception("Worker died unexpectedly"));
                 }
                 else
                 {
-                    _logger.LogError($"OnExit() | Worker run failed unexpectedly");
+                    _logger.LogError("OnExit() | Worker run failed unexpectedly");
                     Emit("@failure", new Exception("Worker run failed unexpectedly"));
                 }
             }

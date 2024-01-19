@@ -80,7 +80,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="loggerFactory"></param>
         /// <param name="mediasoupOptions"></param>
-        public WorkerBase(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
+        protected WorkerBase(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Worker>();
@@ -101,9 +101,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("DumpAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Worker closed");
                 }
@@ -119,9 +119,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetResourceUsageAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Worker closed");
                 }
@@ -137,9 +137,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("UpdateSettingsAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Worker closed");
                 }
@@ -159,17 +159,18 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a WebRtcServer.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>WebRtcServer</returns>
         public async Task<WebRtcServer> CreateWebRtcServerAsync(WebRtcServerOptions webRtcServerOptions)
         {
             _logger.LogDebug("CreateWebRtcServerAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Workder closed");
                 }
+
                 var reqData = new { WebRtcServerId = Guid.NewGuid().ToString(), webRtcServerOptions.ListenInfos };
 
                 await _channel.RequestAsync(MethodId.WORKER_CREATE_WEBRTC_SERVER, null, reqData);
@@ -181,7 +182,7 @@ namespace Tubumu.Mediasoup
                     webRtcServerOptions.AppData
                 );
 
-                lock (_webRtcServersLock)
+                lock(_webRtcServersLock)
                 {
                     _webRtcServers.Add(webRtcServer);
                 }
@@ -190,10 +191,11 @@ namespace Tubumu.Mediasoup
                     "@close",
                     (_, _) =>
                     {
-                        lock (_webRtcServersLock)
+                        lock(_webRtcServersLock)
                         {
                             _webRtcServers.Remove(webRtcServer);
                         }
+
                         return Task.CompletedTask;
                     }
                 );
@@ -208,13 +210,14 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a Router.
         /// </summary>
+        /// <returns>Router</returns>
         public async Task<Router> CreateRouterAsync(RouterOptions routerOptions)
         {
             _logger.LogDebug("CreateRouterAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Workder closed");
                 }
@@ -234,7 +237,7 @@ namespace Tubumu.Mediasoup
                     routerOptions.AppData
                 );
 
-                lock (_routersLock)
+                lock(_routersLock)
                 {
                     _routers.Add(router);
                 }
@@ -243,10 +246,11 @@ namespace Tubumu.Mediasoup
                     "@close",
                     (_, _) =>
                     {
-                        lock (_routersLock)
+                        lock(_routersLock)
                         {
                             _routers.Remove(router);
                         }
+
                         return Task.CompletedTask;
                     }
                 );
@@ -270,9 +274,9 @@ namespace Tubumu.Mediasoup
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if(!disposedValue)
             {
-                if (disposing)
+                if(disposing)
                 {
                     // TODO: 释放托管状态(托管对象)。
                     DestoryManaged();

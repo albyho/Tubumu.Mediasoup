@@ -92,25 +92,46 @@ namespace FBS.SctpParameters
 
     public class SctpParametersT
     {
+        /// <summary>
+        /// port
+        /// </summary>
         [JsonPropertyName("port")]
         public ushort Port { get; set; }
+
         /// <summary>
         /// OS. Renamed.
         /// </summary>
         [JsonPropertyName("OS")]
         public ushort Os { get; set; }
+
         /// <summary>
         /// MIS. Renamed.
         /// </summary>
         [JsonPropertyName("MIS")]
         public ushort Mis { get; set; }
-        [JsonPropertyName("max_message_size")]
+
+        /// <summary>
+        /// maxMessageSize. Renamed.
+        /// </summary>
+        [JsonPropertyName("maxMessageSize")]
         public uint MaxMessageSize { get; set; }
-        [JsonPropertyName("send_buffer_size")]
+
+        /// <summary>
+        /// sendBufferSize. Renamed.
+        /// </summary>
+        [JsonPropertyName("sendBufferSize")]
         public uint SendBufferSize { get; set; }
-        [JsonPropertyName("sctp_buffered_amount")]
+
+        /// <summary>
+        /// sctpBufferedAmount. Renamed.
+        /// </summary>
+        [JsonPropertyName("sctpBufferedAmount")]
         public uint SctpBufferedAmount { get; set; }
-        [JsonPropertyName("is_data_channel")]
+
+        /// <summary>
+        /// isDataChannel. Renamed.
+        /// </summary>
+        [JsonPropertyName("isDataChannel")]
         public bool IsDataChannel { get; set; }
 
         public SctpParametersT()

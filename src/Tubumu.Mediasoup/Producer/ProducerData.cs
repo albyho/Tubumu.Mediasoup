@@ -1,7 +1,9 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.RtpParameters;
+
+namespace Tubumu.Mediasoup
 {
     public class ProducerData
-	{
+    {
         /// <summary>
         /// Media kind.
         /// </summary>
@@ -15,7 +17,7 @@
         /// <summary>
         /// Producer type.
         /// </summary>
-        public ProducerType Type { get; init; }
+        public Type Type { get; init; }
 
         /// <summary>
         /// Consumable RTP parameters.

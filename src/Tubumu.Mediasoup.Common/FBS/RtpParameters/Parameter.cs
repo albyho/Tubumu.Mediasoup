@@ -121,7 +121,6 @@ namespace FBS.RtpParameters
             }
         }
         [JsonPropertyName("value")]
-        [JsonConverter(typeof(FBS.RtpParameters.ValueUnion_JsonConverter))]
         public FBS.RtpParameters.ValueUnion Value { get; set; }
 
         public ParameterT()

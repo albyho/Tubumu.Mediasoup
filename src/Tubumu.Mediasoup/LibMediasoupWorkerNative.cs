@@ -48,8 +48,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Call when wrote some messages to Channel or PayloadChannel
         /// </summary>
-        /// <param name="argc"></param>
-        /// <param name=""></param>
+        /// <param name="handle">RequestMessage Queue handle</param>
         /// <returns>Returns `0` on success, or an error code `< 0` on failure</returns>
         [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_async_send(IntPtr handle);
@@ -57,19 +56,19 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Run worker
         /// </summary>
-        /// <param name="argc"></param>
-        /// <param name="argv"></param>
-        /// <param name="version"></param>
-        /// <param name="consumerChannelFd"></param>
-        /// <param name="producerChannelFd"></param>
-        /// <param name="_payloadConsumeChannelFd">已不使用</param>
-        /// <param name="_payloadProduceChannelFd">已不使用</param>
-        /// <param name="channelReadFn"></param>
-        /// <param name="channelReadCtx"></param>
-        /// <param name="channelWriteFn"></param>
-        /// <param name="channelWriteCtx"></param>
+        /// <param name="argc">Number of arguments</param>
+        /// <param name="argv">The arguments</param>
+        /// <param name="version">Medisaoup version</param>
+        /// <param name="consumerChannelFd">Consumer channel fd, Zero.</param>
+        /// <param name="producerChannelFd">Consumer channel fd, Zero.</param>
+        /// <param name="_payloadConsumeChannelFd">Not used, Zero.</param>
+        /// <param name="_payloadProduceChannelFd">Not used, Zero.</param>
+        /// <param name="channelReadFn">Channel read function</param>
+        /// <param name="channelReadCtx">Channel read function context</param>
+        /// <param name="channelWriteFn">Channel write function</param>
+        /// <param name="channelWriteCtx">Channel write function context</param>
         /// <returns>Returns `0` on success, or an error code `< 0` on failure</returns>
-        [DllImport(Lib, CallingConvention = CallingConvention.Cdecl, EntryPoint = "mediasoup_worker_run")]
+        [DllImport(Lib, EntryPoint = "mediasoup_worker_run", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         internal static extern int MediasoupWorkerRun(int argc,
             [In] string[] argv,
             string version,

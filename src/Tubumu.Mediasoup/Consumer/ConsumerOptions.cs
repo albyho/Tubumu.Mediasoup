@@ -1,4 +1,6 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.Consumer;
+
+namespace Tubumu.Mediasoup
 {
     public class ConsumerOptions : ConsumerOptionsBase
     {
@@ -33,7 +35,7 @@
         /// Preferred spatial and temporal layer for simulcast or SVC media sources.
         /// If unset, the highest ones are selected.
         /// </summary>
-        public ConsumerLayers? PreferredLayers { get; set; }
+        public ConsumerLayersT? PreferredLayers { get; set; }
 
         /// <summary>
         /// Whether this Consumer should ignore DTX packets (only valid for Opus codec).

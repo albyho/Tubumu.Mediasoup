@@ -35,7 +35,7 @@ namespace Tubumu.Mediasoup
         {
             var match = ScalabilityModeRegex.Match(scalabilityMode);
             var result = new ScalabilityMode();
-            if (match.Success)
+            if(match.Success)
             {
                 result.SpatialLayers = int.Parse(match.Groups[1].Value);
                 result.TemporalLayers = int.Parse(match.Groups[2].Value);
@@ -47,6 +47,7 @@ namespace Tubumu.Mediasoup
                 result.TemporalLayers = 1;
                 result.Ksvc = false;
             }
+
             return result;
         }
     }
