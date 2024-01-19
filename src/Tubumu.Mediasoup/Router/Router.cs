@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.Router;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -39,7 +41,7 @@ namespace Tubumu.Mediasoup
 
         #region Router data.
 
-        public RouterData _data { get; }
+        public RouterData Data { get; }
 
         #endregion Router data.
 
@@ -97,11 +99,10 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newtransport - (transport: Transport)</para>
         /// <para>@emits newrtpobserver - (rtpObserver: RtpObserver)</para>
         /// </summary>
-        /// <param name="logger"></param>
+        /// <param name="loggerFactory"></param>
         /// <param name="@internal"></param>
-        /// <param name="rtpCapabilities"></param>
+        /// <param name="data"></param>
         /// <param name="channel"></param>
-        /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         public Router(ILoggerFactory loggerFactory,
             RouterInternal @internal,
@@ -114,7 +115,7 @@ namespace Tubumu.Mediasoup
             _logger = loggerFactory.CreateLogger<Router>();
 
             _internal = @internal;
-            _data = data;
+            Data = data;
             _channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
         }
@@ -124,20 +125,29 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug($"CloseAsync() | Router:{RouterId}");
+            _logger.LogDebug("CloseAsync() | Router:{RouterId}", RouterId);
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
 
                 _closed = true;
 
+                var closeRouterRequest = new FBS.Worker.CloseRouterRequestT
+                {
+                    RouterId = _internal.RouterId,
+                };
+
+                var closeRouterRequestOffset = FBS.Worker.CloseRouterRequest.Pack(_channel.BufferBuilder, closeRouterRequest);
+
                 // Fire and forget
-                var reqData = _internal;
-                _channel.RequestAsync(MethodId.WORKER_CLOSE_ROUTER, null, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(
+                        FBS.Request.Method.WORKER_CLOSE_ROUTER,
+                        FBS.Request.Body.Worker_CloseRouterRequest,
+                        closeRouterRequestOffset.Value).ContinueWithOnFaultedHandleLog(_logger);
 
                 await CloseInternalAsync();
 
@@ -145,7 +155,7 @@ namespace Tubumu.Mediasoup
 
                 // Emit observer event.
                 Observer.Emit("close");
-            };
+            }
         }
 
         /// <summary>
@@ -153,11 +163,11 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task WorkerClosedAsync()
         {
-            _logger.LogDebug($"WorkerClosedAsync() | Router:{RouterId}");
+            _logger.LogDebug("WorkerClosedAsync() | Router:{RouterId}", RouterId);
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -173,63 +183,23 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        private async Task CloseInternalAsync()
-        {
-            using (await _transportsLock.WriteLockAsync())
-            {
-                // Close every Transport.
-                foreach (var transport in _transports.Values)
-                {
-                    await transport.RouterClosedAsync();
-                }
-
-                _transports.Clear();
-            }
-
-            using (await _producersLock.WriteLockAsync())
-            {
-                // Clear the Producers map.
-                _producers.Clear();
-            }
-
-            using (await _rtpObserversLock.WriteLockAsync())
-            {
-                // Close every RtpObserver.
-                foreach (var rtpObserver in _rtpObservers.Values)
-                {
-                    await rtpObserver.RouterClosedAsync();
-                }
-                _rtpObservers.Clear();
-            }
-
-            using (await _dataProducersLock.WriteLockAsync())
-            {
-                // Clear the DataProducers map.
-                _dataProducers.Clear();
-            }
-
-            using (await _mapRouterPipeTransportsLock.WriteLockAsync())
-            {
-                // Clear map of Router/PipeTransports.
-                _mapRouterPipeTransports.Clear();
-            }
-        }
-
         /// <summary>
         /// Dump Router.
         /// </summary>
-        public async Task<string> DumpAsync()
+        public async Task<FBS.Router.DumpResponseT> DumpAsync()
         {
-            _logger.LogDebug($"DumpAsync() | Router:{RouterId}");
+            _logger.LogDebug("DumpAsync() | Router:{RouterId}", RouterId);
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.ROUTER_DUMP, _internal.RouterId))!;
+                var response = await _channel.RequestAsync(FBS.Request.Method.ROUTER_DUMP, null, null, _internal.RouterId);
+                var data = response.Value.BodyAsRouter_DumpResponse().UnPack();
+                return data;
             }
         }
 
@@ -240,65 +210,139 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateWebRtcTransportAsync()");
 
-            if (webRtcTransportOptions.WebRtcServer == null && webRtcTransportOptions.ListenIps.IsNullOrEmpty())
+            if(webRtcTransportOptions.WebRtcServer == null && webRtcTransportOptions.ListenInfos.IsNullOrEmpty())
             {
                 throw new ArgumentException("missing webRtcServer and listenIps (one of them is mandatory)");
             }
+            /*
+            else if(webRtcTransportOptions.WebRtcServer != null && !webRtcTransportOptions.ListenInfos.IsNullOrEmpty())
+            {
+                throw new ArgumentException("only one of webRtcServer, listenInfos and listenIps must be given");
+            }
+            */
 
             var webRtcServer = webRtcTransportOptions.WebRtcServer;
-            if (webRtcServer != null)
+
+            // If webRtcServer is given, then do not force default values for enableUdp
+            // and enableTcp. Otherwise set them if unset.
+            if(webRtcServer != null)
             {
-                webRtcTransportOptions.ListenIps = null;
-                webRtcTransportOptions.Port = null;
+
+                webRtcTransportOptions.EnableUdp ??= true;
+                webRtcTransportOptions.EnableTcp ??= true;
+            }
+            else
+            {
+                webRtcTransportOptions.EnableUdp ??= true;
+                webRtcTransportOptions.EnableTcp ??= false;
             }
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
 
-                var reqData = new
+                /* Build Request. */
+                FBS.WebRtcTransport.ListenServerT? webRtcTransportListenServer = null;
+                FBS.WebRtcTransport.ListenIndividualT? webRtcTransportListenIndividual = null;
+                if(webRtcServer != null)
                 {
-                    TransportId = Guid.NewGuid().ToString(),
-                    webRtcServer?.WebRtcServerId,
-                    webRtcTransportOptions.ListenIps,
-                    webRtcTransportOptions.Port,
-                    webRtcTransportOptions.EnableUdp,
-                    webRtcTransportOptions.EnableTcp,
-                    webRtcTransportOptions.PreferUdp,
-                    webRtcTransportOptions.PreferTcp,
-                    webRtcTransportOptions.InitialAvailableOutgoingBitrate,
-                    webRtcTransportOptions.EnableSctp,
-                    webRtcTransportOptions.NumSctpStreams,
-                    webRtcTransportOptions.MaxSctpMessageSize,
-                    webRtcTransportOptions.MaxSctpSendBufferSize,
+                    webRtcTransportListenServer = new FBS.WebRtcTransport.ListenServerT
+                    {
+                        WebRtcServerId = webRtcServer.WebRtcServerId
+                    };
+                }
+                else
+                {
+                    var fbsListenInfos = webRtcTransportOptions.ListenInfos!.Select(m => new FBS.Transport.ListenInfoT
+                    {
+                        Protocol = m.Protocol,
+                        Ip = m.Ip,
+                        AnnouncedIp = m.AnnouncedIp,
+                        Port = m.Port ?? 0,
+                        Flags = new FBS.Transport.SocketFlagsT
+                        {
+                            Ipv6Only = m.Flags?.Ipv6Only ?? false,
+                            UdpReusePort = m.Flags?.UdpReusePort ?? false,
+                        },
+                        SendBufferSize = m.SendBufferSize ?? 0,
+                        RecvBufferSize = m.RecvBufferSize ?? 0,
+                    }).ToList();
+
+                    webRtcTransportListenIndividual =
+                        new FBS.WebRtcTransport.ListenIndividualT
+                        {
+                            ListenInfos = fbsListenInfos,
+                        };
+                }
+
+                var baseTransportOptions = new FBS.Transport.OptionsT
+                {
+                    Direct = false,
+                    MaxMessageSize = null,
+                    InitialAvailableOutgoingBitrate = webRtcTransportOptions.InitialAvailableOutgoingBitrate ?? 600000,
+                    EnableSctp = webRtcTransportOptions.EnableSctp ?? false,
+                    NumSctpStreams = new FBS.SctpParameters.NumSctpStreamsT
+                    {
+                        OS = webRtcTransportOptions.NumSctpStreams?.OS ?? 1024,
+                        MIS = webRtcTransportOptions.NumSctpStreams?.MIS ?? 1024,
+                    },
+                    MaxSctpMessageSize = webRtcTransportOptions.MaxSctpMessageSize ?? 262144,
+                    SctpSendBufferSize = webRtcTransportOptions.SctpSendBufferSize ?? 262144,
                     IsDataChannel = true
                 };
 
-                var resData = await _channel.RequestAsync(webRtcTransportOptions.WebRtcServer != null ?
-                    MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT_WITH_SERVER : MethodId.ROUTER_CREATE_WEBRTC_TRANSPORT,
-                    _internal.RouterId,
-                    reqData);
-                var responseData = JsonSerializer.Deserialize<RouterCreateWebRtcTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var webRtcTransportOptionsForCreate = new FBS.WebRtcTransport.WebRtcTransportOptionsT
+                {
+                    Base = baseTransportOptions,
+                    EnableUdp = webRtcTransportOptions.EnableUdp!.Value,
+                    EnableTcp = webRtcTransportOptions.EnableTcp!.Value,
+                    PreferUdp = webRtcTransportOptions.PreferUdp ?? false,
+                    PreferTcp = webRtcTransportOptions.PreferTcp ?? false,
+                    Listen = new FBS.WebRtcTransport.ListenUnion
+                    {
+                        Type = webRtcServer != null ? FBS.WebRtcTransport.Listen.ListenServer : FBS.WebRtcTransport.Listen.ListenIndividual,
+                        Value = webRtcServer != null ? webRtcTransportListenServer : webRtcTransportListenIndividual
+                    }
+                };
+
+                var transportId = Guid.NewGuid().ToString();
+                var createWebRtcTransportRequest = new FBS.Router.CreateWebRtcTransportRequestT
+                {
+                    TransportId = transportId,
+                    Options = webRtcTransportOptionsForCreate
+                };
+
+                var createWebRtcTransportRequestOffset = FBS.Router.CreateWebRtcTransportRequest.Pack(_channel.BufferBuilder, createWebRtcTransportRequest);
+
+                var response = await _channel.RequestAsync(webRtcServer != null
+                        ? FBS.Request.Method.ROUTER_CREATE_WEBRTCTRANSPORT_WITH_SERVER
+                        : FBS.Request.Method.ROUTER_CREATE_WEBRTCTRANSPORT,
+                        FBS.Request.Body.Router_CreateWebRtcTransportRequest,
+                        createWebRtcTransportRequestOffset.Value,
+                        _internal.RouterId);
+
+                /* Decode Response. */
+                var data = response.Value.BodyAsWebRtcTransport_DumpResponse().UnPack();
 
                 var transport = new WebRtcTransport(_loggerFactory,
-                                    new TransportInternal(_internal.RouterId, reqData.TransportId),
-                                    responseData, // 直接使用返回值
+                                    new TransportInternal(_internal.RouterId, transportId),
+                                    data, // 直接使用返回值
                                     _channel,
                                     webRtcTransportOptions.AppData,
-                                    () => _data.RtpCapabilities,
+                                    () => Data.RtpCapabilities,
                                     async m =>
                                     {
-                                        using (await _producersLock.ReadLockAsync())
+                                        using(await _producersLock.ReadLockAsync())
                                         {
                                             return _producers.TryGetValue(m, out var p) ? p : null;
                                         }
                                     },
                                     async m =>
                                     {
-                                        using (await _dataProducersLock.ReadLockAsync())
+                                        using(await _dataProducersLock.ReadLockAsync())
                                         {
                                             return _dataProducers.TryGetValue(m, out var p) ? p : null;
                                         }
@@ -318,52 +362,112 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreatePlainTransportAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
 
-                if (plainTransportOptions.ListenIp == null || plainTransportOptions.ListenIp.Ip.IsNullOrWhiteSpace())
+                if(plainTransportOptions.ListenInfo?.Ip.IsNullOrWhiteSpace() != false)
                 {
-                    throw new ArgumentException("Missing listenIp");
+                    throw new ArgumentException("Missing ListenInfo");
                 }
 
-                var reqData = new
+                // If rtcpMux is enabled, ignore rtcpListenInfo.
+                if(plainTransportOptions.RtcpMux.HasValue && plainTransportOptions.RtcpMux.HasValue && plainTransportOptions.RtcpListenInfo != null)
                 {
-                    TransportId = Guid.NewGuid().ToString(),
-                    plainTransportOptions.ListenIp,
-                    plainTransportOptions.Port,
-                    plainTransportOptions.Comedia,
-                    plainTransportOptions.EnableSctp,
-                    plainTransportOptions.NumSctpStreams,
-                    plainTransportOptions.MaxSctpMessageSize,
-                    plainTransportOptions.SctpSendBufferSize,
-                    IsDataChannel = false,
-                    plainTransportOptions.EnableSrtp,
-                    plainTransportOptions.SrtpCryptoSuite
+                    _logger.LogWarning("createPlainTransport() | ignoring rtcpMux since rtcpListenInfo is given");
+                    plainTransportOptions.RtcpMux = false;
+                }
+
+                var baseTransportOptions = new FBS.Transport.OptionsT
+                {
+                    Direct = false,
+                    MaxMessageSize = null,
+                    InitialAvailableOutgoingBitrate = null,
+                    EnableSctp = plainTransportOptions.EnableSctp ?? false,
+                    NumSctpStreams = new FBS.SctpParameters.NumSctpStreamsT
+                    {
+                        OS = plainTransportOptions.NumSctpStreams?.OS ?? 1024,
+                        MIS = plainTransportOptions.NumSctpStreams?.MIS ?? 1024,
+                    },
+                    MaxSctpMessageSize = plainTransportOptions.MaxSctpMessageSize ?? 262144,
+                    SctpSendBufferSize = plainTransportOptions.SctpSendBufferSize ?? 262144,
+                    IsDataChannel = false
                 };
 
-                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PLAIN_TRANSPORT, _internal.RouterId, reqData);
-                var responseData = JsonSerializer.Deserialize<RouterCreatePlainTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var listenInfo = plainTransportOptions.ListenInfo;
+                var rtcpListenInfo = plainTransportOptions.RtcpListenInfo;
+
+                var plainTransportOptionsForCreate = new FBS.PlainTransport.PlainTransportOptionsT
+                {
+                    Base = baseTransportOptions,
+                    ListenInfo = new FBS.Transport.ListenInfoT
+                    {
+                        Protocol = listenInfo.Protocol,
+                        Ip = listenInfo.Ip,
+                        AnnouncedIp = listenInfo.AnnouncedIp,
+                        Port = listenInfo.Port ?? 0,
+                        Flags = new FBS.Transport.SocketFlagsT
+                        {
+                            Ipv6Only = listenInfo.Flags?.Ipv6Only ?? false,
+                            UdpReusePort = listenInfo.Flags?.UdpReusePort ?? false,
+                        },
+                        SendBufferSize = listenInfo.SendBufferSize ?? 0,
+                        RecvBufferSize = listenInfo.RecvBufferSize ?? 0,
+                    },
+                    RtcpListenInfo = rtcpListenInfo != null ? new FBS.Transport.ListenInfoT
+                    {
+                        Protocol = rtcpListenInfo.Protocol,
+                        Ip = rtcpListenInfo.Ip,
+                        AnnouncedIp = rtcpListenInfo.AnnouncedIp,
+                        Port = rtcpListenInfo.Port ?? 0,
+                        Flags = new FBS.Transport.SocketFlagsT
+                        {
+                            Ipv6Only = rtcpListenInfo.Flags?.Ipv6Only ?? false,
+                            UdpReusePort = rtcpListenInfo.Flags?.UdpReusePort ?? false,
+                        },
+                        SendBufferSize = rtcpListenInfo.SendBufferSize ?? 0,
+                        RecvBufferSize = rtcpListenInfo.RecvBufferSize ?? 0,
+                    } : null,
+                    RtcpMux = plainTransportOptions.RtcpMux ?? rtcpListenInfo == null,
+                    Comedia = plainTransportOptions.Comedia ?? false,
+                };
+
+                var transportId = Guid.NewGuid().ToString();
+                var createPlainTransportRequest = new FBS.Router.CreatePlainTransportRequestT
+                {
+                    TransportId = transportId,
+                    Options = plainTransportOptionsForCreate
+                };
+
+                var createPlainTransportRequestOffset = FBS.Router.CreatePlainTransportRequest.Pack(_channel.BufferBuilder, createPlainTransportRequest);
+
+                var response = await _channel.RequestAsync(FBS.Request.Method.ROUTER_CREATE_PLAINTRANSPORT,
+                        FBS.Request.Body.Router_CreatePlainTransportRequest,
+                        createPlainTransportRequestOffset.Value,
+                        _internal.RouterId);
+
+                /* Decode Response. */
+                var data = response.Value.BodyAsPlainTransport_DumpResponse().UnPack();
 
                 var transport = new PlainTransport(_loggerFactory,
-                                    new TransportInternal(_internal.RouterId, reqData.TransportId),
-                                    responseData, // 直接使用返回值
+                                    new TransportInternal(_internal.RouterId, transportId),
+                                    data, // 直接使用返回值
                                     _channel,
                                     plainTransportOptions.AppData,
-                                    () => _data.RtpCapabilities,
+                                    () => Data.RtpCapabilities,
                                     async m =>
                                     {
-                                        using (await _producersLock.ReadLockAsync())
+                                        using(await _producersLock.ReadLockAsync())
                                         {
                                             return _producers.TryGetValue(m, out var p) ? p : null;
                                         }
                                     },
                                     async m =>
                                     {
-                                        using (await _dataProducersLock.ReadLockAsync())
+                                        using(await _dataProducersLock.ReadLockAsync())
                                         {
                                             return _dataProducers.TryGetValue(m, out var p) ? p : null;
                                         }
@@ -379,55 +483,96 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a PipeTransport.
         /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidStateException"></exception>
         public async Task<PipeTransport> CreatePipeTransportAsync(PipeTransportOptions pipeTransportOptions)
         {
             _logger.LogDebug("CreatePipeTransportAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
 
-                if (pipeTransportOptions.ListenIp == null)
+                if(pipeTransportOptions.ListenInfo?.Ip.IsNullOrWhiteSpace() != false)
                 {
-                    throw new ArgumentNullException(nameof(pipeTransportOptions.ListenIp), "Missing listenIp");
+                    throw new ArgumentException("Missing ListenInfo");
                 }
 
-                var reqData = new
+                var baseTransportOptions = new FBS.Transport.OptionsT
                 {
-                    TransportId = Guid.NewGuid().ToString(),
-                    pipeTransportOptions.ListenIp,
-                    pipeTransportOptions.Port,
-                    pipeTransportOptions.EnableSctp,
-                    pipeTransportOptions.NumSctpStreams,
-                    pipeTransportOptions.MaxSctpMessageSize,
-                    pipeTransportOptions.SctpSendBufferSize,
-                    IsDataChannel = false,
-                    pipeTransportOptions.EnableRtx,
-                    pipeTransportOptions.EnableSrtp,
+                    Direct = false,
+                    MaxMessageSize = null,
+                    InitialAvailableOutgoingBitrate = null,
+                    EnableSctp = pipeTransportOptions.EnableSctp ?? false,
+                    NumSctpStreams = new FBS.SctpParameters.NumSctpStreamsT
+                    {
+                        OS = pipeTransportOptions.NumSctpStreams?.OS ?? 1024,
+                        MIS = pipeTransportOptions.NumSctpStreams?.MIS ?? 1024,
+                    },
+                    MaxSctpMessageSize = pipeTransportOptions.MaxSctpMessageSize ?? 262144,
+                    SctpSendBufferSize = pipeTransportOptions.SctpSendBufferSize ?? 262144,
+                    IsDataChannel = false
                 };
 
-                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_PIPE_TRANSPORT, _internal.RouterId, reqData);
-                var responseData = JsonSerializer.Deserialize<RouterCreatePipeTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var listenInfo = pipeTransportOptions.ListenInfo;
+
+                var pipeTransportOptionsForCreate = new FBS.PipeTransport.PipeTransportOptionsT
+                {
+                    Base = baseTransportOptions,
+                    ListenInfo = new FBS.Transport.ListenInfoT
+                    {
+                        Protocol = listenInfo.Protocol,
+                        Ip = listenInfo.Ip,
+                        AnnouncedIp = listenInfo.AnnouncedIp,
+                        Port = listenInfo.Port ?? 0,
+                        Flags = new FBS.Transport.SocketFlagsT
+                        {
+                            Ipv6Only = listenInfo.Flags?.Ipv6Only ?? false,
+                            UdpReusePort = listenInfo.Flags?.UdpReusePort ?? false,
+                        },
+                        SendBufferSize = listenInfo.SendBufferSize ?? 0,
+                        RecvBufferSize = listenInfo.RecvBufferSize ?? 0,
+                    },
+                    EnableRtx = pipeTransportOptions.EnableRtx ?? false,
+                    EnableSrtp = pipeTransportOptions.EnableRtx ?? false,
+                };
+
+                var transportId = Guid.NewGuid().ToString();
+                var createPipeTransportRequest = new FBS.Router.CreatePipeTransportRequestT
+                {
+                    TransportId = transportId,
+                    Options = pipeTransportOptionsForCreate
+                };
+
+                var createPipeTransportRequestOffset = FBS.Router.CreatePipeTransportRequest.Pack(_channel.BufferBuilder, createPipeTransportRequest);
+
+                var response = await _channel.RequestAsync(FBS.Request.Method.ROUTER_CREATE_PIPETRANSPORT,
+                        FBS.Request.Body.Router_CreatePipeTransportRequest,
+                        createPipeTransportRequestOffset.Value,
+                        _internal.RouterId);
+
+                /* Decode Response. */
+                var data = response.Value.BodyAsPipeTransport_DumpResponse().UnPack();
 
                 var transport = new PipeTransport(_loggerFactory,
-                                    new TransportInternal(_internal.RouterId, reqData.TransportId),
-                                    responseData, // 直接使用返回值
+                                    new TransportInternal(_internal.RouterId, transportId),
+                                    data, // 直接使用返回值
                                     _channel,
                                     pipeTransportOptions.AppData,
-                                    () => _data.RtpCapabilities,
+                                    () => Data.RtpCapabilities,
                                     async m =>
                                     {
-                                        using (await _producersLock.ReadLockAsync())
+                                        using(await _producersLock.ReadLockAsync())
                                         {
                                             return _producers.TryGetValue(m, out var p) ? p : null;
                                         }
                                     },
                                     async m =>
                                     {
-                                        using (await _dataProducersLock.ReadLockAsync())
+                                        using(await _dataProducersLock.ReadLockAsync())
                                         {
                                             return _dataProducers.TryGetValue(m, out var p) ? p : null;
                                         }
@@ -448,12 +593,18 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateDirectTransportAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
+
+                var baseTransportOptions = new FBS.Transport.OptionsT
+                {
+                    Direct = true,
+                    MaxMessageSize = directTransportOptions.MaxMessageSize,
+                };
 
                 var reqData = new
                 {
@@ -462,25 +613,44 @@ namespace Tubumu.Mediasoup
                     directTransportOptions.MaxMessageSize,
                 };
 
-                var resData = await _channel.RequestAsync(MethodId.ROUTER_CREATE_DIRECT_TRANSPORT, _internal.RouterId, reqData);
-                var responseData = JsonSerializer.Deserialize<RouterCreateDirectTransportResponseData>(resData!, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                var directTransportOptionsForCreate = new FBS.DirectTransport.DirectTransportOptionsT
+                {
+                    Base = baseTransportOptions,
+                };
+
+                var transportId = Guid.NewGuid().ToString();
+                var createDirectTransportRequest = new FBS.Router.CreateDirectTransportRequestT
+                {
+                    TransportId = transportId,
+                    Options = directTransportOptionsForCreate
+                };
+
+                var createDirectTransportRequestOffset = FBS.Router.CreateDirectTransportRequest.Pack(_channel.BufferBuilder, createDirectTransportRequest);
+
+                var response = await _channel.RequestAsync(FBS.Request.Method.ROUTER_CREATE_DIRECTTRANSPORT,
+                        FBS.Request.Body.Router_CreateDirectTransportRequest,
+                        createDirectTransportRequestOffset.Value,
+                        _internal.RouterId);
+
+                /* Decode Response. */
+                var data = response.Value.BodyAsDirectTransport_DumpResponse().UnPack();
 
                 var transport = new DirectTransport(_loggerFactory,
-                                    new TransportInternal(RouterId, reqData.TransportId),
-                                    responseData, // 直接使用返回值
+                                    new TransportInternal(RouterId, transportId),
+                                    data, // 直接使用返回值
                                     _channel,
                                     directTransportOptions.AppData,
-                                    () => _data.RtpCapabilities,
+                                    () => Data.RtpCapabilities,
                                     async m =>
                                     {
-                                        using (await _producersLock.ReadLockAsync())
+                                        using(await _producersLock.ReadLockAsync())
                                         {
                                             return _producers.TryGetValue(m, out var p) ? p : null;
                                         }
                                     },
                                     async m =>
                                     {
-                                        using (await _dataProducersLock.ReadLockAsync())
+                                        using(await _dataProducersLock.ReadLockAsync())
                                         {
                                             return _dataProducers.TryGetValue(m, out var p) ? p : null;
                                         }
@@ -495,21 +665,21 @@ namespace Tubumu.Mediasoup
 
         private async Task ConfigureTransportAsync(Transport transport, WebRtcServer? webRtcServer = null)
         {
-            using (await _transportsLock.WriteLockAsync())
+            using(await _transportsLock.WriteLockAsync())
             {
                 _transports[transport.TransportId] = transport;
             }
 
             transport.On("@close", async (_, _) =>
             {
-                using (await _transportsLock.WriteLockAsync())
+                using(await _transportsLock.WriteLockAsync())
                 {
                     _transports.Remove(transport.TransportId);
                 }
             });
             transport.On("@listenserverclose", async (_, _) =>
             {
-                using (await _transportsLock.WriteLockAsync())
+                using(await _transportsLock.WriteLockAsync())
                 {
                     _transports.Remove(transport.TransportId);
                 }
@@ -517,7 +687,7 @@ namespace Tubumu.Mediasoup
             transport.On("@newproducer", async (_, obj) =>
             {
                 var producer = (Producer)obj!;
-                using (await _producersLock.WriteLockAsync())
+                using(await _producersLock.WriteLockAsync())
                 {
                     _producers[producer.ProducerId] = producer;
                 }
@@ -525,7 +695,7 @@ namespace Tubumu.Mediasoup
             transport.On("@producerclose", async (_, obj) =>
             {
                 var producer = (Producer)obj!;
-                using (await _producersLock.WriteLockAsync())
+                using(await _producersLock.WriteLockAsync())
                 {
                     _producers.Remove(producer.ProducerId);
                 }
@@ -533,7 +703,7 @@ namespace Tubumu.Mediasoup
             transport.On("@newdataproducer", async (_, obj) =>
             {
                 var dataProducer = (DataProducer)obj!;
-                using (await _dataProducersLock.WriteLockAsync())
+                using(await _dataProducersLock.WriteLockAsync())
                 {
                     _dataProducers[dataProducer.DataProducerId] = dataProducer;
                 }
@@ -541,7 +711,7 @@ namespace Tubumu.Mediasoup
             transport.On("@dataproducerclose", async (_, obj) =>
             {
                 var dataProducer = (DataProducer)obj!;
-                using (await _dataProducersLock.WriteLockAsync())
+                using(await _dataProducersLock.WriteLockAsync())
                 {
                     _dataProducers.Remove(dataProducer.DataProducerId);
                 }
@@ -550,7 +720,7 @@ namespace Tubumu.Mediasoup
             // Emit observer event.
             Observer.Emit("newtransport", transport);
 
-            if (webRtcServer != null && transport is WebRtcTransport webRtcTransport)
+            if(webRtcServer != null && transport is WebRtcTransport webRtcTransport)
             {
                 await webRtcServer.HandleWebRtcTransportAsync(webRtcTransport);
             }
@@ -563,34 +733,34 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task<PipeToRouterResult> PipeToRouteAsync(PipeToRouterOptions pipeToRouterOptions)
         {
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
 
-                if (pipeToRouterOptions.ListenIp == null)
+                if(pipeToRouterOptions.ListenIp == null)
                 {
-                    throw new ArgumentNullException(nameof(pipeToRouterOptions.ListenIp), "Missing listenIp");
+                    throw new ArgumentNullException(nameof(pipeToRouterOptions), "Missing listenIp");
                 }
 
-                if (pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
+                if(pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
                 {
                     throw new ArgumentException("Missing producerId or dataProducerId");
                 }
 
-                if (!pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && !pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
+                if(!pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && !pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
                 {
                     throw new ArgumentException("Just producerId or dataProducerId can be given");
                 }
 
-                if (pipeToRouterOptions.Router == null)
+                if(pipeToRouterOptions.Router == null)
                 {
-                    throw new ArgumentNullException(nameof(pipeToRouterOptions.Router), "Router not found");
+                    throw new ArgumentNullException(nameof(pipeToRouterOptions), "Router not found");
                 }
 
-                if (pipeToRouterOptions.Router == this)
+                if(pipeToRouterOptions.Router == this)
                 {
                     throw new ArgumentException("Cannot use this Router as destination");
                 }
@@ -598,21 +768,21 @@ namespace Tubumu.Mediasoup
                 Producer? producer = null;
                 DataProducer? dataProducer = null;
 
-                if (!pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace())
+                if(!pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace())
                 {
-                    using (await _producersLock.ReadLockAsync())
+                    using(await _producersLock.ReadLockAsync())
                     {
-                        if (!_producers.TryGetValue(pipeToRouterOptions.ProducerId!, out producer))
+                        if(!_producers.TryGetValue(pipeToRouterOptions.ProducerId!, out producer))
                         {
                             throw new Exception("Producer not found");
                         }
                     }
                 }
-                else if (!pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
+                else if(!pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
                 {
-                    using (await _dataProducersLock.ReadLockAsync())
+                    using(await _dataProducersLock.ReadLockAsync())
                     {
-                        if (!_dataProducers.TryGetValue(pipeToRouterOptions.DataProducerId!, out dataProducer))
+                        if(!_dataProducers.TryGetValue(pipeToRouterOptions.DataProducerId!, out dataProducer))
                         {
                             throw new Exception("DataProducer not found");
                         }
@@ -630,9 +800,9 @@ namespace Tubumu.Mediasoup
                 PipeTransport? remotePipeTransport = null;
 
                 // 因为有可能新增，所以用写锁。
-                using (await _mapRouterPipeTransportsLock.WriteLockAsync())
+                using(await _mapRouterPipeTransportsLock.WriteLockAsync())
                 {
-                    if (_mapRouterPipeTransports.TryGetValue(pipeToRouterOptions.Router, out var pipeTransportPair))
+                    if(_mapRouterPipeTransports.TryGetValue(pipeToRouterOptions.Router, out var pipeTransportPair))
                     {
                         localPipeTransport = pipeTransportPair[0];
                         remotePipeTransport = pipeTransportPair[1];
@@ -679,7 +849,7 @@ namespace Tubumu.Mediasoup
                             localPipeTransport.Observer.On("close", async (_, _) =>
                             {
                                 await remotePipeTransport.CloseAsync();
-                                using (await _mapRouterPipeTransportsLock.WriteLockAsync())
+                                using(await _mapRouterPipeTransportsLock.WriteLockAsync())
                                 {
                                     _mapRouterPipeTransports.Remove(pipeToRouterOptions.Router);
                                 }
@@ -688,7 +858,7 @@ namespace Tubumu.Mediasoup
                             remotePipeTransport.Observer.On("close", async (_, _) =>
                             {
                                 await localPipeTransport.CloseAsync();
-                                using (await _mapRouterPipeTransportsLock.WriteLockAsync())
+                                using(await _mapRouterPipeTransportsLock.WriteLockAsync())
                                 {
                                     _mapRouterPipeTransports.Remove(pipeToRouterOptions.Router);
                                 }
@@ -696,16 +866,16 @@ namespace Tubumu.Mediasoup
 
                             _mapRouterPipeTransports[pipeToRouterOptions.Router] = new[] { localPipeTransport, remotePipeTransport };
                         }
-                        catch (Exception ex)
+                        catch(Exception ex)
                         {
-                            _logger.LogError(ex, $"PipeToRouterAsync() | Create PipeTransport pair failed.");
+                            _logger.LogError(ex, "PipeToRouterAsync() | Create PipeTransport pair failed.");
 
-                            if (localPipeTransport != null)
+                            if(localPipeTransport != null)
                             {
                                 await localPipeTransport.CloseAsync();
                             }
 
-                            if (remotePipeTransport != null)
+                            if(remotePipeTransport != null)
                             {
                                 await remotePipeTransport.CloseAsync();
                             }
@@ -715,7 +885,7 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                if (producer != null)
+                if(producer != null)
                 {
                     Consumer? pipeConsumer = null;
                     Producer? pipeProducer = null;
@@ -737,14 +907,14 @@ namespace Tubumu.Mediasoup
                         });
 
                         // Ensure that the producer has not been closed in the meanwhile.
-                        if (producer.Closed)
+                        if(producer.Closed)
                             throw new InvalidStateException("original Producer closed");
 
                         // Ensure that producer.paused has not changed in the meanwhile and, if
                         // so, sync the pipeProducer.
-                        if (pipeProducer.Paused != producer.Paused)
+                        if(pipeProducer.Paused != producer.Paused)
                         {
-                            if (producer.Paused)
+                            if(producer.Paused)
                                 await pipeProducer.PauseAsync();
                             else
                                 await pipeProducer.ResumeAsync();
@@ -760,16 +930,16 @@ namespace Tubumu.Mediasoup
 
                         return new PipeToRouterResult { PipeConsumer = pipeConsumer, PipeProducer = pipeProducer };
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
-                        _logger.LogError(ex, $"PipeToRouterAsync() | Create pipe Consumer/Producer pair failed");
+                        _logger.LogError(ex, "PipeToRouterAsync() | Create pipe Consumer/Producer pair failed");
 
-                        if (pipeConsumer != null)
+                        if(pipeConsumer != null)
                         {
                             await pipeConsumer.CloseAsync();
                         }
 
-                        if (pipeProducer != null)
+                        if(pipeProducer != null)
                         {
                             await pipeProducer.CloseAsync();
                         }
@@ -777,7 +947,7 @@ namespace Tubumu.Mediasoup
                         throw;
                     }
                 }
-                else if (dataProducer != null)
+                else if(dataProducer != null)
                 {
                     DataConsumer? pipeDataConsumer = null;
                     DataProducer? pipeDataProducer = null;
@@ -806,16 +976,16 @@ namespace Tubumu.Mediasoup
 
                         return new PipeToRouterResult { PipeDataConsumer = pipeDataConsumer, PipeDataProducer = pipeDataProducer };
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
-                        _logger.LogError(ex, $"PipeToRouterAsync() | Create pipe DataConsumer/DataProducer pair failed.");
+                        _logger.LogError(ex, "PipeToRouterAsync() | Create pipe DataConsumer/DataProducer pair failed.");
 
-                        if (pipeDataConsumer != null)
+                        if(pipeDataConsumer != null)
                         {
                             await pipeDataConsumer.CloseAsync();
                         }
 
-                        if (pipeDataProducer != null)
+                        if(pipeDataProducer != null)
                         {
                             await pipeDataProducer.CloseAsync();
                         }
@@ -837,33 +1007,44 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateActiveSpeakerObserverAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
 
-                var reqData = new
+                var rtpObserverId = Guid.NewGuid().ToString();
+
+                var createActiveSpeakerObserverRequest = new FBS.Router.CreateActiveSpeakerObserverRequestT
                 {
-                    RtpObserverId = Guid.NewGuid().ToString(),
-                    activeSpeakerObserverOptions.Interval
+                    RtpObserverId = rtpObserverId,
+                    Options = new FBS.ActiveSpeakerObserver.ActiveSpeakerObserverOptionsT
+                    {
+                        Interval = activeSpeakerObserverOptions.Interval ?? 300,
+                    }
                 };
 
+                var createActiveSpeakerObserverRequestOffset = FBS.Router.CreateActiveSpeakerObserverRequest.Pack(_channel.BufferBuilder, createActiveSpeakerObserverRequest);
+
                 // Fire and forget
-                _channel.RequestAsync(MethodId.ROUTER_CREATE_ACTIVE_SPEAKER_OBSERVER, _internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(FBS.Request.Method.ROUTER_CREATE_ACTIVESPEAKEROBSERVER,
+                FBS.Request.Body.Router_CreateActiveSpeakerObserverRequest,
+                createActiveSpeakerObserverRequestOffset.Value,
+                _internal.RouterId).ContinueWithOnFaultedHandleLog(_logger);
 
                 var activeSpeakerObserver = new ActiveSpeakerObserver(_loggerFactory,
-                                    new RtpObserverInternal(_internal.RouterId, reqData.RtpObserverId),
+                                    new RtpObserverInternal(_internal.RouterId, rtpObserverId),
                                     _channel,
                                     activeSpeakerObserverOptions.AppData,
                                     async m =>
                                     {
-                                        using (await _producersLock.ReadLockAsync())
+                                        using(await _producersLock.ReadLockAsync())
                                         {
                                             return _producers.TryGetValue(m, out var p) ? p : null;
                                         }
                                     });
+
                 await ConfigureRtpObserverAsync(activeSpeakerObserver);
 
                 return activeSpeakerObserver;
@@ -877,56 +1058,50 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateAudioLevelObserverAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("Router closed");
                 }
 
-                var reqData = new
+                var rtpObserverId = Guid.NewGuid().ToString();
+
+                var createAudioLevelObserverRequest = new FBS.Router.CreateAudioLevelObserverRequestT
                 {
-                    RtpObserverId = Guid.NewGuid().ToString(),
-                    audioLevelObserverOptions.MaxEntries,
-                    audioLevelObserverOptions.Threshold,
-                    audioLevelObserverOptions.Interval
+                    RtpObserverId = rtpObserverId,
+                    Options = new FBS.AudioLevelObserver.AudioLevelObserverOptionsT
+                    {
+                        MaxEntries = audioLevelObserverOptions.MaxEntries ?? 1,
+                        Threshold = audioLevelObserverOptions.Threshold ?? -80,
+                        Interval = audioLevelObserverOptions.Interval ?? 1000,
+                    }
                 };
 
+                var createAudioLevelObserverRequestOffset = FBS.Router.CreateActiveSpeakerObserverRequest.Pack(_channel.BufferBuilder, createAudioLevelObserverRequest);
+
                 // Fire and forget
-                _channel.RequestAsync(MethodId.ROUTER_CREATE_AUDIO_LEVEL_OBSERVER, _internal.RouterId, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(FBS.Request.Method.ROUTER_CREATE_AUDIOLEVELOBSERVER,
+                FBS.Request.Body.Router_CreateAudioLevelObserverRequest,
+                createAudioLevelObserverRequestOffset.Value,
+                _internal.RouterId).ContinueWithOnFaultedHandleLog(_logger);
 
                 var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
-                                    new RtpObserverInternal(_internal.RouterId, reqData.RtpObserverId),
+                                    new RtpObserverInternal(_internal.RouterId, rtpObserverId),
                                     _channel,
                                     audioLevelObserverOptions.AppData,
                                     async m =>
                                     {
-                                        using (await _producersLock.ReadLockAsync())
+                                        using(await _producersLock.ReadLockAsync())
                                         {
                                             return _producers.TryGetValue(m, out var p) ? p : null;
                                         }
                                     });
+
                 await ConfigureRtpObserverAsync(audioLevelObserver);
 
                 return audioLevelObserver;
             }
-        }
-
-        private Task ConfigureRtpObserverAsync(RtpObserver rtpObserver)
-        {
-            _rtpObservers[rtpObserver.Internal.RtpObserverId] = rtpObserver;
-            rtpObserver.On("@close", async (_, _) =>
-            {
-                using (await _rtpObserversLock.WriteLockAsync())
-                {
-                    _rtpObservers.Remove(rtpObserver.Internal.RtpObserverId);
-                }
-            });
-
-            // Emit observer event.
-            Observer.Emit("newrtpobserver", rtpObserver);
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -934,18 +1109,19 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<bool> CanConsumeAsync(string producerId, RtpCapabilities rtpCapabilities)
         {
-            using (await _producersLock.ReadLockAsync())
+            using(await _producersLock.ReadLockAsync())
             {
-                if (!_producers.TryGetValue(producerId, out var producer))
+                if(!_producers.TryGetValue(producerId, out var producer))
                 {
-                    _logger.LogError($"CanConsume() | Producer with id {producerId} not found");
+                    _logger.LogError("CanConsume() | Producer with id {producerId} not found", producerId);
                     return false;
                 }
+
                 try
                 {
                     return ORTC.CanConsume(producer.Data.ConsumableRtpParameters, rtpCapabilities);
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     _logger.LogError(ex, "CanConsume() | Unexpected error");
                     return false;
@@ -957,7 +1133,7 @@ namespace Tubumu.Mediasoup
 
         public bool Equals(Router? other)
         {
-            if (other is null)
+            if(other is null)
             {
                 return false;
             }
@@ -976,5 +1152,65 @@ namespace Tubumu.Mediasoup
         }
 
         #endregion IEquatable<T>
+
+        private async Task CloseInternalAsync()
+        {
+            using(await _transportsLock.WriteLockAsync())
+            {
+                // Close every Transport.
+                foreach(var transport in _transports.Values)
+                {
+                    await transport.RouterClosedAsync();
+                }
+
+                _transports.Clear();
+            }
+
+            using(await _producersLock.WriteLockAsync())
+            {
+                // Clear the Producers map.
+                _producers.Clear();
+            }
+
+            using(await _rtpObserversLock.WriteLockAsync())
+            {
+                // Close every RtpObserver.
+                foreach(var rtpObserver in _rtpObservers.Values)
+                {
+                    await rtpObserver.RouterClosedAsync();
+                }
+
+                _rtpObservers.Clear();
+            }
+
+            using(await _dataProducersLock.WriteLockAsync())
+            {
+                // Clear the DataProducers map.
+                _dataProducers.Clear();
+            }
+
+            using(await _mapRouterPipeTransportsLock.WriteLockAsync())
+            {
+                // Clear map of Router/PipeTransports.
+                _mapRouterPipeTransports.Clear();
+            }
+        }
+
+        private Task ConfigureRtpObserverAsync(RtpObserver rtpObserver)
+        {
+            _rtpObservers[rtpObserver.Internal.RtpObserverId] = rtpObserver;
+            rtpObserver.On("@close", async (_, _) =>
+            {
+                using(await _rtpObserversLock.WriteLockAsync())
+                {
+                    _rtpObservers.Remove(rtpObserver.Internal.RtpObserverId);
+                }
+            });
+
+            // Emit observer event.
+            Observer.Emit("newrtpobserver", rtpObserver);
+
+            return Task.CompletedTask;
+        }
     }
 }

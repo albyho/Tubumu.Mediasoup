@@ -1,13 +1,14 @@
 ﻿using System.Text.Json.Serialization;
+using FBS.Transport;
 
 namespace Tubumu.Mediasoup
 {
-    public class WebRtcServerListenInfo
+    public class TransportListenInfo
     {
         /// <summary>
         /// Network protocol.
         /// </summary>
-        public FBS.Transport.Protocol Protocol { get; set; }
+        public Protocol Protocol { get; set; }
 
         /// <summary>
         /// Listening IPv4 or IPv6.
@@ -24,5 +25,23 @@ namespace Tubumu.Mediasoup
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public ushort? Port { get; set; }
+
+        /// <summary>
+        /// Socket flags.
+        /// </summary>
+        /// <value></value>
+        public TransportSocketFlags? Flags { get; set; }
+
+        /// <summary>
+        /// Send buffer size (bytes).
+        /// </summary>
+        /// <value></value>
+        public uint? SendBufferSize { get; set; }
+
+        /// <summary>
+        /// Recv buffer size (bytes).
+        /// </summary>
+        /// <value></value>
+        public uint? RecvBufferSize { get; set; }
     }
 }

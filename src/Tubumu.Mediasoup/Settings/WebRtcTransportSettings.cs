@@ -2,7 +2,7 @@
 {
     public class WebRtcTransportSettings
     {
-        public TransportListenIp[] ListenIps { get; set; }
+        public TransportListenInfo[] ListenInfos { get; set; }
 
         public int InitialAvailableOutgoingBitrate { get; set; }
 

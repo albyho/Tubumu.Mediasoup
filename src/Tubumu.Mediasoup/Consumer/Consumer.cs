@@ -21,12 +21,14 @@ namespace Tubumu.Mediasoup
         /// Whether the Consumer is closed.
         /// </summary>
         private bool _closed;
+
         private readonly AsyncReaderWriterLock _closeLock = new();
 
         /// <summary>
         /// Paused flag.
         /// </summary>
         private bool _paused;
+
         private readonly AsyncAutoResetEvent _pauseLock = new();
 
         /// <summary>
@@ -155,7 +157,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug($"CloseAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("CloseAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -195,7 +197,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task TransportClosedAsync()
         {
-            _logger.LogDebug($"TransportClosed() | Consumer:{ConsumerId}");
+            _logger.LogDebug("TransportClosed() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -221,7 +223,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<DumpResponseT> DumpAsync()
         {
-            _logger.LogDebug($"DumpAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("DumpAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -241,7 +243,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<List<StatsT>> GetStatsAsync()
         {
-            _logger.LogDebug($"GetStatsAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("GetStatsAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -261,7 +263,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task PauseAsync()
         {
-            _logger.LogDebug($"PauseAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("PauseAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -304,7 +306,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task ResumeAsync()
         {
-            _logger.LogDebug($"ResumeAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("ResumeAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -347,7 +349,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task SetPreferredLayersAsync(ConsumerLayers consumerLayers)
         {
-            _logger.LogDebug($"SetPreferredLayersAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("SetPreferredLayersAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -383,7 +385,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task SetPriorityAsync(byte priority)
         {
-            _logger.LogDebug($"SetPriorityAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("SetPriorityAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -391,6 +393,7 @@ namespace Tubumu.Mediasoup
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
+
                 var requestOffset =
                     FBS.Consumer.SetPriorityRequest.CreateSetPriorityRequest(
                         _channel.BufferBuilder, priority);
@@ -411,7 +414,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public Task UnsetPriorityAsync()
         {
-            _logger.LogDebug($"UnsetPriorityAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("UnsetPriorityAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             return SetPriorityAsync(1);
         }
@@ -421,7 +424,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task RequestKeyFrameAsync()
         {
-            _logger.LogDebug($"RequestKeyFrameAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("RequestKeyFrameAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -443,7 +446,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task EnableTraceEventAsync(List<TraceEventType> types)
         {
-            _logger.LogDebug($"EnableTraceEventAsync() | Consumer:{ConsumerId}");
+            _logger.LogDebug("EnableTraceEventAsync() | Consumer:{ConsumerId}", ConsumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -590,30 +593,7 @@ namespace Tubumu.Mediasoup
                     }
                 default:
                     {
-                        _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
-                        break;
-                    }
-            }
-        }
-
-        private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
-        {
-            if(targetId != ConsumerId)
-            {
-                return;
-            }
-
-            switch(@event)
-            {
-                case "rtp":
-                    {
-                        Emit("rtp", payload);
-
-                        break;
-                    }
-                default:
-                    {
-                        _logger.LogError($"OnPayloadChannelMessage() | Ignoring unknown event \"{@event}\"");
+                        _logger.LogError("OnNotificationHandle() | Ignoring unknown event{@event}", @event);
                         break;
                     }
             }

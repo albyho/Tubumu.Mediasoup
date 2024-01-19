@@ -22,9 +22,9 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Consumer type.
         /// </summary>
-        public ConsumerType Type { get; }
+        public Type Type { get; }
 
-        public ConsumerData(string producerId, MediaKind kind, RtpParameters rtpParameters, ConsumerType type)
+        public ConsumerData(string producerId, MediaKind kind, RtpParametersT rtpParameters, Type type)
         {
             ProducerId = producerId;
             Kind = kind;

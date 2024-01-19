@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FBS.SctpParameters;
 
 namespace Tubumu.Mediasoup
 {
@@ -27,7 +28,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Initial available outgoing bitrate (in bps). Default 600000.
         /// </summary>
-        public int? InitialAvailableOutgoingBitrate { get; set; } = 600000;
+        public uint? InitialAvailableOutgoingBitrate { get; set; } = 600000;
 
         /// <summary>
         /// Create a SCTP association. Default false.
@@ -37,19 +38,19 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// SCTP streams number.
         /// </summary>
-        public NumSctpStreams? NumSctpStreams { get; set; } = new NumSctpStreams { OS = 1024, MIS = 1024 };
+        public NumSctpStreamsT? NumSctpStreams { get; set; } = new NumSctpStreamsT { OS = 1024, MIS = 1024 };
 
         /// <summary>
 	    /// Maximum allowed size for SCTP messages sent by DataProducers.
         /// Default 262144.
         /// </summary>
-        public int? MaxSctpMessageSize { get; set; } = 262144;
+        public uint? MaxSctpMessageSize { get; set; } = 262144;
 
         /// <summary>
         /// Maximum SCTP send buffer used by DataConsumers.
         /// Default 262144.
         /// </summary>
-        public int? MaxSctpSendBufferSize { get; set; } = 262144;
+        public uint? SctpSendBufferSize { get; set; } = 262144;
 
         /// <summary>
         /// Custom application data.
@@ -91,13 +92,6 @@ namespace Tubumu.Mediasoup
         /// Listening IP address or addresses in order of preference (first one is the
         /// preferred one).
         /// </summary>
-        public TransportListenIp[]? ListenIps { get; set; }
-
-        /// <summary>
-        /// Fixed port to listen on instead of selecting automatically from Worker's port
-        /// range.
-        /// <para>mediasoup-work needs >= 0</para>
-        /// </summary>
-        public ushort? Port { get; set; } = 0;
+        public TransportListenInfo[]? ListenInfos { get; set; }
     }
 }

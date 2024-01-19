@@ -46,8 +46,8 @@ namespace FBS.SctpParameters
         }
         public void UnPackTo(NumSctpStreamsT _o)
         {
-            _o.Os = this.Os;
-            _o.Mis = this.Mis;
+            _o.OS = this.Os;
+            _o.MIS = this.Mis;
         }
         public static Offset<FBS.SctpParameters.NumSctpStreams> Pack(FlatBufferBuilder builder, NumSctpStreamsT _o)
         {
@@ -55,8 +55,8 @@ namespace FBS.SctpParameters
                 return default(Offset<FBS.SctpParameters.NumSctpStreams>);
             return CreateNumSctpStreams(
               builder,
-              _o.Os,
-              _o.Mis);
+              _o.OS,
+              _o.MIS);
         }
     }
 
@@ -66,17 +66,18 @@ namespace FBS.SctpParameters
         /// OS. Renamed.
         /// </summary>
         [JsonPropertyName("OS")]
+
         /// <summary>
         /// MIS. Renamed.
         /// </summary>
-        public ushort Os { get; set; }
+        public ushort OS { get; set; }
         [JsonPropertyName("MIS")]
-        public ushort Mis { get; set; }
+        public ushort MIS { get; set; }
 
         public NumSctpStreamsT()
         {
-            this.Os = 1024;
-            this.Mis = 1024;
+            this.OS = 1024;
+            this.MIS = 1024;
         }
     }
 }

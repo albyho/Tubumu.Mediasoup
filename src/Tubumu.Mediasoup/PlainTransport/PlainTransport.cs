@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.PlainTransport;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -16,7 +17,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Producer data.
         /// </summary>
-        public PlainTransportData Data { get; }
+        public DumpResponseT Data { get; }
 
         /// <summary>
         /// <para>Events:</para>
@@ -46,7 +47,7 @@ namespace Tubumu.Mediasoup
         public PlainTransport(
             ILoggerFactory loggerFactory,
             TransportInternal @internal,
-            PlainTransportData data,
+            DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
@@ -56,7 +57,7 @@ namespace Tubumu.Mediasoup
             : base(
                 loggerFactory,
                 @internal,
-                data,
+                data.Base,
                 channel,
                 appData,
                 getRouterRtpCapabilities,
@@ -76,7 +77,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override Task OnCloseAsync()
         {
-            if (Data.SctpState.HasValue)
+            if(Data.SctpState.HasValue)
             {
                 Data.SctpState = SctpState.Closed;
             }
@@ -99,7 +100,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ConnectAsync()");
 
-            if (parameters is not PlainTransportConnectParameters connectParameters)
+            if(parameters is not PlainTransportConnectParameters connectParameters)
             {
                 throw new Exception($"{nameof(parameters)} type is not PlainTransportConnectParameters");
             }
@@ -109,9 +110,9 @@ namespace Tubumu.Mediasoup
 
         private async Task ConnectAsync(PlainTransportConnectParameters plainTransportConnectParameters)
         {
-            using (await CloseLock.ReadLockAsync())
+            using(await CloseLock.ReadLockAsync())
             {
-                if (Closed)
+                if(Closed)
                 {
                     throw new InvalidStateException("Transport closed");
                 }
@@ -124,12 +125,12 @@ namespace Tubumu.Mediasoup
                 )!;
 
                 // Update data.
-                if (responseData.Tuple != null)
+                if(responseData.Tuple != null)
                 {
                     Data.Tuple = responseData.Tuple;
                 }
 
-                if (responseData.RtcpTuple != null)
+                if(responseData.RtcpTuple != null)
                 {
                     Data.RtcpTuple = responseData.RtcpTuple;
                 }
@@ -147,84 +148,84 @@ namespace Tubumu.Mediasoup
 
         private void OnNotificationHandle(string targetId, string @event, string? data)
         {
-            if (targetId != Internal.TransportId)
+            if(targetId != Internal.TransportId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
                 case "tuple":
-                {
-                    var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
+                    {
+                        var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(
+                            data!,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
 
-                    Data.Tuple = notification.Tuple;
+                        Data.Tuple = notification.Tuple;
 
-                    Emit("tuple", Data.Tuple);
+                        Emit("tuple", Data.Tuple);
 
-                    // Emit observer event.
-                    Observer.Emit("tuple", Data.Tuple);
+                        // Emit observer event.
+                        Observer.Emit("tuple", Data.Tuple);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case "rtcptuple":
-                {
-                    var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
+                    {
+                        var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(
+                            data!,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
 
-                    Data.RtcpTuple = notification.RtcpTuple;
+                        Data.RtcpTuple = notification.RtcpTuple;
 
-                    Emit("rtcptuple", Data.RtcpTuple);
+                        Emit("rtcptuple", Data.RtcpTuple);
 
-                    // Emit observer event.
-                    Observer.Emit("rtcptuple", Data.RtcpTuple);
+                        // Emit observer event.
+                        Observer.Emit("rtcptuple", Data.RtcpTuple);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case "sctpstatechange":
-                {
-                    var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
+                    {
+                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
+                            data!,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
 
-                    Data.SctpState = notification.SctpState;
+                        Data.SctpState = notification.SctpState;
 
-                    Emit("sctpstatechange", Data.SctpState);
+                        Emit("sctpstatechange", Data.SctpState);
 
-                    // Emit observer event.
-                    Observer.Emit("sctpstatechange", Data.SctpState);
+                        // Emit observer event.
+                        Observer.Emit("sctpstatechange", Data.SctpState);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case "trace":
-                {
-                    var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
+                    {
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
+                            data!,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
 
-                    Emit("trace", trace);
+                        Emit("trace", trace);
 
-                    // Emit observer event.
-                    Observer.Emit("trace", trace);
+                        // Emit observer event.
+                        Observer.Emit("trace", trace);
 
-                    break;
-                }
+                        break;
+                    }
 
                 default:
-                {
-                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
-                    break;
-                }
+                    {
+                        _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                        break;
+                    }
             }
         }
 

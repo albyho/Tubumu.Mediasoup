@@ -13,6 +13,6 @@ namespace Tubumu.Mediasoup
 
         public DtlsParametersT DtlsParameters { get; set; }
 
-        public SctpParameters? SctpParameters { get; set; }
+        public SctpParametersT? SctpParameters { get; set; }
     }
 }

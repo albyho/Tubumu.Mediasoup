@@ -8,7 +8,7 @@ namespace Tubumu.Mediasoup
         /// Maximum allowed size for direct messages sent from DataProducers.
         /// Default 262144.
         /// </summary>
-        public int MaxMessageSize { get; set; } = 262144;
+        public uint MaxMessageSize { get; set; } = 262144;
 
         /// <summary>
         /// Custom application data.

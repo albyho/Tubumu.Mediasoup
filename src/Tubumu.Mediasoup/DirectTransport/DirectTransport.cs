@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using FBS.DirectTransport
 
 namespace Tubumu.Mediasoup
 {
@@ -34,7 +35,7 @@ namespace Tubumu.Mediasoup
         public DirectTransport(
             ILoggerFactory loggerFactory,
             TransportInternal @internal,
-            TransportBaseData data,
+            DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
@@ -44,7 +45,7 @@ namespace Tubumu.Mediasoup
             : base(
                 loggerFactory,
                 @internal,
-                data,
+                data.Base,
                 channel,
                 appData,
                 getRouterRtpCapabilities,
@@ -142,9 +143,9 @@ namespace Tubumu.Mediasoup
 
         public async Task SendRtcpAsync(byte[] rtcpPacket)
         {
-            using (await CloseLock.ReadLockAsync())
+            using(await CloseLock.ReadLockAsync())
             {
-                if (Closed)
+                if(Closed)
                 {
                     throw new InvalidStateException("Transport closed");
                 }
@@ -163,57 +164,57 @@ namespace Tubumu.Mediasoup
 
         private void OnNotificationHandle(string targetId, string @event, string? data)
         {
-            if (targetId != Internal.TransportId)
+            if(targetId != Internal.TransportId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
                 case "trace":
-                {
-                    var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
+                    {
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
+                            data!,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
 
-                    Emit("trace", trace);
+                        Emit("trace", trace);
 
-                    // Emit observer event.
-                    Observer.Emit("trace", trace);
+                        // Emit observer event.
+                        Observer.Emit("trace", trace);
 
-                    break;
-                }
+                        break;
+                    }
 
                 default:
-                {
-                    _logger.LogError($"OnNotificationHandle() | DiectTransport:{TransportId} Ignoring unknown event{@event}");
-                    break;
-                }
+                    {
+                        _logger.LogError($"OnNotificationHandle() | DiectTransport:{TransportId} Ignoring unknown event{@event}");
+                        break;
+                    }
             }
         }
 
         private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
         {
-            if (targetId != Internal.TransportId)
+            if(targetId != Internal.TransportId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
                 case "rtcp":
-                {
-                    Emit("rtcp", payload);
+                    {
+                        Emit("rtcp", payload);
 
-                    break;
-                }
+                        break;
+                    }
 
                 default:
-                {
-                    _logger.LogError($"Ignoring unknown event \"{@event}\"");
-                    break;
-                }
+                    {
+                        _logger.LogError($"Ignoring unknown event \"{@event}\"");
+                        break;
+                    }
             }
         }
 

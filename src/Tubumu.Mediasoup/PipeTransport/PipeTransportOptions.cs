@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
+using FBS.SctpParameters;
 
 namespace Tubumu.Mediasoup
 {
     public class PipeTransportOptions
     {
         /// <summary>
-        /// Listening IP address.
+        /// Listening Infomation.
         /// </summary>
-        public TransportListenIp ListenIp { get; set; }
+        public TransportListenInfo ListenInfo { get; set; }
 
         /// <summary>
         /// Fixed port to listen on instead of selecting automatically from Worker's port
@@ -23,19 +24,19 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// SCTP streams number.
         /// </summary>
-        public NumSctpStreams? NumSctpStreams { get; set; }
+        public NumSctpStreamsT? NumSctpStreams { get; set; }
 
         /// <summary>
         /// Maximum allowed size for SCTP messages sent by DataProducers.
         /// Default 268435456.
         /// </summary>
-        public int? MaxSctpMessageSize { get; set; } = 268435456;
+        public uint? MaxSctpMessageSize { get; set; } = 268435456;
 
         /// <summary>
         /// Maximum SCTP send buffer used by DataConsumers.
         /// Default 268435456.
         /// </summary>
-        public int? SctpSendBufferSize { get; set; } = 268435456;
+        public uint? SctpSendBufferSize { get; set; } = 268435456;
 
         /// <summary>
         /// Enable RTX and NACK for RTP retransmission. Useful if both Routers are

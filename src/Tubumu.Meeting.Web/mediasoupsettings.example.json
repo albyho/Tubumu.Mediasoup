@@ -131,12 +131,12 @@
     // GStreamer).
     // See https://mediasoup.org/documentation/v3/mediasoup/api/#PlainTransportOptions
     "PlainTransportSettings": {
-      "ListenIp": {
-        "Ip": "0.0.0.0",
-        // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-        "AnnouncedIp": null
-      },
-      "MaxSctpMessageSize": 262144
+        "ListenIp": {
+            "Ip": "0.0.0.0",
+            // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
+            "AnnouncedIp": null
+        },
+        "MaxSctpMessageSize": 262144
     }
   },
   "MeetingServerSettings": {

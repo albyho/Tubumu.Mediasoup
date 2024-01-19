@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.PipeTransport;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -21,7 +22,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// PipeTransport data.
         /// </summary>
-        public PipeTransportData Data { get; }
+        public DumpResponseT Data { get; }
 
         /// <summary>
         /// <para>Events:</para>
@@ -47,7 +48,7 @@ namespace Tubumu.Mediasoup
         public PipeTransport(
             ILoggerFactory loggerFactory,
             TransportInternal @internal,
-            PipeTransportData data,
+            DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
@@ -57,9 +58,8 @@ namespace Tubumu.Mediasoup
             : base(
                 loggerFactory,
                 @internal,
-                data,
+                data.Base,
                 channel,
-                payloadChannel,
                 appData,
                 getRouterRtpCapabilities,
                 getProducerById,
@@ -79,7 +79,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override Task OnCloseAsync()
         {
-            if (Data.SctpState.HasValue)
+            if(Data.SctpState.HasValue)
             {
                 Data.SctpState = SctpState.Closed;
             }
@@ -104,7 +104,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ConnectAsync()");
 
-            if (parameters is not PipeTransportConnectParameters connectParameters)
+            if(parameters is not PipeTransportConnectParameters connectParameters)
             {
                 throw new Exception($"{nameof(parameters)} type is not PipeTransportConnectParameters");
             }
@@ -119,9 +119,9 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task ConnectAsync(PipeTransportConnectParameters pipeTransportConnectParameters)
         {
-            using (await CloseLock.ReadLockAsync())
+            using(await CloseLock.ReadLockAsync())
             {
-                if (Closed)
+                if(Closed)
                 {
                     throw new InvalidStateException("Transport closed");
                 }
@@ -147,13 +147,13 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ConsumeAsync()");
 
-            if (consumerOptions.ProducerId.IsNullOrWhiteSpace())
+            if(consumerOptions.ProducerId.IsNullOrWhiteSpace())
             {
                 throw new Exception("missing producerId");
             }
 
             var producer = await GetProducerById(consumerOptions.ProducerId);
-            if (producer == null)
+            if(producer == null)
             {
                 throw new Exception($"Producer with id {consumerOptions.ProducerId} not found");
             }
@@ -200,7 +200,7 @@ namespace Tubumu.Mediasoup
                     {
                         Consumers.Remove(consumer.ConsumerId);
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
                         _logger.LogError(ex, "@close");
                     }
@@ -219,7 +219,7 @@ namespace Tubumu.Mediasoup
                     {
                         Consumers.Remove(consumer.ConsumerId);
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
                         _logger.LogError(ex, "@producerclose");
                     }
@@ -235,7 +235,7 @@ namespace Tubumu.Mediasoup
             {
                 Consumers[consumer.ConsumerId] = consumer;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.LogError(ex, "ConsumeAsync()");
             }
@@ -259,49 +259,49 @@ namespace Tubumu.Mediasoup
 
         private void OnNotificationHandle(string targetId, string @event, string? data)
         {
-            if (targetId != Internal.TransportId)
+            if(targetId != Internal.TransportId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
                 case "sctpstatechange":
-                {
-                    var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
-                    Data.SctpState = notification.SctpState;
+                    {
+                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
+                            data!,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
+                        Data.SctpState = notification.SctpState;
 
-                    Emit("sctpstatechange", Data.SctpState);
+                        Emit("sctpstatechange", Data.SctpState);
 
-                    // Emit observer event.
-                    Observer.Emit("sctpstatechange", Data.SctpState);
+                        // Emit observer event.
+                        Observer.Emit("sctpstatechange", Data.SctpState);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case "trace":
-                {
-                    var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
+                    {
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
+                            data!,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
 
-                    Emit("trace", trace);
+                        Emit("trace", trace);
 
-                    // Emit observer event.
-                    Observer.Emit("trace", trace);
+                        // Emit observer event.
+                        Observer.Emit("trace", trace);
 
-                    break;
-                }
+                        break;
+                    }
 
                 default:
-                {
-                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
-                    break;
-                }
+                    {
+                        _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                        break;
+                    }
             }
         }
 

@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using FBS.RtpParameters;
+using FBS.SctpParameters;
 using Force.DeepCloner;
 
 namespace Tubumu.Mediasoup
@@ -107,7 +109,7 @@ namespace Tubumu.Mediasoup
             }
 
             // rtcpFeedback is optional. If unset, set it to an empty array.
-            codec.RtcpFeedback ??= Array.Empty<RtcpFeedback>();
+            codec.RtcpFeedback ??= Array.Empty<RtcpFeedbackT>();
 
             foreach(var fb in codec.RtcpFeedback)
             {
@@ -120,7 +122,7 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
-        public static void ValidateRtcpFeedback(RtcpFeedback fb)
+        public static void ValidateRtcpFeedback(RtcpFeedbackT fb)
         {
             if(fb == null)
             {
@@ -202,7 +204,7 @@ namespace Tubumu.Mediasoup
             }
 
             // headerExtensions is optional. If unset, fill with an empty array.
-            parameters.HeaderExtensions ??= new List<RtpHeaderExtensionParametersT>();
+            parameters.HeaderExtensions ??= new List<RtpHeaderExtensionParameters>();
 
             foreach(var ext in parameters.HeaderExtensions)
             {
@@ -428,7 +430,7 @@ namespace Tubumu.Mediasoup
         /// It throws if invalid.
         /// </summary>
 #pragma warning disable IDE0060 // Remove unused parameter
-        public static void ValidateNumSctpStreams(NumSctpStreams numStreams)
+        public static void ValidateNumSctpStreams(NumSctpStreamsT numStreams)
 #pragma warning restore IDE0060 // Remove unused parameter
         {
             // OS is mandatory.

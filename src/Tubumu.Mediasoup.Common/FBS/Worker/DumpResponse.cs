@@ -119,17 +119,33 @@ namespace FBS.Worker
 
     public class DumpResponseT
     {
+        /// <summary>
+        /// pid
+        /// </summary>
         [JsonPropertyName("pid")]
         public uint Pid { get; set; }
+
         /// <summary>
         /// webRtcServerIds. Renamed.
         /// </summary>
         [JsonPropertyName("webRtcServerIds")]
         public List<string> WebRtcServerIds { get; set; }
-        [JsonPropertyName("router_ids")]
+
+        /// <summary>
+        /// routerIds. Renamed.
+        /// </summary>
+        [JsonPropertyName("routerIds")]
         public List<string> RouterIds { get; set; }
-        [JsonPropertyName("channel_message_handlers")]
+
+        /// <summary>
+        /// channelMessageHandlers. Renamed.
+        /// </summary>
+        [JsonPropertyName("channelMessageHandlers")]
         public FBS.Worker.ChannelMessageHandlersT ChannelMessageHandlers { get; set; }
+
+        /// <summary>
+        /// liburing
+        /// </summary>
         [JsonPropertyName("liburing")]
         public FBS.LibUring.DumpT Liburing { get; set; }
 

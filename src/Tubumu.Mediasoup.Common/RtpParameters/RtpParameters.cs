@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using FBS.RtpParameters;
 
 namespace Tubumu.Mediasoup
 {
@@ -55,11 +56,11 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Transmitted RTP streams and their settings.
         /// </summary>
-        public List<RtpEncodingParameters>? Encodings { get; set; }
+        public List<RtpEncodingParametersT>? Encodings { get; set; }
 
         /// <summary>
         /// Parameters used for RTCP.
         /// </summary>
-        public RtcpParameters? Rtcp { get; set; }
+        public RtcpParametersT? Rtcp { get; set; }
     }
 }

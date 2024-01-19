@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FBS.SctpParameters;
 using FBS.SrtpParameters;
 
 namespace Tubumu.Mediasoup
@@ -6,15 +7,15 @@ namespace Tubumu.Mediasoup
     public class PlainTransportOptions
     {
         /// <summary>
-        /// Listening IP address.
+        /// Listening information.
         /// </summary>
-        public TransportListenIp ListenIp { get; set; }
+        public TransportListenInfo ListenInfo { get; set; }
 
         /// <summary>
-        /// Fixed port to listen on instead of selecting automatically from Worker's port
-        /// range.
+        /// RTCP listening information. If not given and rtcpPort is not false,
+        /// RTCP will use same listening info than RTP.
         /// </summary>
-        public ushort? Port { get; set; } = 0; // mediasoup-work needs >= 0
+        public TransportListenInfo? RtcpListenInfo { get; set; }
 
         /// <summary>
         /// Use RTCP-mux (RTP and RTCP in the same port). Default true.
@@ -37,19 +38,19 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// SCTP streams number.
         /// </summary>
-        public NumSctpStreams? NumSctpStreams { get; set; }
+        public NumSctpStreamsT? NumSctpStreams { get; set; }
 
         /// <summary>
         /// Maximum allowed size for SCTP messages sent by DataProducers.
         /// Default 262144.
         /// </summary>
-        public int? MaxSctpMessageSize { get; set; } = 262144;
+        public uint? MaxSctpMessageSize { get; set; } = 262144;
 
         /// <summary>
         /// Maximum SCTP send buffer used by DataConsumers.
         /// Default 262144.
         /// </summary>
-        public int? SctpSendBufferSize { get; set; } = 262144;
+        public uint? SctpSendBufferSize { get; set; } = 262144;
 
         /// <summary>
         /// Enable SRTP. For this to work, connect() must be called

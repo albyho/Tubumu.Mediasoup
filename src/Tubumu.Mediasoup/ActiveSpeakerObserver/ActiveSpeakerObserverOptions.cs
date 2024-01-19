@@ -4,7 +4,7 @@ namespace Tubumu.Mediasoup
 {
     public class ActiveSpeakerObserverOptions
     {
-        public int? Interval { get; set; } = 300;
+        public ushort? Interval { get; set; } = 300;
 
         /// <summary>
         /// Custom application data.

@@ -125,7 +125,7 @@ namespace Tubumu.Mediasoup
 
         protected abstract void SendNotification(RequestMessage requestMessage);
 
-        public async Task<Response?> RequestAsync(Method method, FBS.Request.Body? bodyType, int? bodyOffset, string? handlerId)
+        public async Task<Response?> RequestAsync(Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null)
         {
             _logger.LogDebug($"RequestAsync() | Worker[{_workerId}] Method:{method}");
 

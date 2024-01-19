@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FBS.Worker;
 
 namespace Tubumu.Mediasoup
 {
@@ -14,9 +15,9 @@ namespace Tubumu.Mediasoup
 
         Task<Router> CreateRouterAsync(RouterOptions routerOptions);
 
-        Task<string> DumpAsync();
+        Task<DumpResponseT> DumpAsync();
 
-        Task<string> GetResourceUsageAsync();
+        Task<ResourceUsageResponseT> GetResourceUsageAsync();
 
         Task UpdateSettingsAsync(WorkerUpdateableSettings workerUpdateableSettings);
     }

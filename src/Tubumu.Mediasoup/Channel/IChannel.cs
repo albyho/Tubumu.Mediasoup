@@ -16,7 +16,7 @@ namespace Tubumu.Mediasoup
 
         Task CloseAsync();
 
-        Task<Response?> RequestAsync(Method method, FBS.Request.Body? bodyType, int? bodyOffset, string? handlerId);
+        Task<Response?> RequestAsync(Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null);
 
         Task NotifyAsync(Event @event, FBS.Notification.Body? bodyType, int? bodyOffset, string? handlerId);
 

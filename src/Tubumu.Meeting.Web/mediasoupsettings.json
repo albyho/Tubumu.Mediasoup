@@ -1,148 +1,149 @@
 ﻿{
-  "MediasoupStartupSettings": {
-    "MediasoupVersion": "3.13.16",
-    "WorkerInProcess": false,
-    "WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release/mediasoup-worker",
-    //"WorkerPath": "/Users/alby/Workspace/Tubumu.Mediasoup/Tubumu.Mediasoup.Executable/runtimes/osx/native/mediasoup-worker",
-    //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/xcode/debug/mediasoup-worker",
-    //"WorkerPath": "C:\\Developer\\OpenSource\\Meeting\\mediasoup\\worker\\out\\Release\\mediasoup-worker",
-    "NumberOfWorkers": 1,
-    "UseWebRtcServer": true
-  },
-  "MediasoupSettings": {
-    // mediasoup WorkerSettings.
-    // See https://mediasoup.org/documentation/v3/mediasoup/api/#WorkerSettings
-    "WorkerSettings": {
-      "LogLevel": "debug", // debug, warn, error or none 
-      "LogTags": [
-        "info",
-        "ice",
-        //"dtls",
-        //"rtp",
-        //"srtp",
-        //"rtcp",
-        "rtx",
-        "bwe",
-        "score",
-        "simulcast",
-        "svc",
-        "sctp",
-        "message"
-      ],
-      "RtcMinPort": 20000,
-      "RtcMaxPort": 29999
+    "MediasoupStartupSettings": {
+        "MediasoupVersion": "3.13.16",
+        "WorkerInProcess": false,
+        "WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release/mediasoup-worker",
+        //"WorkerPath": "/Users/alby/Workspace/Tubumu.Mediasoup/Tubumu.Mediasoup.Executable/runtimes/osx/native/mediasoup-worker",
+        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/xcode/debug/mediasoup-worker",
+        //"WorkerPath": "C:\\Developer\\OpenSource\\Meeting\\mediasoup\\worker\\out\\Release\\mediasoup-worker",
+        "NumberOfWorkers": 1,
+        "UseWebRtcServer": true
     },
-    // mediasoup Router options.
-    // See https://mediasoup.org/documentation/v3/mediasoup/api/#RouterOptions
-    "RouterSettings": {
-      "RtpCodecCapabilities": [
-        {
-          "Kind": "audio",
-          "MimeType": "audio/opus",
-          "ClockRate": 48000,
-          "Channels": 2
+    "MediasoupSettings": {
+        // mediasoup WorkerSettings.
+        // See https://mediasoup.org/documentation/v3/mediasoup/api/#WorkerSettings
+        "WorkerSettings": {
+            "LogLevel": "debug", // debug, warn, error or none
+            "LogTags": [
+                "info",
+                "ice",
+                //"dtls",
+                //"rtp",
+                //"srtp",
+                //"rtcp",
+                "rtx",
+                "bwe",
+                "score",
+                "simulcast",
+                "svc",
+                "sctp",
+                "message"
+            ],
+            "RtcMinPort": 20000,
+            "RtcMaxPort": 29999
         },
-        //{
-        //  "Kind": "audio",
-        //  "MimeType": "audio/PCMA",
-        //  "ClockRate": 8000,
-        //  "Channels": 1
-        //},
-        {
-          "Kind": "video",
-          "MimeType": "video/VP8",
-          "ClockRate": 90000,
-          "Parameters": {
-            "x-google-start-bitrate": 1000
-          }
+        // mediasoup Router options.
+        // See https://mediasoup.org/documentation/v3/mediasoup/api/#RouterOptions
+        "RouterSettings": {
+            "RtpCodecCapabilities": [
+                {
+                    "Kind": "audio",
+                    "MimeType": "audio/opus",
+                    "ClockRate": 48000,
+                    "Channels": 2
+                },
+                //{
+                //  "Kind": "audio",
+                //  "MimeType": "audio/PCMA",
+                //  "ClockRate": 8000,
+                //  "Channels": 1
+                //},
+                {
+                    "Kind": "video",
+                    "MimeType": "video/VP8",
+                    "ClockRate": 90000,
+                    "Parameters": {
+                        "x-google-start-bitrate": 1000
+                    }
+                },
+                {
+                    "Kind": "video",
+                    "MimeType": "video/VP9",
+                    "ClockRate": 90000,
+                    "Parameters": {
+                        "profile-id": 2,
+                        "x-google-start-bitrate": 1000
+                    }
+                },
+                {
+                    "Kind": "video",
+                    "MimeType": "video/h264",
+                    "ClockRate": 90000,
+                    "Parameters": {
+                        "packetization-mode": 1,
+                        "profile-level-id": "4d0032",
+                        "level-asymmetry-allowed": 1,
+                        "x-google-start-bitrate": 1000
+                    }
+                },
+                {
+                    "Kind": "video",
+                    "MimeType": "video/h264",
+                    "ClockRate": 90000,
+                    "Parameters": {
+                        "packetization-mode": 1,
+                        "profile-level-id": "42e01f",
+                        "level-asymmetry-allowed": 1,
+                        "x-google-start-bitrate": 1000
+                    }
+                }
+            ]
         },
-        {
-          "Kind": "video",
-          "MimeType": "video/VP9",
-          "ClockRate": 90000,
-          "Parameters": {
-            "profile-id": 2,
-            "x-google-start-bitrate": 1000
-          }
+        // mediasoup WebRtcServer options for WebRTC endpoints (mediasoup-client,
+        // libmediasoupclient).
+        // See https://mediasoup.org/documentation/v3/mediasoup/api/#WebRtcServerOptions
+        // NOTE: mediasoup-demo/server/lib/Room.js will increase this port for
+        // each mediasoup Worker since each Worker is a separate process.
+        "WebRtcServerSettings": {
+            "ListenInfos": [
+                {
+                    "Protocol": "udp",
+                    "Ip": "0.0.0.0",
+                    // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
+                    "AnnouncedIp": null,
+                    "Port": 44444
+                },
+                {
+                    "Protocol": "tcp",
+                    "Ip": "0.0.0.0",
+                    // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
+                    "AnnouncedIp": null,
+                    "Port": 44444
+                }
+            ]
         },
-        {
-          "Kind": "video",
-          "MimeType": "video/h264",
-          "ClockRate": 90000,
-          "Parameters": {
-            "packetization-mode": 1,
-            "profile-level-id": "4d0032",
-            "level-asymmetry-allowed": 1,
-            "x-google-start-bitrate": 1000
-          }
+        // mediasoup WebRtcTransport options for WebRTC endpoints (mediasoup-client,
+        // libmediasoupclient).
+        // See https://mediasoup.org/documentation/v3/mediasoup/api/#WebRtcTransportOptions
+        "WebRtcTransportSettings": {
+            // ListenIps is not needed since webRtcServer is used.
+            "ListenInfos": [
+                {
+                    "Protocol": "udp",
+                    "Ip": "0.0.0.0",
+                    // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
+                    "AnnouncedIp": null
+                }
+            ],
+            "InitialAvailableOutgoingBitrate": 1000000,
+            "MinimumAvailableOutgoingBitrate": 600000,
+            "MaxSctpMessageSize": 262144,
+            // Additional options that are not part of WebRtcTransportOptions.
+            "MaximumIncomingBitrate": 1500000
         },
-        {
-          "Kind": "video",
-          "MimeType": "video/h264",
-          "ClockRate": 90000,
-          "Parameters": {
-            "packetization-mode": 1,
-            "profile-level-id": "42e01f",
-            "level-asymmetry-allowed": 1,
-            "x-google-start-bitrate": 1000
-          }
+        // mediasoup PlainTransport options for legacy RTP endpoints (FFmpeg,
+        // GStreamer).
+        // See https://mediasoup.org/documentation/v3/mediasoup/api/#PlainTransportOptions
+        "PlainTransportSettings": {
+            "ListenIp": {
+                "Ip": "0.0.0.0",
+                // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
+                "AnnouncedIp": null
+            },
+            "MaxSctpMessageSize": 262144
         }
-      ]
     },
-    // mediasoup WebRtcServer options for WebRTC endpoints (mediasoup-client,
-    // libmediasoupclient).
-    // See https://mediasoup.org/documentation/v3/mediasoup/api/#WebRtcServerOptions
-    // NOTE: mediasoup-demo/server/lib/Room.js will increase this port for
-    // each mediasoup Worker since each Worker is a separate process.
-    "WebRtcServerSettings": {
-      "ListenInfos": [
-        {
-          "Protocol": "udp",
-          "Ip": "0.0.0.0",
-          // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-          "AnnouncedIp": null,
-          "Port": 44444
-        },
-        {
-          "Protocol": "tcp",
-          "Ip": "0.0.0.0",
-          // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-          "AnnouncedIp": null,
-          "Port": 44444
-        }
-      ]
-    },
-    // mediasoup WebRtcTransport options for WebRTC endpoints (mediasoup-client,
-    // libmediasoupclient).
-    // See https://mediasoup.org/documentation/v3/mediasoup/api/#WebRtcTransportOptions
-    "WebRtcTransportSettings": {
-      // ListenIps is not needed since webRtcServer is used.
-      "ListenIps": [
-        {
-          "Ip": "0.0.0.0",
-          // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-          "AnnouncedIp": null
-        }
-      ],
-      "InitialAvailableOutgoingBitrate": 1000000,
-      "MinimumAvailableOutgoingBitrate": 600000,
-      "MaxSctpMessageSize": 262144,
-      // Additional options that are not part of WebRtcTransportOptions.
-      "MaximumIncomingBitrate": 1500000
-    },
-    // mediasoup PlainTransport options for legacy RTP endpoints (FFmpeg,
-    // GStreamer).
-    // See https://mediasoup.org/documentation/v3/mediasoup/api/#PlainTransportOptions
-    "PlainTransportSettings": {
-      "ListenIp": {
-        "Ip": "0.0.0.0",
-        // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-        "AnnouncedIp": null
-      },
-      "MaxSctpMessageSize": 262144
+    "MeetingServerSettings": {
+        "ServeMode": "Open" // Open,Invite or Pull
     }
-  },
-  "MeetingServerSettings": {
-    "ServeMode": "Open" // Open,Invite or Pull
-  }
 }

@@ -87,9 +87,14 @@ namespace FBS.Worker
 
     public class UpdateSettingsRequestT
     {
-        [JsonPropertyName("log_level")]
+        /// logLevel. Renamed.
+        [JsonPropertyName("logLevel")]
         public string LogLevel { get; set; }
-        [JsonPropertyName("log_tags")]
+
+        /// <summary>
+        /// logTags. Renamed.
+        /// </summary>
+        [JsonPropertyName("logTags")]
         public List<string> LogTags { get; set; }
 
         public UpdateSettingsRequestT()

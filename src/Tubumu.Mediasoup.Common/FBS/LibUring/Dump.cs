@@ -68,11 +68,22 @@ namespace FBS.LibUring
 
     public class DumpT
     {
-        [JsonPropertyName("sqe_process_count")]
+        /// <summary>
+        /// sqeProcessCount. Renamed.
+        /// </summary>
+        [JsonPropertyName("sqeProcessCount")]
         public ulong SqeProcessCount { get; set; }
-        [JsonPropertyName("sqe_miss_count")]
+
+        /// <summary>
+        /// sqeMissCount. Renamed.
+        /// </summary>
+        [JsonPropertyName("sqeMissCount")]
         public ulong SqeMissCount { get; set; }
-        [JsonPropertyName("user_data_miss_count")]
+
+        /// <summary>
+        /// userDataMissCount. Renamed.
+        /// </summary>
+        [JsonPropertyName("userDataMissCount")]
         public ulong UserDataMissCount { get; set; }
 
         public DumpT()

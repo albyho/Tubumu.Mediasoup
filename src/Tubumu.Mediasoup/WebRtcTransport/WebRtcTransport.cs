@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.WebRtcTransport;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -13,7 +14,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly ILogger<WebRtcTransport> _logger;
 
-        public WebRtcTransportData Data { get; }
+        public DumpResponseT Data { get; }
 
         /// <summary>
         /// <para>Events:</para>
@@ -45,7 +46,7 @@ namespace Tubumu.Mediasoup
         public WebRtcTransport(
             ILoggerFactory loggerFactory,
             TransportInternal @internal,
-            WebRtcTransportData data,
+            FBS.WebRtcTransport.DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
@@ -55,9 +56,8 @@ namespace Tubumu.Mediasoup
             : base(
                 loggerFactory,
                 @internal,
-                data,
+                data.Base,
                 channel,
-                payloadChannel,
                 appData,
                 getRouterRtpCapabilities,
                 getProducerById,
@@ -80,7 +80,7 @@ namespace Tubumu.Mediasoup
             Data.IceSelectedTuple = null;
             Data.DtlsState = DtlsState.Closed;
 
-            if (Data.SctpState.HasValue)
+            if(Data.SctpState.HasValue)
             {
                 Data.SctpState = SctpState.Closed;
             }
@@ -103,7 +103,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"ConnectAsync() | WebRtcTransport:{TransportId}");
 
-            if (parameters is not DtlsParameters dtlsParameters)
+            if(parameters is not DtlsParameters dtlsParameters)
             {
                 throw new ArgumentException($"{nameof(parameters)} type is not DtlsParameters");
             }
@@ -113,9 +113,9 @@ namespace Tubumu.Mediasoup
 
         private async Task ConnectAsync(DtlsParameters dtlsParameters)
         {
-            using (await CloseLock.ReadLockAsync())
+            using(await CloseLock.ReadLockAsync())
             {
-                if (Closed)
+                if(Closed)
                 {
                     throw new InvalidStateException("Transport closed");
                 }
@@ -139,9 +139,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"RestartIceAsync() | WebRtcTransport:{TransportId}");
 
-            using (await CloseLock.ReadLockAsync())
+            using(await CloseLock.ReadLockAsync())
             {
-                if (Closed)
+                if(Closed)
                 {
                     throw new InvalidStateException("Transport closed");
                 }
@@ -168,132 +168,132 @@ namespace Tubumu.Mediasoup
 
         private void OnNotificationHandle(string targetId, string @event, string? data)
         {
-            if (targetId != Internal.TransportId)
+            if(targetId != Internal.TransportId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
                 case "icestatechange":
-                {
-                    if (data == null)
                     {
-                        _logger.LogWarning($"icestatechange event's data is null.");
+                        if(data == null)
+                        {
+                            _logger.LogWarning($"icestatechange event's data is null.");
+                            break;
+                        }
+
+                        var notification = JsonSerializer.Deserialize<TransportIceStateChangeNotificationData>(
+                            data,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
+                        Data.IceState = notification.IceState;
+
+                        Emit("icestatechange", Data.IceState);
+
+                        // Emit observer event.
+                        Observer.Emit("icestatechange", Data.IceState);
+
                         break;
                     }
-
-                    var notification = JsonSerializer.Deserialize<TransportIceStateChangeNotificationData>(
-                        data,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
-                    Data.IceState = notification.IceState;
-
-                    Emit("icestatechange", Data.IceState);
-
-                    // Emit observer event.
-                    Observer.Emit("icestatechange", Data.IceState);
-
-                    break;
-                }
 
                 case "iceselectedtuplechange":
-                {
-                    if (data == null)
                     {
-                        _logger.LogWarning($"iceselectedtuplechange event's data is null.");
+                        if(data == null)
+                        {
+                            _logger.LogWarning($"iceselectedtuplechange event's data is null.");
+                            break;
+                        }
+
+                        var notification = JsonSerializer.Deserialize<TransportIceSelectedTupleChangeNotificationData>(
+                            data,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
+                        Data.IceSelectedTuple = notification.IceSelectedTuple;
+
+                        Emit("iceselectedtuplechange", Data.IceSelectedTuple);
+
+                        // Emit observer event.
+                        Observer.Emit("iceselectedtuplechange", Data.IceSelectedTuple);
+
                         break;
                     }
-
-                    var notification = JsonSerializer.Deserialize<TransportIceSelectedTupleChangeNotificationData>(
-                        data,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
-                    Data.IceSelectedTuple = notification.IceSelectedTuple;
-
-                    Emit("iceselectedtuplechange", Data.IceSelectedTuple);
-
-                    // Emit observer event.
-                    Observer.Emit("iceselectedtuplechange", Data.IceSelectedTuple);
-
-                    break;
-                }
 
                 case "dtlsstatechange":
-                {
-                    if (data == null)
                     {
-                        _logger.LogWarning($"dtlsstatechange event's data is null.");
+                        if(data == null)
+                        {
+                            _logger.LogWarning($"dtlsstatechange event's data is null.");
+                            break;
+                        }
+
+                        var notification = JsonSerializer.Deserialize<TransportDtlsStateChangeNotificationData>(
+                            data,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
+                        Data.DtlsState = notification.DtlsState;
+
+                        if(Data.DtlsState == DtlsState.Connecting)
+                        {
+                            Data.DtlsRemoteCert = notification.DtlsRemoteCert;
+                        }
+
+                        Emit("dtlsstatechange", Data.DtlsState);
+
+                        // Emit observer event.
+                        Observer.Emit("dtlsstatechange", Data.DtlsState);
+
                         break;
                     }
-
-                    var notification = JsonSerializer.Deserialize<TransportDtlsStateChangeNotificationData>(
-                        data,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
-                    Data.DtlsState = notification.DtlsState;
-
-                    if (Data.DtlsState == DtlsState.Connecting)
-                    {
-                        Data.DtlsRemoteCert = notification.DtlsRemoteCert;
-                    }
-
-                    Emit("dtlsstatechange", Data.DtlsState);
-
-                    // Emit observer event.
-                    Observer.Emit("dtlsstatechange", Data.DtlsState);
-
-                    break;
-                }
 
                 case "sctpstatechange":
-                {
-                    if (data == null)
                     {
-                        _logger.LogWarning($"sctpstatechange event's data is null.");
+                        if(data == null)
+                        {
+                            _logger.LogWarning($"sctpstatechange event's data is null.");
+                            break;
+                        }
+
+                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
+                            data,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
+                        Data.SctpState = notification.SctpState;
+
+                        Emit("sctpstatechange", Data.SctpState);
+
+                        // Emit observer event.
+                        Observer.Emit("sctpstatechange", Data.SctpState);
+
                         break;
                     }
-
-                    var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
-                        data,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
-                    Data.SctpState = notification.SctpState;
-
-                    Emit("sctpstatechange", Data.SctpState);
-
-                    // Emit observer event.
-                    Observer.Emit("sctpstatechange", Data.SctpState);
-
-                    break;
-                }
 
                 case "trace":
-                {
-                    if (data == null)
                     {
-                        _logger.LogWarning($"trace event's data is null.");
+                        if(data == null)
+                        {
+                            _logger.LogWarning($"trace event's data is null.");
+                            break;
+                        }
+
+                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
+                            data,
+                            ObjectExtensions.DefaultJsonSerializerOptions
+                        )!;
+
+                        Emit("trace", trace);
+
+                        // Emit observer event.
+                        Observer.Emit("trace", trace);
+
                         break;
                     }
 
-                    var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
-                        data,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
-
-                    Emit("trace", trace);
-
-                    // Emit observer event.
-                    Observer.Emit("trace", trace);
-
-                    break;
-                }
-
                 default:
-                {
-                    _logger.LogError($"OnNotificationHandle() | WebRtcTransport:{TransportId} Ignoring unknown event{@event}");
-                    break;
-                }
+                    {
+                        _logger.LogError($"OnNotificationHandle() | WebRtcTransport:{TransportId} Ignoring unknown event{@event}");
+                        break;
+                    }
             }
         }
 
