@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -103,35 +102,6 @@ namespace FBS.RtpParameters
               _o.Dtx,
               _scalability_mode,
               _o.MaxBitrate);
-        }
-    }
-
-    public class RtpEncodingParametersT
-    {
-        [JsonPropertyName("ssrc")]
-        public uint? Ssrc { get; set; }
-        [JsonPropertyName("rid")]
-        public string Rid { get; set; }
-        [JsonPropertyName("codec_payload_type")]
-        public byte? CodecPayloadType { get; set; }
-        [JsonPropertyName("rtx")]
-        public FBS.RtpParameters.RtxT Rtx { get; set; }
-        [JsonPropertyName("dtx")]
-        public bool Dtx { get; set; }
-        [JsonPropertyName("scalability_mode")]
-        public string ScalabilityMode { get; set; }
-        [JsonPropertyName("max_bitrate")]
-        public uint? MaxBitrate { get; set; }
-
-        public RtpEncodingParametersT()
-        {
-            this.Ssrc = null;
-            this.Rid = null;
-            this.CodecPayloadType = null;
-            this.Rtx = null;
-            this.Dtx = false;
-            this.ScalabilityMode = null;
-            this.MaxBitrate = null;
         }
     }
 }

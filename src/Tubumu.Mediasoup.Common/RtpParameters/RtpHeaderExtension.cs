@@ -25,19 +25,19 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// The URI of the RTP header extension, as defined in RFC 5285.
         /// </summary>
-        public string Uri { get; set; }
+        public RtpHeaderExtensionUri Uri { get; set; }
 
         /// <summary>
         /// The preferred numeric identifier that goes in the RTP packet. Must be
         /// unique.
         /// </summary>
-        public int PreferredId { get; set; }
+        public byte PreferredId { get; set; }
 
         /// <summary>
         /// If true, it is preferred that the value in the header be encrypted as per
         /// RFC 6904. Default false.
         /// </summary>
-        public bool? PreferredEncrypt { get; set; } = false;
+        public bool PreferredEncrypt { get; set; }
 
         /// <summary>
         /// If 'sendrecv', mediasoup supports sending and receiving this RTP extension.

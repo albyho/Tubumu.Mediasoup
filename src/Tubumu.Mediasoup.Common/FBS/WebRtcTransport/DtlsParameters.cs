@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
@@ -76,20 +75,6 @@ namespace FBS.WebRtcTransport
               builder,
               _fingerprints,
               _o.Role);
-        }
-    }
-
-    public class DtlsParametersT
-    {
-        [JsonPropertyName("fingerprints")]
-        public List<FBS.WebRtcTransport.FingerprintT> Fingerprints { get; set; }
-        [JsonPropertyName("role")]
-        public FBS.WebRtcTransport.DtlsRole Role { get; set; }
-
-        public DtlsParametersT()
-        {
-            this.Fingerprints = null;
-            this.Role = FBS.WebRtcTransport.DtlsRole.AUTO;
         }
     }
 }

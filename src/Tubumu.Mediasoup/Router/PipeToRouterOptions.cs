@@ -1,4 +1,7 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.SctpParameters;
+using FBS.Transport;
+
+namespace Tubumu.Mediasoup
 {
     public class PipeToRouterOptions
     {
@@ -18,28 +21,28 @@
         public Router Router { get; set; }
 
         /// <summary>
-        /// IP used in the PipeTransport pair. Default '127.0.0.1'.
+        /// Listenning Infomation.
         /// </summary>
-        public TransportListenIp? ListenIp { get; set; } = new TransportListenIp { Ip = "127.0.0.1", AnnouncedIp = null };
+        public ListenInfoT ListenInfo { get; set; }
 
         /// <summary>
         /// Create a SCTP association. Default true.
         /// </summary>
-        public bool? EnableSctp { get; set; } = true;
+        public bool EnableSctp { get; set; } = true;
 
         /// <summary>
         /// SCTP streams number.
         /// </summary>
-        public NumSctpStreams? NumSctpStreams { get; set; }
+        public NumSctpStreamsT NumSctpStreams { get; set; } = new NumSctpStreamsT { OS = 1024, MIS = 1024 };
 
         /// <summary>
         /// Enable RTX and NACK for RTP retransmission.
         /// </summary>
-        public bool? EnableRtx { get; set; } = false;
+        public bool EnableRtx { get; set; }
 
         /// <summary>
         /// Enable SRTP.
         /// </summary>
-        public bool? EnableSrtp { get; set; } = false;
+        public bool EnableSrtp { get; set; }
     }
 }

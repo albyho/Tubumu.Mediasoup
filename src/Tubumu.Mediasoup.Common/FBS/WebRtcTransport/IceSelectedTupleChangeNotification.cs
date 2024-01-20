@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
@@ -53,17 +52,6 @@ namespace FBS.WebRtcTransport
             return CreateIceSelectedTupleChangeNotification(
               builder,
               _tuple);
-        }
-    }
-
-    public class IceSelectedTupleChangeNotificationT
-    {
-        [JsonPropertyName("tuple")]
-        public FBS.Transport.TupleT Tuple { get; set; }
-
-        public IceSelectedTupleChangeNotificationT()
-        {
-            this.Tuple = null;
         }
     }
 }

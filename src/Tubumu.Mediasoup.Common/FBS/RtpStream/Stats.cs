@@ -82,7 +82,6 @@ namespace FBS.RtpStream
 
     public class StatsT
     {
-        [JsonPropertyName("data_type")]
         private FBS.RtpStream.StatsData DataType
         {
             get
@@ -95,13 +94,6 @@ namespace FBS.RtpStream
                 this.Data.Type = value;
             }
         }
-        [JsonPropertyName("data")]
-        [JsonConverter(typeof(FBS.RtpStream.RtpStreamStatsDataUnionJsonConverter))]
         public FBS.RtpStream.StatsDataUnion Data { get; set; }
-
-        public StatsT()
-        {
-            this.Data = null;
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FBS.Notification;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -17,6 +18,7 @@ namespace Tubumu.Mediasoup
         /// Whether the Producer is closed.
         /// </summary>
         private bool _closed;
+
         private readonly AsyncReaderWriterLock _closeLock = new();
 
         /// <summary>
@@ -90,11 +92,11 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug($"Close() | RtpObserver:{Internal.RtpObserverId}");
+            _logger.LogDebug("Close() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -103,8 +105,6 @@ namespace Tubumu.Mediasoup
 
                 // Remove notification subscriptions.
                 Channel.OnNotification -= OnNotificationHandle;
-                PayloadChannel.OnNotification -= OnPayloadChannelMessage;
-                ;
 
                 var reqData = new { RtpObserverId = Internal.RtpObserverId };
 
@@ -125,11 +125,11 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task RouterClosedAsync()
         {
-            _logger.LogDebug($"RouterClosed() | RtpObserver:{Internal.RtpObserverId}");
+            _logger.LogDebug("RouterClosed() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -138,7 +138,6 @@ namespace Tubumu.Mediasoup
 
                 // Remove notification subscriptions.
                 Channel.OnNotification -= OnNotificationHandle;
-                //PayloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 Emit("routerclose");
 
@@ -154,9 +153,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"PauseAsync() | RtpObserver:{Internal.RtpObserverId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("PauseAsync()");
                 }
@@ -174,12 +173,12 @@ namespace Tubumu.Mediasoup
                     _paused = true;
 
                     // Emit observer event.
-                    if (!wasPaused)
+                    if(!wasPaused)
                     {
                         Observer.Emit("pause");
                     }
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     _logger.LogError(ex, "PauseAsync()");
                 }
@@ -197,9 +196,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"ResumeAsync() | RtpObserver:{Internal.RtpObserverId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("ResumeAsync()");
                 }
@@ -217,12 +216,12 @@ namespace Tubumu.Mediasoup
                     _paused = false;
 
                     // Emit observer event.
-                    if (wasPaused)
+                    if(wasPaused)
                     {
                         Observer.Emit("resume");
                     }
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     _logger.LogError(ex, "ResumeAsync()");
                 }
@@ -240,15 +239,15 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"AddProducerAsync() | RtpObserver:{Internal.RtpObserverId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("RepObserver closed");
                 }
 
                 var producer = GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
-                if (producer == null)
+                if(producer == null)
                 {
                     return;
                 }
@@ -269,17 +268,17 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task RemoveProducerAsync(RtpObserverAddRemoveProducerOptions rtpObserverAddRemoveProducerOptions)
         {
-            _logger.LogDebug($"RemoveProducerAsync() | RtpObserver:{Internal.RtpObserverId}");
+            _logger.LogDebug("RemoveProducerAsync() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("RepObserver closed");
                 }
 
                 var producer = GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
-                if (producer == null)
+                if(producer == null)
                 {
                     return;
                 }
@@ -300,17 +299,9 @@ namespace Tubumu.Mediasoup
         private void HandleWorkerNotifications()
         {
             Channel.OnNotification += OnNotificationHandle;
-            PayloadChannel.OnNotification += OnPayloadChannelMessage;
         }
 
-        protected virtual void OnNotificationHandle(string targetId, string @event, string? data) { }
-
-        protected virtual void OnPayloadChannelMessage(
-            string targetId,
-            string @event,
-            string? data,
-            ArraySegment<byte> payload
-        ) { }
+        protected virtual void OnNotificationHandle(string handlerId, Event @event, Notification notification) { }
 
         #endregion Event Handlers
     }

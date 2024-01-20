@@ -59,18 +59,4 @@ namespace FBS.Transport
               _o.UdpReusePort);
         }
     }
-
-    public class SocketFlagsT
-    {
-        [JsonPropertyName("ipv6_only")]
-        public bool Ipv6Only { get; set; }
-        [JsonPropertyName("udp_reuse_port")]
-        public bool UdpReusePort { get; set; }
-
-        public SocketFlagsT()
-        {
-            this.Ipv6Only = false;
-            this.UdpReusePort = false;
-        }
-    }
 }

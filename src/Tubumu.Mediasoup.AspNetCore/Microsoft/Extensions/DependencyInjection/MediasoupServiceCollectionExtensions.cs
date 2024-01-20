@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using FBS.Transport;
 using Microsoft.Extensions.Configuration;
 using Tubumu.Mediasoup;
 
@@ -45,7 +46,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var plainTransportSettings = mediasoupSettings.PlainTransportSettings;
 
             // MediasoupStartupSettings
-            if (mediasoupStartupSettings != null)
+            if(mediasoupStartupSettings != null)
             {
                 mediasoupOptions.MediasoupStartupSettings.MediasoupVersion = mediasoupStartupSettings.MediasoupVersion;
                 mediasoupOptions.MediasoupStartupSettings.WorkerInProcess = mediasoupStartupSettings.WorkerInProcess;
@@ -55,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             // WorkerSettings
-            if (workerSettings != null)
+            if(workerSettings != null)
             {
                 mediasoupOptions.MediasoupSettings.WorkerSettings.LogLevel = workerSettings.LogLevel;
                 mediasoupOptions.MediasoupSettings.WorkerSettings.LogTags = workerSettings.LogTags;
@@ -66,17 +67,17 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             // RouterSettings
-            if (routerSettings != null && !routerSettings.RtpCodecCapabilities.IsNullOrEmpty())
+            if(routerSettings != null && !routerSettings.RtpCodecCapabilities.IsNullOrEmpty())
             {
                 mediasoupOptions.MediasoupSettings.RouterSettings = routerSettings;
 
                 // Fix RtpCodecCapabilities[x].Parameters 。从配置文件反序列化时将数字转换成了字符串，而 mediasoup-worker 有严格的数据类型验证，故这里进行修正。
-                foreach (var codec in routerSettings.RtpCodecCapabilities.Where(m => m.Parameters != null))
+                foreach(var codec in routerSettings.RtpCodecCapabilities.Where(m => m.Parameters != null))
                 {
-                    foreach (var key in codec.Parameters.Keys.ToArray())
+                    foreach(var key in codec.Parameters.Keys.ToArray())
                     {
                         var value = codec.Parameters[key];
-                        if (value != null && int.TryParse(value.ToString(), out var intValue))
+                        if(value != null && int.TryParse(value.ToString(), out var intValue))
                         {
                             codec.Parameters[key] = intValue;
                         }
@@ -85,33 +86,33 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             // WebRtcServerSettings
-            if (webRtcServerSettings != null)
+            if(webRtcServerSettings != null)
             {
                 mediasoupOptions.MediasoupSettings.WebRtcServerSettings.ListenInfos = webRtcServerSettings.ListenInfos;
 
                 // 如果没有设置 ListenInfos 则获取本机所有的 IPv4 地址进行设置。
                 var listenInfos = mediasoupOptions.MediasoupSettings.WebRtcServerSettings.ListenInfos;
-                if (listenInfos.IsNullOrEmpty())
+                if(listenInfos.IsNullOrEmpty())
                 {
                     var localIPv4IPAddresses = IPAddressExtensions.GetLocalIPAddresses(AddressFamily.InterNetwork).Where(m => m != IPAddress.Loopback);
-                    if (localIPv4IPAddresses.IsNullOrEmpty())
+                    if(localIPv4IPAddresses.IsNullOrEmpty())
                     {
                         throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcServer。");
                     }
 
                     var listenInfosTemp = (from ip in localIPv4IPAddresses
                                            let ipString = ip.ToString()
-                                           select new WebRtcServerListenInfo
+                                           select new TransportListenInfo
                                            {
-                                               Protocol = TransportProtocol.TCP,
+                                               Protocol = Protocol.TCP,
                                                Ip = ipString,
                                                AnnouncedIp = ipString,
                                                Port = 44444,
                                            }).ToList();
 
-                    listenInfosTemp.AddRange(listenInfosTemp.Select(m => new WebRtcServerListenInfo
+                    listenInfosTemp.AddRange(listenInfosTemp.Select(m => new TransportListenInfo
                     {
-                        Protocol = TransportProtocol.UDP,
+                        Protocol = Protocol.UDP,
                         Ip = m.Ip,
                         AnnouncedIp = m.AnnouncedIp,
                         Port = m.Port,
@@ -121,14 +122,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 else
                 {
                     var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
-                    if (localIPv4IPAddress == null)
+                    if(localIPv4IPAddress == null)
                     {
                         throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcServer。");
                     }
 
-                    foreach (var listenIp in listenInfos)
+                    foreach(var listenIp in listenInfos)
                     {
-                        if (listenIp.AnnouncedIp.IsNullOrWhiteSpace())
+                        if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
                         {
                             // 如果没有设置 AnnouncedIp：
                             // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
@@ -139,43 +140,43 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             // WebRtcTransportSettings
-            if (webRtcTransportSettings != null)
+            if(webRtcTransportSettings != null)
             {
-                mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenIps = webRtcTransportSettings.ListenIps;
+                mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenInfos = webRtcTransportSettings.ListenInfos;
                 mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.InitialAvailableOutgoingBitrate = webRtcTransportSettings.InitialAvailableOutgoingBitrate;
                 mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.MinimumAvailableOutgoingBitrate = webRtcTransportSettings.MinimumAvailableOutgoingBitrate;
                 mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.MaxSctpMessageSize = webRtcTransportSettings.MaxSctpMessageSize;
 
-                // 如果没有设置 ListenIps 则获取本机所有的 IPv4 地址进行设置。
-                var listenIps = mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenIps;
-                if (listenIps.IsNullOrEmpty())
+                // 如果没有设置 ListenInfos 则获取本机所有的 IPv4 地址进行设置。
+                var listenIps = mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenInfos;
+                if(listenIps.IsNullOrEmpty())
                 {
                     var localIPv4IPAddresses = IPAddressExtensions.GetLocalIPAddresses(AddressFamily.InterNetwork).Where(m => m != IPAddress.Loopback);
-                    if (localIPv4IPAddresses.IsNullOrEmpty())
+                    if(localIPv4IPAddresses.IsNullOrEmpty())
                     {
                         throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
                     }
 
                     listenIps = (from ip in localIPv4IPAddresses
                                  let ipString = ip.ToString()
-                                 select new TransportListenIp
+                                 select new TransportListenInfo
                                  {
                                      Ip = ipString,
                                      AnnouncedIp = ipString
                                  }).ToArray();
-                    mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenIps = listenIps;
+                    mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenInfos = listenIps;
                 }
                 else
                 {
                     var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
-                    if (localIPv4IPAddress == null)
+                    if(localIPv4IPAddress == null)
                     {
                         throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
                     }
 
-                    foreach (var listenIp in listenIps)
+                    foreach(var listenIp in listenIps)
                     {
-                        if (listenIp.AnnouncedIp.IsNullOrWhiteSpace())
+                        if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
                         {
                             // 如果没有设置 AnnouncedIp：
                             // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
@@ -186,28 +187,28 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             // PlainTransportSettings
-            if (plainTransportSettings != null)
+            if(plainTransportSettings != null)
             {
                 mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenIp = plainTransportSettings.ListenIp;
                 mediasoupOptions.MediasoupSettings.PlainTransportSettings.MaxSctpMessageSize = plainTransportSettings.MaxSctpMessageSize;
 
                 var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
-                if (localIPv4IPAddress == null)
+                if(localIPv4IPAddress == null)
                 {
                     throw new ArgumentException("无法获取本机 IPv4 配置 PlainTransport。");
                 }
 
                 var listenIp = mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenIp;
-                if (listenIp == null)
+                if(listenIp == null)
                 {
-                    listenIp = new TransportListenIp
+                    listenIp = new TransportListenInfo
                     {
                         Ip = localIPv4IPAddress.ToString(),
                         AnnouncedIp = localIPv4IPAddress.ToString(),
                     };
                     mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenIp = listenIp;
                 }
-                else if (listenIp.AnnouncedIp.IsNullOrWhiteSpace())
+                else if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
                 {
                     // 如果没有设置 AnnouncedIp：
                     // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)

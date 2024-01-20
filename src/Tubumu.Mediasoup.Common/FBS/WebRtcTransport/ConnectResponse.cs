@@ -53,15 +53,4 @@ namespace FBS.WebRtcTransport
               _o.DtlsLocalRole);
         }
     }
-
-    public class ConnectResponseT
-    {
-        [JsonPropertyName("dtls_local_role")]
-        public FBS.WebRtcTransport.DtlsRole DtlsLocalRole { get; set; }
-
-        public ConnectResponseT()
-        {
-            this.DtlsLocalRole = FBS.WebRtcTransport.DtlsRole.AUTO;
-        }
-    }
 }

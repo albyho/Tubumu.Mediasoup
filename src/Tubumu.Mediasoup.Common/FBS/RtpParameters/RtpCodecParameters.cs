@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Google.FlatBuffers;
 
 namespace FBS.RtpParameters
@@ -123,32 +122,6 @@ namespace FBS.RtpParameters
               _o.Channels,
               _parameters,
               _rtcp_feedback);
-        }
-    }
-
-    public class RtpCodecParametersT
-    {
-        [JsonPropertyName("mime_type")]
-        public string MimeType { get; set; }
-        [JsonPropertyName("payload_type")]
-        public byte PayloadType { get; set; }
-        [JsonPropertyName("clock_rate")]
-        public uint ClockRate { get; set; }
-        [JsonPropertyName("channels")]
-        public byte? Channels { get; set; }
-        [JsonPropertyName("parameters")]
-        public List<FBS.RtpParameters.ParameterT> Parameters { get; set; }
-        [JsonPropertyName("rtcp_feedback")]
-        public List<FBS.RtpParameters.RtcpFeedbackT> RtcpFeedback { get; set; }
-
-        public RtpCodecParametersT()
-        {
-            this.MimeType = null;
-            this.PayloadType = 0;
-            this.ClockRate = 0;
-            this.Channels = null;
-            this.Parameters = null;
-            this.RtcpFeedback = null;
         }
     }
 }

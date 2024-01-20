@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Google.FlatBuffers;
 
 namespace FBS.RtpStream
@@ -104,32 +103,4 @@ namespace FBS.RtpStream
               _bitrate_by_layer);
         }
     }
-
-    public class RecvStatsT
-    {
-        [JsonPropertyName("base")]
-        public FBS.RtpStream.StatsT Base { get; set; }
-        [JsonPropertyName("jitter")]
-        public uint Jitter { get; set; }
-        [JsonPropertyName("packet_count")]
-        public ulong PacketCount { get; set; }
-        [JsonPropertyName("byte_count")]
-        public ulong ByteCount { get; set; }
-        [JsonPropertyName("bitrate")]
-        public uint Bitrate { get; set; }
-        [JsonPropertyName("bitrate_by_layer")]
-        public List<FBS.RtpStream.BitrateByLayerT> BitrateByLayer { get; set; }
-
-        public RecvStatsT()
-        {
-            this.Base = null;
-            this.Jitter = 0;
-            this.PacketCount = 0;
-            this.ByteCount = 0;
-            this.Bitrate = 0;
-            this.BitrateByLayer = null;
-        }
-    }
-
-
 }

@@ -89,24 +89,4 @@ namespace FBS.RtpParameters
               _parameters);
         }
     }
-
-    public class RtpHeaderExtensionParametersT
-    {
-        [JsonPropertyName("uri")]
-        public FBS.RtpParameters.RtpHeaderExtensionUri Uri { get; set; }
-        [JsonPropertyName("id")]
-        public byte Id { get; set; }
-        [JsonPropertyName("encrypt")]
-        public bool Encrypt { get; set; }
-        [JsonPropertyName("parameters")]
-        public List<FBS.RtpParameters.ParameterT> Parameters { get; set; }
-
-        public RtpHeaderExtensionParametersT()
-        {
-            this.Uri = FBS.RtpParameters.RtpHeaderExtensionUri.Mid;
-            this.Id = 0;
-            this.Encrypt = false;
-            this.Parameters = null;
-        }
-    }
 }

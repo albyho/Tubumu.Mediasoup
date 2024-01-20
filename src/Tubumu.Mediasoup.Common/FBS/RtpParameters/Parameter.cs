@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using System;
-using System.Text.Json.Serialization;
 using Google.FlatBuffers;
 
 namespace FBS.RtpParameters
@@ -100,33 +99,6 @@ namespace FBS.RtpParameters
               _name,
               _value_type,
               _value);
-        }
-    }
-
-    public class ParameterT
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-        [JsonPropertyName("value_type")]
-        private FBS.RtpParameters.Value ValueType
-        {
-            get
-            {
-                return this.Value != null ? this.Value.Type : FBS.RtpParameters.Value.NONE;
-            }
-            set
-            {
-                this.Value = new FBS.RtpParameters.ValueUnion();
-                this.Value.Type = value;
-            }
-        }
-        [JsonPropertyName("value")]
-        public FBS.RtpParameters.ValueUnion Value { get; set; }
-
-        public ParameterT()
-        {
-            this.Name = null;
-            this.Value = null;
         }
     }
 }

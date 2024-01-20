@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpStream
 {
@@ -66,20 +65,6 @@ namespace FBS.RtpStream
               builder,
               _layer,
               _o.Bitrate);
-        }
-    }
-
-    public class BitrateByLayerT
-    {
-        [JsonPropertyName("layer")]
-        public string Layer { get; set; }
-        [JsonPropertyName("bitrate")]
-        public uint Bitrate { get; set; }
-
-        public BitrateByLayerT()
-        {
-            this.Layer = null;
-            this.Bitrate = 0;
         }
     }
 }

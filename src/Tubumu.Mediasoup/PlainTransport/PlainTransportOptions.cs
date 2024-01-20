@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using FBS.SctpParameters;
 using FBS.SrtpParameters;
+using FBS.Transport;
 
 namespace Tubumu.Mediasoup
 {
@@ -9,18 +10,18 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Listening information.
         /// </summary>
-        public TransportListenInfo ListenInfo { get; set; }
+        public ListenInfoT ListenInfo { get; set; }
 
         /// <summary>
         /// RTCP listening information. If not given and rtcpPort is not false,
         /// RTCP will use same listening info than RTP.
         /// </summary>
-        public TransportListenInfo? RtcpListenInfo { get; set; }
+        public ListenInfoT? RtcpListenInfo { get; set; }
 
         /// <summary>
         /// Use RTCP-mux (RTP and RTCP in the same port). Default true.
         /// </summary>
-        public bool? RtcpMux { get; set; } = true;
+        public bool RtcpMux { get; set; } = true;
 
         /// <summary>
         /// Whether remote IP:port should be auto-detected based on first RTP/RTCP
@@ -28,12 +29,12 @@ namespace Tubumu.Mediasoup
         /// SRTP is enabled. If so, it must be called with just remote SRTP parameters.
         /// Default false.
         /// </summary>
-        public bool? Comedia { get; set; } = false;
+        public bool Comedia { get; set; }
 
         /// <summary>
         /// Create a SCTP association. Default false.
         /// </summary>
-        public bool? EnableSctp { get; set; } = false;
+        public bool EnableSctp { get; set; }
 
         /// <summary>
         /// SCTP streams number.
@@ -44,19 +45,19 @@ namespace Tubumu.Mediasoup
         /// Maximum allowed size for SCTP messages sent by DataProducers.
         /// Default 262144.
         /// </summary>
-        public uint? MaxSctpMessageSize { get; set; } = 262144;
+        public uint MaxSctpMessageSize { get; set; } = 262144;
 
         /// <summary>
         /// Maximum SCTP send buffer used by DataConsumers.
         /// Default 262144.
         /// </summary>
-        public uint? SctpSendBufferSize { get; set; } = 262144;
+        public uint SctpSendBufferSize { get; set; } = 262144;
 
         /// <summary>
         /// Enable SRTP. For this to work, connect() must be called
         /// with remote SRTP parameters. Default false.
         /// </summary>
-        public bool? EnableSrtp { get; set; } = false;
+        public bool EnableSrtp { get; set; }
 
         /// <summary>
         /// The SRTP crypto suite to be used if enableSrtp is set. Default

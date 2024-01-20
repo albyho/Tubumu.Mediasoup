@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using System;
-using System.Text.Json.Serialization;
 using Google.FlatBuffers;
 
 namespace FBS.WebRtcServer
@@ -66,20 +65,6 @@ namespace FBS.WebRtcServer
               builder,
               _ip,
               _o.Port);
-        }
-    }
-
-    public class IpPortT
-    {
-        [JsonPropertyName("ip")]
-        public string Ip { get; set; }
-        [JsonPropertyName("port")]
-        public ushort Port { get; set; }
-
-        public IpPortT()
-        {
-            this.Ip = null;
-            this.Port = 0;
         }
     }
 }

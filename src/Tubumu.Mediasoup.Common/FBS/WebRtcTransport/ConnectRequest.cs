@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
@@ -53,17 +52,6 @@ namespace FBS.WebRtcTransport
             return CreateConnectRequest(
               builder,
               _dtls_parameters);
-        }
-    }
-
-    public class ConnectRequestT
-    {
-        [JsonPropertyName("dtls_parameters")]
-        public FBS.WebRtcTransport.DtlsParametersT DtlsParameters { get; set; }
-
-        public ConnectRequestT()
-        {
-            this.DtlsParameters = null;
         }
     }
 }

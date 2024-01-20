@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
@@ -60,17 +59,6 @@ namespace FBS.WebRtcTransport
             return CreateListenServer(
               builder,
               _web_rtc_server_id);
-        }
-    }
-
-    public class ListenServerT
-    {
-        [JsonPropertyName("web_rtc_server_id")]
-        public string WebRtcServerId { get; set; }
-
-        public ListenServerT()
-        {
-            this.WebRtcServerId = null;
         }
     }
 }

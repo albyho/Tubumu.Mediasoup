@@ -254,32 +254,12 @@ namespace FBS.Request
 
     public class RequestT
     {
-        [JsonPropertyName("id")]
         public uint Id { get; set; }
-        [JsonPropertyName("method")]
+
         public FBS.Request.Method Method { get; set; }
-        [JsonPropertyName("handler_id")]
+
         public string HandlerId { get; set; }
-        [JsonPropertyName("body")]
+
         public FBS.Request.BodyUnion Body { get; set; }
-
-        public RequestT()
-        {
-            this.Id = 0;
-            this.Method = FBS.Request.Method.WORKER_CLOSE;
-            this.HandlerId = null;
-            this.Body = null;
-        }
-
-        static RequestT DeserializeFromBinary(byte[] fbBuffer)
-        {
-            return Request.GetRootAsRequest(new ByteBuffer(fbBuffer)).UnPack();
-        }
-        public byte[] SerializeToBinary()
-        {
-            var fbb = new FlatBufferBuilder(0x10000);
-            Request.FinishRequestBuffer(fbb, Request.Pack(fbb, this));
-            return fbb.DataBuffer.ToSizedArray();
-        }
     }
 }

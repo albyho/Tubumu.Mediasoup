@@ -72,15 +72,4 @@ namespace FBS.AudioLevelObserver
               _volumes);
         }
     }
-
-    public class VolumesNotificationT
-    {
-        [JsonPropertyName("volumes")]
-        public List<FBS.AudioLevelObserver.VolumeT> Volumes { get; set; }
-
-        public VolumesNotificationT()
-        {
-            this.Volumes = null;
-        }
-    }
 }

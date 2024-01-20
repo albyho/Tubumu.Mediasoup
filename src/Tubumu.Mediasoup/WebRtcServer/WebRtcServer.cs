@@ -24,7 +24,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Channel instance.
         /// </summary>
-        private IChannel _channel;
+        private readonly IChannel _channel;
 
         /// <summary>
         /// Closed flag.
@@ -84,9 +84,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"CloseAsync() | WebRtcServer: {WebRtcServerId}");
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -114,9 +114,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"WorkerClosedAsync() | WebRtcServer: {WebRtcServerId}");
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -134,10 +134,10 @@ namespace Tubumu.Mediasoup
 
         private async Task CloseInternalAsync()
         {
-            using (await _webRtcTransportsLock.WriteLockAsync())
+            using(await _webRtcTransportsLock.WriteLockAsync())
             {
                 // Close every WebRtcTransport.
-                foreach (var webRtcTransport in _webRtcTransports.Values)
+                foreach(var webRtcTransport in _webRtcTransports.Values)
                 {
                     await webRtcTransport.ListenServerClosedAsync();
 
@@ -156,9 +156,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"DumpAsync() | WebRtcServer: {WebRtcServerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("WebRtcServer closed");
                 }
@@ -169,7 +169,7 @@ namespace Tubumu.Mediasoup
 
         public async Task HandleWebRtcTransportAsync(WebRtcTransport webRtcTransport)
         {
-            using (await _webRtcTransportsLock.WriteLockAsync())
+            using(await _webRtcTransportsLock.WriteLockAsync())
             {
                 _webRtcTransports[webRtcTransport.TransportId] = webRtcTransport;
             }
@@ -179,7 +179,7 @@ namespace Tubumu.Mediasoup
 
             webRtcTransport.On("@close", async (_, _) =>
             {
-                using (await _webRtcTransportsLock.WriteLockAsync())
+                using(await _webRtcTransportsLock.WriteLockAsync())
                 {
                     _webRtcTransports.Remove(webRtcTransport.TransportId);
                 }

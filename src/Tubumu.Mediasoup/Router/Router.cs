@@ -261,14 +261,10 @@ namespace Tubumu.Mediasoup
                         Protocol = m.Protocol,
                         Ip = m.Ip,
                         AnnouncedIp = m.AnnouncedIp,
-                        Port = m.Port ?? 0,
-                        Flags = new FBS.Transport.SocketFlagsT
-                        {
-                            Ipv6Only = m.Flags?.Ipv6Only ?? false,
-                            UdpReusePort = m.Flags?.UdpReusePort ?? false,
-                        },
-                        SendBufferSize = m.SendBufferSize ?? 0,
-                        RecvBufferSize = m.RecvBufferSize ?? 0,
+                        Port = m.Port,
+                        Flags = m.Flags,
+                        SendBufferSize = m.SendBufferSize,
+                        RecvBufferSize = m.RecvBufferSize,
                     }).ToList();
 
                     webRtcTransportListenIndividual =
@@ -282,15 +278,11 @@ namespace Tubumu.Mediasoup
                 {
                     Direct = false,
                     MaxMessageSize = null,
-                    InitialAvailableOutgoingBitrate = webRtcTransportOptions.InitialAvailableOutgoingBitrate ?? 600000,
-                    EnableSctp = webRtcTransportOptions.EnableSctp ?? false,
-                    NumSctpStreams = new FBS.SctpParameters.NumSctpStreamsT
-                    {
-                        OS = webRtcTransportOptions.NumSctpStreams?.OS ?? 1024,
-                        MIS = webRtcTransportOptions.NumSctpStreams?.MIS ?? 1024,
-                    },
-                    MaxSctpMessageSize = webRtcTransportOptions.MaxSctpMessageSize ?? 262144,
-                    SctpSendBufferSize = webRtcTransportOptions.SctpSendBufferSize ?? 262144,
+                    InitialAvailableOutgoingBitrate = webRtcTransportOptions.InitialAvailableOutgoingBitrate,
+                    EnableSctp = webRtcTransportOptions.EnableSctp,
+                    NumSctpStreams = webRtcTransportOptions.NumSctpStreams,
+                    MaxSctpMessageSize = webRtcTransportOptions.MaxSctpMessageSize,
+                    SctpSendBufferSize = webRtcTransportOptions.SctpSendBufferSize,
                     IsDataChannel = true
                 };
 
@@ -299,8 +291,8 @@ namespace Tubumu.Mediasoup
                     Base = baseTransportOptions,
                     EnableUdp = webRtcTransportOptions.EnableUdp!.Value,
                     EnableTcp = webRtcTransportOptions.EnableTcp!.Value,
-                    PreferUdp = webRtcTransportOptions.PreferUdp ?? false,
-                    PreferTcp = webRtcTransportOptions.PreferTcp ?? false,
+                    PreferUdp = webRtcTransportOptions.PreferUdp,
+                    PreferTcp = webRtcTransportOptions.PreferTcp,
                     Listen = new FBS.WebRtcTransport.ListenUnion
                     {
                         Type = webRtcServer != null ? FBS.WebRtcTransport.Listen.ListenServer : FBS.WebRtcTransport.Listen.ListenIndividual,
@@ -375,7 +367,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // If rtcpMux is enabled, ignore rtcpListenInfo.
-                if(plainTransportOptions.RtcpMux.HasValue && plainTransportOptions.RtcpMux.HasValue && plainTransportOptions.RtcpListenInfo != null)
+                if(plainTransportOptions.RtcpMux && plainTransportOptions.RtcpListenInfo != null)
                 {
                     _logger.LogWarning("createPlainTransport() | ignoring rtcpMux since rtcpListenInfo is given");
                     plainTransportOptions.RtcpMux = false;
@@ -386,53 +378,20 @@ namespace Tubumu.Mediasoup
                     Direct = false,
                     MaxMessageSize = null,
                     InitialAvailableOutgoingBitrate = null,
-                    EnableSctp = plainTransportOptions.EnableSctp ?? false,
-                    NumSctpStreams = new FBS.SctpParameters.NumSctpStreamsT
-                    {
-                        OS = plainTransportOptions.NumSctpStreams?.OS ?? 1024,
-                        MIS = plainTransportOptions.NumSctpStreams?.MIS ?? 1024,
-                    },
-                    MaxSctpMessageSize = plainTransportOptions.MaxSctpMessageSize ?? 262144,
-                    SctpSendBufferSize = plainTransportOptions.SctpSendBufferSize ?? 262144,
+                    EnableSctp = plainTransportOptions.EnableSctp,
+                    NumSctpStreams = plainTransportOptions.NumSctpStreams,
+                    MaxSctpMessageSize = plainTransportOptions.MaxSctpMessageSize,
+                    SctpSendBufferSize = plainTransportOptions.SctpSendBufferSize,
                     IsDataChannel = false
                 };
-
-                var listenInfo = plainTransportOptions.ListenInfo;
-                var rtcpListenInfo = plainTransportOptions.RtcpListenInfo;
 
                 var plainTransportOptionsForCreate = new FBS.PlainTransport.PlainTransportOptionsT
                 {
                     Base = baseTransportOptions,
-                    ListenInfo = new FBS.Transport.ListenInfoT
-                    {
-                        Protocol = listenInfo.Protocol,
-                        Ip = listenInfo.Ip,
-                        AnnouncedIp = listenInfo.AnnouncedIp,
-                        Port = listenInfo.Port ?? 0,
-                        Flags = new FBS.Transport.SocketFlagsT
-                        {
-                            Ipv6Only = listenInfo.Flags?.Ipv6Only ?? false,
-                            UdpReusePort = listenInfo.Flags?.UdpReusePort ?? false,
-                        },
-                        SendBufferSize = listenInfo.SendBufferSize ?? 0,
-                        RecvBufferSize = listenInfo.RecvBufferSize ?? 0,
-                    },
-                    RtcpListenInfo = rtcpListenInfo != null ? new FBS.Transport.ListenInfoT
-                    {
-                        Protocol = rtcpListenInfo.Protocol,
-                        Ip = rtcpListenInfo.Ip,
-                        AnnouncedIp = rtcpListenInfo.AnnouncedIp,
-                        Port = rtcpListenInfo.Port ?? 0,
-                        Flags = new FBS.Transport.SocketFlagsT
-                        {
-                            Ipv6Only = rtcpListenInfo.Flags?.Ipv6Only ?? false,
-                            UdpReusePort = rtcpListenInfo.Flags?.UdpReusePort ?? false,
-                        },
-                        SendBufferSize = rtcpListenInfo.SendBufferSize ?? 0,
-                        RecvBufferSize = rtcpListenInfo.RecvBufferSize ?? 0,
-                    } : null,
-                    RtcpMux = plainTransportOptions.RtcpMux ?? rtcpListenInfo == null,
-                    Comedia = plainTransportOptions.Comedia ?? false,
+                    ListenInfo = plainTransportOptions.ListenInfo,
+                    RtcpListenInfo = plainTransportOptions.RtcpListenInfo,
+                    RtcpMux = plainTransportOptions.RtcpMux,
+                    Comedia = plainTransportOptions.Comedia,
                 };
 
                 var transportId = Guid.NewGuid().ToString();
@@ -506,14 +465,10 @@ namespace Tubumu.Mediasoup
                     Direct = false,
                     MaxMessageSize = null,
                     InitialAvailableOutgoingBitrate = null,
-                    EnableSctp = pipeTransportOptions.EnableSctp ?? false,
-                    NumSctpStreams = new FBS.SctpParameters.NumSctpStreamsT
-                    {
-                        OS = pipeTransportOptions.NumSctpStreams?.OS ?? 1024,
-                        MIS = pipeTransportOptions.NumSctpStreams?.MIS ?? 1024,
-                    },
-                    MaxSctpMessageSize = pipeTransportOptions.MaxSctpMessageSize ?? 262144,
-                    SctpSendBufferSize = pipeTransportOptions.SctpSendBufferSize ?? 262144,
+                    EnableSctp = pipeTransportOptions.EnableSctp,
+                    NumSctpStreams = pipeTransportOptions.NumSctpStreams,
+                    MaxSctpMessageSize = pipeTransportOptions.MaxSctpMessageSize,
+                    SctpSendBufferSize = pipeTransportOptions.SctpSendBufferSize,
                     IsDataChannel = false
                 };
 
@@ -522,22 +477,9 @@ namespace Tubumu.Mediasoup
                 var pipeTransportOptionsForCreate = new FBS.PipeTransport.PipeTransportOptionsT
                 {
                     Base = baseTransportOptions,
-                    ListenInfo = new FBS.Transport.ListenInfoT
-                    {
-                        Protocol = listenInfo.Protocol,
-                        Ip = listenInfo.Ip,
-                        AnnouncedIp = listenInfo.AnnouncedIp,
-                        Port = listenInfo.Port ?? 0,
-                        Flags = new FBS.Transport.SocketFlagsT
-                        {
-                            Ipv6Only = listenInfo.Flags?.Ipv6Only ?? false,
-                            UdpReusePort = listenInfo.Flags?.UdpReusePort ?? false,
-                        },
-                        SendBufferSize = listenInfo.SendBufferSize ?? 0,
-                        RecvBufferSize = listenInfo.RecvBufferSize ?? 0,
-                    },
-                    EnableRtx = pipeTransportOptions.EnableRtx ?? false,
-                    EnableSrtp = pipeTransportOptions.EnableRtx ?? false,
+                    ListenInfo = pipeTransportOptions.ListenInfo,
+                    EnableRtx = pipeTransportOptions.EnableRtx,
+                    EnableSrtp = pipeTransportOptions.EnableSrtp,
                 };
 
                 var transportId = Guid.NewGuid().ToString();
@@ -740,9 +682,9 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                if(pipeToRouterOptions.ListenIp == null)
+                if(pipeToRouterOptions.ListenInfo == null)
                 {
-                    throw new ArgumentNullException(nameof(pipeToRouterOptions), "Missing listenIp");
+                    throw new ArgumentNullException(nameof(pipeToRouterOptions), "Missing listenInfo");
                 }
 
                 if(pipeToRouterOptions.ProducerId.IsNullOrWhiteSpace() && pipeToRouterOptions.DataProducerId.IsNullOrWhiteSpace())
@@ -813,7 +755,7 @@ namespace Tubumu.Mediasoup
                         {
                             var pipeTransports = await Task.WhenAll(CreatePipeTransportAsync(new PipeTransportOptions
                             {
-                                ListenIp = pipeToRouterOptions.ListenIp,
+                                ListenInfo = pipeToRouterOptions.ListenInfo,
                                 EnableSctp = pipeToRouterOptions.EnableSctp,
                                 NumSctpStreams = pipeToRouterOptions.NumSctpStreams,
                                 EnableRtx = pipeToRouterOptions.EnableRtx,
@@ -821,7 +763,7 @@ namespace Tubumu.Mediasoup
                             }),
                             pipeToRouterOptions.Router.CreatePipeTransportAsync(new PipeTransportOptions
                             {
-                                ListenIp = pipeToRouterOptions.ListenIp,
+                                ListenInfo = pipeToRouterOptions.ListenInfo,
                                 EnableSctp = pipeToRouterOptions.EnableSctp,
                                 NumSctpStreams = pipeToRouterOptions.NumSctpStreams,
                                 EnableRtx = pipeToRouterOptions.EnableRtx,
@@ -901,7 +843,7 @@ namespace Tubumu.Mediasoup
                         {
                             Id = producer.ProducerId,
                             Kind = pipeConsumer.Data.Kind,
-                            RtpParameters = pipeConsumer.Data.RtpParameters,
+                            RtpParameters = pipeConsumer.Data.RtpParameters.DeserializeRtpParameters(),
                             Paused = pipeConsumer.ProducerPaused,
                             AppData = producer.AppData,
                         });
@@ -1021,7 +963,7 @@ namespace Tubumu.Mediasoup
                     RtpObserverId = rtpObserverId,
                     Options = new FBS.ActiveSpeakerObserver.ActiveSpeakerObserverOptionsT
                     {
-                        Interval = activeSpeakerObserverOptions.Interval ?? 300,
+                        Interval = activeSpeakerObserverOptions.Interval,
                     }
                 };
 
@@ -1072,13 +1014,13 @@ namespace Tubumu.Mediasoup
                     RtpObserverId = rtpObserverId,
                     Options = new FBS.AudioLevelObserver.AudioLevelObserverOptionsT
                     {
-                        MaxEntries = audioLevelObserverOptions.MaxEntries ?? 1,
-                        Threshold = audioLevelObserverOptions.Threshold ?? -80,
-                        Interval = audioLevelObserverOptions.Interval ?? 1000,
+                        MaxEntries = audioLevelObserverOptions.MaxEntries,
+                        Threshold = audioLevelObserverOptions.Threshold,
+                        Interval = audioLevelObserverOptions.Interval,
                     }
                 };
 
-                var createAudioLevelObserverRequestOffset = FBS.Router.CreateActiveSpeakerObserverRequest.Pack(_channel.BufferBuilder, createAudioLevelObserverRequest);
+                var createAudioLevelObserverRequestOffset = FBS.Router.CreateAudioLevelObserverRequest.Pack(_channel.BufferBuilder, createAudioLevelObserverRequest);
 
                 // Fire and forget
                 _channel.RequestAsync(FBS.Request.Method.ROUTER_CREATE_AUDIOLEVELOBSERVER,

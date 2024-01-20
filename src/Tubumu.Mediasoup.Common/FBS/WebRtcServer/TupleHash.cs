@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using System;
-using System.Text.Json.Serialization;
 using Google.FlatBuffers;
 
 namespace FBS.WebRtcServer
@@ -66,20 +65,6 @@ namespace FBS.WebRtcServer
               builder,
               _o.TupleHash_,
               _web_rtc_transport_id);
-        }
-    }
-
-    public class TupleHashT
-    {
-        [JsonPropertyName("tuple_hash")]
-        public ulong TupleHash_ { get; set; }
-        [JsonPropertyName("web_rtc_transport_id")]
-        public string WebRtcTransportId { get; set; }
-
-        public TupleHashT()
-        {
-            this.TupleHash_ = 0;
-            this.WebRtcTransportId = null;
         }
     }
 }

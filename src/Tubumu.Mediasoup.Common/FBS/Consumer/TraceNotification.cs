@@ -103,14 +103,12 @@ namespace FBS.Consumer
 
     public class TraceNotificationT
     {
-        [JsonPropertyName("type")]
         public FBS.Consumer.TraceEventType Type { get; set; }
-        [JsonPropertyName("timestamp")]
+
         public ulong Timestamp { get; set; }
-        [JsonPropertyName("direction")]
+
         public FBS.Common.TraceDirection Direction { get; set; }
-        [JsonPropertyName("info")]
-        [JsonConverter(typeof(FBS.Consumer.ConsumerTraceInfoUnionJsonConverter))]
+
         public FBS.Consumer.TraceInfoUnion Info { get; set; }
     }
 }

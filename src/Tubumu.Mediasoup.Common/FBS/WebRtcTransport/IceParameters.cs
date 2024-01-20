@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
@@ -80,34 +79,6 @@ namespace FBS.WebRtcTransport
               _username_fragment,
               _password,
               _o.IceLite);
-        }
-    }
-
-    public class IceParametersT
-    {
-        /// <summary>
-        /// usernameFragment. Renamed.
-        /// </summary>
-        [JsonPropertyName("usernameFragment")]
-        public string UsernameFragment { get; set; }
-
-        /// <summary>
-        /// password
-        /// </summary>
-        [JsonPropertyName("password")]
-        public string Password { get; set; }
-
-        /// <summary>
-        /// iceLite. Renamed.
-        /// </summary>
-        [JsonPropertyName("iceLite")]
-        public bool IceLite { get; set; }
-
-        public IceParametersT()
-        {
-            this.UsernameFragment = null;
-            this.Password = null;
-            this.IceLite = true;
         }
     }
 }

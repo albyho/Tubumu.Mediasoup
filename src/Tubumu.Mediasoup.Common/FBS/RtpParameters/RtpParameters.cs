@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Google.FlatBuffers;
 
 namespace FBS.RtpParameters
@@ -137,32 +136,6 @@ namespace FBS.RtpParameters
               _header_extensions,
               _encodings,
               _rtcp);
-        }
-    }
-
-    public class RtpParametersT
-    {
-        [JsonPropertyName("mid")]
-        public string Mid { get; set; }
-        [JsonPropertyName("codecs")]
-        public List<FBS.RtpParameters.RtpCodecParametersT> Codecs { get; set; }
-        /// <summary>
-        /// headerExtensions. Renamed.
-        /// </summary>
-        [JsonPropertyName("headerExtensions")]
-        public List<FBS.RtpParameters.RtpHeaderExtensionParametersT> HeaderExtensions { get; set; }
-        [JsonPropertyName("encodings")]
-        public List<FBS.RtpParameters.RtpEncodingParametersT> Encodings { get; set; }
-        [JsonPropertyName("rtcp")]
-        public FBS.RtpParameters.RtcpParametersT Rtcp { get; set; }
-
-        public RtpParametersT()
-        {
-            this.Mid = null;
-            this.Codecs = null;
-            this.HeaderExtensions = null;
-            this.Encodings = null;
-            this.Rtcp = null;
         }
     }
 }

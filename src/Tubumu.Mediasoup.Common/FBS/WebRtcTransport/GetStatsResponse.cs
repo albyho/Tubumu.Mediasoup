@@ -80,27 +80,4 @@ namespace FBS.WebRtcTransport
               _o.DtlsState);
         }
     }
-
-    public class GetStatsResponseT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.StatsT Base { get; set; }
-        [JsonPropertyName("ice_role")]
-        public FBS.WebRtcTransport.IceRole IceRole { get; set; }
-        [JsonPropertyName("ice_state")]
-        public FBS.WebRtcTransport.IceState IceState { get; set; }
-        [JsonPropertyName("ice_selected_tuple")]
-        public FBS.Transport.TupleT IceSelectedTuple { get; set; }
-        [JsonPropertyName("dtls_state")]
-        public FBS.WebRtcTransport.DtlsState DtlsState { get; set; }
-
-        public GetStatsResponseT()
-        {
-            this.Base = null;
-            this.IceRole = FBS.WebRtcTransport.IceRole.CONTROLLED;
-            this.IceState = FBS.WebRtcTransport.IceState.NEW;
-            this.IceSelectedTuple = null;
-            this.DtlsState = FBS.WebRtcTransport.DtlsState.NEW;
-        }
-    }
 }

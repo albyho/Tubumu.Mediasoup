@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Tubumu.Utils.Models;
 using Tubumu.Mediasoup;
 using Tubumu.Meeting.Server;
+using FBS.RtpParameters;
 
 namespace Tubumu.Meeting.Web.Controllers
 {
@@ -20,7 +21,7 @@ namespace Tubumu.Meeting.Web.Controllers
             _logger = logger;
             _scheduler = scheduler;
         }
-        
+
         [HttpGet]
         public ApiResult Get()
         {
@@ -66,21 +67,21 @@ namespace Tubumu.Meeting.Web.Controllers
             // Video :"{ \"codecs\": [{ \"mimeType\":\"video/vp8\", \"payloadType\":${VIDEO_PT}, \"clockRate\":90000 }], \"encodings\": [{ \"ssrc\":${VIDEO_SSRC} }] }"
             var videoProduceRequest = new ProduceRequest
             {
-                Kind = MediaKind.Video,
+                Kind = MediaKind.VIDEO,
                 Source = "video",
-                RtpParameters = new RtpParameters
+                RtpParameters = new RtpParametersT
                 {
-                    Codecs = new List<RtpCodecParameters>
+                    Codecs = new List<RtpCodecParametersT>
                     {
-                        new RtpCodecParameters
+                        new ()
                         {
                             MimeType = "video/h264",
                             PayloadType = 98,
                             ClockRate = 90000,
                         }
                     },
-                    Encodings = new List<RtpEncodingParameters> {
-                        new RtpEncodingParameters
+                    Encodings = new List<RtpEncodingParametersT> {
+                        new ()
                         {
                             Ssrc = videoSsrc
                         }
@@ -95,21 +96,21 @@ namespace Tubumu.Meeting.Web.Controllers
 
             var audioProduceRequest = new ProduceRequest
             {
-                Kind = MediaKind.Audio,
+                Kind = MediaKind.AUDIO,
                 Source = "audio",
-                RtpParameters = new RtpParameters
+                RtpParameters = new RtpParametersT
                 {
-                    Codecs = new List<RtpCodecParameters>
+                    Codecs = new List<RtpCodecParametersT>
                     {
-                        new RtpCodecParameters
+                        new ()
                         {
-                            MimeType = "audio/PCMA",
-                            PayloadType = 8,
-                            ClockRate = 8000,
+                        MimeType = "audio/PCMA",
+                        PayloadType = 8,
+                        ClockRate = 8000,
                         }
                     },
-                    Encodings = new List<RtpEncodingParameters> {
-                        new RtpEncodingParameters
+                    Encodings = new List<RtpEncodingParametersT> {
+                        new ()
                         {
                             Ssrc = audioSsrc
                         }

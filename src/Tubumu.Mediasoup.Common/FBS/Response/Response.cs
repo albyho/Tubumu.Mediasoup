@@ -236,15 +236,14 @@ namespace FBS.Response
 
     public class ResponseT
     {
-        [JsonPropertyName("id")]
         public uint Id { get; set; }
-        [JsonPropertyName("accepted")]
+
         public bool Accepted { get; set; }
-        [JsonPropertyName("body")]
+
         public FBS.Response.BodyUnion Body { get; set; }
-        [JsonPropertyName("error")]
+
         public string Error { get; set; }
-        [JsonPropertyName("reason")]
+
         public string Reason { get; set; }
 
         public ResponseT()

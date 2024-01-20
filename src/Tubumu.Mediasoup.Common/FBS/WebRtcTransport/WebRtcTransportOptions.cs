@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
@@ -107,45 +106,4 @@ namespace FBS.WebRtcTransport
               _o.PreferTcp);
         }
     }
-
-    public class WebRtcTransportOptionsT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.OptionsT Base { get; set; }
-        [JsonPropertyName("listen_type")]
-        private FBS.WebRtcTransport.Listen ListenType
-        {
-            get
-            {
-                return this.Listen != null ? this.Listen.Type : FBS.WebRtcTransport.Listen.NONE;
-            }
-            set
-            {
-                this.Listen = new FBS.WebRtcTransport.ListenUnion();
-                this.Listen.Type = value;
-            }
-        }
-        [JsonPropertyName("listen")]
-        public FBS.WebRtcTransport.ListenUnion Listen { get; set; }
-        [JsonPropertyName("enable_udp")]
-        public bool EnableUdp { get; set; }
-        [JsonPropertyName("enable_tcp")]
-        public bool EnableTcp { get; set; }
-        [JsonPropertyName("prefer_udp")]
-        public bool PreferUdp { get; set; }
-        [JsonPropertyName("prefer_tcp")]
-        public bool PreferTcp { get; set; }
-
-        public WebRtcTransportOptionsT()
-        {
-            this.Base = null;
-            this.Listen = null;
-            this.EnableUdp = true;
-            this.EnableTcp = true;
-            this.PreferUdp = false;
-            this.PreferTcp = false;
-        }
-    }
-
-
 }

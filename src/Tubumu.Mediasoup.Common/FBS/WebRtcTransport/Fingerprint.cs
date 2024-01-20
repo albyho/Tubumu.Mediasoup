@@ -68,18 +68,4 @@ namespace FBS.WebRtcTransport
               _value);
         }
     }
-
-    public class FingerprintT
-    {
-        [JsonPropertyName("algorithm")]
-        public FBS.WebRtcTransport.FingerprintAlgorithm Algorithm { get; set; }
-        [JsonPropertyName("value")]
-        public string Value { get; set; }
-
-        public FingerprintT()
-        {
-            this.Algorithm = FBS.WebRtcTransport.FingerprintAlgorithm.SHA1;
-            this.Value = null;
-        }
-    }
 }

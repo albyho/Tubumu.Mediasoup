@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -73,20 +72,6 @@ namespace FBS.RtpParameters
               builder,
               _type,
               _parameter);
-        }
-    }
-
-    public class RtcpFeedbackT
-    {
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
-        [JsonPropertyName("parameter")]
-        public string Parameter { get; set; }
-
-        public RtcpFeedbackT()
-        {
-            this.Type = null;
-            this.Parameter = null;
         }
     }
 }

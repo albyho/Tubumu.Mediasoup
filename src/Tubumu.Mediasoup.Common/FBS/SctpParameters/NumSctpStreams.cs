@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.SctpParameters
 {
@@ -57,27 +56,6 @@ namespace FBS.SctpParameters
               builder,
               _o.OS,
               _o.MIS);
-        }
-    }
-
-    public class NumSctpStreamsT
-    {
-        /// <summary>
-        /// OS. Renamed.
-        /// </summary>
-        [JsonPropertyName("OS")]
-
-        /// <summary>
-        /// MIS. Renamed.
-        /// </summary>
-        public ushort OS { get; set; }
-        [JsonPropertyName("MIS")]
-        public ushort MIS { get; set; }
-
-        public NumSctpStreamsT()
-        {
-            this.OS = 1024;
-            this.MIS = 1024;
         }
     }
 }

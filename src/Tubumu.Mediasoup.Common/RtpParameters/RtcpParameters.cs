@@ -4,13 +4,13 @@ using System.Text.Json.Serialization;
 namespace Tubumu.Mediasoup
 {
     /// <summary>
-    /// Provides information on RTCP settings within the RTP parameters.
-    ///
+    /// <para>Provides information on RTCP settings within the RTP parameters.</para>
+    /// <para>
     /// If no cname is given in a producer's RTP parameters, the mediasoup transport
     /// will choose a random one that will be used into RTCP SDES messages sent to
     /// all its associated consumers.
-    ///
-    /// mediasoup assumes reducedSize to always be true.
+    /// </para>
+    /// <para>mediasoup assumes reducedSize to always be true.</para>
     /// </summary>
     [Serializable]
     public class RtcpParameters
@@ -27,10 +27,5 @@ namespace Tubumu.Mediasoup
         /// as specified in RFC 3550 (if false). Default true.
         /// </summary>
         public bool? ReducedSize { get; set; } = true;
-
-        /// <summary>
-        /// Whether RTCP-mux is used. Default true.
-        /// </summary>
-        public bool? Mux { get; set; } = true;
     }
 }

@@ -89,21 +89,12 @@ namespace FBS.RtpParameters
 
     public class EncodingMappingT
     {
-        [JsonPropertyName("rid")]
         public string Rid { get; set; }
-        [JsonPropertyName("ssrc")]
-        public uint? Ssrc { get; set; }
-        [JsonPropertyName("scalability_mode")]
-        public string ScalabilityMode { get; set; }
-        [JsonPropertyName("mapped_ssrc")]
-        public uint MappedSsrc { get; set; }
 
-        public EncodingMappingT()
-        {
-            this.Rid = null;
-            this.Ssrc = null;
-            this.ScalabilityMode = null;
-            this.MappedSsrc = 0;
-        }
+        public uint? Ssrc { get; set; }
+
+        public string ScalabilityMode { get; set; }
+
+        public uint MappedSsrc { get; set; }
     }
 }

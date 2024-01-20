@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
@@ -119,38 +118,6 @@ namespace FBS.WebRtcTransport
               _ice_selected_tuple,
               _dtls_parameters,
               _o.DtlsState);
-        }
-    }
-
-    public class DumpResponseT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.DumpT Base { get; set; }
-        [JsonPropertyName("ice_role")]
-        public FBS.WebRtcTransport.IceRole IceRole { get; set; }
-        [JsonPropertyName("ice_parameters")]
-        public FBS.WebRtcTransport.IceParametersT IceParameters { get; set; }
-        [JsonPropertyName("ice_candidates")]
-        public List<FBS.WebRtcTransport.IceCandidateT> IceCandidates { get; set; }
-        [JsonPropertyName("ice_state")]
-        public FBS.WebRtcTransport.IceState IceState { get; set; }
-        [JsonPropertyName("ice_selected_tuple")]
-        public FBS.Transport.TupleT IceSelectedTuple { get; set; }
-        [JsonPropertyName("dtls_parameters")]
-        public FBS.WebRtcTransport.DtlsParametersT DtlsParameters { get; set; }
-        [JsonPropertyName("dtls_state")]
-        public FBS.WebRtcTransport.DtlsState DtlsState { get; set; }
-
-        public DumpResponseT()
-        {
-            this.Base = null;
-            this.IceRole = FBS.WebRtcTransport.IceRole.CONTROLLED;
-            this.IceParameters = null;
-            this.IceCandidates = null;
-            this.IceState = FBS.WebRtcTransport.IceState.NEW;
-            this.IceSelectedTuple = null;
-            this.DtlsParameters = null;
-            this.DtlsState = FBS.WebRtcTransport.DtlsState.NEW;
         }
     }
 }

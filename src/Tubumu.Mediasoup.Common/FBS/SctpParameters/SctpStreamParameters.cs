@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.SctpParameters
 {
@@ -69,41 +68,6 @@ namespace FBS.SctpParameters
               _o.Ordered,
               _o.MaxPacketLifeTime,
               _o.MaxRetransmits);
-        }
-    }
-
-    public class SctpStreamParametersT
-    {
-        /// <summary>
-        /// streamId. Renamed.
-        /// </summary>
-        [JsonPropertyName("streamId")]
-        public ushort StreamId { get; set; }
-
-        /// <summary>
-        /// ordered
-        /// </summary>
-        [JsonPropertyName("ordered")]
-        public bool? Ordered { get; set; }
-
-        /// <summary>
-        /// maxPacketLifeTime. Renamed.
-        /// </summary>
-        [JsonPropertyName("maxPacketLifeTime")]
-        public ushort? MaxPacketLifeTime { get; set; }
-
-        /// <summary>
-        /// maxRetransmits. Renamed.
-        /// </summary>
-        [JsonPropertyName("maxRetransmits")]
-        public ushort? MaxRetransmits { get; set; }
-
-        public SctpStreamParametersT()
-        {
-            this.StreamId = 0;
-            this.Ordered = null;
-            this.MaxPacketLifeTime = null;
-            this.MaxRetransmits = null;
         }
     }
 }

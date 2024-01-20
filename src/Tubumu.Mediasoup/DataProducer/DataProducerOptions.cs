@@ -26,6 +26,11 @@ namespace Tubumu.Mediasoup
         public string? Protocol { get; set; }
 
         /// <summary>
+        /// Whether the data producer must start in paused mode. Default false.
+        /// </summary>
+        public bool Paused { get; set; }
+
+        /// <summary>
         /// Custom application data.
         /// </summary>
         public Dictionary<string, object>? AppData { get; set; }

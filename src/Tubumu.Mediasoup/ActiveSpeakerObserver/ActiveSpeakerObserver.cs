@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.Notification;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -44,29 +45,26 @@ namespace Tubumu.Mediasoup
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
-        protected override async void OnNotificationHandle(string targetId, string @event, string? data)
+        protected override async void OnNotificationHandle(string handlerId, Event @event, Notification notification)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            if (targetId != Internal.RtpObserverId)
+            if (handlerId != Internal.RtpObserverId)
             {
                 return;
             }
 
             switch (@event)
             {
-                case "dominantspeaker":
+                case Event.ACTIVESPEAKEROBSERVER_DOMINANT_SPEAKER:
                 {
-                    var notification = JsonSerializer.Deserialize<ActiveSpeakerObserverNotificationData>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
+                    var dominantSpeakerNotification = notification.BodyAsActiveSpeakerObserver_DominantSpeakerNotification().UnPack();
 
-                    var producer = GetProducerById(notification.ProducerId);
+                    var producer = GetProducerById(dominantSpeakerNotification.ProducerId);
                     if (producer != null)
                     {
                         var dominantSpeaker = new ActiveSpeakerObserverDominantSpeaker
                         {
-                            Producer = await GetProducerById(notification.ProducerId)
+                            Producer = await GetProducerById(dominantSpeakerNotification.ProducerId)
                         };
 
                         Emit("dominantspeaker", dominantSpeaker);

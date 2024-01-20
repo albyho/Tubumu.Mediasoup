@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpStream
 {
@@ -169,68 +168,6 @@ namespace FBS.RtpStream
               _o.RtxSsrc,
               _o.RtxPacketsDiscarded,
               _o.RoundTripTime);
-        }
-    }
-
-    public class BaseStatsT
-    {
-        [JsonPropertyName("timestamp")]
-        public ulong Timestamp { get; set; }
-        [JsonPropertyName("ssrc")]
-        public uint Ssrc { get; set; }
-        [JsonPropertyName("kind")]
-        public FBS.RtpParameters.MediaKind Kind { get; set; }
-        [JsonPropertyName("mime_type")]
-        public string MimeType { get; set; }
-        [JsonPropertyName("packets_lost")]
-        public ulong PacketsLost { get; set; }
-        [JsonPropertyName("fraction_lost")]
-        public byte FractionLost { get; set; }
-        [JsonPropertyName("packets_discarded")]
-        public ulong PacketsDiscarded { get; set; }
-        [JsonPropertyName("packets_retransmitted")]
-        public ulong PacketsRetransmitted { get; set; }
-        [JsonPropertyName("packets_repaired")]
-        public ulong PacketsRepaired { get; set; }
-        [JsonPropertyName("nack_count")]
-        public ulong NackCount { get; set; }
-        [JsonPropertyName("nack_packet_count")]
-        public ulong NackPacketCount { get; set; }
-        [JsonPropertyName("pli_count")]
-        public ulong PliCount { get; set; }
-        [JsonPropertyName("fir_count")]
-        public ulong FirCount { get; set; }
-        [JsonPropertyName("score")]
-        public byte Score { get; set; }
-        [JsonPropertyName("rid")]
-        public string Rid { get; set; }
-        [JsonPropertyName("rtx_ssrc")]
-        public uint? RtxSsrc { get; set; }
-        [JsonPropertyName("rtx_packets_discarded")]
-        public ulong RtxPacketsDiscarded { get; set; }
-        [JsonPropertyName("round_trip_time")]
-        public float RoundTripTime { get; set; }
-
-        public BaseStatsT()
-        {
-            this.Timestamp = 0;
-            this.Ssrc = 0;
-            this.Kind = FBS.RtpParameters.MediaKind.AUDIO;
-            this.MimeType = null;
-            this.PacketsLost = 0;
-            this.FractionLost = 0;
-            this.PacketsDiscarded = 0;
-            this.PacketsRetransmitted = 0;
-            this.PacketsRepaired = 0;
-            this.NackCount = 0;
-            this.NackPacketCount = 0;
-            this.PliCount = 0;
-            this.FirCount = 0;
-            this.Score = 0;
-            this.Rid = null;
-            this.RtxSsrc = null;
-            this.RtxPacketsDiscarded = 0;
-            this.RoundTripTime = 0.0f;
         }
     }
 }

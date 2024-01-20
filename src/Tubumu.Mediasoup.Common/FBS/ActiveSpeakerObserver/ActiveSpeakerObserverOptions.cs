@@ -53,15 +53,4 @@ namespace FBS.ActiveSpeakerObserver
               _o.Interval);
         }
     }
-
-    public class ActiveSpeakerObserverOptionsT
-    {
-        [JsonPropertyName("interval")]
-        public ushort Interval { get; set; }
-
-        public ActiveSpeakerObserverOptionsT()
-        {
-            this.Interval = 0;
-        }
-    }
 }

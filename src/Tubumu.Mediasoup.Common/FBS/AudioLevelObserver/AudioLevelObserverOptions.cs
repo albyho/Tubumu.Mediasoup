@@ -65,21 +65,4 @@ namespace FBS.AudioLevelObserver
               _o.Interval);
         }
     }
-
-    public class AudioLevelObserverOptionsT
-    {
-        [JsonPropertyName("max_entries")]
-        public ushort MaxEntries { get; set; }
-        [JsonPropertyName("threshold")]
-        public sbyte Threshold { get; set; }
-        [JsonPropertyName("interval")]
-        public ushort Interval { get; set; }
-
-        public AudioLevelObserverOptionsT()
-        {
-            this.MaxEntries = 0;
-            this.Threshold = 0;
-            this.Interval = 0;
-        }
-    }
 }

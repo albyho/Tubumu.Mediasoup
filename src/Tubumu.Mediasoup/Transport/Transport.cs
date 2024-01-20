@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using FBS.Request;
+using FBS.RtpParameters;
 using FBS.SctpParameters;
 using FBS.Transport;
 using Force.DeepCloner;
@@ -263,7 +264,6 @@ namespace Tubumu.Mediasoup
 
                 // Remove notification subscriptions.
                 //_channel.OnNotification -= OnNotificationHandle;
-                //_payloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 await CloseIternalAsync(false);
 
@@ -386,11 +386,10 @@ namespace Tubumu.Mediasoup
 
                 Closed = true;
 
-                _logger.LogDebug($"ListenServerClosedAsync() | Transport:{TransportId}");
+                _logger.LogDebug("ListenServerClosedAsync() | Transport:{TransportId}", TransportId);
 
                 // Remove notification subscriptions.
                 //_channel.OnNotification -= OnNotificationHandle;
-                //_payloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 await CloseIternalAsync(false);
 
@@ -528,7 +527,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public virtual async Task<Producer> ProduceAsync(ProducerOptions producerOptions)
         {
-            _logger.LogDebug($"ProduceAsync() | Transport:{TransportId}");
+            _logger.LogDebug("ProduceAsync() | Transport:{TransportId}", TransportId);
 
             if(!producerOptions.Id.IsNullOrWhiteSpace() && Producers.ContainsKey(producerOptions.Id!))
             {
@@ -549,10 +548,10 @@ namespace Tubumu.Mediasoup
                 // 在 mediasoup-worker 中，要求 Encodings 至少要有一个元素。
                 if(producerOptions.RtpParameters.Encodings.IsNullOrEmpty())
                 {
-                    producerOptions.RtpParameters.Encodings = new List<RtpEncodingParameters>
+                    producerOptions.RtpParameters.Encodings = new List<RtpEncodingParametersT>
                     {
                         // 对 RtpEncodingParameters 序列化时，Rid、CodecPayloadType 和 Rtx 为 null 会忽略，因为客户端库对其有校验。
-                        new RtpEncodingParameters()
+                        new ()
                     };
                 }
 
@@ -565,8 +564,7 @@ namespace Tubumu.Mediasoup
                     // Transport, take it.
                     if(
                         _cnameForProducers.IsNullOrWhiteSpace()
-                        && producerOptions.RtpParameters.Rtcp != null
-                        && !producerOptions.RtpParameters.Rtcp.CNAME.IsNullOrWhiteSpace()
+                        && producerOptions.RtpParameters.Rtcp?.CNAME.IsNullOrWhiteSpace() == false
                     )
                     {
                         _cnameForProducers = producerOptions.RtpParameters.Rtcp.CNAME;
@@ -580,7 +578,7 @@ namespace Tubumu.Mediasoup
 
                     // Override Producer's CNAME.
                     // 对 RtcpParameters 序列化时，CNAME 和 ReducedSize 为 null 会忽略，因为客户端库对其有校验。
-                    producerOptions.RtpParameters.Rtcp = producerOptions.RtpParameters.Rtcp ?? new RtcpParameters();
+                    producerOptions.RtpParameters.Rtcp ??= new();
                     producerOptions.RtpParameters.Rtcp.CNAME = _cnameForProducers;
                 }
 
@@ -692,7 +690,7 @@ namespace Tubumu.Mediasoup
                 throw new ArgumentNullException(nameof(consumerOptions.RtpCapabilities));
             }
 
-            if(consumerOptions.Mid != null && consumerOptions.Mid.IsNullOrWhiteSpace())
+            if(consumerOptions.Mid.IsNullOrWhiteSpace())
             {
                 throw new ArgumentException($"{nameof(consumerOptions.Mid)} can't be null or white space.");
             }

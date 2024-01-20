@@ -34,6 +34,19 @@ namespace Tubumu.Mediasoup
         public int? MaxRetransmits { get; set; }
 
         /// <summary>
+        /// Whether the data consumer must start in paused mode. Default false.
+        /// </summary>
+        /// <value></value>
+        public bool Paused { get; set; }
+
+        /**
+		 * Subchannels this data consumer initially subscribes to.
+		 * Only used in case this data consumer receives messages from a local data
+		 * producer that specifies subchannel(s) when calling send().
+		 */
+        public ushort[]? Subchannels { get; set; }
+
+        /// <summary>
         /// Custom application data.
         /// </summary>
         public Dictionary<string, object>? AppData { get; set; }

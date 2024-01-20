@@ -1,12 +1,15 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.SrtpParameters;
+using FBS.Transport;
+
+namespace Tubumu.Mediasoup
 {
     public class PipeTransportData : TransportBaseData
 	{
-        public TransportTuple Tuple { get; set; }
+        public TupleT Tuple { get; set; }
 
         public bool Rtx { get; set; }
 
-        public SrtpParameters? SrtpParameters { get; set; }
+        public SrtpParametersT? SrtpParameters { get; set; }
     }
 }
 

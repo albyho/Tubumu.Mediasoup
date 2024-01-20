@@ -93,27 +93,4 @@ namespace FBS.Transport
               _o.Protocol);
         }
     }
-
-    public class TupleT
-    {
-        [JsonPropertyName("local_ip")]
-        public string LocalIp { get; set; }
-        [JsonPropertyName("local_port")]
-        public ushort LocalPort { get; set; }
-        [JsonPropertyName("remote_ip")]
-        public string RemoteIp { get; set; }
-        [JsonPropertyName("remote_port")]
-        public ushort RemotePort { get; set; }
-        [JsonPropertyName("protocol")]
-        public FBS.Transport.Protocol Protocol { get; set; }
-
-        public TupleT()
-        {
-            this.LocalIp = null;
-            this.LocalPort = 0;
-            this.RemoteIp = null;
-            this.RemotePort = 0;
-            this.Protocol = FBS.Transport.Protocol.UDP;
-        }
-    }
 }

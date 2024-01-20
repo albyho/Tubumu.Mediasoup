@@ -15,16 +15,16 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// The value that goes in the RTP Payload Type Field. Must be unique.
         /// </summary>
-        public int PayloadType { get; set; }
+        public byte PayloadType { get; set; }
 
         /// <summary>
         /// Transport layer and codec-specific feedback messages for this codec.
         /// </summary>
-        public RtcpFeedbackT[]? RtcpFeedback { get; set; }
+        public List<RtcpFeedbackT>? RtcpFeedback { get; set; }
 
         public bool Equals(RtpCodecParameters? other)
         {
-            if (other == null)
+            if(other == null)
             {
                 return false;
             }
@@ -32,24 +32,24 @@ namespace Tubumu.Mediasoup
             var result = (MimeType == other.MimeType)
                 && (PayloadType == other.PayloadType)
                 && (ClockRate == other.ClockRate);
-            if (result)
+            if(result)
             {
-                if (Channels.HasValue && other.Channels.HasValue)
+                if(Channels.HasValue && other.Channels.HasValue)
                 {
                     result = Channels == other.Channels;
                 }
-                else if ((Channels.HasValue && !other.Channels.HasValue) || (!Channels.HasValue && other.Channels.HasValue))
+                else if(Channels.HasValue ^ other.Channels.HasValue)
                 {
                     result = false;
                 }
             }
-            if (result)
+            if(result)
             {
-                if (Parameters != null && other.Parameters != null)
+                if(Parameters != null && other.Parameters != null)
                 {
                     result = Parameters.DeepEquals(other.Parameters);
                 }
-                else if ((Parameters == null && other.Parameters != null) || (Parameters != null && other.Parameters == null))
+                else if((Parameters == null && other.Parameters != null) || (Parameters != null && other.Parameters == null))
                 {
                     result = false;
                 }
@@ -60,9 +60,9 @@ namespace Tubumu.Mediasoup
 
         public override bool Equals(object? other)
         {
-            if (other is RtpCodecParameters)
+            if(other is RtpCodecParameters rtpCodecParameters)
             {
-                return Equals((RtpCodecParameters)other);
+                return Equals(rtpCodecParameters);
             }
             else
             {
@@ -73,7 +73,7 @@ namespace Tubumu.Mediasoup
         public override int GetHashCode()
         {
             var result = MimeType.GetHashCode() ^ PayloadType.GetHashCode() ^ ClockRate.GetHashCode();
-            if (Parameters != null)
+            if(Parameters != null)
             {
                 result = Parameters.DeepGetHashCode() ^ result;
             }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.Notification;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -45,57 +46,54 @@ namespace Tubumu.Mediasoup
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
-        protected override async void OnNotificationHandle(string targetId, string @event, string? data)
+        protected override async void OnNotificationHandle(string handlerId, Event @event, Notification data)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            if (targetId != Internal.RtpObserverId)
+            if(handlerId != Internal.RtpObserverId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
-                case "volumes":
-                {
-                    var notification = JsonSerializer.Deserialize<AudioLevelObserverVolumeNotificationData[]>(
-                        data!,
-                        ObjectExtensions.DefaultJsonSerializerOptions
-                    )!;
-
-                    var volumes = new List<AudioLevelObserverVolume>();
-                    foreach (var item in notification)
+                case Event.AUDIOLEVELOBSERVER_VOLUMES:
                     {
-                        var producer = await GetProducerById(item.ProducerId);
-                        if (producer != null)
+                        var volumesNotification = data.BodyAsAudioLevelObserver_VolumesNotification().UnPack();
+
+                        var volumes = new List<AudioLevelObserverVolume>();
+                        foreach(var item in volumesNotification.Volumes)
                         {
-                            volumes.Add(new AudioLevelObserverVolume { Producer = producer, Volume = item.Volume, });
+                            var producer = await GetProducerById(item.ProducerId);
+                            if(producer != null)
+                            {
+                                volumes.Add(new AudioLevelObserverVolume { Producer = producer, Volume = item.Volume_, });
+                            }
                         }
-                    }
 
-                    if (volumes.Count > 0)
+                        if(volumes.Count > 0)
+                        {
+                            Emit("volumes", volumes);
+
+                            // Emit observer event.
+                            Observer.Emit("volumes", volumes);
+                        }
+
+                        break;
+                    }
+                case Event.AUDIOLEVELOBSERVER_SILENCE:
                     {
-                        Emit("volumes", volumes);
+                        Emit("silence");
 
                         // Emit observer event.
-                        Observer.Emit("volumes", volumes);
+                        Observer.Emit("silence");
+
+                        break;
                     }
-
-                    break;
-                }
-                case "silence":
-                {
-                    Emit("silence");
-
-                    // Emit observer event.
-                    Observer.Emit("silence");
-
-                    break;
-                }
                 default:
-                {
-                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
-                    break;
-                }
+                    {
+                        _logger.LogError("OnNotificationHandle() | Ignoring unknown event: {@event}", @event);
+                        break;
+                    }
             }
         }
     }

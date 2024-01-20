@@ -72,15 +72,4 @@ namespace FBS.WebRtcTransport
               _listen_infos);
         }
     }
-
-    public class ListenIndividualT
-    {
-        [JsonPropertyName("listen_infos")]
-        public List<FBS.Transport.ListenInfoT> ListenInfos { get; set; }
-
-        public ListenIndividualT()
-        {
-            this.ListenInfos = null;
-        }
-    }
 }

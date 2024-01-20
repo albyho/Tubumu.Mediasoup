@@ -91,13 +91,12 @@ namespace FBS.Transport
 
     public class TraceNotificationT
     {
-        [JsonPropertyName("type")]
         public FBS.Transport.TraceEventType Type { get; set; }
-        [JsonPropertyName("timestamp")]
+
         public ulong Timestamp { get; set; }
-        [JsonPropertyName("direction")]
+
         public FBS.Common.TraceDirection Direction { get; set; }
-        [JsonPropertyName("info_type")]
+
         private FBS.Transport.TraceInfo InfoType
         {
             get
@@ -110,8 +109,7 @@ namespace FBS.Transport
                 this.Info.Type = value;
             }
         }
-        [JsonPropertyName("info")]
-        [JsonConverter(typeof(FBS.Transport.TransportTraceInfoUnionJsonConverter))]
+
         public FBS.Transport.TraceInfoUnion Info { get; set; }
     }
 }

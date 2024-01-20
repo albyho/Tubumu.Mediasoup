@@ -1,4 +1,5 @@
 ﻿using FBS.SctpAssociation;
+using FBS.Transport;
 using FBS.WebRtcTransport;
 
 namespace Tubumu.Mediasoup
@@ -32,7 +33,7 @@ namespace Tubumu.Mediasoup
 
     public class TransportIceSelectedTupleChangeNotificationData
     {
-        public TransportTuple IceSelectedTuple { get; set; }
+        public TupleT IceSelectedTuple { get; set; }
     }
 
     public class TransportDtlsStateChangeNotificationData
@@ -49,11 +50,11 @@ namespace Tubumu.Mediasoup
 
     public class PlainTransportTupleNotificationData
     {
-        public TransportTuple Tuple { get; set; }
+        public TupleT Tuple { get; set; }
     }
 
     public class PlainTransportRtcpTupleNotificationData
     {
-        public TransportTuple RtcpTuple { get; set; }
+        public TupleT RtcpTuple { get; set; }
     }
 }

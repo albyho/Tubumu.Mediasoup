@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FBS.Transport;
 
 namespace Tubumu.Mediasoup
 {
@@ -7,7 +8,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Listen infos.
         /// </summary>
-        public TransportListenInfo[] ListenInfos { get; set; }
+        public ListenInfoT[] ListenInfos { get; set; }
 
         /// <summary>
         /// Custom application data.

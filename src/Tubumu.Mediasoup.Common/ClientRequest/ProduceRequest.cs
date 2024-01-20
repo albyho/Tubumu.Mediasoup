@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using FBS.RtpParameters;
 
 namespace Tubumu.Mediasoup
 {
     public class ProduceRequest
     {
-        public FBS.RtpParameters.MediaKind Kind { get; set; }
+        public MediaKind Kind { get; set; }
 
-        public FBS.RtpParameters.RtpParametersT RtpParameters { get; set; }
+        public RtpParametersT RtpParameters { get; set; }
 
         public string Source { get; set; }
 

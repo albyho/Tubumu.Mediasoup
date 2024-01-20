@@ -106,33 +106,4 @@ namespace FBS.WebRtcTransport
               _o.TcpType);
         }
     }
-
-    public class IceCandidateT
-    {
-        [JsonPropertyName("foundation")]
-        public string Foundation { get; set; }
-        [JsonPropertyName("priority")]
-        public uint Priority { get; set; }
-        [JsonPropertyName("ip")]
-        public string Ip { get; set; }
-        [JsonPropertyName("protocol")]
-        public FBS.Transport.Protocol Protocol { get; set; }
-        [JsonPropertyName("port")]
-        public ushort Port { get; set; }
-        [JsonPropertyName("type")]
-        public FBS.WebRtcTransport.IceCandidateType Type { get; set; }
-        [JsonPropertyName("tcp_type")]
-        public FBS.WebRtcTransport.IceCandidateTcpType? TcpType { get; set; }
-
-        public IceCandidateT()
-        {
-            this.Foundation = null;
-            this.Priority = 0;
-            this.Ip = null;
-            this.Protocol = FBS.Transport.Protocol.UDP;
-            this.Port = 0;
-            this.Type = FBS.WebRtcTransport.IceCandidateType.HOST;
-            this.TcpType = null;
-        }
-    }
 }

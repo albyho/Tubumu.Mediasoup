@@ -67,20 +67,4 @@ namespace FBS.WebRtcTransport
               _remote_cert);
         }
     }
-
-    public class DtlsStateChangeNotificationT
-    {
-        [JsonPropertyName("dtls_state")]
-        public FBS.WebRtcTransport.DtlsState DtlsState { get; set; }
-        [JsonPropertyName("remote_cert")]
-        public string RemoteCert { get; set; }
-
-        public DtlsStateChangeNotificationT()
-        {
-            this.DtlsState = FBS.WebRtcTransport.DtlsState.NEW;
-            this.RemoteCert = null;
-        }
-    }
-
-
 }

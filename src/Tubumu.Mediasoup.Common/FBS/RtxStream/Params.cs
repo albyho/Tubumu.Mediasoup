@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtxStream
 {
@@ -105,32 +104,6 @@ namespace FBS.RtxStream
               _o.ClockRate,
               _rrid,
               _cname);
-        }
-    }
-
-    public class ParamsT
-    {
-        [JsonPropertyName("ssrc")]
-        public uint Ssrc { get; set; }
-        [JsonPropertyName("payload_type")]
-        public byte PayloadType { get; set; }
-        [JsonPropertyName("mime_type")]
-        public string MimeType { get; set; }
-        [JsonPropertyName("clock_rate")]
-        public uint ClockRate { get; set; }
-        [JsonPropertyName("rrid")]
-        public string Rrid { get; set; }
-        [JsonPropertyName("cname")]
-        public string Cname { get; set; }
-
-        public ParamsT()
-        {
-            this.Ssrc = 0;
-            this.PayloadType = 0;
-            this.MimeType = null;
-            this.ClockRate = 0;
-            this.Rrid = null;
-            this.Cname = null;
         }
     }
 }

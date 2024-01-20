@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtxStream
 {
@@ -53,17 +52,6 @@ namespace FBS.RtxStream
             return CreateRtxDump(
               builder,
               _params);
-        }
-    }
-
-    public class RtxDumpT
-    {
-        [JsonPropertyName("params")]
-        public FBS.RtxStream.ParamsT Params { get; set; }
-
-        public RtxDumpT()
-        {
-            this.Params = null;
         }
     }
 }

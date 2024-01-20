@@ -67,7 +67,6 @@ namespace Tubumu.Mediasoup
         /// <param name="@internal"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
-        /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         public DataConsumer(
             ILoggerFactory loggerFactory,
@@ -92,11 +91,11 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug($"CloseAsync() | DataConsumer:{DataConsumerId}");
+            _logger.LogDebug("CloseAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -105,7 +104,6 @@ namespace Tubumu.Mediasoup
 
                 // Remove notification subscriptions.
                 _channel.OnNotification -= OnNotificationHandle;
-                _payloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 var reqData = new { DataConsumerId = _internal.DataConsumerId };
 
@@ -128,9 +126,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"TransportClosedAsync() | DataConsumer:{DataConsumerId}");
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -139,7 +137,6 @@ namespace Tubumu.Mediasoup
 
                 // Remove notification subscriptions.
                 _channel.OnNotification -= OnNotificationHandle;
-                _payloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 Emit("transportclose");
 
@@ -155,9 +152,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"DumpAsync() | DataConsumer:{DataConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -173,9 +170,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"GetStatsAsync() | DataConsumer:{DataConsumerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -194,9 +191,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"SetBufferedAmountLowThreshold() | Threshold:{threshold}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -236,22 +233,22 @@ namespace Tubumu.Mediasoup
              * +-------------------------------+----------+
              */
 
-            if (ppid == null)
+            if(ppid == null)
             {
                 ppid = !message.IsNullOrEmpty() ? 51 : 56;
             }
 
             // Ensure we honor PPIDs.
-            if (ppid == 56)
+            if(ppid == 56)
             {
                 message = " ";
             }
 
             var requestData = ppid.Value.ToString();
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -275,22 +272,22 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"SendAsync() | DataConsumer:{DataConsumerId}");
 
-            if (ppid == null)
+            if(ppid == null)
             {
                 ppid = !message.IsNullOrEmpty() ? 53 : 57;
             }
 
             // Ensure we honor PPIDs.
-            if (ppid == 57)
+            if(ppid == 57)
             {
                 message = new byte[1];
             }
 
             var requestData = ppid.Value.ToString();
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -303,9 +300,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetBufferedAmountAsync()");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -320,92 +317,60 @@ namespace Tubumu.Mediasoup
         private void HandleWorkerNotifications()
         {
             _channel.OnNotification += OnNotificationHandle;
-            _payloadChannel.OnNotification += OnPayloadChannelMessage;
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
         private async void OnNotificationHandle(string targetId, string @event, string? data)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            if (targetId != DataConsumerId)
+            if(targetId != DataConsumerId)
             {
                 return;
             }
 
-            switch (@event)
+            switch(@event)
             {
                 case "dataproducerclose":
-                {
-                    using (await _closeLock.WriteLockAsync())
                     {
-                        if (_closed)
+                        using(await _closeLock.WriteLockAsync())
                         {
-                            break;
+                            if(_closed)
+                            {
+                                break;
+                            }
+
+                            _closed = true;
+
+                            // Remove notification subscriptions.
+                            _channel.OnNotification -= OnNotificationHandle;
+
+                            Emit("@dataproducerclose");
+                            Emit("dataproducerclose");
+
+                            // Emit observer event.
+                            Observer.Emit("close");
                         }
-
-                        _closed = true;
-
-                        // Remove notification subscriptions.
-                        _channel.OnNotification -= OnNotificationHandle;
-                        _payloadChannel.OnNotification -= OnPayloadChannelMessage;
-
-                        Emit("@dataproducerclose");
-                        Emit("dataproducerclose");
-
-                        // Emit observer event.
-                        Observer.Emit("close");
+                        break;
                     }
-                    break;
-                }
                 case "sctpsendbufferfull":
-                {
-                    Emit("sctpsendbufferfull");
+                    {
+                        Emit("sctpsendbufferfull");
 
-                    break;
-                }
+                        break;
+                    }
                 case "bufferedamount":
-                {
-                    var bufferedAmount = int.Parse(data!);
+                    {
+                        var bufferedAmount = int.Parse(data!);
 
-                    Emit("bufferedamountlow", bufferedAmount);
+                        Emit("bufferedamountlow", bufferedAmount);
 
-                    break;
-                }
+                        break;
+                    }
                 default:
-                {
-                    _logger.LogError($"OnNotificationHandle() | Ignoring unknown event \"{@event}\" in channel listener");
-                    break;
-                }
-            }
-        }
-
-        private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
-        {
-            if (targetId != DataConsumerId)
-            {
-                return;
-            }
-
-            switch (@event)
-            {
-                case "message":
-                {
-                    var dataJsonDocument = JsonDocument.Parse(data!);
-                    var ppid = dataJsonDocument.RootElement.GetProperty("ppid").GetInt32();
-                    var message = payload;
-
-                    // Emit 暂不支持超过两个参数
-                    Emit("message", new NotifyMessage { Message = message, PPID = ppid });
-
-                    break;
-                }
-                default:
-                {
-                    _logger.LogError(
-                        $"OnPayloadChannelMessage() | Ignoring unknown event \"{@event}\" in payload channel listener"
-                    );
-                    break;
-                }
+                    {
+                        _logger.LogError($"OnNotificationHandle() | Ignoring unknown event \"{@event}\" in channel listener");
+                        break;
+                    }
             }
         }
 

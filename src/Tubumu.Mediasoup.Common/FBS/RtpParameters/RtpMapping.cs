@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -95,20 +94,4 @@ namespace FBS.RtpParameters
               _encodings);
         }
     }
-
-    public class RtpMappingT
-    {
-        [JsonPropertyName("codecs")]
-        public List<FBS.RtpParameters.CodecMappingT> Codecs { get; set; }
-        [JsonPropertyName("encodings")]
-        public List<FBS.RtpParameters.EncodingMappingT> Encodings { get; set; }
-
-        public RtpMappingT()
-        {
-            this.Codecs = null;
-            this.Encodings = null;
-        }
-    }
-
-
 }

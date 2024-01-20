@@ -196,11 +196,7 @@ namespace Tubumu.Mediasoup
                     Ip = m.Ip,
                     AnnouncedIp = m.AnnouncedIp,
                     Port = m.Port ?? 0,
-                    Flags = new SocketFlagsT
-                    {
-                        Ipv6Only = m.Flags?.Ipv6Only ?? false,
-                        UdpReusePort = m.Flags?.UdpReusePort ?? false,
-                    },
+                    Flags = m.Flags,
                     SendBufferSize = m.SendBufferSize ?? 0,
                     RecvBufferSize = m.RecvBufferSize ?? 0
                 }).ToList();

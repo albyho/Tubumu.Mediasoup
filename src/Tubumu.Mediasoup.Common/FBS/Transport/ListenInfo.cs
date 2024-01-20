@@ -107,33 +107,4 @@ namespace FBS.Transport
               _o.RecvBufferSize);
         }
     }
-
-    public class ListenInfoT
-    {
-        [JsonPropertyName("protocol")]
-        public FBS.Transport.Protocol Protocol { get; set; }
-        [JsonPropertyName("ip")]
-        public string Ip { get; set; }
-        [JsonPropertyName("announced_ip")]
-        public string AnnouncedIp { get; set; }
-        [JsonPropertyName("port")]
-        public ushort Port { get; set; }
-        [JsonPropertyName("flags")]
-        public FBS.Transport.SocketFlagsT Flags { get; set; }
-        [JsonPropertyName("send_buffer_size")]
-        public uint SendBufferSize { get; set; }
-        [JsonPropertyName("recv_buffer_size")]
-        public uint RecvBufferSize { get; set; }
-
-        public ListenInfoT()
-        {
-            this.Protocol = FBS.Transport.Protocol.UDP;
-            this.Ip = null;
-            this.AnnouncedIp = null;
-            this.Port = 0;
-            this.Flags = null;
-            this.SendBufferSize = 0;
-            this.RecvBufferSize = 0;
-        }
-    }
 }

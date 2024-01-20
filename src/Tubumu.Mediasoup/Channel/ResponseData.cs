@@ -1,6 +1,7 @@
 ﻿using FBS.Consumer;
 using FBS.SctpParameters;
 using FBS.SrtpParameters;
+using FBS.Transport;
 using FBS.WebRtcTransport;
 
 namespace Tubumu.Mediasoup
@@ -83,16 +84,16 @@ namespace Tubumu.Mediasoup
 
     public class PipeTransportConnectResponseData
     {
-        public TransportTuple Tuple { get; set; }
+        public TupleT Tuple { get; set; }
 
         public SrtpParametersT? SrtpParameters { get; set; }
     }
 
     public class PlainTransportConnectResponseData
     {
-        public TransportTuple Tuple { get; set; }
+        public TupleT Tuple { get; set; }
 
-        public TransportTuple? RtcpTuple { get; set; }
+        public TupleT? RtcpTuple { get; set; }
 
         public SrtpParametersT? SrtpParameters { get; set; }
     }

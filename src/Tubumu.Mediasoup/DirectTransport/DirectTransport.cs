@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using FBS.DirectTransport
+using FBS.DirectTransport;
 
 namespace Tubumu.Mediasoup
 {
@@ -159,7 +159,6 @@ namespace Tubumu.Mediasoup
         private void HandleWorkerNotifications()
         {
             Channel.OnNotification += OnNotificationHandle;
-            PayloadChannel.OnNotification += OnPayloadChannelMessage;
         }
 
         private void OnNotificationHandle(string targetId, string @event, string? data)
@@ -189,30 +188,6 @@ namespace Tubumu.Mediasoup
                 default:
                     {
                         _logger.LogError($"OnNotificationHandle() | DiectTransport:{TransportId} Ignoring unknown event{@event}");
-                        break;
-                    }
-            }
-        }
-
-        private void OnPayloadChannelMessage(string targetId, string @event, string? data, ArraySegment<byte> payload)
-        {
-            if(targetId != Internal.TransportId)
-            {
-                return;
-            }
-
-            switch(@event)
-            {
-                case "rtcp":
-                    {
-                        Emit("rtcp", payload);
-
-                        break;
-                    }
-
-                default:
-                    {
-                        _logger.LogError($"Ignoring unknown event \"{@event}\"");
                         break;
                     }
             }

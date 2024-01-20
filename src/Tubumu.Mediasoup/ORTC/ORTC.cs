@@ -4,19 +4,19 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using FBS.RtpParameters;
-using FBS.SctpParameters;
+using FBS.RtpParameters; // MediaKind, RtcpFeedbackT RtcpParametersT, RtpEncodingParametersT
+using FBS.SctpParameters; // SctpParamerters, NumSctpStreamsT, SctpStreamParametersT
 using Force.DeepCloner;
 
 namespace Tubumu.Mediasoup
 {
     public static class ORTC
     {
-        private static readonly Regex MimeTypeRegex = new(@"^(audio|video)/(.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex MimeTypeRegex = new("^(audio|video)/(.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static readonly Regex RtxMimeTypeRegex = new(@"^.+/rtx$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex RtxMimeTypeRegex = new("^.+/rtx$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public static readonly int[] DynamicPayloadTypes = new[] {
+        public static readonly byte[] DynamicPayloadTypes = new byte[] {
             100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
             111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121,
             122, 123, 124, 125, 126, 127, 96, 97, 98, 99 };
@@ -98,18 +98,18 @@ namespace Tubumu.Mediasoup
 
                 if(!value.IsStringType() && !value.IsNumericType())
                 {
-                    throw new ArgumentOutOfRangeException($"invalid codec parameter[key:{key}, value:{value}]");
+                    throw new ArgumentOutOfRangeException($"invalid codec parameter [key:{key}, value:{value}]");
                 }
 
                 // Specific parameters validation.
                 if(key == "apt" && !value.IsNumericType())
                 {
-                    throw new ArgumentOutOfRangeException("invalid codec apt parameter");
+                    throw new ArgumentOutOfRangeException($"invalid codec apt parameter [key:{key}]");
                 }
             }
 
             // rtcpFeedback is optional. If unset, set it to an empty array.
-            codec.RtcpFeedback ??= Array.Empty<RtcpFeedbackT>();
+            codec.RtcpFeedback ??= new List<RtcpFeedbackT>(0);
 
             foreach(var fb in codec.RtcpFeedback)
             {
@@ -157,19 +157,19 @@ namespace Tubumu.Mediasoup
             // 在 Node.js 实现中，判断了 kind 的值。在强类型语言中不需要。
 
             // uri is mandatory.
-            if(ext.Uri.IsNullOrWhiteSpace())
-            {
-                throw new ArgumentException($"{nameof(ext.Uri)} can't be null or white space.");
-            }
+            // if(ext.Uri.IsNullOrWhiteSpace())
+            // {
+            //     throw new ArgumentException($"{nameof(ext.Uri)} can't be null or white space.");
+            // }
 
             // preferredId is mandatory.
             // 在 Node.js 实现中，判断了 preferredId 的数据类型。在强类型语言中不需要。
 
             // preferredEncrypt is optional. If unset set it to false.
-            if(!ext.PreferredEncrypt.HasValue)
-            {
-                ext.PreferredEncrypt = false;
-            }
+            // if(!ext.PreferredEncrypt.HasValue)
+            // {
+            //     ext.PreferredEncrypt = false;
+            // }
 
             // direction is optional. If unset set it to sendrecv.
             if(!ext.Direction.HasValue)
@@ -195,7 +195,7 @@ namespace Tubumu.Mediasoup
             // codecs is mandatory.
             if(parameters.Codecs == null)
             {
-                throw new ArgumentNullException(nameof(parameters.Codecs));
+                throw new ArgumentNullException($"{nameof(parameters)}.Codecs");
             }
 
             foreach(var codec in parameters.Codecs)
@@ -263,10 +263,7 @@ namespace Tubumu.Mediasoup
             }
 
             // parameters is optional. If unset, set it to an empty object.
-            if(codec.Parameters == null)
-            {
-                codec.Parameters = new Dictionary<string, object>();
-            }
+            codec.Parameters ??= new Dictionary<string, object>();
 
             foreach(var item in codec.Parameters)
             {
@@ -280,17 +277,17 @@ namespace Tubumu.Mediasoup
 
                 if(!value.IsStringType() && !value.IsNumericType())
                 {
-                    throw new ArgumentOutOfRangeException($"invalid codec parameter[key:{key}, value:{value}]");
+                    throw new ArgumentOutOfRangeException($"invalid codec parameter [key:{key}, value:{value}]");
                 }
 
                 if(key == "apt" && !value.IsNumericType())
                 {
-                    throw new ArgumentOutOfRangeException("invalid codec apt parameter");
+                    throw new ArgumentOutOfRangeException($"invalid codec apt parameter [key:{key}]");
                 }
             }
 
             // rtcpFeedback is optional. If unset, set it to an empty array.
-            codec.RtcpFeedback ??= Array.Empty<RtcpFeedback>();
+            codec.RtcpFeedback ??= new List<RtcpFeedbackT>(0);
 
             foreach(var fb in codec.RtcpFeedback)
             {
@@ -310,19 +307,19 @@ namespace Tubumu.Mediasoup
             }
 
             // uri is mandatory.
-            if(ext.Uri.IsNullOrWhiteSpace())
-            {
-                throw new ArgumentException($"{nameof(ext.Uri)} can't be null or white space.");
-            }
+            // if(ext.Uri.IsNullOrWhiteSpace())
+            // {
+            //     throw new ArgumentException($"{nameof(ext.Uri)} can't be null or white space.");
+            // }
 
             // id is mandatory.
             // 在 Node.js 实现中，判断了 id 的数据类型。在强类型语言中不需要。
 
             // encrypt is optional. If unset set it to false.
-            if(!ext.Encrypt.HasValue)
-            {
-                ext.Encrypt = false;
-            }
+            // if(!ext.Encrypt.HasValue)
+            // {
+            //     ext.Encrypt = false;
+            // }
 
             // parameters is optional. If unset, set it to an empty object.
             ext.Parameters ??= new Dictionary<string, object>();
@@ -350,7 +347,7 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
-        public static void ValidateRtpEncodingParameters(RtpEncodingParameters encoding)
+        public static void ValidateRtpEncodingParameters(RtpEncodingParametersT encoding)
         {
             if(encoding == null)
             {
@@ -372,10 +369,11 @@ namespace Tubumu.Mediasoup
             }
 
             // dtx is optional. If unset set it to false.
-            if(!encoding.Dtx.HasValue)
-            {
-                encoding.Dtx = false;
-            }
+            // 在 Node.js 实现中，判断了 Dtx 的数据类型。在强类型语言中不需要。(RtpEncodingParametersT 和 RtpEncodingParameters 不同)
+            // if(!encoding.Dtx.HasValue)
+            // {
+            //     encoding.Dtx = false;
+            // }
 
             // scalabilityMode is optional.
             // 在 Node.js 实现中，判断了 scalabilityMode 的数据类型。在强类型语言中不需要。
@@ -386,7 +384,7 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
-        public static void ValidateRtcpParameters(RtcpParameters rtcp)
+        public static void ValidateRtcpParameters(RtcpParametersT rtcp)
         {
             if(rtcp == null)
             {
@@ -397,10 +395,10 @@ namespace Tubumu.Mediasoup
             // 在 Node.js 实现中，判断了 cname 的数据类型。在强类型语言中不需要。
 
             // reducedSize is optional. If unset set it to true.
-            if(!rtcp.ReducedSize.HasValue)
-            {
-                rtcp.ReducedSize = true;
-            }
+            // if(!rtcp.ReducedSize.HasValue)
+            // {
+            //     rtcp.ReducedSize = true;
+            // }
         }
 
         /// <summary>
@@ -418,7 +416,7 @@ namespace Tubumu.Mediasoup
             // numStreams is mandatory.
             if(caps.NumStreams == null)
             {
-                throw new ArgumentNullException(nameof(caps.NumStreams));
+                throw new ArgumentNullException($"{nameof(caps)}.NumStreams");
             }
 
             ValidateNumSctpStreams(caps.NumStreams);
@@ -429,9 +427,7 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
-#pragma warning disable IDE0060 // Remove unused parameter
-        public static void ValidateNumSctpStreams(NumSctpStreamsT numStreams)
-#pragma warning restore IDE0060 // Remove unused parameter
+        public static void ValidateNumSctpStreams(NumSctpStreamsT _/*numStreams*/)
         {
             // OS is mandatory.
             // 在 Node.js 实现中，判断了 OS 的数据类型。在强类型语言中不需要。
@@ -445,9 +441,7 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
-#pragma warning disable IDE0060 // Remove unused parameter
-        public static void ValidateSctpParameters(SctpParameters parameters)
-#pragma warning restore IDE0060 // Remove unused parameter
+        public static void ValidateSctpParameters(SctpParameters _/*parameters*/)
         {
             // port is mandatory.
             // 在 Node.js 实现中，判断了 port 的数据类型。在强类型语言中不需要。
@@ -467,7 +461,7 @@ namespace Tubumu.Mediasoup
         /// fields with default values.
         /// It throws if invalid.
         /// </summary>
-        public static void ValidateSctpStreamParameters(SctpStreamParameters parameters)
+        public static void ValidateSctpStreamParameters(SctpStreamParametersT parameters)
         {
             if(parameters == null)
             {
@@ -538,12 +532,8 @@ namespace Tubumu.Mediasoup
 
                 var matchedSupportedCodec = clonedSupportedRtpCapabilities
                     .Codecs!
-                    .FirstOrDefault(supportedCodec => MatchCodecs(mediaCodec, supportedCodec, false));
-
-                if(matchedSupportedCodec == null)
-                {
-                    throw new Exception($"media codec not supported[mimeType:{mediaCodec.MimeType}]");
-                }
+                    .FirstOrDefault(supportedCodec => MatchCodecs(mediaCodec, supportedCodec, false))
+                    ?? throw new Exception($"media codec not supported[mimeType:{mediaCodec.MimeType}]");
 
                 // Clone the supported codec.
                 var codec = matchedSupportedCodec.DeepClone();
@@ -584,13 +574,13 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Merge the media codec parameters.
-                codec.Parameters = codec.Parameters.Merge(mediaCodec.Parameters);
+                codec.Parameters = codec.Parameters!.Merge(mediaCodec.Parameters!);
 
                 // Append to the codec list.
                 caps.Codecs.Add(codec);
 
                 // Add a RTX video codec if video.
-                if(codec.Kind == MediaKind.Video)
+                if(codec.Kind == MediaKind.VIDEO)
                 {
                     // Take the first available pt and remove it from the list.
                     var pt = dynamicPayloadTypes.FirstOrDefault();
@@ -612,7 +602,7 @@ namespace Tubumu.Mediasoup
                         {
                             { "apt", codec.PreferredPayloadType}
                         },
-                        RtcpFeedback = Array.Empty<RtcpFeedback>(),
+                        RtcpFeedback = new List<RtcpFeedbackT>(0),
                     };
 
                     // Append to the codec list.
@@ -624,17 +614,18 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
+        /// <para>
         /// Get a mapping in codec payloads and encodings in the given Producer RTP
         /// parameters as values expected by the Router.
-        ///
-        /// It may throw if invalid or non supported RTP parameters are given.
+        /// </para>
+        /// <para>It may throw if invalid or non supported RTP parameters are given.</para>
         /// </summary>
-        public static RtpMapping GetProducerRtpParametersMapping(RtpParameters parameters, RtpCapabilities caps)
+        public static RtpMappingT GetProducerRtpParametersMapping(RtpParameters parameters, RtpCapabilities caps)
         {
-            var rtpMapping = new RtpMapping
+            var rtpMapping = new RtpMappingT
             {
-                Codecs = new List<RtpMappingCodec>(),
-                Encodings = new List<RtpMappingEncoding>()
+                Codecs = new List<CodecMappingT>(),
+                Encodings = new List<EncodingMappingT>()
             };
 
             // Match parameters media codecs to capabilities media codecs.
@@ -663,25 +654,21 @@ namespace Tubumu.Mediasoup
 
                 // Search for the associated media codec.
                 var associatedMediaCodec = parameters.Codecs
-                    .FirstOrDefault(mediaCodec => MatchCodecsWithPayloadTypeAndApt(mediaCodec.PayloadType, codec.Parameters));
-
-                if(associatedMediaCodec == null)
-                {
-                    throw new Exception($"missing media codec found for RTX PT {codec.PayloadType}");
-                }
+                    .FirstOrDefault(mediaCodec => MatchCodecsWithPayloadTypeAndApt(mediaCodec.PayloadType, codec.Parameters!))
+                    ?? throw new Exception($"missing media codec found for RTX PT {codec.PayloadType}");
 
                 var capMediaCodec = codecToCapCodec[associatedMediaCodec];
 
                 // Ensure that the capabilities media codec has a RTX codec.
                 var associatedCapRtxCodec = caps.Codecs!
-                    .FirstOrDefault(capCodec => IsRtxMimeType(capCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(capMediaCodec.PreferredPayloadType, capCodec.Parameters));
+                    .FirstOrDefault(capCodec => IsRtxMimeType(capCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(capMediaCodec.PreferredPayloadType, capCodec.Parameters!));
                 codecToCapCodec[codec] = associatedCapRtxCodec ?? throw new Exception($"no RTX codec for capability codec PT {capMediaCodec.PreferredPayloadType}");
             }
 
             // Generate codecs mapping.
             foreach(var item in codecToCapCodec)
             {
-                rtpMapping.Codecs.Add(new RtpMappingCodec
+                rtpMapping.Codecs.Add(new CodecMappingT
                 {
                     PayloadType = item.Key.PayloadType,
                     MappedPayloadType = item.Value.PreferredPayloadType!.Value,
@@ -693,7 +680,7 @@ namespace Tubumu.Mediasoup
 
             foreach(var encoding in parameters.Encodings!)
             {
-                var mappedEncoding = new RtpMappingEncoding
+                var mappedEncoding = new EncodingMappingT
                 {
                     MappedSsrc = mappedSsrc++,
                     Rid = encoding.Rid,
@@ -711,14 +698,14 @@ namespace Tubumu.Mediasoup
         /// Generate RTP parameters to be internally used by Consumers given the RTP
         /// parameters in a Producer and the RTP capabilities in the Router.
         /// </summary>
-        public static RtpParameters GetConsumableRtpParameters(FBS.RtpParameters.MediaKind kind, RtpParameters parameters, RtpCapabilities caps, RtpMapping rtpMapping)
+        public static RtpParameters GetConsumableRtpParameters(MediaKind kind, RtpParameters parameters, RtpCapabilities caps, RtpMappingT rtpMapping)
         {
             var consumableParams = new RtpParameters
             {
                 Codecs = new List<RtpCodecParameters>(),
                 HeaderExtensions = new List<RtpHeaderExtensionParameters>(),
-                Encodings = new List<RtpEncodingParameters>(),
-                Rtcp = new RtcpParameters(),
+                Encodings = new List<RtpEncodingParametersT>(),
+                Rtcp = new RtcpParametersT(),
             };
 
             foreach(var codec in parameters.Codecs)
@@ -749,7 +736,7 @@ namespace Tubumu.Mediasoup
                 consumableParams.Codecs.Add(consumableCodec);
 
                 var consumableCapRtxCodec = caps.Codecs!
-                    .FirstOrDefault(capRtxCodec => IsRtxMimeType(capRtxCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(consumableCodec.PayloadType, capRtxCodec.Parameters));
+                    .FirstOrDefault(capRtxCodec => IsRtxMimeType(capRtxCodec.MimeType) && MatchCodecsWithPayloadTypeAndApt(consumableCodec.PayloadType, capRtxCodec.Parameters!));
 
                 if(consumableCapRtxCodec != null)
                 {
@@ -806,11 +793,10 @@ namespace Tubumu.Mediasoup
                 consumableParams.Encodings.Add(consumableEncoding);
             }
 
-            consumableParams.Rtcp = new RtcpParameters
+            consumableParams.Rtcp = new RtcpParametersT
             {
                 CNAME = parameters.Rtcp!.CNAME,
                 ReducedSize = true,
-                Mux = true,
             };
 
             return consumableParams;
@@ -844,11 +830,12 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
-        /// Generate RTP parameters for a specific Consumer.
-        ///
+        /// <para>Generate RTP parameters for a specific Consumer.</para>
+        /// <para>
         /// It reduces encodings to just one and takes into account given RTP capabilities
         /// to reduce codecs, codecs' RTCP feedback and header extensions, and also enables
         /// or disabled RTX.
+        /// </para>
         /// </summary>
         public static RtpParameters GetConsumerRtpParameters(RtpParameters consumableParams, RtpCapabilities caps, bool pipe)
         {
@@ -856,7 +843,7 @@ namespace Tubumu.Mediasoup
             {
                 Codecs = new List<RtpCodecParameters>(),
                 HeaderExtensions = new List<RtpHeaderExtensionParameters>(),
-                Encodings = new List<RtpEncodingParameters>(),
+                Encodings = new List<RtpEncodingParametersT>(),
                 Rtcp = consumableParams.Rtcp
             };
 
@@ -890,7 +877,7 @@ namespace Tubumu.Mediasoup
             {
                 if(IsRtxMimeType(codec.MimeType))
                 {
-                    if(!codec.Parameters.TryGetValue("apt", out var apt))
+                    if(!codec.Parameters!.TryGetValue("apt", out var apt))
                     {
                         throw new Exception("\"apt\" key is not exists.");
                     }
@@ -927,25 +914,25 @@ namespace Tubumu.Mediasoup
                 ).ToList();
 
             // Reduce codecs' RTCP feedback. Use Transport-CC if available, REMB otherwise.
-            if(consumerParams.HeaderExtensions.Any(ext => ext.Uri == "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"))
+            if(consumerParams.HeaderExtensions.Any(ext => ext.Uri == RtpHeaderExtensionUri.TransportWideCcDraft01))
             {
                 foreach(var codec in consumerParams.Codecs)
                 {
-                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type != "goog-remb").ToArray();
+                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type != "goog-remb").ToList();
                 }
             }
-            else if(consumerParams.HeaderExtensions.Any(ext => ext.Uri == "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time"))
+            else if(consumerParams.HeaderExtensions.Any(ext => ext.Uri == RtpHeaderExtensionUri.AbsSendTime))
             {
                 foreach(var codec in consumerParams.Codecs)
                 {
-                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type != "transport-cc").ToArray();
+                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type != "transport-cc").ToList();
                 }
             }
             else
             {
                 foreach(var codec in consumerParams.Codecs)
                 {
-                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type is not "transport-cc" and not "goog-remb").ToArray();
+                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type is not "transport-cc" and not "goog-remb").ToList();
                 }
             }
 
@@ -958,7 +945,7 @@ namespace Tubumu.Mediasoup
 
                 if(rtxSupported)
                 {
-                    consumerEncoding.Rtx = new Rtx { Ssrc = consumerEncoding.Ssrc + 1 };
+                    consumerEncoding.Rtx = new RtxT { Ssrc = consumerEncoding.Ssrc.Value + 1 };
                 }
 
                 // If any in the consumableParams.Encodings has scalabilityMode, process it
@@ -983,7 +970,7 @@ namespace Tubumu.Mediasoup
                 // Use the maximum maxBitrate in any encoding and honor it in the Consumer's
                 // encoding.
                 var maxEncodingMaxBitrate = consumableParams.Encodings.Max(m => m.MaxBitrate);
-                if(maxEncodingMaxBitrate.HasValue && maxEncodingMaxBitrate.Value > 0)
+                if(maxEncodingMaxBitrate > 0)
                 {
                     consumerEncoding.MaxBitrate = maxEncodingMaxBitrate;
                 }
@@ -1001,7 +988,7 @@ namespace Tubumu.Mediasoup
                 {
                     var encoding = consumableEncodings[i];
                     encoding.Ssrc = baseSsrc + (uint)i;
-                    encoding.Rtx = rtxSupported ? new Rtx { Ssrc = baseRtxSsrc + (uint)i } : null;
+                    encoding.Rtx = rtxSupported ? new RtxT { Ssrc = baseRtxSsrc + (uint)i } : null;
 
                     consumerParams.Encodings!.Add(encoding);
                 }
@@ -1011,10 +998,11 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
-        /// Generate RTP parameters for a pipe Consumer.
-        ///
+        /// <para>Generate RTP parameters for a pipe Consumer.</para>
+        /// <para>
         /// It keeps all original consumable encodings and removes support for BWE. If
         /// enableRtx is false, it also removes RTX and NACK support.
+        /// </para>
         /// </summary>
         public static RtpParameters GetPipeConsumerRtpParameters(RtpParameters consumableParams, bool enableRtx = false)
         {
@@ -1022,7 +1010,7 @@ namespace Tubumu.Mediasoup
             {
                 Codecs = new List<RtpCodecParameters>(),
                 HeaderExtensions = new List<RtpHeaderExtensionParameters>(),
-                Encodings = new List<RtpEncodingParameters>(),
+                Encodings = new List<RtpEncodingParametersT>(),
                 Rtcp = consumableParams.Rtcp
             };
 
@@ -1040,17 +1028,16 @@ namespace Tubumu.Mediasoup
                         (fb.Type == "nack" && fb.Parameter == "pli") ||
                         (fb.Type == "ccm" && fb.Parameter == "fir") ||
                         (enableRtx && fb.Type == "nack" && fb.Parameter.IsNullOrWhiteSpace())
-                    ).ToArray();
+                    ).ToList();
 
                 consumerParams.Codecs.Add(codec);
             }
 
             // Reduce RTP extensions by disabling transport MID and BWE related ones.
             consumerParams.HeaderExtensions = consumableParams.HeaderExtensions!
-                .Where(ext => ext.Uri is not "urn:ietf:parameters:rtp-hdrext:sdes:mid" and
-                                not "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time" and
-                                not "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01"
-                                ).ToList();
+                .Where(ext => ext.Uri != RtpHeaderExtensionUri.Mid &&
+                ext.Uri != RtpHeaderExtensionUri.AbsSendTime &&
+                ext.Uri != RtpHeaderExtensionUri.TransportWideCcDraft01).ToList();
 
             var consumableEncodings = consumableParams.Encodings!.DeepClone();
 
@@ -1064,7 +1051,7 @@ namespace Tubumu.Mediasoup
 
                 if(enableRtx)
                 {
-                    encoding.Rtx = new Rtx { Ssrc = (uint)(baseRtxSsrc + i) };
+                    encoding.Rtx = new RtxT { Ssrc = (uint)(baseRtxSsrc + i) };
                 }
                 else
                 {
@@ -1077,8 +1064,6 @@ namespace Tubumu.Mediasoup
 
             return consumerParams;
         }
-
-        #region Private Methods
 
         private static bool IsRtxMimeType(string mimeType)
         {
@@ -1104,7 +1089,7 @@ namespace Tubumu.Mediasoup
                     return false;
                 }
                 // 其中之一存在
-                else if((got1 && !got2) || (!got1 && got2))
+                else if(got1 ^ got2)
                 {
                     return false;
                 }
@@ -1146,8 +1131,8 @@ namespace Tubumu.Mediasoup
             {
                 case "audio/multiopus":
                     {
-                        var aNumStreams = aCodec.Parameters["num_streams"];
-                        var bNumStreams = bCodec.Parameters["num_streams"];
+                        var aNumStreams = aCodec.Parameters!["num_streams"];
+                        var bNumStreams = bCodec.Parameters!["num_streams"];
 
                         if(aNumStreams != bNumStreams)
                         {
@@ -1170,12 +1155,12 @@ namespace Tubumu.Mediasoup
                         // If strict matching check profile-level-id.
                         if(strict)
                         {
-                            if(!CheckDirectoryValueEquals(aCodec.Parameters, aCodec.Parameters, "packetization-mode"))
+                            if(!CheckDirectoryValueEquals(aCodec.Parameters!, aCodec.Parameters!, "packetization-mode"))
                             {
                                 return false;
                             }
 
-                            if(!H264ProfileLevelId.IsSameProfile(aCodec.Parameters, bCodec.Parameters))
+                            if(!H264ProfileLevelId.Utils.IsSameProfile(aCodec.Parameters!, bCodec.Parameters!))
                             {
                                 return false;
                             }
@@ -1184,7 +1169,7 @@ namespace Tubumu.Mediasoup
 
                             try
                             {
-                                selectedProfileLevelId = H264ProfileLevelId.GenerateProfileLevelIdForAnswer(aCodec.Parameters, bCodec.Parameters);
+                                selectedProfileLevelId = H264ProfileLevelId.Utils.GenerateProfileLevelIdForAnswer(aCodec.Parameters!, bCodec.Parameters!);
                             }
                             catch(Exception ex)
                             {
@@ -1196,11 +1181,11 @@ namespace Tubumu.Mediasoup
                             {
                                 if(!selectedProfileLevelId.IsNullOrWhiteSpace())
                                 {
-                                    aCodec.Parameters["profile-level-id"] = selectedProfileLevelId!;
+                                    aCodec.Parameters!["profile-level-id"] = selectedProfileLevelId!;
                                 }
                                 else
                                 {
-                                    aCodec.Parameters.Remove("profile-level-id");
+                                    aCodec.Parameters!.Remove("profile-level-id");
                                 }
                             }
                         }
@@ -1211,7 +1196,7 @@ namespace Tubumu.Mediasoup
                     {
                         if(strict)
                         {
-                            if(!CheckDirectoryValueEquals(aCodec.Parameters, aCodec.Parameters, "profile-id"))
+                            if(!CheckDirectoryValueEquals(aCodec.Parameters!, aCodec.Parameters!, "profile-id"))
                             {
                                 return false;
                             }
@@ -1249,7 +1234,5 @@ namespace Tubumu.Mediasoup
 
             return payloadType == aptInteger;
         }
-
-        #endregion Private Methods
     }
 }

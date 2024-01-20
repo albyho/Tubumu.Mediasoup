@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -57,20 +56,6 @@ namespace FBS.RtpParameters
               builder,
               _o.PayloadType,
               _o.MappedPayloadType);
-        }
-    }
-
-    public class CodecMappingT
-    {
-        [JsonPropertyName("payload_type")]
-        public byte PayloadType { get; set; }
-        [JsonPropertyName("mapped_payload_type")]
-        public byte MappedPayloadType { get; set; }
-
-        public CodecMappingT()
-        {
-            this.PayloadType = 0;
-            this.MappedPayloadType = 0;
         }
     }
 }

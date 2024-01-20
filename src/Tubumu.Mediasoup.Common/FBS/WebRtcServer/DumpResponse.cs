@@ -178,30 +178,4 @@ namespace FBS.WebRtcServer
               _tuple_hashes);
         }
     }
-
-    public class DumpResponseT
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-        [JsonPropertyName("udp_sockets")]
-        public List<FBS.WebRtcServer.IpPortT> UdpSockets { get; set; }
-        [JsonPropertyName("tcp_servers")]
-        public List<FBS.WebRtcServer.IpPortT> TcpServers { get; set; }
-        [JsonPropertyName("web_rtc_transport_ids")]
-        public List<string> WebRtcTransportIds { get; set; }
-        [JsonPropertyName("local_ice_username_fragments")]
-        public List<FBS.WebRtcServer.IceUserNameFragmentT> LocalIceUsernameFragments { get; set; }
-        [JsonPropertyName("tuple_hashes")]
-        public List<FBS.WebRtcServer.TupleHashT> TupleHashes { get; set; }
-
-        public DumpResponseT()
-        {
-            this.Id = null;
-            this.UdpSockets = null;
-            this.TcpServers = null;
-            this.WebRtcTransportIds = null;
-            this.LocalIceUsernameFragments = null;
-            this.TupleHashes = null;
-        }
-    }
 }

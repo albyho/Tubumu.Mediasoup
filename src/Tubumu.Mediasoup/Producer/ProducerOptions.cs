@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FBS.RtpParameters;
 
 namespace Tubumu.Mediasoup
 {
@@ -22,13 +23,13 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Whether the producer must start in paused mode. Default false.
         /// </summary>
-        public bool? Paused { get; set; } = false;
+        public bool Paused { get; set; }
 
         /// <summary>
         /// Just for video. Time (in ms) before asking the sender for a new key frame
         /// after having asked a previous one. Default 0.
         /// </summary>
-        public int? KeyFrameRequestDelay { get; set; } = 0;
+        public int KeyFrameRequestDelay { get; set; }
 
         /// <summary>
         /// Custom application data.

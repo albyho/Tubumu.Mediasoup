@@ -84,23 +84,4 @@ namespace FBS.Worker
               _log_tags);
         }
     }
-
-    public class UpdateSettingsRequestT
-    {
-        /// logLevel. Renamed.
-        [JsonPropertyName("logLevel")]
-        public string LogLevel { get; set; }
-
-        /// <summary>
-        /// logTags. Renamed.
-        /// </summary>
-        [JsonPropertyName("logTags")]
-        public List<string> LogTags { get; set; }
-
-        public UpdateSettingsRequestT()
-        {
-            this.LogLevel = null;
-            this.LogTags = null;
-        }
-    }
 }

@@ -68,25 +68,4 @@ namespace FBS.SrtpParameters
               _key_base64);
         }
     }
-
-    public class SrtpParametersT
-    {
-        /// <summary>
-        /// cryptoSuite. Renamed.
-        /// </summary>
-        [JsonPropertyName("cryptoSuite")]
-        public FBS.SrtpParameters.SrtpCryptoSuite CryptoSuite { get; set; }
-
-        /// <summary>
-        /// keyBase64. Renamed.
-        /// </summary>
-        [JsonPropertyName("keyBase64")]
-        public string KeyBase64 { get; set; }
-
-        public SrtpParametersT()
-        {
-            this.CryptoSuite = FBS.SrtpParameters.SrtpCryptoSuite.AEAD_AES_256_GCM;
-            this.KeyBase64 = null;
-        }
-    }
 }

@@ -76,18 +76,4 @@ namespace FBS.WebRtcServer
               _web_rtc_transport_id);
         }
     }
-
-    public class IceUserNameFragmentT
-    {
-        [JsonPropertyName("local_ice_username_fragment")]
-        public string LocalIceUsernameFragment { get; set; }
-        [JsonPropertyName("web_rtc_transport_id")]
-        public string WebRtcTransportId { get; set; }
-
-        public IceUserNameFragmentT()
-        {
-            this.LocalIceUsernameFragment = null;
-            this.WebRtcTransportId = null;
-        }
-    }
 }

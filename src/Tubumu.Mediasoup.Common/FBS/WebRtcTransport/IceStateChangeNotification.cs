@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
@@ -51,17 +50,6 @@ namespace FBS.WebRtcTransport
             return CreateIceStateChangeNotification(
               builder,
               _o.IceState);
-        }
-    }
-
-    public class IceStateChangeNotificationT
-    {
-        [JsonPropertyName("ice_state")]
-        public FBS.WebRtcTransport.IceState IceState { get; set; }
-
-        public IceStateChangeNotificationT()
-        {
-            this.IceState = FBS.WebRtcTransport.IceState.NEW;
         }
     }
 }

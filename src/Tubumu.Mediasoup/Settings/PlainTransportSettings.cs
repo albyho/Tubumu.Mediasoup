@@ -1,8 +1,10 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.Transport;
+
+namespace Tubumu.Mediasoup
 {
     public class PlainTransportSettings
     {
-        public TransportListenIp ListenIp { get; set; }
+        public ListenInfoT ListenInfo { get; set; }
 
         public int MaxSctpMessageSize { get; set; }
     }

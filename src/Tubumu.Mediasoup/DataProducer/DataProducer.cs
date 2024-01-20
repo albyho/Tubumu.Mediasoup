@@ -88,9 +88,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"CloseAsync() | DataProducer:{DataProducerId}");
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -121,9 +121,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"TransportClosedAsync() | DataProducer:{DataProducerId}");
 
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
@@ -132,7 +132,6 @@ namespace Tubumu.Mediasoup
 
                 // Remove notification subscriptions.
                 //_channel.OnNotification -= OnNotificationHandle;
-                //_payloadChannel.OnNotification -= OnPayloadChannelMessage;
 
                 Emit("transportclose");
 
@@ -148,9 +147,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"DumpAsync() | DataProducer:{DataProducerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataProducer closed");
                 }
@@ -166,9 +165,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug($"GetStatsAsync() | DataProducer:{DataProducerId}");
 
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataProducer closed");
                 }
@@ -206,7 +205,7 @@ namespace Tubumu.Mediasoup
             ppid ??= !message.IsNullOrEmpty() ? 51 : 56;
 
             // Ensure we honor PPIDs.
-            if (ppid == 56)
+            if(ppid == 56)
             {
                 message = " ";
             }
@@ -229,7 +228,7 @@ namespace Tubumu.Mediasoup
             ppid ??= !message.IsNullOrEmpty() ? 53 : 57;
 
             // Ensure we honor PPIDs.
-            if (ppid == 57)
+            if(ppid == 57)
             {
                 message = new byte[1];
             }
@@ -241,9 +240,9 @@ namespace Tubumu.Mediasoup
 
         private async Task SendInternalAsync(string notifyData, byte[] message)
         {
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     throw new InvalidStateException("DataProducer closed");
                 }

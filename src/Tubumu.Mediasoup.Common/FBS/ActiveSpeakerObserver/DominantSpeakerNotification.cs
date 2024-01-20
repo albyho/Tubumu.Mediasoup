@@ -62,15 +62,4 @@ namespace FBS.ActiveSpeakerObserver
               _producer_id);
         }
     }
-
-    public class DominantSpeakerNotificationT
-    {
-        [JsonPropertyName("producer_id")]
-        public string ProducerId { get; set; }
-
-        public DominantSpeakerNotificationT()
-        {
-            this.ProducerId = null;
-        }
-    }
 }

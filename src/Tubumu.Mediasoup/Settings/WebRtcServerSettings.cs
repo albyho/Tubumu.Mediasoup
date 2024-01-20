@@ -1,7 +1,9 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.Transport;
+
+namespace Tubumu.Mediasoup
 {
     public class WebRtcServerSettings
     {
-        public WebRtcServerListenInfo[] ListenInfos { get; set; }
+        public ListenInfoT[] ListenInfos { get; set; }
     }
 }

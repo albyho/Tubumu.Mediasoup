@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.SctpParameters
 {
@@ -87,62 +86,6 @@ namespace FBS.SctpParameters
               _o.SendBufferSize,
               _o.SctpBufferedAmount,
               _o.IsDataChannel);
-        }
-    }
-
-    public class SctpParametersT
-    {
-        /// <summary>
-        /// port
-        /// </summary>
-        [JsonPropertyName("port")]
-        public ushort Port { get; set; }
-
-        /// <summary>
-        /// OS. Renamed.
-        /// </summary>
-        [JsonPropertyName("OS")]
-        public ushort Os { get; set; }
-
-        /// <summary>
-        /// MIS. Renamed.
-        /// </summary>
-        [JsonPropertyName("MIS")]
-        public ushort Mis { get; set; }
-
-        /// <summary>
-        /// maxMessageSize. Renamed.
-        /// </summary>
-        [JsonPropertyName("maxMessageSize")]
-        public uint MaxMessageSize { get; set; }
-
-        /// <summary>
-        /// sendBufferSize. Renamed.
-        /// </summary>
-        [JsonPropertyName("sendBufferSize")]
-        public uint SendBufferSize { get; set; }
-
-        /// <summary>
-        /// sctpBufferedAmount. Renamed.
-        /// </summary>
-        [JsonPropertyName("sctpBufferedAmount")]
-        public uint SctpBufferedAmount { get; set; }
-
-        /// <summary>
-        /// isDataChannel. Renamed.
-        /// </summary>
-        [JsonPropertyName("isDataChannel")]
-        public bool IsDataChannel { get; set; }
-
-        public SctpParametersT()
-        {
-            this.Port = 5000;
-            this.Os = 0;
-            this.Mis = 0;
-            this.MaxMessageSize = 0;
-            this.SendBufferSize = 0;
-            this.SctpBufferedAmount = 0;
-            this.IsDataChannel = false;
         }
     }
 }

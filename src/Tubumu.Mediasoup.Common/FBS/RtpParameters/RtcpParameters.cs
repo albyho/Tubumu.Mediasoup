@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -53,32 +52,18 @@ namespace FBS.RtpParameters
         }
         public void UnPackTo(RtcpParametersT _o)
         {
-            _o.Cname = this.Cname;
+            _o.CNAME = this.Cname;
             _o.ReducedSize = this.ReducedSize;
         }
         public static Offset<FBS.RtpParameters.RtcpParameters> Pack(FlatBufferBuilder builder, RtcpParametersT _o)
         {
             if(_o == null)
                 return default(Offset<FBS.RtpParameters.RtcpParameters>);
-            var _cname = _o.Cname == null ? default(StringOffset) : builder.CreateString(_o.Cname);
+            var _cname = _o.CNAME == null ? default(StringOffset) : builder.CreateString(_o.CNAME);
             return CreateRtcpParameters(
               builder,
               _cname,
               _o.ReducedSize);
-        }
-    }
-
-    public class RtcpParametersT
-    {
-        [JsonPropertyName("cname")]
-        public string Cname { get; set; }
-        [JsonPropertyName("reduced_size")]
-        public bool ReducedSize { get; set; }
-
-        public RtcpParametersT()
-        {
-            this.Cname = null;
-            this.ReducedSize = true;
         }
     }
 }

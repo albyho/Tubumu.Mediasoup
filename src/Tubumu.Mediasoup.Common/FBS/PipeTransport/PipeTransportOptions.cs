@@ -78,21 +78,12 @@ namespace FBS.PipeTransport
 
     public class PipeTransportOptionsT
     {
-        [JsonPropertyName("base")]
         public FBS.Transport.OptionsT Base { get; set; }
-        [JsonPropertyName("listen_info")]
-        public FBS.Transport.ListenInfoT ListenInfo { get; set; }
-        [JsonPropertyName("enable_rtx")]
-        public bool EnableRtx { get; set; }
-        [JsonPropertyName("enable_srtp")]
-        public bool EnableSrtp { get; set; }
 
-        public PipeTransportOptionsT()
-        {
-            this.Base = null;
-            this.ListenInfo = null;
-            this.EnableRtx = false;
-            this.EnableSrtp = false;
-        }
+        public FBS.Transport.ListenInfoT ListenInfo { get; set; }
+
+        public bool EnableRtx { get; set; }
+
+        public bool EnableSrtp { get; set; }
     }
 }
