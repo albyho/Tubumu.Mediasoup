@@ -79,12 +79,6 @@ namespace FBS.DataConsumer
 
     public class SetSubchannelsResponseT
     {
-        [JsonPropertyName("subchannels")]
         public List<ushort> Subchannels { get; set; }
-
-        public SetSubchannelsResponseT()
-        {
-            this.Subchannels = null;
-        }
     }
 }

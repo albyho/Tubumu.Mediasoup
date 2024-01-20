@@ -56,12 +56,6 @@ namespace FBS.DataConsumer
 
     public class AddSubchannelRequestT
     {
-        [JsonPropertyName("subchannel")]
         public ushort Subchannel { get; set; }
-
-        public AddSubchannelRequestT()
-        {
-            this.Subchannel = 0;
-        }
     }
 }

@@ -4,15 +4,19 @@ namespace FBS.RtpParameters
 {
     public class RtpParametersT
     {
-        public string Mid { get; set; }
+        /// <summary>
+        /// Mid. Nullable.
+        /// </summary>
+        /// <value></value>
+        public string? Mid { get; set; }
 
-        public List<FBS.RtpParameters.RtpCodecParametersT> Codecs { get; set; }
+        public List<RtpCodecParametersT> Codecs { get; set; }
 
 
-        public List<FBS.RtpParameters.RtpHeaderExtensionParametersT> HeaderExtensions { get; set; }
+        public List<RtpHeaderExtensionParametersT> HeaderExtensions { get; set; }
 
-        public List<FBS.RtpParameters.RtpEncodingParametersT> Encodings { get; set; }
+        public List<RtpEncodingParametersT> Encodings { get; set; }
 
-        public FBS.RtpParameters.RtcpParametersT Rtcp { get; set; }
+        public RtcpParametersT Rtcp { get; set; }
     }
 }

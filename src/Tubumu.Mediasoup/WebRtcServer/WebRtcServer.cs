@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FBS.WebRtcServer;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -93,10 +94,19 @@ namespace Tubumu.Mediasoup
 
                 _closed = true;
 
-                var reqData = new { WebRtcServerId = _internal.WebRtcServerId };
+                var closeWebRtcServerRequest = new FBS.Worker.CloseWebRtcServerRequestT
+                {
+                    WebRtcServerId = _internal.WebRtcServerId,
+                };
+
+                var closeWebRtcServerRequestOffset = FBS.Worker.CloseWebRtcServerRequest.Pack(_channel.BufferBuilder, closeWebRtcServerRequest);
 
                 // Fire and forget
-                _channel.RequestAsync(MethodId.WORKER_CLOSE_WEBRTCSERVER, null, reqData).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(
+                    FBS.Request.Method.WORKER_WEBRTCSERVER_CLOSE,
+                    FBS.Request.Body.Worker_CloseWebRtcServerRequest,
+                    closeWebRtcServerRequestOffset.Value
+                    ).ContinueWithOnFaultedHandleLog(_logger);
 
                 await CloseInternalAsync();
 
@@ -112,7 +122,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task WorkerClosedAsync()
         {
-            _logger.LogDebug($"WorkerClosedAsync() | WebRtcServer: {WebRtcServerId}");
+            _logger.LogDebug("WorkerClosedAsync() | WebRtcServer: {WebRtcServerId}", WebRtcServerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -152,9 +162,9 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump Router.
         /// </summary>
-        public async Task<string> DumpAsync()
+        public async Task<DumpResponseT> DumpAsync()
         {
-            _logger.LogDebug($"DumpAsync() | WebRtcServer: {WebRtcServerId}");
+            _logger.LogDebug("DumpAsync() | WebRtcServer: {WebRtcServerId}", WebRtcServerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -163,7 +173,15 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("WebRtcServer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.WEBRTCSERVER_DUMP, _internal.WebRtcServerId))!;
+                var response = await _channel.RequestAsync(
+                    FBS.Request.Method.WEBRTCSERVER_DUMP,
+                    null,
+                    null,
+                    _internal.WebRtcServerId);
+
+                /* Decode Response. */
+                var data = response.Value.BodyAsWebRtcServer_DumpResponse().UnPack();
+                return data;
             }
         }
 

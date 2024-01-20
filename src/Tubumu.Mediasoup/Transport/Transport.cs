@@ -409,7 +409,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public virtual async Task<object> DumpAsync()
         {
-            _logger.LogDebug($"DumpAsync() | Transport:{TransportId}");
+            _logger.LogDebug("DumpAsync() | Transport:{TransportId}", TransportId);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -427,26 +427,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Get Transport stats.
         /// </summary>
-        public async Task<string> GetStatsAsync()
-        {
-            // 在 Node.js 实现中，Transport 类没有实现 getState 方法。
-            _logger.LogDebug($"GetStatsAsync() | Transport:{TransportId}");
-
-            using(await CloseLock.ReadLockAsync())
-            {
-                if(Closed)
-                {
-                    throw new InvalidStateException("Transport closed");
-                }
-
-                return (await Channel.RequestAsync(MethodId.TRANSPORT_GET_STATS, Internal.TransportId))!;
-            }
-        }
+        public abstract Task<object> GetStatsAsync();
 
         /// <summary>
         /// Provide the Transport remote parameters.
         /// </summary>
-        /// <param name="params"></param>
+        /// <param name="parameters"></param>
         /// <returns></returns>
         public abstract Task ConnectAsync(object parameters);
 
@@ -457,7 +443,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public virtual async Task SetMaxIncomingBitrateAsync(int bitrate)
         {
-            _logger.LogDebug($"SetMaxIncomingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}");
+            _logger.LogDebug("SetMaxIncomingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -481,7 +467,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public virtual async Task SetMaxOutgoingBitrateAsync(int bitrate)
         {
-            _logger.LogDebug($"setMaxOutgoingBitrate() | Transport:{TransportId} Bitrate:{bitrate}");
+            _logger.LogDebug("SetMaxOutgoingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -505,7 +491,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public virtual async Task SetMinOutgoingBitrateAsync(int bitrate)
         {
-            _logger.LogDebug($"setMinOutgoingBitrate() | Transport:{TransportId} Bitrate:{bitrate}");
+            _logger.LogDebug("SetMinOutgoingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -624,7 +610,7 @@ namespace Tubumu.Mediasoup
                     data,
                     Channel,
                     producerOptions.AppData,
-                    producerOptions.Paused!.Value
+                    producerOptions.Paused
                 );
 
                 producer.On(

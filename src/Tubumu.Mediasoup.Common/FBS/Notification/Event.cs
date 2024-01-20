@@ -38,6 +38,4 @@ namespace FBS.Notification
         AUDIOLEVELOBSERVER_SILENCE = 29,
         AUDIOLEVELOBSERVER_VOLUMES = 30,
     };
-
-
 }

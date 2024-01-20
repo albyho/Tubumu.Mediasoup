@@ -178,11 +178,10 @@ namespace FBS.Notification
 
     public class NotificationT
     {
-        [JsonPropertyName("handler_id")]
         public string HandlerId { get; set; }
-        [JsonPropertyName("event")]
+
         public FBS.Notification.Event Event { get; set; }
-        [JsonPropertyName("body")]
+
         public FBS.Notification.BodyUnion Body { get; set; }
 
         public NotificationT()

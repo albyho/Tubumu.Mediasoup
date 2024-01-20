@@ -13,7 +13,7 @@ namespace FBS.RtpParameters
         /// The RID RTP extension value. Must be unique.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // FIX: libmediasoupclient "invalid encoding.rid" error.
-        public string Rid { get; set; }
+        public string? Rid { get; set; }
 
         /// <summary>
         /// Codec payload type this encoding affects. If unset, first media codec is
@@ -26,7 +26,7 @@ namespace FBS.RtpParameters
         /// the RTX SSRC.
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // FIX: libmediasoupclient "invalid encoding.rtx" error.
-        public FBS.RtpParameters.RtxT Rtx { get; set; }
+        public FBS.RtpParameters.RtxT? Rtx { get; set; }
 
         /// <summary>
         /// It indicates whether discontinuous RTP transmission will be used. Useful

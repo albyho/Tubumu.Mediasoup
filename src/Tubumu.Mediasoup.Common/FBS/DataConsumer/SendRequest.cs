@@ -85,15 +85,8 @@ namespace FBS.DataConsumer
 
     public class SendRequestT
     {
-        [JsonPropertyName("ppid")]
         public uint Ppid { get; set; }
-        [JsonPropertyName("data")]
-        public List<byte> Data { get; set; }
 
-        public SendRequestT()
-        {
-            this.Ppid = 0;
-            this.Data = null;
-        }
+        public List<byte> Data { get; set; }
     }
 }

@@ -212,7 +212,7 @@ namespace Tubumu.Mediasoup
             }
 
             // encodings is optional. If unset, fill with an empty array.
-            parameters.Encodings ??= new List<RtpEncodingParametersT>();
+            // parameters.Encodings ??= new List<RtpEncodingParametersT>();
 
             foreach(var encoding in parameters.Encodings)
             {
@@ -221,7 +221,7 @@ namespace Tubumu.Mediasoup
 
             // rtcp is optional. If unset, fill with an empty object.
             // 对 RtcpParameters 序列化时，CNAME 为 null 会忽略，因为客户端库对其有校验。
-            parameters.Rtcp ??= new RtcpParametersT();
+            // parameters.Rtcp ??= new RtcpParametersT();
             ValidateRtcpParameters(parameters.Rtcp);
         }
 
@@ -287,7 +287,7 @@ namespace Tubumu.Mediasoup
             }
 
             // rtcpFeedback is optional. If unset, set it to an empty array.
-            codec.RtcpFeedback ??= new List<RtcpFeedbackT>(0);
+            // codec.RtcpFeedback ??= new List<RtcpFeedbackT>(0);
 
             foreach(var fb in codec.RtcpFeedback)
             {
@@ -678,7 +678,7 @@ namespace Tubumu.Mediasoup
             // Generate encodings mapping.
             var mappedSsrc = Utils.GenerateRandomNumber();
 
-            foreach(var encoding in parameters.Encodings!)
+            foreach(var encoding in parameters.Encodings)
             {
                 var mappedEncoding = new EncodingMappingT
                 {
@@ -918,21 +918,21 @@ namespace Tubumu.Mediasoup
             {
                 foreach(var codec in consumerParams.Codecs)
                 {
-                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type != "goog-remb").ToList();
+                    codec.RtcpFeedback = codec.RtcpFeedback.Where(fb => fb.Type != "goog-remb").ToList();
                 }
             }
             else if(consumerParams.HeaderExtensions.Any(ext => ext.Uri == RtpHeaderExtensionUri.AbsSendTime))
             {
                 foreach(var codec in consumerParams.Codecs)
                 {
-                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type != "transport-cc").ToList();
+                    codec.RtcpFeedback = codec.RtcpFeedback.Where(fb => fb.Type != "transport-cc").ToList();
                 }
             }
             else
             {
                 foreach(var codec in consumerParams.Codecs)
                 {
-                    codec.RtcpFeedback = codec.RtcpFeedback!.Where(fb => fb.Type is not "transport-cc" and not "goog-remb").ToList();
+                    codec.RtcpFeedback = codec.RtcpFeedback.Where(fb => fb.Type is not "transport-cc" and not "goog-remb").ToList();
                 }
             }
 
@@ -950,12 +950,12 @@ namespace Tubumu.Mediasoup
 
                 // If any in the consumableParams.Encodings has scalabilityMode, process it
                 // (assume all encodings have the same value).
-                var encodingWithScalabilityMode = consumableParams.Encodings!.FirstOrDefault(encoding => !encoding.ScalabilityMode.IsNullOrWhiteSpace());
+                var encodingWithScalabilityMode = consumableParams.Encodings.FirstOrDefault(encoding => !encoding.ScalabilityMode.IsNullOrWhiteSpace());
 
                 var scalabilityMode = encodingWithScalabilityMode?.ScalabilityMode;
 
                 // If there is simulast, mangle spatial layers in scalabilityMode.
-                if(consumableParams.Encodings!.Count > 1)
+                if(consumableParams.Encodings.Count > 1)
                 {
                     var scalabilityModeObject = ScalabilityMode.Parse(scalabilityMode!);
 
@@ -990,7 +990,7 @@ namespace Tubumu.Mediasoup
                     encoding.Ssrc = baseSsrc + (uint)i;
                     encoding.Rtx = rtxSupported ? new RtxT { Ssrc = baseRtxSsrc + (uint)i } : null;
 
-                    consumerParams.Encodings!.Add(encoding);
+                    consumerParams.Encodings.Add(encoding);
                 }
             }
 
@@ -1023,7 +1023,7 @@ namespace Tubumu.Mediasoup
                     continue;
                 }
 
-                codec.RtcpFeedback = codec.RtcpFeedback!
+                codec.RtcpFeedback = codec.RtcpFeedback
                     .Where(fb =>
                         (fb.Type == "nack" && fb.Parameter == "pli") ||
                         (fb.Type == "ccm" && fb.Parameter == "fir") ||
@@ -1039,7 +1039,7 @@ namespace Tubumu.Mediasoup
                 ext.Uri != RtpHeaderExtensionUri.AbsSendTime &&
                 ext.Uri != RtpHeaderExtensionUri.TransportWideCcDraft01).ToList();
 
-            var consumableEncodings = consumableParams.Encodings!.DeepClone();
+            var consumableEncodings = consumableParams.Encodings.DeepClone();
 
             var baseSsrc = Utils.GenerateRandomNumber();
             var baseRtxSsrc = Utils.GenerateRandomNumber();

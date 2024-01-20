@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using FBS.DataProducer;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -15,10 +16,16 @@ namespace Tubumu.Mediasoup
         private readonly ILogger<DataProducer> _logger;
 
         /// <summary>
-        /// Whether the DataProducer is closed.
+        /// Close flag.
         /// </summary>
         private bool _closed;
+
         private readonly AsyncReaderWriterLock _closeLock = new();
+
+        /// <summary>
+        /// Paused flag.
+        /// </summary>
+        private bool _paused;
 
         /// <summary>
         /// Internal data.
@@ -61,13 +68,14 @@ namespace Tubumu.Mediasoup
         /// <param name="@internal"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
-        /// <param name="payloadChannel"></param>
+        /// <param name="paused"></param>
         /// <param name="appData"></param>
         public DataProducer(
             ILoggerFactory loggerFactory,
             DataProducerInternal @internal,
             DataProducerData data,
             IChannel channel,
+            bool paused,
             Dictionary<string, object>? appData
         )
         {
@@ -76,6 +84,7 @@ namespace Tubumu.Mediasoup
             _internal = @internal;
             Data = data;
             _channel = channel;
+            _paused = paused;
             AppData = appData ?? new Dictionary<string, object>();
 
             HandleWorkerNotifications();
@@ -86,7 +95,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug($"CloseAsync() | DataProducer:{DataProducerId}");
+            _logger.LogDebug("CloseAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -100,12 +109,20 @@ namespace Tubumu.Mediasoup
                 // Remove notification subscriptions.
                 //_channel.OnNotification -= OnNotificationHandle;
 
-                var reqData = new { DataProducerId = _internal.DataProducerId };
+                var closeDataProducerRequest = new FBS.Transport.CloseDataProducerRequestT
+                {
+                    DataProducerId = _internal.DataProducerId,
+                };
+
+                var closeDataProducerRequestOffset = FBS.Transport.CloseDataProducerRequest.Pack(_channel.BufferBuilder, closeDataProducerRequest);
 
                 // Fire and forget
-                _channel
-                    .RequestAsync(MethodId.TRANSPORT_CLOSE_DATA_PRODUCER, _internal.TransportId, reqData)
-                    .ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(
+                    FBS.Request.Method.TRANSPORT_CLOSE_DATAPRODUCER,
+                    FBS.Request.Body.Transport_CloseDataProducerRequest,
+                    closeDataProducerRequestOffset.Value,
+                    _internal.TransportId
+                    ).ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("close");
 
@@ -119,7 +136,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task TransportClosedAsync()
         {
-            _logger.LogDebug($"TransportClosedAsync() | DataProducer:{DataProducerId}");
+            _logger.LogDebug("TransportClosedAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -143,9 +160,9 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump DataProducer.
         /// </summary>
-        public async Task<string> DumpAsync()
+        public async Task<DumpResponseT> DumpAsync()
         {
-            _logger.LogDebug($"DumpAsync() | DataProducer:{DataProducerId}");
+            _logger.LogDebug("DumpAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -154,16 +171,24 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.DATA_PRODUCER_DUMP, _internal.DataProducerId))!;
+                var response = await _channel.RequestAsync(
+                    FBS.Request.Method.DATAPRODUCER_DUMP,
+                    null,
+                    null,
+                    _internal.DataProducerId);
+
+                /* Decode Response. */
+                var data = response.Value.BodyAsDataProducer_DumpResponse().UnPack();
+                return data;
             }
         }
 
         /// <summary>
         /// Get DataProducer stats. Return: DataProducerStat[]
         /// </summary>
-        public async Task<string> GetStatsAsync()
+        public async Task<GetStatsResponseT[]> GetStatsAsync()
         {
-            _logger.LogDebug($"GetStatsAsync() | DataProducer:{DataProducerId}");
+            _logger.LogDebug("GetStatsAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -172,19 +197,90 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                return (await _channel.RequestAsync(MethodId.DATA_PRODUCER_GET_STATS, _internal.DataProducerId))!;
+                var response = await _channel.RequestAsync(
+                    FBS.Request.Method.DATAPRODUCER_GET_STATS,
+                    null,
+                    null,
+                    _internal.DataProducerId);
+
+                /* Decode Response. */
+                var data = response.Value.BodyAsDataProducer_GetStatsResponse().UnPack();
+                return new[] { data };
+            }
+        }
+
+        /// <summary>
+        /// Pause the DataProducer.
+        /// </summary>
+        public async Task PauseAsync()
+        {
+            _logger.LogDebug("PauseAsync() | DataProducer:{DataProducerId}", DataProducerId);
+
+            using(await _closeLock.ReadLockAsync())
+            {
+                if(_closed)
+                {
+                    throw new InvalidStateException("DataProducer closed");
+                }
+
+                /* Ignore Response. */
+                _ = await _channel.RequestAsync(
+                     FBS.Request.Method.DATACONSUMER_PAUSE,
+                     null,
+                     null,
+                     _internal.DataProducerId);
+
+                var wasPaused = _paused;
+
+                _paused = true;
+
+                // Emit observer event.
+                if(!wasPaused)
+                {
+                    Observer.Emit("pause");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resume the DataProducer.
+        /// </summary>
+        public async Task ResumeAsync()
+        {
+            _logger.LogDebug("ResumeAsync() | DataProducer:{DataProducerId}", DataProducerId);
+
+            using(await _closeLock.ReadLockAsync())
+            {
+                if(_closed)
+                {
+                    throw new InvalidStateException("DataConsumer closed");
+                }
+
+                /* Ignore Response. */
+                _ = await _channel.RequestAsync(
+                     FBS.Request.Method.DATACONSUMER_RESUME,
+                     null,
+                     null,
+                     _internal.DataProducerId);
+
+                var wasPaused = _paused;
+
+                _paused = false;
+
+                // Emit observer event.
+                if(wasPaused)
+                {
+                    Observer.Emit("resume");
+                }
             }
         }
 
         /// <summary>
         /// Send data (just valid for DataProducers created on a DirectTransport).
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ppid"></param>
-        /// <returns></returns>
-        public async Task SendAsync(string message, int? ppid)
+        public async Task SendAsync(string message, uint? ppid, List<ushort>? subchannels, ushort? requiredSubchannel)
         {
-            _logger.LogDebug($"SendAsync() | DataProducer:{DataProducerId}");
+            _logger.LogDebug("SendAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
             /*
              * +-------------------------------+----------+
@@ -202,7 +298,7 @@ namespace Tubumu.Mediasoup
              * +-------------------------------+----------+
              */
 
-            ppid ??= !message.IsNullOrEmpty() ? 51 : 56;
+            ppid ??= !message.IsNullOrEmpty() ? 51u : 56u;
 
             // Ensure we honor PPIDs.
             if(ppid == 56)
@@ -210,22 +306,17 @@ namespace Tubumu.Mediasoup
                 message = " ";
             }
 
-            var notifyData = ppid.Value.ToString();
-
-            await SendInternalAsync(notifyData, Encoding.UTF8.GetBytes(message));
+            await SendInternalAsync(Encoding.UTF8.GetBytes(message), ppid.Value, subchannels, requiredSubchannel);
         }
 
         /// <summary>
         /// Send data (just valid for DataProducers created on a DirectTransport).
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ppid"></param>
-        /// <returns></returns>
-        public async Task SendAsync(byte[] message, int? ppid)
+        public async Task SendAsync(byte[] message, uint? ppid, List<ushort>? subchannels, ushort? requiredSubchannel)
         {
-            _logger.LogDebug($"SendAsync() | DataProducer:{DataProducerId}");
+            _logger.LogDebug("SendAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
-            ppid ??= !message.IsNullOrEmpty() ? 53 : 57;
+            ppid ??= !message.IsNullOrEmpty() ? 53u : 57u;
 
             // Ensure we honor PPIDs.
             if(ppid == 57)
@@ -233,12 +324,10 @@ namespace Tubumu.Mediasoup
                 message = new byte[1];
             }
 
-            var notifyData = ppid.Value.ToString();
-
-            await SendInternalAsync(notifyData, message);
+            await SendInternalAsync(message, ppid.Value, subchannels, requiredSubchannel);
         }
 
-        private async Task SendInternalAsync(string notifyData, byte[] message)
+        private async Task SendInternalAsync(byte[] data, uint ppid, List<ushort>? subchannels, ushort? requiredSubchannel)
         {
             using(await _closeLock.ReadLockAsync())
             {
@@ -247,7 +336,23 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                await _payloadChannel.NotifyAsync("dataProducer.send", _internal.DataProducerId, notifyData, message);
+                var sendNotification = new SendNotificationT
+                {
+                    Ppid = ppid,
+                    Data = new List<byte>(data),
+                    Subchannels = subchannels ?? new List<ushort>(0),
+                    RequiredSubchannel = requiredSubchannel,
+                };
+
+                var sendNotificationOffset = SendNotification.Pack(_channel.BufferBuilder, sendNotification);
+
+                // Fire and forget
+                _channel.NotifyAsync(
+                    FBS.Notification.Event.PRODUCER_SEND,
+                    FBS.Notification.Body.DataProducer_SendNotification,
+                    sendNotificationOffset.Value,
+                    _internal.DataProducerId
+                    ).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 

@@ -44,6 +44,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Transport layer and codec-specific feedback messages for this codec.
         /// </summary>
-        public List<RtcpFeedbackT>? RtcpFeedback { get; set; }
+        public List<RtcpFeedbackT> RtcpFeedback { get; set; }
     }
 }

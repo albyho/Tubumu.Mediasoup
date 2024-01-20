@@ -85,15 +85,11 @@ namespace FBS.DataConsumer
 
     public class MessageNotificationT
     {
-        [JsonPropertyName("ppid")]
         public uint Ppid { get; set; }
-        [JsonPropertyName("data")]
-        public List<byte> Data { get; set; }
 
-        public MessageNotificationT()
-        {
-            this.Ppid = 0;
-            this.Data = null;
-        }
+        /// <summary>
+        /// TODO: Do not use `List<byte>`
+        /// </summary>
+        public List<byte> Data { get; set; }
     }
 }

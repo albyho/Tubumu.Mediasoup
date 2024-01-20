@@ -117,21 +117,17 @@ namespace FBS.DataProducer
 
     public class SendNotificationT
     {
-        [JsonPropertyName("ppid")]
         public uint Ppid { get; set; }
-        [JsonPropertyName("data")]
+
         public List<byte> Data { get; set; }
-        [JsonPropertyName("subchannels")]
-        public List<ushort> Subchannels { get; set; }
-        [JsonPropertyName("required_subchannel")]
+
+        public List<ushort>? Subchannels { get; set; }
+
         public ushort? RequiredSubchannel { get; set; }
 
-        public SendNotificationT()
+        public static implicit operator SendNotificationT(SendNotificationT v)
         {
-            this.Ppid = 0;
-            this.Data = null;
-            this.Subchannels = null;
-            this.RequiredSubchannel = null;
+            throw new NotImplementedException();
         }
     }
 }

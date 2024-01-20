@@ -103,27 +103,16 @@ namespace FBS.DataProducer
 
     public class GetStatsResponseT
     {
-        [JsonPropertyName("timestamp")]
         public ulong Timestamp { get; set; }
-        [JsonPropertyName("label")]
-        public string Label { get; set; }
-        [JsonPropertyName("protocol")]
-        public string Protocol { get; set; }
-        [JsonPropertyName("messages_received")]
-        public ulong MessagesReceived { get; set; }
-        [JsonPropertyName("bytes_received")]
-        public ulong BytesReceived { get; set; }
-        [JsonPropertyName("buffered_amount")]
-        public uint BufferedAmount { get; set; }
 
-        public GetStatsResponseT()
-        {
-            this.Timestamp = 0;
-            this.Label = null;
-            this.Protocol = null;
-            this.MessagesReceived = 0;
-            this.BytesReceived = 0;
-            this.BufferedAmount = 0;
-        }
+        public string Label { get; set; }
+
+        public string Protocol { get; set; }
+
+        public ulong MessagesReceived { get; set; }
+
+        public ulong BytesReceived { get; set; }
+
+        public uint BufferedAmount { get; set; }
     }
 }

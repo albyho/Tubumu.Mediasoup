@@ -20,7 +20,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Transport layer and codec-specific feedback messages for this codec.
         /// </summary>
-        public List<RtcpFeedbackT>? RtcpFeedback { get; set; }
+        public List<RtcpFeedbackT> RtcpFeedback { get; set; } = new List<RtcpFeedbackT>(0);
 
         public bool Equals(RtpCodecParameters? other)
         {
@@ -43,6 +43,7 @@ namespace Tubumu.Mediasoup
                     result = false;
                 }
             }
+
             if(result)
             {
                 if(Parameters != null && other.Parameters != null)

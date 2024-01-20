@@ -79,7 +79,6 @@ namespace FBS.DataConsumer
 
     public class AddSubchannelResponseT
     {
-        [JsonPropertyName("subchannels")]
         public List<ushort> Subchannels { get; set; }
 
         public AddSubchannelResponseT()
