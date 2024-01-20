@@ -83,7 +83,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug($"CloseAsync() | WebRtcServer: {WebRtcServerId}");
+            _logger.LogDebug("CloseAsync() | WebRtcServer: {WebRtcServerId}", WebRtcServerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -114,7 +114,7 @@ namespace Tubumu.Mediasoup
 
                 // Emit observer event.
                 Observer.Emit("close");
-            };
+            }
         }
 
         /// <summary>

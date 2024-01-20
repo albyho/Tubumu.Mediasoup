@@ -102,14 +102,14 @@ namespace Tubumu.Mediasoup
                 {
                     ListenInfos = new[]
                     {
-                        new WebRtcServerListenInfo
+                        new ListenInfoT
                         {
                             Protocol = Protocol.UDP,
                             Ip = "0.0.0.0",
                             AnnouncedIp = null,
                             Port = 44444,
                         },
-                        new WebRtcServerListenInfo
+                        new ListenInfoT
                         {
                             Protocol = Protocol.TCP,
                             Ip = "0.0.0.0",
@@ -120,9 +120,9 @@ namespace Tubumu.Mediasoup
                 },
                 WebRtcTransportSettings = new WebRtcTransportSettings
                 {
-                    ListenIps = new[]
+                    ListenInfos = new[]
                     {
-                        new TransportListenIp { Ip = "0.0.0.0",  AnnouncedIp = null }
+                        new ListenInfoT { Ip = "0.0.0.0",  AnnouncedIp = null }
                     },
                     InitialAvailableOutgoingBitrate = 1_000_000,
                     MinimumAvailableOutgoingBitrate = 600_000,
@@ -131,7 +131,7 @@ namespace Tubumu.Mediasoup
                 },
                 PlainTransportSettings = new PlainTransportSettings
                 {
-                    ListenIp = new TransportListenIp { Ip = "0.0.0.0", AnnouncedIp = null },
+                    ListenInfo = new ListenInfoT { Ip = "0.0.0.0", AnnouncedIp = null },
                     MaxSctpMessageSize = 256 * 1024,
                 }
             }

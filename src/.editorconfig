@@ -56,6 +56,8 @@ csharp_space_between_square_brackets = false
 # Wrap options
 csharp_preserve_single_line_statements = false
 csharp_preserve_single_line_blocks = true
+# IDE
+dotnet_diagnostic.IDE0037.severity = none
 
 # Roslynator
 # CA1822:将成员标记为 static

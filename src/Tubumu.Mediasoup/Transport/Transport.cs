@@ -289,6 +289,7 @@ namespace Tubumu.Mediasoup
                     // Must tell the Router.
                     Emit("@producerclose", producer);
                 }
+
                 Producers.Clear();
             }
             catch(Exception ex)
@@ -308,6 +309,7 @@ namespace Tubumu.Mediasoup
                 {
                     await consumer.TransportClosedAsync();
                 }
+
                 Consumers.Clear();
             }
             catch(Exception ex)
@@ -339,6 +341,7 @@ namespace Tubumu.Mediasoup
                         // been closed in fact).
                     }
                 }
+
                 DataProducers.Clear();
             }
             catch(Exception ex)
@@ -358,6 +361,7 @@ namespace Tubumu.Mediasoup
                 {
                     await dataConsumer.TransportClosedAsync();
                 }
+
                 DataConsumers.Clear();
             }
             catch(Exception ex)
@@ -664,7 +668,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public virtual async Task<Consumer> ConsumeAsync(ConsumerOptions consumerOptions)
         {
-            _logger.LogDebug($"ConsumeAsync() | Transport:{TransportId}");
+            _logger.LogDebug("ConsumeAsync() | Transport:{TransportId}", TransportId);
 
             if(consumerOptions.ProducerId.IsNullOrWhiteSpace())
             {
@@ -673,17 +677,12 @@ namespace Tubumu.Mediasoup
 
             if(consumerOptions.RtpCapabilities == null)
             {
-                throw new ArgumentNullException(nameof(consumerOptions.RtpCapabilities));
+                throw new ArgumentNullException($"{nameof(consumerOptions)}.RtpCapabilities can't be null or white space.");
             }
 
             if(consumerOptions.Mid.IsNullOrWhiteSpace())
             {
                 throw new ArgumentException($"{nameof(consumerOptions.Mid)} can't be null or white space.");
-            }
-
-            if(!consumerOptions.Paused.HasValue)
-            {
-                consumerOptions.Paused = false;
             }
 
             using(await CloseLock.ReadLockAsync())
@@ -696,18 +695,13 @@ namespace Tubumu.Mediasoup
                 // This may throw.
                 ORTC.ValidateRtpCapabilities(consumerOptions.RtpCapabilities);
 
-                var producer = await GetProducerById(consumerOptions.ProducerId);
-                if(producer == null)
-                {
-                    throw new NullReferenceException($"Producer with id {consumerOptions.ProducerId} not found");
-                }
+                var producer = await GetProducerById(consumerOptions.ProducerId) ?? throw new NullReferenceException($"Producer with id {consumerOptions.ProducerId} not found");
 
-                var pipe = consumerOptions.Pipe.HasValue && consumerOptions.Pipe.Value;
                 // This may throw.
                 var rtpParameters = ORTC.GetConsumerRtpParameters(
                     producer.Data.ConsumableRtpParameters,
                     consumerOptions.RtpCapabilities,
-                    pipe
+                    consumerOptions.Pipe
                 );
 
                 if(!pipe)
@@ -726,7 +720,7 @@ namespace Tubumu.Mediasoup
                             // We use up to 8 bytes for MID (string).
                             if(_nextMidForConsumers == 100_000_000)
                             {
-                                _logger.LogDebug($"ConsumeAsync() | Reaching max MID value {_nextMidForConsumers}");
+                                _logger.LogDebug("ConsumeAsync() | Reaching max MID value {_nextMidForConsumers}", _nextMidForConsumers);
                                 _nextMidForConsumers = 0;
                             }
                         }
@@ -739,7 +733,7 @@ namespace Tubumu.Mediasoup
                     ProducerId = consumerOptions.ProducerId,
                     producer.Data.Kind,
                     RtpParameters = rtpParameters,
-                    Type = pipe ? ProducerType.Pipe : producer.Data.Type,
+                    Type = consumerOptions.Pipe ? ProducerType.Pipe : producer.Data.Type,
                     ConsumableRtpEncodings = producer.Data.ConsumableRtpParameters.Encodings,
                     consumerOptions.Paused,
                     consumerOptions.PreferredLayers,
@@ -837,7 +831,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task<DataProducer> ProduceDataAsync(DataProducerOptions dataProducerOptions)
         {
-            _logger.LogDebug($"ProduceDataAsync() | Transport:{TransportId}");
+            _logger.LogDebug("ProduceDataAsync() | Transport:{TransportId}", TransportId);
 
             if(!dataProducerOptions.Id.IsNullOrWhiteSpace() && DataProducers.ContainsKey(dataProducerOptions.Id!))
             {
@@ -848,6 +842,7 @@ namespace Tubumu.Mediasoup
             {
                 dataProducerOptions.Label = string.Empty;
             }
+
             if(dataProducerOptions.Protocol.IsNullOrWhiteSpace())
             {
                 dataProducerOptions.Protocol = string.Empty;
@@ -877,9 +872,7 @@ namespace Tubumu.Mediasoup
 
                     if(dataProducerOptions.SctpStreamParameters != null)
                     {
-                        _logger.LogWarning(
-                            $"ProduceDataAsync() | Transport:{TransportId} sctpStreamParameters are ignored when producing data on a DirectTransport"
-                        );
+                        _logger.LogWarning("ProduceDataAsync() | Transport:{TransportId} sctpStreamParameters are ignored when producing data on a DirectTransport", TransportId);
                     }
                 }
 
@@ -928,6 +921,7 @@ namespace Tubumu.Mediasoup
                         {
                             DataProducersLock.Set();
                         }
+
                         Emit("@dataproducerclose", dataProducer);
                     }
                 );
@@ -962,18 +956,14 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task<DataConsumer> ConsumeDataAsync(DataConsumerOptions dataConsumerOptions)
         {
-            _logger.LogDebug($"ConsumeDataAsync() | Transport:{TransportId}");
+            _logger.LogDebug("ConsumeDataAsync() | Transport:{TransportId}", TransportId);
 
             if(dataConsumerOptions.DataProducerId.IsNullOrWhiteSpace())
             {
                 throw new Exception("Missing dataProducerId");
             }
 
-            var dataProducer = await GetDataProducerById(dataConsumerOptions.DataProducerId);
-            if(dataProducer == null)
-            {
-                throw new Exception($"DataProducer with id {dataConsumerOptions.DataProducerId} not found");
-            }
+            var dataProducer = await GetDataProducerById(dataConsumerOptions.DataProducerId) ?? throw new Exception($"DataProducer with id {dataConsumerOptions.DataProducerId} not found");
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -981,6 +971,7 @@ namespace Tubumu.Mediasoup
                 {
                     throw new InvalidStateException("Transport closed");
                 }
+
                 FBS.DataProducer.Type type;
                 SctpStreamParametersT? sctpStreamParameters = null;
                 ushort? sctpStreamId = null;
@@ -1002,6 +993,7 @@ namespace Tubumu.Mediasoup
                         {
                             throw new IndexOutOfRangeException(nameof(_sctpStreamIds));
                         }
+
                         _sctpStreamIds[sctpStreamId] = 1;
                         sctpStreamParameters.StreamId = sctpStreamId;
                     }
@@ -1130,7 +1122,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task EnableTraceEventAsync(List<TraceEventType> types)
         {
-            _logger.LogDebug($"EnableTraceEventAsync() | Transport:{TransportId}");
+            _logger.LogDebug("EnableTraceEventAsync() | Transport:{TransportId}", TransportId);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -1162,6 +1154,7 @@ namespace Tubumu.Mediasoup
             {
                 throw new Exception("Missing data.sctpParameters.MIS");
             }
+
             if(_sctpStreamIds == null)
             {
                 throw new Exception(nameof(_sctpStreamIds));

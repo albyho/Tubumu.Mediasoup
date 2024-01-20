@@ -195,10 +195,10 @@ namespace Tubumu.Mediasoup
                     Protocol = m.Protocol,
                     Ip = m.Ip,
                     AnnouncedIp = m.AnnouncedIp,
-                    Port = m.Port ?? 0,
+                    Port = m.Port,
                     Flags = m.Flags,
-                    SendBufferSize = m.SendBufferSize ?? 0,
-                    RecvBufferSize = m.RecvBufferSize ?? 0
+                    SendBufferSize = m.SendBufferSize,
+                    RecvBufferSize = m.RecvBufferSize
                 }).ToList();
 
                 var webRtcServerId = Guid.NewGuid().ToString();
@@ -274,7 +274,6 @@ namespace Tubumu.Mediasoup
                 };
 
                 var createRouterRequestOffset = CreateRouterRequest.Pack(_channel.BufferBuilder, createRouterRequestT);
-
 
                 await _channel.RequestAsync(
                     FBS.Request.Method.WORKER_CREATE_ROUTER,
