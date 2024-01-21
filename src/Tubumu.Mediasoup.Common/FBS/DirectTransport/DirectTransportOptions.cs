@@ -55,15 +55,4 @@ namespace FBS.DirectTransport
               _base);
         }
     }
-
-    public class DirectTransportOptionsT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.OptionsT Base { get; set; }
-
-        public DirectTransportOptionsT()
-        {
-            this.Base = null;
-        }
-    }
 }

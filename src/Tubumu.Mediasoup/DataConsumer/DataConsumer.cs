@@ -402,7 +402,7 @@ namespace Tubumu.Mediasoup
                 var sendRequest = new SendRequestT
                 {
                     Ppid = ppid,
-                    Data = new List<byte>(data)
+                    Data = data
                 };
 
                 var sendRequestOffset = SendRequest.Pack(_channel.BufferBuilder, sendRequest);

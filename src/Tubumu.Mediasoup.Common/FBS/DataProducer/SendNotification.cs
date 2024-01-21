@@ -82,14 +82,13 @@ namespace FBS.DataProducer
         public void UnPackTo(SendNotificationT _o)
         {
             _o.Ppid = this.Ppid;
-            _o.Data = new List<byte>();
-            for(var _j = 0; _j < this.DataLength; ++_j)
-            { _o.Data.Add(this.Data(_j)); }
-            _o.Subchannels = new List<ushort>();
+            _o.Data = new byte[this.DataLength];
+            Array.Copy(_o.Data, _o.Data, this.DataLength);
             for(var _j = 0; _j < this.SubchannelsLength; ++_j)
             { _o.Subchannels.Add(this.Subchannels(_j)); }
             _o.RequiredSubchannel = this.RequiredSubchannel;
         }
+
         public static Offset<FBS.DataProducer.SendNotification> Pack(FlatBufferBuilder builder, SendNotificationT _o)
         {
             if(_o == null)
@@ -97,7 +96,7 @@ namespace FBS.DataProducer
             var _data = default(VectorOffset);
             if(_o.Data != null)
             {
-                var __data = _o.Data.ToArray();
+                var __data = _o.Data;
                 _data = CreateDataVector(builder, __data);
             }
             var _subchannels = default(VectorOffset);
@@ -112,22 +111,6 @@ namespace FBS.DataProducer
               _data,
               _subchannels,
               _o.RequiredSubchannel);
-        }
-    }
-
-    public class SendNotificationT
-    {
-        public uint Ppid { get; set; }
-
-        public List<byte> Data { get; set; }
-
-        public List<ushort>? Subchannels { get; set; }
-
-        public ushort? RequiredSubchannel { get; set; }
-
-        public static implicit operator SendNotificationT(SendNotificationT v)
-        {
-            throw new NotImplementedException();
         }
     }
 }

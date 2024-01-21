@@ -57,10 +57,10 @@ namespace FBS.Consumer
         }
         public void UnPackTo(RtpNotificationT _o)
         {
-            _o.Data = new List<byte>();
-            for(var _j = 0; _j < this.DataLength; ++_j)
-            { _o.Data.Add(this.Data(_j)); }
+            _o.Data = new byte[this.DataLength];
+            Array.Copy(_o.Data, _o.Data, this.DataLength);
         }
+
         public static Offset<FBS.Consumer.RtpNotification> Pack(FlatBufferBuilder builder, RtpNotificationT _o)
         {
             if(_o == null)
@@ -68,23 +68,12 @@ namespace FBS.Consumer
             var _data = default(VectorOffset);
             if(_o.Data != null)
             {
-                var __data = _o.Data.ToArray();
+                var __data = _o.Data;
                 _data = CreateDataVector(builder, __data);
             }
             return CreateRtpNotification(
               builder,
               _data);
-        }
-    }
-
-    public class RtpNotificationT
-    {
-        [JsonPropertyName("data")]
-        public List<byte> Data { get; set; }
-
-        public RtpNotificationT()
-        {
-            this.Data = null;
         }
     }
 }

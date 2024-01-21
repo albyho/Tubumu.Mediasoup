@@ -62,9 +62,8 @@ namespace FBS.DataConsumer
         public void UnPackTo(SendRequestT _o)
         {
             _o.Ppid = this.Ppid;
-            _o.Data = new List<byte>();
-            for(var _j = 0; _j < this.DataLength; ++_j)
-            { _o.Data.Add(this.Data(_j)); }
+            _o.Data = new byte[this.DataLength];
+            Array.Copy(_o.Data, _o.Data, this.DataLength);
         }
         public static Offset<FBS.DataConsumer.SendRequest> Pack(FlatBufferBuilder builder, SendRequestT _o)
         {
@@ -73,7 +72,7 @@ namespace FBS.DataConsumer
             var _data = default(VectorOffset);
             if(_o.Data != null)
             {
-                var __data = _o.Data.ToArray();
+                var __data = _o.Data;
                 _data = CreateDataVector(builder, __data);
             }
             return CreateSendRequest(
@@ -81,12 +80,5 @@ namespace FBS.DataConsumer
               _o.Ppid,
               _data);
         }
-    }
-
-    public class SendRequestT
-    {
-        public uint Ppid { get; set; }
-
-        public List<byte> Data { get; set; }
     }
 }

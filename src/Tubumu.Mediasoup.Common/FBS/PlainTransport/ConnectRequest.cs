@@ -80,24 +80,4 @@ namespace FBS.PlainTransport
               _srtp_parameters);
         }
     }
-
-    public class ConnectRequestT
-    {
-        [JsonPropertyName("ip")]
-        public string Ip { get; set; }
-        [JsonPropertyName("port")]
-        public ushort? Port { get; set; }
-        [JsonPropertyName("rtcp_port")]
-        public ushort? RtcpPort { get; set; }
-        [JsonPropertyName("srtp_parameters")]
-        public FBS.SrtpParameters.SrtpParametersT SrtpParameters { get; set; }
-
-        public ConnectRequestT()
-        {
-            this.Ip = null;
-            this.Port = null;
-            this.RtcpPort = null;
-            this.SrtpParameters = null;
-        }
-    }
 }

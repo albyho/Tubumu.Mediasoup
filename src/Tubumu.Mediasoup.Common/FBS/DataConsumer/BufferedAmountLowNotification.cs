@@ -53,15 +53,4 @@ namespace FBS.DataConsumer
               _o.BufferedAmount);
         }
     }
-
-    public class BufferedAmountLowNotificationT
-    {
-        [JsonPropertyName("buffered_amount")]
-        public uint BufferedAmount { get; set; }
-
-        public BufferedAmountLowNotificationT()
-        {
-            this.BufferedAmount = 0;
-        }
-    }
 }

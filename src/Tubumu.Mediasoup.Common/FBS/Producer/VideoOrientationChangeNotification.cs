@@ -65,21 +65,4 @@ namespace FBS.Producer
               _o.Rotation);
         }
     }
-
-    public class VideoOrientationChangeNotificationT
-    {
-        [JsonPropertyName("camera")]
-        public bool Camera { get; set; }
-        [JsonPropertyName("flip")]
-        public bool Flip { get; set; }
-        [JsonPropertyName("rotation")]
-        public ushort Rotation { get; set; }
-
-        public VideoOrientationChangeNotificationT()
-        {
-            this.Camera = false;
-            this.Flip = false;
-            this.Rotation = 0;
-        }
-    }
 }

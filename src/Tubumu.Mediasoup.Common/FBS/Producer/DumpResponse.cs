@@ -147,36 +147,4 @@ namespace FBS.Producer
               _o.Paused);
         }
     }
-
-    public class DumpResponseT
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-        [JsonPropertyName("kind")]
-        public FBS.RtpParameters.MediaKind Kind { get; set; }
-        [JsonPropertyName("type")]
-        public FBS.RtpParameters.Type Type { get; set; }
-        [JsonPropertyName("rtp_parameters")]
-        public FBS.RtpParameters.RtpParametersT RtpParameters { get; set; }
-        [JsonPropertyName("rtp_mapping")]
-        public FBS.RtpParameters.RtpMappingT RtpMapping { get; set; }
-        [JsonPropertyName("rtp_streams")]
-        public List<FBS.RtpStream.DumpT> RtpStreams { get; set; }
-        [JsonPropertyName("trace_event_types")]
-        public List<FBS.Producer.TraceEventType> TraceEventTypes { get; set; }
-        [JsonPropertyName("paused")]
-        public bool Paused { get; set; }
-
-        public DumpResponseT()
-        {
-            this.Id = null;
-            this.Kind = FBS.RtpParameters.MediaKind.AUDIO;
-            this.Type = FBS.RtpParameters.Type.SIMPLE;
-            this.RtpParameters = null;
-            this.RtpMapping = null;
-            this.RtpStreams = null;
-            this.TraceEventTypes = null;
-            this.Paused = false;
-        }
-    }
 }

@@ -89,30 +89,4 @@ namespace FBS.PlainTransport
               _srtp_parameters);
         }
     }
-
-    public class DumpResponseT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.DumpT Base { get; set; }
-        [JsonPropertyName("rtcp_mux")]
-        public bool RtcpMux { get; set; }
-        [JsonPropertyName("comedia")]
-        public bool Comedia { get; set; }
-        [JsonPropertyName("tuple")]
-        public FBS.Transport.TupleT Tuple { get; set; }
-        [JsonPropertyName("rtcp_tuple")]
-        public FBS.Transport.TupleT RtcpTuple { get; set; }
-        [JsonPropertyName("srtp_parameters")]
-        public FBS.SrtpParameters.SrtpParametersT SrtpParameters { get; set; }
-
-        public DumpResponseT()
-        {
-            this.Base = null;
-            this.RtcpMux = false;
-            this.Comedia = false;
-            this.Tuple = null;
-            this.RtcpTuple = null;
-            this.SrtpParameters = null;
-        }
-    }
 }

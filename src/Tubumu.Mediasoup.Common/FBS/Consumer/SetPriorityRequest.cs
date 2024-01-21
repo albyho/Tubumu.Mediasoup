@@ -53,15 +53,4 @@ namespace FBS.Consumer
               _o.Priority);
         }
     }
-
-    public class SetPriorityRequestT
-    {
-        [JsonPropertyName("priority")]
-        public byte Priority { get; set; }
-
-        public SetPriorityRequestT()
-        {
-            this.Priority = 0;
-        }
-    }
 }

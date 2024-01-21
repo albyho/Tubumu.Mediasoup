@@ -61,18 +61,4 @@ namespace FBS.Consumer
               _o.IsRtx);
         }
     }
-
-    public class KeyFrameTraceInfoT
-    {
-        [JsonPropertyName("rtp_packet")]
-        public FBS.RtpPacket.DumpT RtpPacket { get; set; }
-        [JsonPropertyName("is_rtx")]
-        public bool IsRtx { get; set; }
-
-        public KeyFrameTraceInfoT()
-        {
-            this.RtpPacket = null;
-            this.IsRtx = false;
-        }
-    }
 }

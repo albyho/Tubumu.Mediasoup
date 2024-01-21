@@ -54,15 +54,4 @@ namespace FBS.Consumer
               _preferred_layers);
         }
     }
-
-    public class SetPreferredLayersResponseT
-    {
-        [JsonPropertyName("preferred_layers")]
-        public FBS.Consumer.ConsumerLayersT PreferredLayers { get; set; }
-
-        public SetPreferredLayersResponseT()
-        {
-            this.PreferredLayers = null;
-        }
-    }
 }

@@ -69,21 +69,4 @@ namespace FBS.PlainTransport
               _srtp_parameters);
         }
     }
-
-    public class ConnectResponseT
-    {
-        [JsonPropertyName("tuple")]
-        public FBS.Transport.TupleT Tuple { get; set; }
-        [JsonPropertyName("rtcp_tuple")]
-        public FBS.Transport.TupleT RtcpTuple { get; set; }
-        [JsonPropertyName("srtp_parameters")]
-        public FBS.SrtpParameters.SrtpParametersT SrtpParameters { get; set; }
-
-        public ConnectResponseT()
-        {
-            this.Tuple = null;
-            this.RtcpTuple = null;
-            this.SrtpParameters = null;
-        }
-    }
 }

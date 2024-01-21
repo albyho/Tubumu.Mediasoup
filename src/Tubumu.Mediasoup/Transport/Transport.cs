@@ -445,7 +445,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public virtual async Task SetMaxIncomingBitrateAsync(int bitrate)
+        public virtual async Task SetMaxIncomingBitrateAsync(uint bitrate)
         {
             _logger.LogDebug("SetMaxIncomingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
 
@@ -456,11 +456,20 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                var reqData = new { Bitrate = bitrate };
+                var setMaxIncomingBitrateRequest = new SetMaxIncomingBitrateRequestT
+                {
+                    MaxIncomingBitrate = bitrate
+                };
+
+                var setMaxIncomingBitrateRequestOffset = SetMaxIncomingBitrateRequest.Pack(Channel.BufferBuilder, setMaxIncomingBitrateRequest);
+
                 // Fire and forget
-                Channel
-                    .RequestAsync(MethodId.TRANSPORT_SET_MAX_INCOMING_BITRATE, Internal.TransportId, reqData)
-                    .ContinueWithOnFaultedHandleLog(_logger);
+                Channel.RequestAsync(
+                    Method.TRANSPORT_SET_MAX_INCOMING_BITRATE,
+                    Body.Transport_SetMaxIncomingBitrateRequest,
+                    setMaxIncomingBitrateRequestOffset.Value,
+                    Internal.TransportId
+                    ).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -469,7 +478,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public virtual async Task SetMaxOutgoingBitrateAsync(int bitrate)
+        public virtual async Task SetMaxOutgoingBitrateAsync(uint bitrate)
         {
             _logger.LogDebug("SetMaxOutgoingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
 
@@ -480,11 +489,20 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                var reqData = new { Bitrate = bitrate };
+                var setMaxOutgoingBitrateRequest = new SetMaxOutgoingBitrateRequestT
+                {
+                    MaxOutgoingBitrate = bitrate
+                };
+
+                var setMaxOutgoingBitrateRequestOffset = SetMaxOutgoingBitrateRequest.Pack(Channel.BufferBuilder, setMaxOutgoingBitrateRequest);
+
                 // Fire and forget
-                Channel
-                    .RequestAsync(MethodId.TRANSPORT_SET_MAX_OUTGOING_BITRATE, Internal.TransportId, reqData)
-                    .ContinueWithOnFaultedHandleLog(_logger);
+                Channel.RequestAsync(
+                    Method.TRANSPORT_SET_MAX_OUTGOING_BITRATE,
+                    Body.Transport_SetMaxOutgoingBitrateRequest,
+                    setMaxOutgoingBitrateRequestOffset.Value,
+                    Internal.TransportId
+                    ).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -493,7 +511,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public virtual async Task SetMinOutgoingBitrateAsync(int bitrate)
+        public virtual async Task SetMinOutgoingBitrateAsync(uint bitrate)
         {
             _logger.LogDebug("SetMinOutgoingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
 
@@ -504,11 +522,20 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                var reqData = new { Bitrate = bitrate };
+                var setMinOutgoingBitrateRequest = new SetMinOutgoingBitrateRequestT
+                {
+                    MinOutgoingBitrate = bitrate
+                };
+
+                var setMinOutgoingBitrateRequestOffset = SetMinOutgoingBitrateRequest.Pack(Channel.BufferBuilder, setMinOutgoingBitrateRequest);
+
                 // Fire and forget
-                Channel
-                    .RequestAsync(MethodId.TRANSPORT_SET_MIN_OUTGOING_BITRATE, Internal.TransportId, reqData)
-                    .ContinueWithOnFaultedHandleLog(_logger);
+                Channel.RequestAsync(
+                    Method.TRANSPORT_SET_MIN_OUTGOING_BITRATE,
+                    Body.Transport_SetMinOutgoingBitrateRequest,
+                    setMinOutgoingBitrateRequestOffset.Value,
+                    Internal.TransportId
+                    ).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 

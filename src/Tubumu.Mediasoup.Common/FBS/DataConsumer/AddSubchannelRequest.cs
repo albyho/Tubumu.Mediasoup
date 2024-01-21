@@ -53,9 +53,4 @@ namespace FBS.DataConsumer
               _o.Subchannel);
         }
     }
-
-    public class AddSubchannelRequestT
-    {
-        public ushort Subchannel { get; set; }
-    }
 }

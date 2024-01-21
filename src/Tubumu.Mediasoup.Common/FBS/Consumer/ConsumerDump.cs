@@ -116,36 +116,4 @@ namespace FBS.Consumer
               _o.CurrentTemporalLayer);
         }
     }
-
-    public class ConsumerDumpT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Consumer.BaseConsumerDumpT Base { get; set; }
-        [JsonPropertyName("rtp_streams")]
-        public List<FBS.RtpStream.DumpT> RtpStreams { get; set; }
-        [JsonPropertyName("preferred_spatial_layer")]
-        public short? PreferredSpatialLayer { get; set; }
-        [JsonPropertyName("target_spatial_layer")]
-        public short? TargetSpatialLayer { get; set; }
-        [JsonPropertyName("current_spatial_layer")]
-        public short? CurrentSpatialLayer { get; set; }
-        [JsonPropertyName("preferred_temporal_layer")]
-        public short? PreferredTemporalLayer { get; set; }
-        [JsonPropertyName("target_temporal_layer")]
-        public short? TargetTemporalLayer { get; set; }
-        [JsonPropertyName("current_temporal_layer")]
-        public short? CurrentTemporalLayer { get; set; }
-
-        public ConsumerDumpT()
-        {
-            this.Base = null;
-            this.RtpStreams = null;
-            this.PreferredSpatialLayer = null;
-            this.TargetSpatialLayer = null;
-            this.CurrentSpatialLayer = null;
-            this.PreferredTemporalLayer = null;
-            this.TargetTemporalLayer = null;
-            this.CurrentTemporalLayer = null;
-        }
-    }
 }

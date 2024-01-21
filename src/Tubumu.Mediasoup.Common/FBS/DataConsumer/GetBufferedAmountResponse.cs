@@ -53,15 +53,4 @@ namespace FBS.DataConsumer
               _o.BufferedAmount);
         }
     }
-
-    public class GetBufferedAmountResponseT
-    {
-        [JsonPropertyName("buffered_amount")]
-        public uint BufferedAmount { get; set; }
-
-        public GetBufferedAmountResponseT()
-        {
-            this.BufferedAmount = 0;
-        }
-    }
 }

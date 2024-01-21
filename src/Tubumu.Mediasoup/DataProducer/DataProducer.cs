@@ -339,7 +339,7 @@ namespace Tubumu.Mediasoup
                 var sendNotification = new SendNotificationT
                 {
                     Ppid = ppid,
-                    Data = new List<byte>(data),
+                    Data = data,
                     Subchannels = subchannels ?? new List<ushort>(0),
                     RequiredSubchannel = requiredSubchannel,
                 };

@@ -53,15 +53,4 @@ namespace FBS.Consumer
               _o.Ssrc);
         }
     }
-
-    public class PliTraceInfoT
-    {
-        [JsonPropertyName("ssrc")]
-        public uint Ssrc { get; set; }
-
-        public PliTraceInfoT()
-        {
-            this.Ssrc = 0;
-        }
-    }
 }

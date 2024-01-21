@@ -55,17 +55,4 @@ namespace FBS.DirectTransport
               _base);
         }
     }
-
-    public class GetStatsResponseT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.StatsT Base { get; set; }
-
-        public GetStatsResponseT()
-        {
-            this.Base = null;
-        }
-    }
-
-
 }

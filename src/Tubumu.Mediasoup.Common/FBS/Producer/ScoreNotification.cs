@@ -72,15 +72,4 @@ namespace FBS.Producer
               _scores);
         }
     }
-
-    public class ScoreNotificationT
-    {
-        [JsonPropertyName("scores")]
-        public List<FBS.Producer.ScoreT> Scores { get; set; }
-
-        public ScoreNotificationT()
-        {
-            this.Scores = null;
-        }
-    }
 }

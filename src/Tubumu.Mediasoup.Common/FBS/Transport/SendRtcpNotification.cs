@@ -57,9 +57,8 @@ namespace FBS.Transport
         }
         public void UnPackTo(SendRtcpNotificationT _o)
         {
-            _o.Data = new List<byte>();
-            for(var _j = 0; _j < this.DataLength; ++_j)
-            { _o.Data.Add(this.Data(_j)); }
+            _o.Data = new byte[this.DataLength];
+            Array.Copy(_o.Data, _o.Data, this.DataLength);
         }
         public static Offset<FBS.Transport.SendRtcpNotification> Pack(FlatBufferBuilder builder, SendRtcpNotificationT _o)
         {
@@ -68,23 +67,12 @@ namespace FBS.Transport
             var _data = default(VectorOffset);
             if(_o.Data != null)
             {
-                var __data = _o.Data.ToArray();
+                var __data = _o.Data;
                 _data = CreateDataVector(builder, __data);
             }
             return CreateSendRtcpNotification(
               builder,
               _data);
-        }
-    }
-
-    public class SendRtcpNotificationT
-    {
-        [JsonPropertyName("data")]
-        public List<byte> Data { get; set; }
-
-        public SendRtcpNotificationT()
-        {
-            this.Data = null;
         }
     }
 }

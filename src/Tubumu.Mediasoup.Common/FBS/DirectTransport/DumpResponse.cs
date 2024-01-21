@@ -55,15 +55,4 @@ namespace FBS.DirectTransport
               _base);
         }
     }
-
-    public class DumpResponseT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.DumpT Base { get; set; }
-
-        public DumpResponseT()
-        {
-            this.Base = null;
-        }
-    }
 }

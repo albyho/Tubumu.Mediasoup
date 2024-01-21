@@ -55,15 +55,4 @@ namespace FBS.PlainTransport
               _tuple);
         }
     }
-
-    public class TupleNotificationT
-    {
-        [JsonPropertyName("tuple")]
-        public FBS.Transport.TupleT Tuple { get; set; }
-
-        public TupleNotificationT()
-        {
-            this.Tuple = null;
-        }
-    }
 }

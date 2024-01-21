@@ -76,15 +76,4 @@ namespace FBS.Consumer
               _events);
         }
     }
-
-    public class EnableTraceEventRequestT
-    {
-        [JsonPropertyName("events")]
-        public List<FBS.Consumer.TraceEventType> Events { get; set; }
-
-        public EnableTraceEventRequestT()
-        {
-            this.Events = null;
-        }
-    }
 }

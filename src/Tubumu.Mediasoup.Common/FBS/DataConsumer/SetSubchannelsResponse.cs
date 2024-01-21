@@ -76,9 +76,4 @@ namespace FBS.DataConsumer
               _subchannels);
         }
     }
-
-    public class SetSubchannelsResponseT
-    {
-        public List<ushort> Subchannels { get; set; }
-    }
 }

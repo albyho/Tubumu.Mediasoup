@@ -54,15 +54,4 @@ namespace FBS.Consumer
               _layers);
         }
     }
-
-    public class LayersChangeNotificationT
-    {
-        [JsonPropertyName("layers")]
-        public FBS.Consumer.ConsumerLayersT Layers { get; set; }
-
-        public LayersChangeNotificationT()
-        {
-            this.Layers = null;
-        }
-    }
 }

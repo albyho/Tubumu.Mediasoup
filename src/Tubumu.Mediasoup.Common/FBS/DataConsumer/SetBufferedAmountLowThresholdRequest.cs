@@ -53,15 +53,4 @@ namespace FBS.DataConsumer
               _o.Threshold);
         }
     }
-
-    public class SetBufferedAmountLowThresholdRequestT
-    {
-        [JsonPropertyName("threshold")]
-        public uint Threshold { get; set; }
-
-        public SetBufferedAmountLowThresholdRequestT()
-        {
-            this.Threshold = 0;
-        }
-    }
 }

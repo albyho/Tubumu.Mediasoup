@@ -65,32 +65,4 @@ namespace FBS.LibUring
               _o.UserDataMissCount);
         }
     }
-
-    public class DumpT
-    {
-        /// <summary>
-        /// sqeProcessCount. Renamed.
-        /// </summary>
-        [JsonPropertyName("sqeProcessCount")]
-        public ulong SqeProcessCount { get; set; }
-
-        /// <summary>
-        /// sqeMissCount. Renamed.
-        /// </summary>
-        [JsonPropertyName("sqeMissCount")]
-        public ulong SqeMissCount { get; set; }
-
-        /// <summary>
-        /// userDataMissCount. Renamed.
-        /// </summary>
-        [JsonPropertyName("userDataMissCount")]
-        public ulong UserDataMissCount { get; set; }
-
-        public DumpT()
-        {
-            this.SqeProcessCount = 0;
-            this.SqeMissCount = 0;
-            this.UserDataMissCount = 0;
-        }
-    }
 }

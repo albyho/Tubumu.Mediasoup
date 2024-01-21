@@ -192,45 +192,4 @@ namespace FBS.Consumer
               _o.Priority);
         }
     }
-
-    public class BaseConsumerDumpT
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-        [JsonPropertyName("type")]
-        public FBS.RtpParameters.Type Type { get; set; }
-        [JsonPropertyName("producer_id")]
-        public string ProducerId { get; set; }
-        [JsonPropertyName("kind")]
-        public FBS.RtpParameters.MediaKind Kind { get; set; }
-        [JsonPropertyName("rtp_parameters")]
-        public FBS.RtpParameters.RtpParametersT RtpParameters { get; set; }
-        [JsonPropertyName("consumable_rtp_encodings")]
-        public List<FBS.RtpParameters.RtpEncodingParametersT> ConsumableRtpEncodings { get; set; }
-        [JsonPropertyName("supported_codec_payload_types")]
-        public List<byte> SupportedCodecPayloadTypes { get; set; }
-        [JsonPropertyName("trace_event_types")]
-        public List<FBS.Consumer.TraceEventType> TraceEventTypes { get; set; }
-        [JsonPropertyName("paused")]
-        public bool Paused { get; set; }
-        [JsonPropertyName("producer_paused")]
-        public bool ProducerPaused { get; set; }
-        [JsonPropertyName("priority")]
-        public byte Priority { get; set; }
-
-        public BaseConsumerDumpT()
-        {
-            this.Id = null;
-            this.Type = FBS.RtpParameters.Type.SIMPLE;
-            this.ProducerId = null;
-            this.Kind = FBS.RtpParameters.MediaKind.AUDIO;
-            this.RtpParameters = null;
-            this.ConsumableRtpEncodings = null;
-            this.SupportedCodecPayloadTypes = null;
-            this.TraceEventTypes = null;
-            this.Paused = false;
-            this.ProducerPaused = false;
-            this.Priority = 0;
-        }
-    }
 }

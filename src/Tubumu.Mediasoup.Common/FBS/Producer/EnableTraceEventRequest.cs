@@ -76,15 +76,4 @@ namespace FBS.Producer
               _events);
         }
     }
-
-    public class EnableTraceEventRequestT
-    {
-        [JsonPropertyName("events")]
-        public List<FBS.Producer.TraceEventType> Events { get; set; }
-
-        public EnableTraceEventRequestT()
-        {
-            this.Events = null;
-        }
-    }
 }

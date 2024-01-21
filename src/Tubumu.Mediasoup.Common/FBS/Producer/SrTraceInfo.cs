@@ -83,30 +83,4 @@ namespace FBS.Producer
               _o.OctetCount);
         }
     }
-
-    public class SrTraceInfoT
-    {
-        [JsonPropertyName("ssrc")]
-        public uint Ssrc { get; set; }
-        [JsonPropertyName("ntp_sec")]
-        public uint NtpSec { get; set; }
-        [JsonPropertyName("ntp_frac")]
-        public uint NtpFrac { get; set; }
-        [JsonPropertyName("rtp_ts")]
-        public uint RtpTs { get; set; }
-        [JsonPropertyName("packet_count")]
-        public uint PacketCount { get; set; }
-        [JsonPropertyName("octet_count")]
-        public uint OctetCount { get; set; }
-
-        public SrTraceInfoT()
-        {
-            this.Ssrc = 0;
-            this.NtpSec = 0;
-            this.NtpFrac = 0;
-            this.RtpTs = 0;
-            this.PacketCount = 0;
-            this.OctetCount = 0;
-        }
-    }
 }

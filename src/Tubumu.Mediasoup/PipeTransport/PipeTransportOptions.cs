@@ -38,14 +38,14 @@ namespace Tubumu.Mediasoup
         /// located in different hosts and there is packet lost in the link. For this
         /// to work, both PipeTransports must enable this setting. Default false.
         /// </summary>
-        public bool EnableRtx { get; set; } = false;
+        public bool EnableRtx { get; set; }
 
         /// <summary>
         /// Enable SRTP. Useful to protect the RTP and RTCP traffic if both Routers
         /// are located in different hosts. For this to work, connect() must be called
         /// with remote SRTP parameters. Default false.
         /// </summary>
-        public bool EnableSrtp { get; set; } = false;
+        public bool EnableSrtp { get; set; }
 
         /// <summary>
         /// Custom application data.

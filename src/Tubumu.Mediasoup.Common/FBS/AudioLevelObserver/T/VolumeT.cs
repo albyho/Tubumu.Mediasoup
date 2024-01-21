@@ -12,12 +12,7 @@ namespace FBS.AudioLevelObserver
     {
         public string ProducerId { get; set; }
 
+        [JsonPropertyName("volume")]
         public sbyte Volume_ { get; set; }
-
-        public VolumeT()
-        {
-            this.ProducerId = null;
-            this.Volume_ = 0;
-        }
     }
 }

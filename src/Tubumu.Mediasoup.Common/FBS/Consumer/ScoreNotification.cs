@@ -55,15 +55,4 @@ namespace FBS.Consumer
               _score);
         }
     }
-
-    public class ScoreNotificationT
-    {
-        [JsonPropertyName("score")]
-        public FBS.Consumer.ConsumerScoreT Score { get; set; }
-
-        public ScoreNotificationT()
-        {
-            this.Score = null;
-        }
-    }
 }

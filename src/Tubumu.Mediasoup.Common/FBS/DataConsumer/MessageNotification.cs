@@ -62,10 +62,10 @@ namespace FBS.DataConsumer
         public void UnPackTo(MessageNotificationT _o)
         {
             _o.Ppid = this.Ppid;
-            _o.Data = new List<byte>();
-            for(var _j = 0; _j < this.DataLength; ++_j)
-            { _o.Data.Add(this.Data(_j)); }
+            _o.Data = new byte[this.DataLength];
+            Array.Copy(_o.Data, _o.Data, this.DataLength);
         }
+
         public static Offset<FBS.DataConsumer.MessageNotification> Pack(FlatBufferBuilder builder, MessageNotificationT _o)
         {
             if(_o == null)
@@ -73,7 +73,7 @@ namespace FBS.DataConsumer
             var _data = default(VectorOffset);
             if(_o.Data != null)
             {
-                var __data = _o.Data.ToArray();
+                var __data = _o.Data;
                 _data = CreateDataVector(builder, __data);
             }
             return CreateMessageNotification(
@@ -81,15 +81,5 @@ namespace FBS.DataConsumer
               _o.Ppid,
               _data);
         }
-    }
-
-    public class MessageNotificationT
-    {
-        public uint Ppid { get; set; }
-
-        /// <summary>
-        /// TODO: Do not use `List<byte>`
-        /// </summary>
-        public List<byte> Data { get; set; }
     }
 }

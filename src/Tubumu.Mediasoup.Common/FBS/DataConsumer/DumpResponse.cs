@@ -163,42 +163,4 @@ namespace FBS.DataConsumer
               _subchannels);
         }
     }
-
-    public class DumpResponseT
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-        [JsonPropertyName("data_producer_id")]
-        public string DataProducerId { get; set; }
-        [JsonPropertyName("type")]
-        public FBS.DataProducer.Type Type { get; set; }
-        [JsonPropertyName("sctp_stream_parameters")]
-        public FBS.SctpParameters.SctpStreamParametersT SctpStreamParameters { get; set; }
-        [JsonPropertyName("label")]
-        public string Label { get; set; }
-        [JsonPropertyName("protocol")]
-        public string Protocol { get; set; }
-        [JsonPropertyName("buffered_amount_low_threshold")]
-        public uint BufferedAmountLowThreshold { get; set; }
-        [JsonPropertyName("paused")]
-        public bool Paused { get; set; }
-        [JsonPropertyName("data_producer_paused")]
-        public bool DataProducerPaused { get; set; }
-        [JsonPropertyName("subchannels")]
-        public List<ushort> Subchannels { get; set; }
-
-        public DumpResponseT()
-        {
-            this.Id = null;
-            this.DataProducerId = null;
-            this.Type = FBS.DataProducer.Type.SCTP;
-            this.SctpStreamParameters = null;
-            this.Label = null;
-            this.Protocol = null;
-            this.BufferedAmountLowThreshold = 0;
-            this.Paused = false;
-            this.DataProducerPaused = false;
-            this.Subchannels = null;
-        }
-    }
 }

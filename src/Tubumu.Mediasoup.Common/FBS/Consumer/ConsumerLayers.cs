@@ -59,25 +59,4 @@ namespace FBS.Consumer
               _o.TemporalLayer);
         }
     }
-
-    public class ConsumerLayersT
-    {
-        /// <summary>
-        /// spatialLayer. Renamed.
-        /// </summary>
-        [JsonPropertyName("spatialLayer")]
-        public byte SpatialLayer { get; set; }
-
-        /// <summary>
-        /// temporalLayer. Renamed.
-        /// </summary>
-        [JsonPropertyName("temporalLayer")]
-        public byte? TemporalLayer { get; set; }
-
-        public ConsumerLayersT()
-        {
-            this.SpatialLayer = 0;
-            this.TemporalLayer = null;
-        }
-    }
 }

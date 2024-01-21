@@ -79,24 +79,4 @@ namespace FBS.Producer
               _o.Score_);
         }
     }
-
-    public class ScoreT
-    {
-        [JsonPropertyName("encoding_idx")]
-        public uint EncodingIdx { get; set; }
-        [JsonPropertyName("ssrc")]
-        public uint Ssrc { get; set; }
-        [JsonPropertyName("rid")]
-        public string Rid { get; set; }
-        [JsonPropertyName("score")]
-        public byte Score_ { get; set; }
-
-        public ScoreT()
-        {
-            this.EncodingIdx = 0;
-            this.Ssrc = 0;
-            this.Rid = null;
-            this.Score_ = 0;
-        }
-    }
 }

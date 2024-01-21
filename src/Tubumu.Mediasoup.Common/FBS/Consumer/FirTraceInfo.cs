@@ -53,15 +53,4 @@ namespace FBS.Consumer
               _o.Ssrc);
         }
     }
-
-    public class FirTraceInfoT
-    {
-        [JsonPropertyName("ssrc")]
-        public uint Ssrc { get; set; }
-
-        public FirTraceInfoT()
-        {
-            this.Ssrc = 0;
-        }
-    }
 }

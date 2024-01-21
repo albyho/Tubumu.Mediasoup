@@ -62,15 +62,4 @@ namespace FBS.Log
               _data);
         }
     }
-
-    public class LogT
-    {
-        [JsonPropertyName("data")]
-        public string Data { get; set; }
-
-        public LogT()
-        {
-            this.Data = null;
-        }
-    }
 }

@@ -72,15 +72,4 @@ namespace FBS.Producer
               _stats);
         }
     }
-
-    public class GetStatsResponseT
-    {
-        [JsonPropertyName("stats")]
-        public List<FBS.RtpStream.StatsT> Stats { get; set; }
-
-        public GetStatsResponseT()
-        {
-            this.Stats = null;
-        }
-    }
 }

@@ -82,27 +82,4 @@ namespace FBS.PlainTransport
               _rtcp_tuple);
         }
     }
-
-    public class GetStatsResponseT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.StatsT Base { get; set; }
-        [JsonPropertyName("rtcp_mux")]
-        public bool RtcpMux { get; set; }
-        [JsonPropertyName("comedia")]
-        public bool Comedia { get; set; }
-        [JsonPropertyName("tuple")]
-        public FBS.Transport.TupleT Tuple { get; set; }
-        [JsonPropertyName("rtcp_tuple")]
-        public FBS.Transport.TupleT RtcpTuple { get; set; }
-
-        public GetStatsResponseT()
-        {
-            this.Base = null;
-            this.RtcpMux = false;
-            this.Comedia = false;
-            this.Tuple = null;
-            this.RtcpTuple = null;
-        }
-    }
 }

@@ -53,15 +53,4 @@ namespace FBS.DataConsumer
               _o.Subchannel);
         }
     }
-
-    public class RemoveSubchannelRequestT
-    {
-        [JsonPropertyName("subchannel")]
-        public ushort Subchannel { get; set; }
-
-        public RemoveSubchannelRequestT()
-        {
-            this.Subchannel = 0;
-        }
-    }
 }

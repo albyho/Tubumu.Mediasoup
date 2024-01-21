@@ -57,9 +57,8 @@ namespace FBS.DirectTransport
         }
         public void UnPackTo(RtcpNotificationT _o)
         {
-            _o.Data = new List<byte>();
-            for(var _j = 0; _j < this.DataLength; ++_j)
-            { _o.Data.Add(this.Data(_j)); }
+            _o.Data = new byte[this.DataLength];
+            Array.Copy(_o.Data, _o.Data, this.DataLength);
         }
         public static Offset<FBS.DirectTransport.RtcpNotification> Pack(FlatBufferBuilder builder, RtcpNotificationT _o)
         {
@@ -68,23 +67,12 @@ namespace FBS.DirectTransport
             var _data = default(VectorOffset);
             if(_o.Data != null)
             {
-                var __data = _o.Data.ToArray();
+                var __data = _o.Data;
                 _data = CreateDataVector(builder, __data);
             }
             return CreateRtcpNotification(
               builder,
               _data);
-        }
-    }
-
-    public class RtcpNotificationT
-    {
-        [JsonPropertyName("data")]
-        public List<byte> Data { get; set; }
-
-        public RtcpNotificationT()
-        {
-            this.Data = null;
         }
     }
 }

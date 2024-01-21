@@ -57,9 +57,8 @@ namespace FBS.Producer
         }
         public void UnPackTo(SendNotificationT _o)
         {
-            _o.Data = new List<byte>();
-            for(var _j = 0; _j < this.DataLength; ++_j)
-            { _o.Data.Add(this.Data(_j)); }
+            _o.Data = new byte[this.DataLength];
+            Array.Copy(_o.Data, _o.Data, this.DataLength);
         }
         public static Offset<FBS.Producer.SendNotification> Pack(FlatBufferBuilder builder, SendNotificationT _o)
         {
@@ -68,23 +67,12 @@ namespace FBS.Producer
             var _data = default(VectorOffset);
             if(_o.Data != null)
             {
-                var __data = _o.Data.ToArray();
+                var __data = _o.Data;
                 _data = CreateDataVector(builder, __data);
             }
             return CreateSendNotification(
               builder,
               _data);
-        }
-    }
-
-    public class SendNotificationT
-    {
-        [JsonPropertyName("data")]
-        public List<byte> Data { get; set; }
-
-        public SendNotificationT()
-        {
-            this.Data = null;
         }
     }
 }
