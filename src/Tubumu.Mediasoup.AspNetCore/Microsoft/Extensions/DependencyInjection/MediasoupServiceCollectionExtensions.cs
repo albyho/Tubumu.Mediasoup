@@ -22,7 +22,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var mediasoupOptions = MediasoupOptions.Default;
             Configure(mediasoupOptions, configuration);
             return AddMediasoup(services, mediasoupOptions, configure);
-
         }
 
         public static IServiceCollection AddMediasoup(this IServiceCollection services, MediasoupOptions mediasoupOptions, Action<MediasoupOptions>? configure = null)
@@ -67,14 +66,14 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             // RouterSettings
-            if(routerSettings != null && !routerSettings.RtpCodecCapabilities.IsNullOrEmpty())
+            if(routerSettings?.RtpCodecCapabilities.IsNullOrEmpty() == false)
             {
                 mediasoupOptions.MediasoupSettings.RouterSettings = routerSettings;
 
                 // Fix RtpCodecCapabilities[x].Parameters 。从配置文件反序列化时将数字转换成了字符串，而 mediasoup-worker 有严格的数据类型验证，故这里进行修正。
                 foreach(var codec in routerSettings.RtpCodecCapabilities.Where(m => m.Parameters != null))
                 {
-                    foreach(var key in codec.Parameters.Keys.ToArray())
+                    foreach(var key in codec.Parameters!.Keys.ToArray())
                     {
                         var value = codec.Parameters[key];
                         if(value != null && int.TryParse(value.ToString(), out var intValue))
@@ -121,11 +120,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
                 else
                 {
-                    var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
-                    if(localIPv4IPAddress == null)
-                    {
-                        throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcServer。");
-                    }
+                    var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress() ?? throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcServer。");
 
                     foreach(var listenIp in listenInfos)
                     {
@@ -168,11 +163,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
                 else
                 {
-                    var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
-                    if(localIPv4IPAddress == null)
-                    {
-                        throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
-                    }
+                    var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress() ?? throw new ArgumentException("无法获取本机 IPv4 配置 WebRtcTransport。");
 
                     foreach(var listenIp in listenIps)
                     {
@@ -192,11 +183,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo = plainTransportSettings.ListenInfo;
                 mediasoupOptions.MediasoupSettings.PlainTransportSettings.MaxSctpMessageSize = plainTransportSettings.MaxSctpMessageSize;
 
-                var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
-                if(localIPv4IPAddress == null)
-                {
-                    throw new ArgumentException("无法获取本机 IPv4 配置 PlainTransport。");
-                }
+                var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress() ?? throw new ArgumentException("无法获取本机 IPv4 配置 PlainTransport。");
 
                 var listenIp = mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo;
                 if(listenIp == null)
