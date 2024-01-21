@@ -63,17 +63,17 @@ namespace Tubumu.Mediasoup
         /// <para>@emits webrtctransportunhandled - (webRtcTransport: WebRtcTransport)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="@internal"></param>
+        /// <param name="internal_"></param>
         /// <param name="channel"></param>
         /// <param name="appData"></param>
         public WebRtcServer(ILoggerFactory loggerFactory,
-                        WebRtcServerInternal @internal,
+                        WebRtcServerInternal internal_,
                         IChannel channel,
                         Dictionary<string, object>? appData)
         {
             _logger = loggerFactory.CreateLogger<WebRtcServer>();
 
-            _internal = @internal;
+            _internal = internal_;
             _channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
         }

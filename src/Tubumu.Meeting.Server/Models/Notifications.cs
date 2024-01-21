@@ -58,7 +58,7 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 消费者类型，如 SVC, Simulcast 等。
         /// </summary>
-        public ConsumerType Type { get; set; }
+        public Type Type { get; set; }
 
         /// <summary>
         /// 生产者的 AppData

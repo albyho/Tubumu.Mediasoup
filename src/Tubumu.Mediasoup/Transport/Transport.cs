@@ -161,7 +161,7 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newdataconsumer - (dataProducer: DataProducer)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="@internal"></param>
+        /// <param name="internal_"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="appData"></param>
@@ -170,7 +170,7 @@ namespace Tubumu.Mediasoup
         /// <param name="getDataProducerById"></param>
         protected Transport(
             ILoggerFactory loggerFactory,
-            TransportInternal @internal,
+            TransportInternal internal_,
             DumpT data,
             IChannel channel,
             Dictionary<string, object>? appData,
@@ -182,7 +182,7 @@ namespace Tubumu.Mediasoup
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Transport>();
 
-            Internal = @internal;
+            Internal = internal_;
             BaseData = data;
             Channel = channel;
             AppData = appData ?? new Dictionary<string, object>();

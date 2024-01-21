@@ -28,19 +28,19 @@ namespace Tubumu.Mediasoup
         /// <para>@emits silence</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="@internal"></param>
+        /// <param name="internal_"></param>
         /// <param name="channel"></param>
         /// <param name="payloadChannel"></param>
         /// <param name="appData"></param>
         /// <param name="getProducerById"></param>
         public AudioLevelObserver(
             ILoggerFactory loggerFactory,
-            RtpObserverInternal @internal,
+            RtpObserverInternal internal_,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
         )
-            : base(loggerFactory, @internal, channel, appData, getProducerById)
+            : base(loggerFactory, internal_, channel, appData, getProducerById)
         {
             _logger = loggerFactory.CreateLogger<AudioLevelObserver>();
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FBS.RtpParameters;
+using FBS.WebRtcTransport;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -14,12 +15,18 @@ namespace Tubumu.Meeting.Server
     public partial class MeetingHub : Hub<IHubClient>
     {
         private readonly ILogger<MeetingHub> _logger;
+
         private readonly IHubContext<MeetingHub, IHubClient> _hubContext;
+
         private readonly BadDisconnectSocketService _badDisconnectSocketService;
+
         private readonly Scheduler _scheduler;
+
         private readonly MeetingServerOptions _meetingServerOptions;
 
+
         private string UserId => Context.UserIdentifier!;
+
         private string ConnectionId => Context.ConnectionId;
 
         public MeetingHub(ILogger<MeetingHub> logger,
@@ -228,17 +235,18 @@ namespace Tubumu.Meeting.Server
                 var transport = await _scheduler.CreateWebRtcTransportAsync(UserId, ConnectionId, createWebRtcTransportRequest, isSend);
                 transport.On("sctpstatechange", (_, obj) =>
                 {
-                    _logger.LogDebug($"WebRtcTransport \"sctpstatechange\" event [sctpState:{obj}]");
+                    _logger.LogDebug("WebRtcTransport \"sctpstatechange\" event [sctpState:{obj}]", obj);
                     return Task.CompletedTask;
                 });
 
                 transport.On("dtlsstatechange", (_, obj) =>
                 {
                     var dtlsState = (DtlsState)obj!;
-                    if(dtlsState is DtlsState.Failed or DtlsState.Closed)
+                    if(dtlsState is DtlsState.FAILED or DtlsState.CLOSED)
                     {
-                        _logger.LogWarning($"WebRtcTransport dtlsstatechange event [dtlsState:{obj}]");
+                        _logger.LogWarning("WebRtcTransport dtlsstatechange event [dtlsState:{obj}]", obj);
                     }
+
                     return Task.CompletedTask;
                 });
 
@@ -249,19 +257,20 @@ namespace Tubumu.Meeting.Server
                 var peerId = UserId;
                 transport.On("trace", (_, obj) =>
                 {
-                    var traceData = (TransportTraceEventData)obj!;
-                    _logger.LogDebug($"transport \"trace\" event [transportId:{transport.TransportId}, trace:{traceData.Type.GetEnumMemberValue()}]");
+                    // TODO: Fix this
+                    // var traceData = (TransportTraceEventData)obj!;
+                    // _logger.LogDebug($"transport \"trace\" event [transportId:{transport.TransportId}, trace:{traceData.Type.GetEnumMemberValue()}]");
 
-                    if(traceData.Type == TransportTraceEventType.BWE && traceData.Direction == TraceEventDirection.Out)
-                    {
-                        // Notification: downlinkBwe
-                        SendNotification(peerId, "downlinkBwe", new
-                        {
-                            DesiredBitrate = traceData.Info["desiredBitrate"],
-                            EffectiveDesiredBitrate = traceData.Info["effectiveDesiredBitrate"],
-                            AvailableBitrate = traceData.Info["availableBitrate"]
-                        });
-                    }
+                    // if(traceData.Type == TransportTraceEventType.BWE && traceData.Direction == TraceEventDirection.Out)
+                    // {
+                    //     // Notification: downlinkBwe
+                    //     SendNotification(peerId, "downlinkBwe", new
+                    //     {
+                    //         DesiredBitrate = traceData.Info["desiredBitrate"],
+                    //         EffectiveDesiredBitrate = traceData.Info["effectiveDesiredBitrate"],
+                    //         AvailableBitrate = traceData.Info["availableBitrate"]
+                    //     });
+                    // }
                     return Task.CompletedTask;
                 });
 
@@ -271,13 +280,13 @@ namespace Tubumu.Meeting.Server
                     IceParameters = transport.Data.IceParameters,
                     IceCandidates = transport.Data.IceCandidates,
                     DtlsParameters = transport.Data.DtlsParameters,
-                    SctpParameters = transport.Data.SctpParameters,
+                    SctpParameters = transport.Data.Base.SctpParameters,
                 },
                 "CreateWebRtcTransport 成功");
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "CreateWebRtcTransportAsync 调用失败.");
             }
             catch(Exception ex)
             {
@@ -458,7 +467,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "Invite 调用失败.");
             }
             catch(Exception ex)
             {
@@ -471,8 +480,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Deinvite medias.
         /// </summary>
-        /// <param name="inviteRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> Deinvite(DeinviteRequest deinviteRequest)
         {
             if(_meetingServerOptions.ServeMode != ServeMode.Invite)
@@ -673,7 +680,7 @@ namespace Tubumu.Meeting.Server
 
                 producer.On("trace", (_, obj) =>
                 {
-                    _logger.LogDebug($"producer \"trace\" event [producerId:{producer.ProducerId}, trace:{obj}");
+                    _logger.LogDebug("producer \"trace\" event [producerId:{producer.ProducerId}, trace:{obj}", producer.ProducerId, obj);
                     return Task.CompletedTask;
                 });
 
@@ -722,7 +729,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "CloseProducer 调用失败.");
             }
             catch(Exception ex)
             {
@@ -748,7 +755,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "PauseProducer 调用失败.");
             }
             catch(Exception ex)
             {
@@ -774,7 +781,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "ResumeProducer 调用失败.");
             }
             catch(Exception ex)
             {
@@ -804,7 +811,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "CloseConsumer 调用失败.");
             }
             catch(Exception ex)
             {
@@ -830,7 +837,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "PauseConsumer 调用失败.");
             }
             catch(Exception ex)
             {
@@ -864,7 +871,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "ResumeConsumer 调用失败.");
             }
             catch(Exception ex)
             {
@@ -916,7 +923,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "SetConsumerPriority 调用失败.");
             }
             catch(Exception ex)
             {
@@ -942,7 +949,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "RequestConsumerKeyFrame 调用失败.");
             }
             catch(Exception ex)
             {
@@ -961,25 +968,25 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="transportId"></param>
         /// <returns></returns>
-        public async Task<MeetingMessage<WebRtcTransportStat>> GetWebRtcTransportStats(string transportId)
+        public async Task<MeetingMessage<object[]>> GetWebRtcTransportStats(string transportId)
         {
             try
             {
                 var data = await _scheduler.GetWebRtcTransportStatsAsync(UserId, ConnectionId, transportId);
                 return data == null
-                    ? MeetingMessage<WebRtcTransportStat>.Failure("GetWebRtcTransportStats 失败")
-                    : MeetingMessage<WebRtcTransportStat>.Success(data, "GetWebRtcTransportStats 成功");
+                    ? MeetingMessage<object[]>.Failure("GetWebRtcTransportStats 失败")
+                    : MeetingMessage<object[]>.Success(data, "GetWebRtcTransportStats 成功");
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "GetWebRtcTransportStats 调用失败.");
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "GetWebRtcTransportStats 调用失败.");
             }
 
-            return MeetingMessage<WebRtcTransportStat>.Failure("GetWebRtcTransportStats 失败");
+            return MeetingMessage<object[]>.Failure("GetWebRtcTransportStats 失败");
         }
 
         /// <summary>
@@ -987,25 +994,25 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="producerId"></param>
         /// <returns></returns>
-        public async Task<MeetingMessage<ProducerStat>> GetProducerStats(string producerId)
+        public async Task<MeetingMessage<object[]>> GetProducerStats(string producerId)
         {
             try
             {
                 var data = await _scheduler.GetProducerStatsAsync(UserId, ConnectionId, producerId);
                 return data == null
-                    ? MeetingMessage<ProducerStat>.Failure("GetProducerStats 失败")
-                    : MeetingMessage<ProducerStat>.Success(data, "GetProducerStats 成功");
+                    ? MeetingMessage<object[]>.Failure("GetProducerStats 失败")
+                    : MeetingMessage<object[]>.Success(data, "GetProducerStats 成功");
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "GetProducerStats 调用失败.");
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "GetProducerStats 调用失败.");
             }
 
-            return MeetingMessage<ProducerStat>.Failure("GetProducerStats 失败");
+            return MeetingMessage<object[]>.Failure("GetProducerStats 失败");
         }
 
         /// <summary>
@@ -1013,25 +1020,25 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="consumerId"></param>
         /// <returns></returns>
-        public async Task<MeetingMessage<ConsumerStat>> GetConsumerStats(string consumerId)
+        public async Task<MeetingMessage<object[]>> GetConsumerStats(string consumerId)
         {
             try
             {
                 var data = await _scheduler.GetConsumerStatsAsync(UserId, ConnectionId, consumerId);
                 return data == null
-                    ? MeetingMessage<ConsumerStat>.Failure("GetConsumerStats 失败")
-                    : MeetingMessage<ConsumerStat>.Success(data, "GetConsumerStats 成功");
+                    ? MeetingMessage<object[]>.Failure("GetConsumerStats 失败")
+                    : MeetingMessage<object[]>.Success(data, "GetConsumerStats 成功");
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "GetConsumerStats 调用失败.");
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "GetConsumerStats 调用失败.");
             }
 
-            return MeetingMessage<ConsumerStat>.Failure("GetConsumerStats 失败");
+            return MeetingMessage<object[]>.Failure("GetConsumerStats 失败");
         }
 
         /// <summary>
@@ -1039,23 +1046,23 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="transportId"></param>
         /// <returns></returns>
-        public async Task<MeetingMessage<IceParameters>> RestartIce(string transportId)
+        public async Task<MeetingMessage<IceParametersT>> RestartIce(string transportId)
         {
             try
             {
                 var iceParameters = await _scheduler.RestartIceAsync(UserId, ConnectionId, transportId);
-                return MeetingMessage<IceParameters>.Success(iceParameters, "RestartIce 成功");
+                return MeetingMessage<IceParametersT>.Success(iceParameters, "RestartIce 成功");
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "GetConsumerStats 调用失败.");
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "GetConsumerStats 调用失败.");
             }
 
-            return MeetingMessage<IceParameters>.Failure("RestartIce 失败");
+            return MeetingMessage<IceParametersT>.Failure("RestartIce 失败");
         }
 
         #endregion
@@ -1083,7 +1090,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "SendMessage 调用失败.");
             }
             catch(Exception ex)
             {
@@ -1297,7 +1304,7 @@ namespace Tubumu.Meeting.Server
 
             consumer.On("trace", (_, obj) =>
             {
-                _logger.LogDebug($"consumer \"trace\" event [consumerId:{consumer.ConsumerId}, trace:{obj}]");
+                _logger.LogDebug("consumer \"trace\" event [consumerId:{consumer.ConsumerId}, trace:{obj}]", consumer.ConsumerId, obj);
                 return Task.CompletedTask;
             });
 

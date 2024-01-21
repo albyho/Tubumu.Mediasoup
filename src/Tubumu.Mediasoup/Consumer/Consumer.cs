@@ -117,7 +117,7 @@ namespace Tubumu.Mediasoup
         /// <para>@emits trace - (trace: ConsumerTraceEventData)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="@internal"></param>
+        /// <param name="internal_"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="appData"></param>
@@ -127,7 +127,7 @@ namespace Tubumu.Mediasoup
         /// <param name="preferredLayers"></param>
         public Consumer(
             ILoggerFactory loggerFactory,
-            ConsumerInternal @internal,
+            ConsumerInternal internal_,
             ConsumerData data,
             IChannel channel,
             Dictionary<string, object>? appData,
@@ -139,7 +139,7 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<Consumer>();
 
-            _internal = @internal;
+            _internal = internal_;
             Data = data;
             _channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
@@ -347,7 +347,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set preferred video layers.
         /// </summary>
-        public async Task SetPreferredLayersAsync(ConsumerLayers consumerLayers)
+        public async Task SetPreferredLayersAsync(SetPreferredLayersRequestT setPreferredLayersRequest)
         {
             _logger.LogDebug("SetPreferredLayersAsync() | Consumer:{ConsumerId}", ConsumerId);
 
@@ -358,21 +358,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var preferredLayersOffset =
-                    FBS.Consumer.ConsumerLayers.CreateConsumerLayers(
-                        _channel.BufferBuilder,
-                        consumerLayers.SpatialLayer,
-                        consumerLayers.TemporalLayer);
-
-                var requestOffset =
-                    FBS.Consumer.SetPreferredLayersRequest.CreateSetPreferredLayersRequest(
-                        _channel.BufferBuilder,
-                        preferredLayersOffset);
+                var setPreferredLayersRequestOffset = SetPreferredLayersRequest.Pack(_channel.BufferBuilder, setPreferredLayersRequest);
 
                 var response = await _channel.RequestAsync(
                     Method.CONSUMER_SET_PREFERRED_LAYERS,
                     FBS.Request.Body.Consumer_SetPreferredLayersRequest,
-                    requestOffset.Value,
+                    setPreferredLayersRequestOffset.Value,
                     _internal.ConsumerId);
                 var preferredLayers = response.Value.BodyAsConsumer_SetPreferredLayersResponse().UnPack().PreferredLayers;
 
@@ -383,7 +374,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set priority.
         /// </summary>
-        public async Task SetPriorityAsync(byte priority)
+        public async Task SetPriorityAsync(SetPriorityRequestT setPriorityRequest)
         {
             _logger.LogDebug("SetPriorityAsync() | Consumer:{ConsumerId}", ConsumerId);
 
@@ -394,15 +385,14 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var requestOffset =
-                    FBS.Consumer.SetPriorityRequest.CreateSetPriorityRequest(
-                        _channel.BufferBuilder, priority);
+                var setPriorityRequestOffset = SetPriorityRequest.Pack(_channel.BufferBuilder, setPriorityRequest);
 
                 var response = await _channel.RequestAsync(
                     Method.CONSUMER_SET_PRIORITY,
                     FBS.Request.Body.Consumer_SetPriorityRequest,
-                    requestOffset.Value,
+                    setPriorityRequestOffset.Value,
                     _internal.ConsumerId);
+
                 var priorityResponse = response.Value.BodyAsConsumer_SetPriorityResponse().UnPack().Priority;
 
                 Priority = priorityResponse;
@@ -416,7 +406,10 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("UnsetPriorityAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            return SetPriorityAsync(1);
+            return SetPriorityAsync(new SetPriorityRequestT
+            {
+                Priority = 1,
+            });
         }
 
         /// <summary>
@@ -455,10 +448,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var requestOffset = FBS.Consumer.EnableTraceEventRequest.Pack(_channel.BufferBuilder, new FBS.Consumer.EnableTraceEventRequestT
+                var request = new EnableTraceEventRequestT
                 {
                     Events = types ?? new List<TraceEventType>(0)
-                });
+                };
+
+                var requestOffset = FBS.Consumer.EnableTraceEventRequest.Pack(_channel.BufferBuilder, request);
 
                 // Fire and forget
                 _channel

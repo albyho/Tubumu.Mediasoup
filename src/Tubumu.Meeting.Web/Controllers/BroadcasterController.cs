@@ -6,6 +6,8 @@ using Tubumu.Utils.Models;
 using Tubumu.Mediasoup;
 using Tubumu.Meeting.Server;
 using FBS.RtpParameters;
+using RtpParameters = Tubumu.Mediasoup.RtpParameters;
+using RtpCodecParameters = Tubumu.Mediasoup.RtpCodecParameters;
 
 namespace Tubumu.Meeting.Web.Controllers
 {
@@ -14,6 +16,7 @@ namespace Tubumu.Meeting.Web.Controllers
     public class BroadcasterController : ControllerBase
     {
         private readonly ILogger<BroadcasterController> _logger;
+
         private readonly Scheduler _scheduler;
 
         public BroadcasterController(ILogger<BroadcasterController> logger, Scheduler scheduler)
@@ -69,9 +72,9 @@ namespace Tubumu.Meeting.Web.Controllers
             {
                 Kind = MediaKind.VIDEO,
                 Source = "video",
-                RtpParameters = new RtpParametersT
+                RtpParameters = new RtpParameters
                 {
-                    Codecs = new List<RtpCodecParametersT>
+                    Codecs = new List<RtpCodecParameters>
                     {
                         new ()
                         {
@@ -98,9 +101,9 @@ namespace Tubumu.Meeting.Web.Controllers
             {
                 Kind = MediaKind.AUDIO,
                 Source = "audio",
-                RtpParameters = new RtpParametersT
+                RtpParameters = new RtpParameters
                 {
-                    Codecs = new List<RtpCodecParametersT>
+                    Codecs = new List<RtpCodecParameters>
                     {
                         new ()
                         {

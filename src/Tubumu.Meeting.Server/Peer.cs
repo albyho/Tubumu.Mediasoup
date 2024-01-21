@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FBS.RtpParameters;
+using FBS.RtpStream;
 using FBS.WebRtcTransport;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.Logging;
@@ -909,7 +910,7 @@ namespace Tubumu.Meeting.Server
                             throw new Exception($"SetConsumerPriorityAsync() | Peer:{PeerId} has no Consumer:{setConsumerPriorityRequest.ConsumerId}.");
                         }
 
-                        await consumer.SetPriorityAsync(setConsumerPriorityRequest.Priority);
+                        await consumer.SetPriorityAsync(setConsumerPriorityRequest);
                         return true;
                     }
                 }
@@ -950,7 +951,7 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="transportId"></param>
         /// <returns></returns>
-        public async Task<WebRtcTransportStat> GetWebRtcTransportStatsAsync(string transportId)
+        public async Task<object[]> GetWebRtcTransportStatsAsync(string transportId)
         {
             using(await _joinedLock.ReadLockAsync())
             {
@@ -968,9 +969,7 @@ namespace Tubumu.Meeting.Server
                         }
 
                         var stats = await transport!.GetStatsAsync();
-                        // TODO: (alby) 考虑不进行反序列化
-                        // TransportStat 系列包括：WebRtcTransportStat、PlainTransportStat、PipeTransportStat 和 DirectTransportStat。
-                        return JsonSerializer.Deserialize<WebRtcTransportStat>(stats, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        return stats;
                     }
                 }
             }
@@ -981,7 +980,7 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="producerId"></param>
         /// <returns></returns>
-        public async Task<ProducerStat> GetProducerStatsAsync(string producerId)
+        public async Task<object[]> GetProducerStatsAsync(string producerId)
         {
             using(await _joinedLock.ReadLockAsync())
             {
@@ -998,9 +997,9 @@ namespace Tubumu.Meeting.Server
                             throw new Exception($"GetProducerStatsAsync() | Peer:{PeerId} has no Producer:{producerId}.");
                         }
 
-                        var stats = await producer.GetStatsAsync();
-                        // TODO: (alby) 考虑不进行反序列化
-                        return JsonSerializer.Deserialize<ProducerStat>(stats, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var fbsStats = await producer.GetStatsAsync();
+                        var stats = fbsStats.Select(m => m.Data.Value).ToArray();
+                        return stats;
                     }
                 }
             }
@@ -1011,7 +1010,7 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="consumerId"></param>
         /// <returns></returns>
-        public async Task<ConsumerStat> GetConsumerStatsAsync(string consumerId)
+        public async Task<object[]> GetConsumerStatsAsync(string consumerId)
         {
             using(await _joinedLock.ReadLockAsync())
             {
@@ -1028,9 +1027,9 @@ namespace Tubumu.Meeting.Server
                             throw new Exception($"GetConsumerStatsAsync() | Peer:{PeerId} has no Consumer:{consumerId}.");
                         }
 
-                        var stats = await consumer.GetStatsAsync();
-                        // TODO: (alby) 考虑不进行反序列化
-                        return JsonSerializer.Deserialize<ConsumerStat>(stats, ObjectExtensions.DefaultJsonSerializerOptions)!;
+                        var fbsStats = await consumer.GetStatsAsync();
+                        var stats = fbsStats.Select(m => m.Data.Value).ToArray();
+                        return stats;
                     }
                 }
             }
@@ -1098,7 +1097,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 离开房间
         /// </summary>
-        /// <param name="roomId"></param>
         public async Task<LeaveRoomResult> LeaveRoomAsync()
         {
             using(await _joinedLock.ReadLockAsync())
@@ -1297,8 +1295,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 获取 InternalData
         /// </summary>
-        /// <param name="setPeerInternalDataRequest"></param>
-        /// <returns></returns>
         public async Task<PeerInternalDataResult> GetPeerInternalDataAsync()
         {
             var peerInternalDataResult = new PeerInternalDataResult();
@@ -1315,8 +1311,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 移除 InternalData
         /// </summary>
-        /// <param name="unsetPeerInternalDataRequest"></param>
-        /// <returns></returns>
         public async Task<PeerInternalDataResult> UnsetPeerInternalDataAsync(UnsetPeerInternalDataRequest unsetPeerInternalDataRequest)
         {
             var peerInternalDataResult = new PeerInternalDataResult();
@@ -1338,7 +1332,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 清空 InternalData
         /// </summary>
-        /// <returns></returns>
         public async Task<PeerInternalDataResult> ClearPeerInternalDataAsync()
         {
             var peerInternalDataResult = new PeerInternalDataResult
@@ -1392,7 +1385,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 获取用户角色
         /// </summary>
-        /// <returns></returns>
         public async Task<UserRole> GetRoleAsync()
         {
             using(await _joinedLock.ReadLockAsync())

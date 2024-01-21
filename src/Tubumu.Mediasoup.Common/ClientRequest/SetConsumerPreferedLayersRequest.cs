@@ -2,7 +2,7 @@
 
 namespace Tubumu.Mediasoup
 {
-    public class SetConsumerPreferedLayersRequest : ConsumerLayersT
+    public class SetConsumerPreferedLayersRequest : SetPreferredLayersRequestT
     {
         public string ConsumerId { get; set; }
     }

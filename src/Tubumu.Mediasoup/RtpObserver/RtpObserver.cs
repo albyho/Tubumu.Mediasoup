@@ -65,13 +65,13 @@ namespace Tubumu.Mediasoup
         /// <para>@emits removeproducer - (producer: Producer)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="@internal"></param>
+        /// <param name="internal_"></param>
         /// <param name="channel"></param>
         /// <param name="appData"></param>
         /// <param name="getProducerById"></param>
         protected RtpObserver(
             ILoggerFactory loggerFactory,
-            RtpObserverInternal @internal,
+            RtpObserverInternal internal_,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
@@ -79,7 +79,7 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<RtpObserver>();
 
-            Internal = @internal;
+            Internal = internal_;
             Channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
             GetProducerById = getProducerById;

@@ -1,4 +1,5 @@
-﻿using FBS.SctpParameters;
+﻿using System.Collections.Generic;
+using FBS.SctpParameters;
 using FBS.WebRtcTransport;
 
 namespace Tubumu.Mediasoup
@@ -9,7 +10,7 @@ namespace Tubumu.Mediasoup
 
         public IceParametersT IceParameters { get; set; }
 
-        public IceCandidateT[] IceCandidates { get; set; }
+        public List<IceCandidateT> IceCandidates { get; set; }
 
         public DtlsParametersT DtlsParameters { get; set; }
 

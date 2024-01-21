@@ -28,7 +28,7 @@ namespace Tubumu.Mediasoup
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="@internal"></param>
+        /// <param name="internal_"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="appData"></param>
@@ -37,7 +37,7 @@ namespace Tubumu.Mediasoup
         /// <param name="getDataProducerById"></param>
         public DirectTransport(
             ILoggerFactory loggerFactory,
-            TransportInternal @internal,
+            TransportInternal internal_,
             DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
@@ -47,7 +47,7 @@ namespace Tubumu.Mediasoup
         )
             : base(
                 loggerFactory,
-                @internal,
+                internal_,
                 data.Base,
                 channel,
                 appData,

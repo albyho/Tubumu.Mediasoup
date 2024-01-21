@@ -49,7 +49,7 @@ namespace Tubumu.Mediasoup
         /// <param name="getDataProducerById"></param>
         public WebRtcTransport(
             ILoggerFactory loggerFactory,
-            TransportInternal @internal,
+            TransportInternal internal_,
             FBS.WebRtcTransport.DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
@@ -59,7 +59,7 @@ namespace Tubumu.Mediasoup
         )
             : base(
                 loggerFactory,
-                @internal,
+                internal_,
                 data.Base,
                 channel,
                 appData,

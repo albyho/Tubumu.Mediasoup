@@ -83,7 +83,7 @@ namespace Tubumu.Mediasoup
         /// <para>@emits resume</para>
         /// </summary>
         /// <param name="loggerFactory"></param>
-        /// <param name="@internal"></param>
+        /// <param name="internal_"></param>
         /// <param name="data"></param>
         /// <param name="channel"></param>
         /// <param name="paused"></param>
@@ -92,7 +92,7 @@ namespace Tubumu.Mediasoup
         /// <param name="appData"></param>
         public DataConsumer(
             ILoggerFactory loggerFactory,
-            DataConsumerInternal @internal,
+            DataConsumerInternal internal_,
             DataConsumerData data,
             IChannel channel,
             bool paused,
@@ -103,7 +103,7 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<DataConsumer>();
 
-            _internal = @internal;
+            _internal = internal_;
             Data = data;
             _channel = channel;
             _paused = paused;

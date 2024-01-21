@@ -1,9 +1,9 @@
-﻿namespace Tubumu.Mediasoup
+﻿using FBS.Consumer;
+
+namespace Tubumu.Mediasoup
 {
-    public class SetConsumerPriorityRequest
+    public class SetConsumerPriorityRequest : SetPriorityRequestT
     {
         public string ConsumerId { get; set; }
-
-        public byte Priority { get; set; }
     }
 }

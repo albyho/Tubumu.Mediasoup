@@ -7,6 +7,7 @@ using Tubumu.Meeting.Server;
 using Tubumu.Utils.Models;
 using System.Linq;
 using FBS.RtpParameters;
+using FBS.PlainTransport;
 
 namespace Tubumu.Meeting.Web.Controllers
 {
@@ -48,19 +49,19 @@ namespace Tubumu.Meeting.Web.Controllers
                 {
                     Codecs = new List<RtpCodecCapability>
                     {
-                        new RtpCodecCapability {
+                        new() {
                             Kind = MediaKind.AUDIO,
                             MimeType = "audio/opus",
                             ClockRate = 48000,
                             Channels = 2,
-                            RtcpFeedback = new RtcpFeedbackT[]
+                            RtcpFeedback = new List<RtcpFeedbackT>
                             {
-                                new RtcpFeedbackT {
+                                new () {
                                     Type = "transport-cc",
                                 },
                             }
                         },
-                        //new RtpCodecCapability {
+                        //new() {
                         //    Kind = MediaKind.Audio,
                         //    MimeType ="audio/PCMA",
                         //    PreferredPayloadType= 8,
@@ -72,28 +73,28 @@ namespace Tubumu.Meeting.Web.Controllers
                         //        },
                         //    }
                         //},
-                        new RtpCodecCapability {
+                        new() {
                             Kind = MediaKind.VIDEO,
                             MimeType ="video/H264",
                             ClockRate = 90000,
                             Parameters = new Dictionary<string, object> {
                                 { "level-asymmetry-allowed", 1 },
                             },
-                            RtcpFeedback = new RtcpFeedbackT[]
+                            RtcpFeedback = new List<RtcpFeedbackT>
                             {
-                                new RtcpFeedbackT {
+                                new() {
                                     Type = "nack",
                                 },
-                                new RtcpFeedbackT {
+                                new() {
                                     Type = "nack", Parameter = "pli",
                                 },
-                                new RtcpFeedbackT {
+                                new() {
                                     Type = "ccm", Parameter = "fir",
                                 },
-                                new RtcpFeedbackT {
+                                new() {
                                     Type = "goog-remb",
                                 },
-                                new RtcpFeedbackT {
+                                new() {
                                     Type = "transport-cc",
                                 },
                             }
@@ -117,10 +118,10 @@ namespace Tubumu.Meeting.Web.Controllers
 
             // Create PlainTransport
             var transport = await CreatePlainTransport(recorderPrepareRequest.PeerId);
-            var remoteRtpIp = "127.0.0.1";
-            var remoteRtpPort = 8787;
-            int? remoteRtcpPort = transport.Data.RtcpMux ? null : 8788;
-            var plainTransportConnectParameters = new PlainTransportConnectParameters
+            const string remoteRtpIp = "127.0.0.1";
+            const ushort remoteRtpPort = 8787;
+            ushort? remoteRtcpPort = transport.Data.RtcpMux ? null : 8788;
+            var plainTransportConnectParameters = new ConnectRequestT
             {
                 Ip = remoteRtpIp,
                 Port = remoteRtpPort,
@@ -140,7 +141,7 @@ namespace Tubumu.Meeting.Web.Controllers
             {
                 TransportId = transport.TransportId,
                 Ip = plainTransportConnectParameters.Ip,
-                Port = plainTransportConnectParameters.Port,
+                Port = plainTransportConnectParameters.Port.Value,
                 RtcpPort = plainTransportConnectParameters.RtcpPort,
             };
 
