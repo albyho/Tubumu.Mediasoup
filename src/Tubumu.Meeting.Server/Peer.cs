@@ -2,13 +2,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FBS.RtpParameters;
-using FBS.RtpStream;
 using FBS.WebRtcTransport;
-using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 using Tubumu.Mediasoup;
@@ -142,7 +139,7 @@ namespace Tubumu.Meeting.Server
             PeerId = peerId;
             ConnectionId = connectionId;
             HubClient = hubClient;
-            DisplayName = displayName.NullOrWhiteSpaceReplace("User:" + peerId.ToString().PadLeft(8, '0'));
+            DisplayName = displayName.NullOrWhiteSpaceReplace("User:" + peerId.PadLeft(8, '0'));
             Sources = sources ?? Array.Empty<string>();
             AppData = new ConcurrentDictionary<string, object>(appData ?? new Dictionary<string, object>());
             InternalData = new ConcurrentDictionary<string, object>(appData ?? new Dictionary<string, object>());
@@ -250,6 +247,7 @@ namespace Tubumu.Meeting.Server
                         {
                             throw new Exception($"ConnectWebRtcTransportAsync() | Transport:{connectWebRtcTransportRequest.TransportId} is not exists");
                         }
+
                         await transport.ConnectAsync(connectWebRtcTransportRequest);
                         return true;
                     }
@@ -285,11 +283,7 @@ namespace Tubumu.Meeting.Server
                 {
                     CheckRoom("CreatePlainTransportAsync()");
 
-                    var transport = await _room!.Router.CreatePlainTransportAsync(plainTransportOptions);
-                    if(transport == null)
-                    {
-                        throw new Exception("CreatePlainTransportAsync() | Router.CreatePlainTransport faild");
-                    }
+                    var transport = await _room!.Router.CreatePlainTransportAsync(plainTransportOptions) ?? throw new Exception("CreatePlainTransportAsync() | Router.CreatePlainTransport faild");
 
                     using(await _transportsLock.WriteLockAsync())
                     {
@@ -319,10 +313,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 拉取
         /// </summary>
-        /// <param name="producerPeer"></param>
-        /// <param name="roomId"></param>
-        /// <param name="sources"></param>
-        /// <returns></returns>
         public async Task<PeerPullResult> PullAsync(Peer producerPeer, IEnumerable<string> sources)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -395,6 +385,7 @@ namespace Tubumu.Meeting.Server
                         {
                             continue;
                         }
+
                         existsProducers.Add(existsProducer);
                         continue;
                     }
@@ -405,6 +396,7 @@ namespace Tubumu.Meeting.Server
                     {
                         produceSources.Add(source);
                     }
+
                     if(!producerPeer._pullPaddings.Any(m => m.Source == source && m.RoomId == roomId && m.ConsumerPeerId == PeerId))
                     {
                         producerPeer._pullPaddings.Add(new PullPadding
@@ -414,6 +406,7 @@ namespace Tubumu.Meeting.Server
                             Source = source,
                         });
                     }
+
                     producerPeer._pullPaddingsLock.Set();
                 }
 
@@ -457,11 +450,7 @@ namespace Tubumu.Meeting.Server
 
                     using(await _transportsLock.ReadLockAsync())
                     {
-                        var transport = GetProducingTransport();
-                        if(transport == null)
-                        {
-                            throw new Exception("ProduceAsync() | Transport:Producing is not exists.");
-                        }
+                        var transport = GetProducingTransport() ?? throw new Exception("ProduceAsync() | Transport:Producing is not exists.");
 
                         using(await _producersLock.WriteLockAsync())
                         {
@@ -514,6 +503,7 @@ namespace Tubumu.Meeting.Server
                             {
                                 _pullPaddings.Remove(item);
                             }
+
                             _pullPaddingsLock.Set();
 
                             // Store the Producer into the Peer data Object.
@@ -543,9 +533,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 消费
         /// </summary>
-        /// <param name="producer"></param>
-        /// <param name="roomId"></param>
-        /// <returns></returns>
         public async Task<Consumer?> ConsumeAsync(Peer producerPeer, string producerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -558,13 +545,7 @@ namespace Tubumu.Meeting.Server
 
                     using(await _transportsLock.ReadLockAsync())
                     {
-                        var transport = GetConsumingTransport();
-
-                        // This should not happen.
-                        if(transport == null)
-                        {
-                            throw new Exception($"ConsumeAsync() | Peer:{PeerId} Transport for consuming not found.");
-                        }
+                        var transport = GetConsumingTransport() ?? throw new Exception($"ConsumeAsync() | Peer:{PeerId} Transport for consuming not found.");
 
                         using(await _consumersLock.WriteLockAsync())
                         {
@@ -608,6 +589,7 @@ namespace Tubumu.Meeting.Server
                                     {
                                         _consumers.Remove(consumer.ConsumerId);
                                     }
+
                                     await producer.RemoveConsumerAsync(consumer.ConsumerId);
                                 });
 
@@ -653,7 +635,6 @@ namespace Tubumu.Meeting.Server
                 }
             }
         }
-
 
         /// <summary>
         /// 停止生产全部
@@ -1084,7 +1065,7 @@ namespace Tubumu.Meeting.Server
                 {
                     if(_room != null)
                     {
-                        throw new PeerInRoomException($"JoinRoomAsync()", PeerId, room.RoomId);
+                        throw new PeerInRoomException("JoinRoomAsync()", PeerId, room.RoomId);
                     }
 
                     _room = room;
@@ -1377,6 +1358,7 @@ namespace Tubumu.Meeting.Server
                     {
                         query = query.Where(m => m.InternalData.TryGetValue(RoleKey, out var r) && r.GetType() == typeof(UserRole) && (UserRole)r == role.Value);
                     }
+
                     return query.ToArray();
                 }
             }
