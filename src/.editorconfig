@@ -101,4 +101,4 @@ dotnet_diagnostic.rcs0052.severity = suggestion
 # Options: roslynator_equals_token_new_line
 # Add/remove blank line between switch sections
 dotnet_diagnostic.rcs0061.severity = suggestion
-# Options: roslynator_blank_line_between_switch_sections
+dotnet_diagnostic.rcs1197.severity = none
