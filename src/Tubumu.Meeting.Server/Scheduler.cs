@@ -376,7 +376,8 @@ namespace Tubumu.Meeting.Server
 
                 CheckConnection(peer, connectionId);
 
-                var peerProduceResult = await peer.ProduceAsync(produceRequest) ?? throw new Exception($"ProduceAsync() | Peer:{peerId} produce faild.");
+                var peerProduceResult = await peer.ProduceAsync(produceRequest) ??
+                    throw new Exception($"ProduceAsync() | Peer:{peerId} produce faild.");
 
                 // NOTE: 这里假设了 Room 存在
                 var pullPaddingConsumerPeers = new List<Peer>();

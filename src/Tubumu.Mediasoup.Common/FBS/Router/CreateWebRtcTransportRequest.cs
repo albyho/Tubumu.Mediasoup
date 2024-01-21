@@ -75,17 +75,8 @@ namespace FBS.Router
 
   public class CreateWebRtcTransportRequestT
   {
-    [JsonPropertyName( "transport_id" )]
     public string TransportId { get; set; }
-    [JsonPropertyName( "options" )]
+
     public FBS.WebRtcTransport.WebRtcTransportOptionsT Options { get; set; }
-
-    public CreateWebRtcTransportRequestT()
-    {
-      this.TransportId = null;
-      this.Options = null;
-    }
   }
-
-
 }

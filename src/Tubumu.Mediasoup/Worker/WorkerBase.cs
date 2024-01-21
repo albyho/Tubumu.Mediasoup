@@ -168,7 +168,7 @@ namespace Tubumu.Mediasoup
                 // Fire and forget
                 _channel.RequestAsync(
                     Method.WORKER_UPDATE_SETTINGS,
-                    FBS.Request.Body.Worker_UpdateSettingsRequest,
+                    Body.Worker_UpdateSettingsRequest,
                     requestOffset.Value
                 ).ContinueWithOnFaultedHandleLog(_logger);
             }
@@ -211,8 +211,8 @@ namespace Tubumu.Mediasoup
                 var createWebRtcServerRequestOffset = CreateWebRtcServerRequest.Pack(_channel.BufferBuilder, createWebRtcServerRequestT);
 
                 await _channel.RequestAsync(
-                    FBS.Request.Method.WORKER_CREATE_WEBRTCSERVER,
-                    FBS.Request.Body.Worker_CreateWebRtcServerRequest,
+                    Method.WORKER_CREATE_WEBRTCSERVER,
+                    Body.Worker_CreateWebRtcServerRequest,
                     createWebRtcServerRequestOffset.Value
                 );
 
@@ -276,8 +276,8 @@ namespace Tubumu.Mediasoup
                 var createRouterRequestOffset = CreateRouterRequest.Pack(_channel.BufferBuilder, createRouterRequestT);
 
                 await _channel.RequestAsync(
-                    FBS.Request.Method.WORKER_CREATE_ROUTER,
-                    FBS.Request.Body.Worker_CreateRouterRequest,
+                    Method.WORKER_CREATE_ROUTER,
+                    Body.Worker_CreateRouterRequest,
                     createRouterRequestOffset.Value);
 
                 var router = new Router(

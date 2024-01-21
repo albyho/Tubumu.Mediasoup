@@ -19,7 +19,7 @@ namespace FBS.Request
         public Request __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
         public uint Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-        public FBS.Request.Method Method { get { int o = __p.__offset(6); return o != 0 ? (FBS.Request.Method)__p.bb.Get(o + __p.bb_pos) : FBS.Request.Method.WORKER_CLOSE; } }
+        public Method Method { get { int o = __p.__offset(6); return o != 0 ? (Method)__p.bb.Get(o + __p.bb_pos) : Method.WORKER_CLOSE; } }
         public string HandlerId { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
 #if ENABLE_SPAN_T
   public Span<byte> GetHandlerIdBytes() { return __p.__vector_as_span<byte>(8, 1); }
@@ -71,7 +71,7 @@ namespace FBS.Request
 
         public static Offset<FBS.Request.Request> CreateRequest(FlatBufferBuilder builder,
             uint id = 0,
-            FBS.Request.Method method = FBS.Request.Method.WORKER_CLOSE,
+            Method method = Method.WORKER_CLOSE,
             StringOffset handler_idOffset = default(StringOffset),
             FBS.Request.Body body_type = FBS.Request.Body.NONE,
             int bodyOffset = 0)
@@ -87,7 +87,7 @@ namespace FBS.Request
 
         public static void StartRequest(FlatBufferBuilder builder) { builder.StartTable(5); }
         public static void AddId(FlatBufferBuilder builder, uint id) { builder.AddUint(0, id, 0); }
-        public static void AddMethod(FlatBufferBuilder builder, FBS.Request.Method method) { builder.AddByte(1, (byte)method, 0); }
+        public static void AddMethod(FlatBufferBuilder builder, Method method) { builder.AddByte(1, (byte)method, 0); }
         public static void AddHandlerId(FlatBufferBuilder builder, StringOffset handlerIdOffset) { builder.AddOffset(2, handlerIdOffset.Value, 0); }
         public static void AddBodyType(FlatBufferBuilder builder, FBS.Request.Body bodyType) { builder.AddByte(3, (byte)bodyType, 0); }
         public static void AddBody(FlatBufferBuilder builder, int bodyOffset) { builder.AddOffset(4, bodyOffset, 0); }
@@ -256,7 +256,7 @@ namespace FBS.Request
     {
         public uint Id { get; set; }
 
-        public FBS.Request.Method Method { get; set; }
+        public Method Method { get; set; }
 
         public string HandlerId { get; set; }
 

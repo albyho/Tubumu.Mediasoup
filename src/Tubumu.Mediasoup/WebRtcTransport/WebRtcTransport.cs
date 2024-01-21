@@ -135,7 +135,7 @@ namespace Tubumu.Mediasoup
             var connectRequestOffset = ConnectRequest.Pack(Channel.BufferBuilder, connectRequestT);
 
             var response = await Channel.RequestAsync(
-                 FBS.Request.Method.WEBRTCTRANSPORT_CONNECT,
+                 Method.WEBRTCTRANSPORT_CONNECT,
                  FBS.Request.Body.WebRtcTransport_ConnectRequest,
                  connectRequestOffset.Value,
                  Internal.TransportId);
@@ -162,7 +162,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var response = await Channel.RequestAsync(
-                     FBS.Request.Method.TRANSPORT_RESTART_ICE,
+                     Method.TRANSPORT_RESTART_ICE,
                      null,
                      null,
                      Internal.TransportId);

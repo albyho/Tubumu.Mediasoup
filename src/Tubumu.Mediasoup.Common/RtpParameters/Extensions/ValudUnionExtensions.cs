@@ -2,16 +2,13 @@ using FBS.RtpParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Xml.Linq;
 
 namespace Tubumu.Mediasoup
 {
     public static class ValudUnionExtensions
     {
-        public static bool IsIntegerType(this object value)
-        {
-            return value is byte || value is sbyte || value is short || value is ushort || value is int || value is uint || value is long || value is ulong;
-        }
-
         public static object? UnPackValueUnion(this ValueUnion value)
         {
             return value.Type switch
@@ -34,52 +31,132 @@ namespace Tubumu.Mediasoup
             {
                 result.Type = Value.NONE;
                 result.Value_ = null;
+                return result;
             }
-            else if(value is string stringValue)
+
+            if(value is System.Text.Json.JsonElement element)
+            {
+                switch(element.ValueKind)
+                {
+                    case JsonValueKind.Number:
+                        {
+                            if(element.TryGetInt32(out int intValue))
+                            {
+                                result.Type = Value.Integer32;
+                                result.Value_ = intValue;
+                                return result;
+                            }
+                            if(element.TryGetDouble(out double doubleValue))
+                            {
+                                result.Type = Value.Double;
+                                result.Value_ = doubleValue;
+                                return result;
+                            }
+                            if(element.TryGetSingle(out float floatValue))
+                            {
+                                result.Type = Value.Double;
+                                result.Value_ = floatValue;
+                                return result;
+                            }
+                        }
+                        break;
+                    case JsonValueKind.String:
+                        {
+                            result.Type = Value.String;
+                            result.Value_ = element.ToString();
+                            return result;
+                        }
+                    case JsonValueKind.True:
+                    case JsonValueKind.False:
+                        {
+                            result.Type = Value.Boolean;
+                            result.Value_ = element.GetBoolean();
+                            return result;
+                        }
+                    case JsonValueKind.Array:
+                        {
+                            var integer32Array = new int[element.GetArrayLength()];
+                            var index = 0;
+                            foreach(var itemElement in element.EnumerateArray())
+                            {
+                                if(element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int intValue))
+                                {
+                                    integer32Array[index++] = intValue;
+                                }
+                                else
+                                {
+                                    throw new ArgumentException($"Unsupported type for conversion: {itemElement.GetType().FullName}");
+                                }
+                            }
+
+                            result.Type = Value.Integer32Array;
+                            result.Value_ = integer32Array;
+                            return result;
+                        }
+                    default:
+                        // 对于无法处理的类型，可能需要进行适当的处理
+                        throw new ArgumentException($"Unsupported type for conversion: {value.GetType().FullName}");
+                }
+            }
+
+            if(value is string stringValue)
             {
                 if(stringValue.IsNullOrWhiteSpace())
                 {
                     result.Type = Value.NONE;
                     result.Value_ = null;
+                    return result;
                 }
                 else if(bool.TryParse(stringValue, out bool boolValue))
                 {
                     result.Type = Value.Boolean;
                     result.Value_ = boolValue;
+                    return result;
                 }
                 else
                 {
                     result.Type = Value.String;
                     result.Value_ = stringValue;
+                    return result;
                 }
             }
-            else if(IsIntegerType(value))
+
+            if(IsInteger32Type(value))
             {
                 result.Type = Value.Integer32;
                 result.Value_ = (int)value;
+                return result;
             }
-            else if(value is IEnumerable<int> intEnumerableValue)
+
+            if(value is IEnumerable<int> intEnumerableValue)
             {
                 result.Type = Value.Integer32Array;
-                result.Value_ = intEnumerableValue.ToArray(); // 转换为数组
+                result.Value_ = intEnumerableValue.ToArray();
+                return result;
             }
-            else if(value is double || value is float)
+
+            if(value is double || value is float)
             {
                 result.Type = Value.Double;
                 result.Value_ = Convert.ToDouble(value);
+                return result;
             }
-            else if(value is bool x)
+
+            if(value is bool x)
             {
                 result.Type = Value.Boolean;
                 result.Value_ = x;
-            }
-            else
-            {
-                // 对于无法处理的类型，可能需要进行适当的处理
-                throw new ArgumentException($"Unsupported type for conversion: {value.GetType().FullName}");
+                return result;
             }
 
-            return result;
+            // 对于无法处理的类型，可能需要进行适当的处理
+            throw new ArgumentException($"Unsupported type for conversion: {value.GetType().FullName}");
+        }
+
+        public static bool IsInteger32Type(this object value)
+        {
+            // byte sbyte short ushort int uint long ulong
+            return value is byte || value is sbyte || value is short || value is ushort || value is int;
         }
     }
 }

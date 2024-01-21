@@ -181,7 +181,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 Channel.NotifyAsync(
-                    FBS.Notification.Event.TRANSPORT_SEND_RTCP,
+                    Event.TRANSPORT_SEND_RTCP,
                     FBS.Notification.Body.Transport_SendRtcpNotification,
                     sendRtcpNotificationOffset.Value,
                     Internal.TransportId

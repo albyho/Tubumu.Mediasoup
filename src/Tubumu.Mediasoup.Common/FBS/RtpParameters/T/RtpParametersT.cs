@@ -12,7 +12,6 @@ namespace FBS.RtpParameters
 
         public List<RtpCodecParametersT> Codecs { get; set; }
 
-
         public List<RtpHeaderExtensionParametersT> HeaderExtensions { get; set; }
 
         public List<RtpEncodingParametersT> Encodings { get; set; }

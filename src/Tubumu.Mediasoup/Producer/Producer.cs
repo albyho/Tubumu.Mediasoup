@@ -382,16 +382,15 @@ namespace Tubumu.Mediasoup
                 }
 
                 var builder = _channel.BufferBuilder;
-                var dataOffset = FBS.Producer.SendNotification.CreateDataVector(
+                var dataOffset = SendNotification.CreateDataVector(
                     builder,
                     rtpPacket
                 );
-                var notificationOffset =
-                    FBS.Producer.SendNotification.CreateSendNotification(builder, dataOffset);
+                var notificationOffset = SendNotification.CreateSendNotification(builder, dataOffset);
 
                 // Fire and forget
                 _channel.NotifyAsync(
-                    FBS.Notification.Event.PRODUCER_SEND,
+                    Event.PRODUCER_SEND,
                     FBS.Notification.Body.Producer_SendNotification,
                     notificationOffset.Value,
                     _internal.ProducerId

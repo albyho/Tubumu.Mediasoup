@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FBS.Notification;
+using FBS.Request;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -116,7 +117,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 Channel.RequestAsync(
-                    FBS.Request.Method.ROUTER_CLOSE_RTPOBSERVER,
+                    Method.ROUTER_CLOSE_RTPOBSERVER,
                     FBS.Request.Body.Router_CloseRtpObserverRequest,
                     closeRtpObserverRequestOffset.Value,
                     Internal.RouterId
@@ -176,7 +177,7 @@ namespace Tubumu.Mediasoup
 
                     // Fire and forget
                     Channel.RequestAsync(
-                        FBS.Request.Method.RTPOBSERVER_PAUSE,
+                        Method.RTPOBSERVER_PAUSE,
                         null,
                         null,
                         Internal.RtpObserverId
@@ -222,7 +223,7 @@ namespace Tubumu.Mediasoup
 
                     // Fire and forget
                     Channel.RequestAsync(
-                        FBS.Request.Method.RTPOBSERVER_RESUME,
+                        Method.RTPOBSERVER_RESUME,
                         null,
                         null,
                         Internal.RtpObserverId
@@ -276,7 +277,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 Channel.RequestAsync(
-                    FBS.Request.Method.RTPOBSERVER_ADD_PRODUCER,
+                    Method.RTPOBSERVER_ADD_PRODUCER,
                     FBS.Request.Body.RtpObserver_AddProducerRequest,
                     addProducerRequestOffset.Value,
                     Internal.RtpObserverId
@@ -316,7 +317,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 Channel.RequestAsync(
-                    FBS.Request.Method.RTPOBSERVER_REMOVE_PRODUCER,
+                    Method.RTPOBSERVER_REMOVE_PRODUCER,
                     FBS.Request.Body.RtpObserver_RemoveProducerRequest,
                     removeProducerRequestOffset.Value,
                     Internal.RtpObserverId

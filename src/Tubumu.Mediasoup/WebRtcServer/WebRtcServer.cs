@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FBS.Request;
 using FBS.WebRtcServer;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
@@ -103,8 +104,8 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 _channel.RequestAsync(
-                    FBS.Request.Method.WORKER_WEBRTCSERVER_CLOSE,
-                    FBS.Request.Body.Worker_CloseWebRtcServerRequest,
+                    Method.WORKER_WEBRTCSERVER_CLOSE,
+                    Body.Worker_CloseWebRtcServerRequest,
                     closeWebRtcServerRequestOffset.Value
                     ).ContinueWithOnFaultedHandleLog(_logger);
 
@@ -174,7 +175,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var response = await _channel.RequestAsync(
-                    FBS.Request.Method.WEBRTCSERVER_DUMP,
+                    Method.WEBRTCSERVER_DUMP,
                     null,
                     null,
                     _internal.WebRtcServerId);

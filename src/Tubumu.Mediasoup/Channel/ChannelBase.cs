@@ -12,6 +12,7 @@ using FBS.Response;
 using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
+using Body = FBS.Request.Body;
 
 namespace Tubumu.Mediasoup
 {
@@ -71,7 +72,7 @@ namespace Tubumu.Mediasoup
 
         #endregion Events
 
-        public ChannelBase(ILogger<ChannelBase> logger, int workerId)
+        protected ChannelBase(ILogger<ChannelBase> logger, int workerId)
         {
             _logger = logger;
             _workerId = workerId;
@@ -79,7 +80,7 @@ namespace Tubumu.Mediasoup
 
         public async Task CloseAsync()
         {
-            _logger.LogDebug($"CloseAsync() | Worker[{_workerId}]");
+            _logger.LogDebug("CloseAsync() | Worker[{WorkId}]", _workerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -103,13 +104,13 @@ namespace Tubumu.Mediasoup
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, $"Cleanup() | Worker[{_workerId}] _sents.Values.ForEach(m => m.Close.Invoke())");
+                _logger.LogError(ex, "Cleanup() | Worker[{WorkId}] _sents.Values.ForEach(m => m.Close.Invoke())", _workerId);
             }
         }
 
         public async Task NotifyAsync(Event @event, FBS.Notification.Body? bodyType, int? bodyOffset, string? handlerId)
         {
-            _logger.LogDebug($"NotifyAsync() | Worker[{_workerId}] Event:{@event}");
+            _logger.LogDebug("NotifyAsync() | Worker[{WorkId}] Event:{Event}", _workerId, @event);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -127,7 +128,7 @@ namespace Tubumu.Mediasoup
 
         public async Task<Response?> RequestAsync(Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null)
         {
-            _logger.LogDebug($"RequestAsync() | Worker[{_workerId}] Method:{method}");
+            _logger.LogDebug("RequestAsync() | Worker[{WorkId}] Method:{Method}", _workerId, method);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -164,10 +165,7 @@ namespace Tubumu.Mediasoup
                         }
                         tcs.TrySetException(e);
                     },
-                    Close = () =>
-                    {
-                        tcs.TrySetException(new InvalidStateException("Channel closed"));
-                    },
+                    Close = () => tcs.TrySetException(new InvalidStateException("Channel closed"))
                 };
                 if(!_sents.TryAdd(requestMessage.Id!.Value, sent))
                 {
@@ -217,20 +215,15 @@ namespace Tubumu.Mediasoup
                         });
                         break;
                     default:
-
                         {
-                            _logger.LogWarning(
-                                $"ProcessMessage() | worker[workerId/pid:${_workerId}] unexpected data: {Encoding.UTF8.GetString(message.ByteBuffer.ToFullArray())}"
-                            );
+                            _logger.LogWarning($"ProcessMessage() | worker[workerId/pid:${_workerId}] unexpected data: {Encoding.UTF8.GetString(message.ByteBuffer.ToFullArray())}");
                         }
                         break;
                 }
             }
             catch(Exception ex)
             {
-                _logger.LogError(
-                    ex,
-                    $"ProcessMessage() | Worker[{_workerId}] Received invalid message from the worker process, message: {message}"
+                _logger.LogError(ex, $"ProcessMessage() | Worker[{_workerId}] Received invalid message from the worker process, message: {message}"
                 );
                 return;
             }
@@ -354,7 +347,7 @@ namespace Tubumu.Mediasoup
             }
             else
             {
-                requestOffset = Request.CreateRequest(BufferBuilder, id, method, handlerIdOffset, FBS.Request.Body.NONE, 0);
+                requestOffset = Request.CreateRequest(BufferBuilder, id, method, handlerIdOffset, Body.NONE, 0);
             }
 
             var messageOffset = Message.CreateMessage(BufferBuilder, FBS.Message.Body.Request, requestOffset.Value);
@@ -364,7 +357,7 @@ namespace Tubumu.Mediasoup
 
             // Create a new buffer with this data so multiple contiguous flatbuffers
             // do not point to the builder buffer overriding others info.
-            var buffer = BufferBuilder.DataBuffer.ToFullArray();
+            var buffer = BufferBuilder.DataBuffer.ToSizedArray();
 
             // Clear the buffer builder so it's reused for the next request.
             BufferBuilder.Clear();

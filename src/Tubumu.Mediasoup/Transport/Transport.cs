@@ -225,7 +225,7 @@ namespace Tubumu.Mediasoup
                 // Fire and forget
                 Channel.RequestAsync(
                     Method.ROUTER_CLOSE_TRANSPORT,
-                    FBS.Request.Body.Router_CloseTransportRequest,
+                    Body.Router_CloseTransportRequest,
                     requestOffset.Value,
                     Internal.RouterId
                     )
@@ -1239,7 +1239,7 @@ namespace Tubumu.Mediasoup
                 // Fire and forget
                 Channel
                     .RequestAsync(Method.TRANSPORT_ENABLE_TRACE_EVENT,
-                    FBS.Request.Body.Transport_EnableTraceEventRequest,
+                    Body.Transport_EnableTraceEventRequest,
                     requestOffset.Value,
                      Internal.TransportId)
                     .ContinueWithOnFaultedHandleLog(_logger);

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using FBS.DataProducer;
+using FBS.Notification;
+using FBS.Request;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -118,7 +120,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 _channel.RequestAsync(
-                    FBS.Request.Method.TRANSPORT_CLOSE_DATAPRODUCER,
+                    Method.TRANSPORT_CLOSE_DATAPRODUCER,
                     FBS.Request.Body.Transport_CloseDataProducerRequest,
                     closeDataProducerRequestOffset.Value,
                     _internal.TransportId
@@ -172,7 +174,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var response = await _channel.RequestAsync(
-                    FBS.Request.Method.DATAPRODUCER_DUMP,
+                    Method.DATAPRODUCER_DUMP,
                     null,
                     null,
                     _internal.DataProducerId);
@@ -198,7 +200,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var response = await _channel.RequestAsync(
-                    FBS.Request.Method.DATAPRODUCER_GET_STATS,
+                    Method.DATAPRODUCER_GET_STATS,
                     null,
                     null,
                     _internal.DataProducerId);
@@ -225,7 +227,7 @@ namespace Tubumu.Mediasoup
 
                 /* Ignore Response. */
                 _ = await _channel.RequestAsync(
-                     FBS.Request.Method.DATACONSUMER_PAUSE,
+                     Method.DATACONSUMER_PAUSE,
                      null,
                      null,
                      _internal.DataProducerId);
@@ -258,7 +260,7 @@ namespace Tubumu.Mediasoup
 
                 /* Ignore Response. */
                 _ = await _channel.RequestAsync(
-                     FBS.Request.Method.DATACONSUMER_RESUME,
+                     Method.DATACONSUMER_RESUME,
                      null,
                      null,
                      _internal.DataProducerId);
@@ -348,7 +350,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 _channel.NotifyAsync(
-                    FBS.Notification.Event.PRODUCER_SEND,
+                    Event.PRODUCER_SEND,
                     FBS.Notification.Body.DataProducer_SendNotification,
                     sendNotificationOffset.Value,
                     _internal.DataProducerId

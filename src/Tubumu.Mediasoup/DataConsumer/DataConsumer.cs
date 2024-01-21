@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FBS.DataConsumer;
 using FBS.Notification;
+using FBS.Request;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -142,7 +143,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 _channel.RequestAsync(
-                    FBS.Request.Method.TRANSPORT_CLOSE_DATACONSUMER,
+                    Method.TRANSPORT_CLOSE_DATACONSUMER,
                     FBS.Request.Body.Transport_CloseDataConsumerRequest,
                     closeDataConsumerRequestOffset.Value,
                     _internal.TransportId
@@ -196,7 +197,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var response = await _channel.RequestAsync(
-                    FBS.Request.Method.DATACONSUMER_DUMP,
+                    Method.DATACONSUMER_DUMP,
                     null,
                     null,
                     _internal.DataConsumerId);
@@ -222,7 +223,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var response = await _channel.RequestAsync(
-                    FBS.Request.Method.DATACONSUMER_GET_STATS,
+                    Method.DATACONSUMER_GET_STATS,
                     null,
                     null,
                     _internal.DataConsumerId);
@@ -249,7 +250,7 @@ namespace Tubumu.Mediasoup
 
                 /* Ignore Response. */
                 _ = await _channel.RequestAsync(
-                     FBS.Request.Method.DATACONSUMER_PAUSE,
+                     Method.DATACONSUMER_PAUSE,
                      null,
                      null,
                      _internal.DataConsumerId);
@@ -282,7 +283,7 @@ namespace Tubumu.Mediasoup
 
                 /* Ignore Response. */
                 _ = await _channel.RequestAsync(
-                     FBS.Request.Method.DATACONSUMER_PAUSE,
+                     Method.DATACONSUMER_PAUSE,
                      null,
                      null,
                      _internal.DataConsumerId);
@@ -325,7 +326,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 _channel.RequestAsync(
-                    FBS.Request.Method.DATACONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD,
+                    Method.DATACONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD,
                     FBS.Request.Body.DataConsumer_SetBufferedAmountLowThresholdRequest,
                     setBufferedAmountLowThresholdRequestOffset.Value,
                     _internal.DataConsumerId
@@ -409,7 +410,7 @@ namespace Tubumu.Mediasoup
 
                 // Fire and forget
                 _channel.RequestAsync(
-                    FBS.Request.Method.DATACONSUMER_SEND,
+                    Method.DATACONSUMER_SEND,
                     FBS.Request.Body.DataConsumer_SendRequest,
                     sendRequestOffset.Value,
                     _internal.DataConsumerId
@@ -433,7 +434,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var response = await _channel.RequestAsync(
-                    FBS.Request.Method.DATACONSUMER_GET_BUFFERED_AMOUNT,
+                    Method.DATACONSUMER_GET_BUFFERED_AMOUNT,
                     null,
                     null,
                     _internal.DataConsumerId);
@@ -466,7 +467,7 @@ namespace Tubumu.Mediasoup
                 var setSubchannelsRequestOffset = SetSubchannelsRequest.Pack(_channel.BufferBuilder, setSubchannelsRequest);
 
                 var response = await _channel.RequestAsync(
-                     FBS.Request.Method.DATACONSUMER_SET_SUBCHANNELS,
+                     Method.DATACONSUMER_SET_SUBCHANNELS,
                      FBS.Request.Body.DataConsumer_SetSubchannelsRequest,
                      setSubchannelsRequestOffset.Value,
                      _internal.DataConsumerId);
@@ -500,7 +501,7 @@ namespace Tubumu.Mediasoup
                 var addSubchannelRequestOffset = AddSubchannelRequest.Pack(_channel.BufferBuilder, addSubchannelsRequest);
 
                 var response = await _channel.RequestAsync(
-                     FBS.Request.Method.DATACONSUMER_ADD_SUBCHANNEL,
+                     Method.DATACONSUMER_ADD_SUBCHANNEL,
                      FBS.Request.Body.DataConsumer_AddSubchannelRequest,
                      addSubchannelRequestOffset.Value,
                      _internal.DataConsumerId);
@@ -534,7 +535,7 @@ namespace Tubumu.Mediasoup
                 var removeSubchannelRequestOffset = RemoveSubchannelRequest.Pack(_channel.BufferBuilder, removeSubchannelsRequest);
 
                 var response = await _channel.RequestAsync(
-                     FBS.Request.Method.DATACONSUMER_REMOVE_SUBCHANNEL,
+                     Method.DATACONSUMER_REMOVE_SUBCHANNEL,
                      FBS.Request.Body.DataConsumer_RemoveSubchannelRequest,
                      removeSubchannelRequestOffset.Value,
                      _internal.DataConsumerId);

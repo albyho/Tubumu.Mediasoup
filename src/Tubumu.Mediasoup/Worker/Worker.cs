@@ -173,7 +173,7 @@ namespace Tubumu.Mediasoup
 
         public override async Task CloseAsync()
         {
-            _logger.LogDebug("CloseAsync() | Worker");
+            _logger.LogDebug("CloseAsync() | Worker[{ProcessId}]", ProcessId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -273,9 +273,8 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    _logger.LogError("OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]", ProcessId, process.ExitCode, process.TermSignal);
-                    Emit(
-                        "@failure",
+                    _logger.LogError("OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{ExitCode}, signal:{TermSignal}]", ProcessId, process.ExitCode, process.TermSignal);
+                    Emit("@failure",
                         new Exception(
                             $"Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"
                         )
@@ -284,9 +283,8 @@ namespace Tubumu.Mediasoup
             }
             else
             {
-                _logger.LogError("OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]", ProcessId, process.ExitCode, process.TermSignal);
-                Emit(
-                    "died",
+                _logger.LogError("OnExit() | Worker process failed unexpectedly [pid:{ProcessId}, code:{ExitCode}, signal:{TermSignal}]", ProcessId, process.ExitCode, process.TermSignal);
+                Emit("died",
                     new Exception(
                         $"Worker process died unexpectedly [pid:{ProcessId}, code:{process.ExitCode}, signal:{process.TermSignal}]"
                     )

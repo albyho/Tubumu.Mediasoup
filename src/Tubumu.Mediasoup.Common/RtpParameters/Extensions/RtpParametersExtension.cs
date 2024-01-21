@@ -25,10 +25,7 @@ namespace Tubumu.Mediasoup
                                             select new ParameterT
                                             {
                                                 Name = p.Key,
-                                                Value = new ValueUnion
-                                                {
-                                                    Value_ = p.Value.ConvertToValueUnion()
-                                                }
+                                                Value = p.Value.ConvertToValueUnion()
                                             }).ToList(),
                               RtcpFeedback = c.RtcpFeedback,
                           }).ToList(),
@@ -44,10 +41,7 @@ namespace Tubumu.Mediasoup
                                                       select new ParameterT
                                                       {
                                                           Name = p.Key,
-                                                          Value = new ValueUnion
-                                                          {
-                                                              Value_ = p.Value.ConvertToValueUnion()
-                                                          }
+                                                          Value = p.Value.ConvertToValueUnion()
                                                       }).ToList(),
                                     }).ToList()
             };
