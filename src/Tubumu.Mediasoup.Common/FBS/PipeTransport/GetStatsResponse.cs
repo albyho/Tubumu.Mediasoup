@@ -63,18 +63,4 @@ namespace FBS.PipeTransport
               _tuple);
         }
     }
-
-    public class GetStatsResponseT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.StatsT Base { get; set; }
-        [JsonPropertyName("tuple")]
-        public FBS.Transport.TupleT Tuple { get; set; }
-
-        public GetStatsResponseT()
-        {
-            this.Base = null;
-            this.Tuple = null;
-        }
-    }
 }

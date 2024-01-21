@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FBS.RtpParameters;
 using Tubumu.Mediasoup;
 
 namespace Tubumu.Meeting.Server
@@ -52,10 +53,10 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Rtp 参数
         /// </summary>
-        public RtpParameters RtpParameters { get; set; }
+        public Mediasoup.RtpParameters RtpParameters { get; set; }
 
         /// <summary>
-        /// 消费者类型，如 SVC, Simulcast 等。 
+        /// 消费者类型，如 SVC, Simulcast 等。
         /// </summary>
         public ConsumerType Type { get; set; }
 
@@ -170,7 +171,6 @@ namespace Tubumu.Meeting.Server
     /// </summary>
     public class ConsumerClosedNotification : ConsumerNotificationBase
     {
-
     }
 
     /// <summary>
@@ -178,7 +178,6 @@ namespace Tubumu.Meeting.Server
     /// </summary>
     public class ConsumerPausedNotification : ConsumerNotificationBase
     {
-
     }
 
     /// <summary>
@@ -186,7 +185,6 @@ namespace Tubumu.Meeting.Server
     /// </summary>
     public class ConsumerResumedNotification : ConsumerNotificationBase
     {
-
     }
 
     /// <summary>

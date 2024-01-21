@@ -85,18 +85,10 @@ namespace FBS.Transport
 
     public class RestartIceResponseT
     {
-        [JsonPropertyName("username_fragment")]
         public string UsernameFragment { get; set; }
-        [JsonPropertyName("password")]
-        public string Password { get; set; }
-        [JsonPropertyName("ice_lite")]
-        public bool IceLite { get; set; }
 
-        public RestartIceResponseT()
-        {
-            this.UsernameFragment = null;
-            this.Password = null;
-            this.IceLite = false;
-        }
+        public string Password { get; set; }
+
+        public bool IceLite { get; set; }
     }
 }

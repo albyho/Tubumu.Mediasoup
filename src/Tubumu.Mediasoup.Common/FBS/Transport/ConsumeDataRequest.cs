@@ -148,36 +148,4 @@ namespace FBS.Transport
               _subchannels);
         }
     }
-
-    public class ConsumeDataRequestT
-    {
-        [JsonPropertyName("data_consumer_id")]
-        public string DataConsumerId { get; set; }
-        [JsonPropertyName("data_producer_id")]
-        public string DataProducerId { get; set; }
-        [JsonPropertyName("type")]
-        public FBS.DataProducer.Type Type { get; set; }
-        [JsonPropertyName("sctp_stream_parameters")]
-        public FBS.SctpParameters.SctpStreamParametersT SctpStreamParameters { get; set; }
-        [JsonPropertyName("label")]
-        public string Label { get; set; }
-        [JsonPropertyName("protocol")]
-        public string Protocol { get; set; }
-        [JsonPropertyName("paused")]
-        public bool Paused { get; set; }
-        [JsonPropertyName("subchannels")]
-        public List<ushort> Subchannels { get; set; }
-
-        public ConsumeDataRequestT()
-        {
-            this.DataConsumerId = null;
-            this.DataProducerId = null;
-            this.Type = FBS.DataProducer.Type.SCTP;
-            this.SctpStreamParameters = null;
-            this.Label = null;
-            this.Protocol = null;
-            this.Paused = false;
-            this.Subchannels = null;
-        }
-    }
 }

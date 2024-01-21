@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.Notification;
 using FBS.PipeTransport;
+using FBS.Request;
+using FBS.Transport;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -79,9 +82,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override Task OnCloseAsync()
         {
-            if(Data.SctpState.HasValue)
+            if(Data.Base.SctpState.HasValue)
             {
-                Data.SctpState = SctpState.Closed;
+                Data.Base.SctpState = FBS.SctpAssociation.SctpState.CLOSED;
             }
 
             return Task.CompletedTask;
@@ -96,46 +99,52 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
-        /// Provide the PipeTransport remote parameters.
+        /// Dump Transport.
         /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        public override async Task ConnectAsync(object parameters)
+        protected override async Task<object> OnDumpAsync()
         {
-            _logger.LogDebug("ConnectAsync()");
+            var response = await Channel.RequestAsync(Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
+            var data = response.Value.BodyAsPipeTransport_DumpResponse().UnPack();
+            return data;
+        }
 
-            if(parameters is not PipeTransportConnectParameters connectParameters)
-            {
-                throw new Exception($"{nameof(parameters)} type is not PipeTransportConnectParameters");
-            }
-
-            await ConnectAsync(connectParameters);
+        /// <summary>
+        /// Get Transport stats.
+        /// </summary>
+        protected override async Task<object[]> OnGetStatsAsync()
+        {
+            var response = await Channel.RequestAsync(Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            var data = response.Value.BodyAsPipeTransport_GetStatsResponse().UnPack();
+            return new[] { data };
         }
 
         /// <summary>
         /// Provide the PipeTransport remote parameters.
         /// </summary>
-        /// <param name="pipeTransportConnectParameters"></param>
+        /// <param name="parameters"></param>
         /// <returns></returns>
-        public async Task ConnectAsync(PipeTransportConnectParameters pipeTransportConnectParameters)
+        protected override async Task OnConnectAsync(object parameters)
         {
-            using(await CloseLock.ReadLockAsync())
+            _logger.LogDebug("OnConnectAsync() | PipeTransport:{TransportId}", TransportId);
+
+            if(parameters is not ConnectRequestT connectRequestT)
             {
-                if(Closed)
-                {
-                    throw new InvalidStateException("Transport closed");
-                }
-
-                var reqData = pipeTransportConnectParameters;
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal.TransportId, reqData);
-                var responseData = JsonSerializer.Deserialize<PipeTransportConnectResponseData>(
-                    resData!,
-                    ObjectExtensions.DefaultJsonSerializerOptions
-                )!;
-
-                // Update data.
-                Data.Tuple = responseData.Tuple;
+                throw new Exception($"{nameof(parameters)} type is not FBS.PipeTransport.ConnectRequestT");
             }
+
+            var connectRequestOffset = ConnectRequest.Pack(Channel.BufferBuilder, connectRequestT);
+
+            var response = await Channel.RequestAsync(
+                 FBS.Request.Method.PIPETRANSPORT_CONNECT,
+                 FBS.Request.Body.PipeTransport_ConnectRequest,
+                 connectRequestOffset.Value,
+                 Internal.TransportId);
+
+            /* Decode Response. */
+            var data = response.Value.BodyAsPipeTransport_ConnectResponse().UnPack();
+
+            // Update data.
+            Data.Tuple = data.Tuple;
         }
 
         /// <summary>
@@ -152,64 +161,80 @@ namespace Tubumu.Mediasoup
                 throw new Exception("missing producerId");
             }
 
-            var producer = await GetProducerById(consumerOptions.ProducerId);
-            if(producer == null)
-            {
-                throw new Exception($"Producer with id {consumerOptions.ProducerId} not found");
-            }
+            var producer = await GetProducerById(consumerOptions.ProducerId) ?? throw new Exception($"Producer with id {consumerOptions.ProducerId} not found");
 
             // This may throw.
             var rtpParameters = ORTC.GetPipeConsumerRtpParameters(producer.Data.ConsumableRtpParameters, Data.Rtx);
-            var reqData = new
+
+            var consumerId = Guid.NewGuid().ToString();
+
+            var consumeRequest = new ConsumeRequestT
             {
-                ConsumerId = Guid.NewGuid().ToString(),
-                producer.Data.Kind,
-                RtpParameters = rtpParameters,
-                Type = ConsumerType.Pipe,
+                ProducerId = consumerOptions.ProducerId,
+                ConsumerId = consumerId,
+                Kind = producer.Data.Kind,
+                RtpParameters = rtpParameters.SerializeRtpParameters(),
+                Type = FBS.RtpParameters.Type.PIPE,
                 ConsumableRtpEncodings = producer.Data.ConsumableRtpParameters.Encodings,
             };
 
-            var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, Internal.TransportId, reqData);
-            var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(
-                resData!,
-                ObjectExtensions.DefaultJsonSerializerOptions
-            )!;
+            var consumeRequestOffset = ConsumeRequest.Pack(Channel.BufferBuilder, consumeRequest);
 
-            var data = new ConsumerData(consumerOptions.ProducerId, producer.Data.Kind, rtpParameters, ConsumerType.Pipe);
+            var response = await Channel.RequestAsync(
+                 FBS.Request.Method.TRANSPORT_CONSUME,
+                 FBS.Request.Body.Transport_ConsumeRequest,
+                 consumeRequestOffset.Value,
+                 Internal.TransportId);
 
-            // 在 Node.js 实现中， 创建 Consumer 对象时没提供 score 和 preferredLayers 参数，且 score = { score: 10, producerScore: 10 }。
+            /* Decode Response. */
+            var responseData = response.Value.BodyAsTransport_ConsumeResponse().UnPack();
+
+            var consumerData = new ConsumerData
+            {
+                ProducerId = consumerOptions.ProducerId,
+                Kind = producer.Data.Kind,
+                RtpParameters = rtpParameters,
+                Type = producer.Data.Type,
+            };
+
+            var score = new FBS.Consumer.ConsumerScoreT
+            {
+                Score = 10,
+                ProducerScore = 10,
+                ProducerScores = new List<byte>(0)
+            };
+
             var consumer = new Consumer(
                 _loggerFactory,
-                new ConsumerInternal(Internal.RouterId, Internal.TransportId, reqData.ConsumerId),
-                data,
+                new ConsumerInternal(Internal.RouterId, Internal.TransportId, consumerId),
+                consumerData,
                 Channel,
-                PayloadChannel,
                 AppData,
                 responseData.Paused,
                 responseData.ProducerPaused,
-                responseData.Score,
+                score, // Not `responseData.Score`
                 responseData.PreferredLayers
             );
 
             consumer.On(
-                "@close",
-                async (_, _) =>
-                {
-                    await ConsumersLock.WaitAsync();
-                    try
+                    "@close",
+                    async (_, _) =>
                     {
-                        Consumers.Remove(consumer.ConsumerId);
+                        await ConsumersLock.WaitAsync();
+                        try
+                        {
+                            Consumers.Remove(consumer.ConsumerId);
+                        }
+                        catch(Exception ex)
+                        {
+                            _logger.LogError(ex, "@close");
+                        }
+                        finally
+                        {
+                            ConsumersLock.Set();
+                        }
                     }
-                    catch(Exception ex)
-                    {
-                        _logger.LogError(ex, "@close");
-                    }
-                    finally
-                    {
-                        ConsumersLock.Set();
-                    }
-                }
-            );
+                );
             consumer.On(
                 "@producerclose",
                 async (_, _) =>
@@ -257,49 +282,42 @@ namespace Tubumu.Mediasoup
             Channel.OnNotification += OnNotificationHandle;
         }
 
-        private void OnNotificationHandle(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string handlerId, Event @event, Notification notification)
         {
-            if(targetId != Internal.TransportId)
+            if(handlerId != Internal.TransportId)
             {
                 return;
             }
 
             switch(@event)
             {
-                case "sctpstatechange":
+                case Event.TRANSPORT_SCTP_STATE_CHANGE:
                     {
-                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
-                            data!,
-                            ObjectExtensions.DefaultJsonSerializerOptions
-                        )!;
-                        Data.SctpState = notification.SctpState;
+                        var sctpStateChangeNotification = notification.BodyAsTransport_SctpStateChangeNotification().UnPack();
 
-                        Emit("sctpstatechange", Data.SctpState);
+                        Data.Base.SctpState = sctpStateChangeNotification.SctpState;
+
+                        Emit("sctpstatechange", Data.Base.SctpState);
 
                         // Emit observer event.
-                        Observer.Emit("sctpstatechange", Data.SctpState);
+                        Observer.Emit("sctpstatechange", Data.Base.SctpState);
 
                         break;
                     }
-
-                case "trace":
+                case Event.TRANSPORT_TRACE:
                     {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
-                            data!,
-                            ObjectExtensions.DefaultJsonSerializerOptions
-                        )!;
+                        var traceNotification = notification.BodyAsTransport_TraceNotification().UnPack();
 
-                        Emit("trace", trace);
+                        Emit("trace", traceNotification);
 
                         // Emit observer event.
-                        Observer.Emit("trace", trace);
+                        Observer.Emit("trace", traceNotification);
 
                         break;
                     }
-
                 default:
                     {
-                        _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                        _logger.LogError("OnNotificationHandle() | PipeTransport:{TransportId} Ignoring unknown event:{@event}", TransportId, @event);
                         break;
                     }
             }

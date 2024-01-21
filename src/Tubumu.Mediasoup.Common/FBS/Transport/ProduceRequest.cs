@@ -99,27 +99,16 @@ namespace FBS.Transport
 
     public class ProduceRequestT
     {
-        [JsonPropertyName("producer_id")]
         public string ProducerId { get; set; }
-        [JsonPropertyName("kind")]
-        public FBS.RtpParameters.MediaKind Kind { get; set; }
-        [JsonPropertyName("rtp_parameters")]
-        public FBS.RtpParameters.RtpParametersT RtpParameters { get; set; }
-        [JsonPropertyName("rtp_mapping")]
-        public FBS.RtpParameters.RtpMappingT RtpMapping { get; set; }
-        [JsonPropertyName("key_frame_request_delay")]
-        public uint KeyFrameRequestDelay { get; set; }
-        [JsonPropertyName("paused")]
-        public bool Paused { get; set; }
 
-        public ProduceRequestT()
-        {
-            this.ProducerId = null;
-            this.Kind = FBS.RtpParameters.MediaKind.AUDIO;
-            this.RtpParameters = null;
-            this.RtpMapping = null;
-            this.KeyFrameRequestDelay = 0;
-            this.Paused = false;
-        }
+        public FBS.RtpParameters.MediaKind Kind { get; set; }
+
+        public FBS.RtpParameters.RtpParametersT RtpParameters { get; set; }
+
+        public FBS.RtpParameters.RtpMappingT RtpMapping { get; set; }
+
+        public uint KeyFrameRequestDelay { get; set; }
+
+        public bool Paused { get; set; }
     }
 }

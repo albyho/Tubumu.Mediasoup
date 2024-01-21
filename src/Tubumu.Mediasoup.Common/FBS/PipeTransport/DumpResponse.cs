@@ -76,24 +76,4 @@ namespace FBS.PipeTransport
               _srtp_parameters);
         }
     }
-
-    public class DumpResponseT
-    {
-        [JsonPropertyName("base")]
-        public FBS.Transport.DumpT Base { get; set; }
-        [JsonPropertyName("tuple")]
-        public FBS.Transport.TupleT Tuple { get; set; }
-        [JsonPropertyName("rtx")]
-        public bool Rtx { get; set; }
-        [JsonPropertyName("srtp_parameters")]
-        public FBS.SrtpParameters.SrtpParametersT SrtpParameters { get; set; }
-
-        public DumpResponseT()
-        {
-            this.Base = null;
-            this.Tuple = null;
-            this.Rtx = false;
-            this.SrtpParameters = null;
-        }
-    }
 }

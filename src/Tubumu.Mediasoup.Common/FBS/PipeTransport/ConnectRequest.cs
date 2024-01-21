@@ -75,21 +75,4 @@ namespace FBS.PipeTransport
               _srtp_parameters);
         }
     }
-
-    public class ConnectRequestT
-    {
-        [JsonPropertyName("ip")]
-        public string Ip { get; set; }
-        [JsonPropertyName("port")]
-        public ushort? Port { get; set; }
-        [JsonPropertyName("srtp_parameters")]
-        public FBS.SrtpParameters.SrtpParametersT SrtpParameters { get; set; }
-
-        public ConnectRequestT()
-        {
-            this.Ip = null;
-            this.Port = null;
-            this.SrtpParameters = null;
-        }
-    }
 }

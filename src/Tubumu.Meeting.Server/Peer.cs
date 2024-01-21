@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using FBS.RtpParameters;
+using FBS.WebRtcTransport;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
@@ -154,9 +156,9 @@ namespace Tubumu.Meeting.Server
         /// <returns></returns>
         public async Task<WebRtcTransport> CreateWebRtcTransportAsync(CreateWebRtcTransportRequest createWebRtcTransportRequest, bool isSend)
         {
-            var webRtcTransportOptions = new WebRtcTransportOptions
+            var webRtcTransportOptions = new Mediasoup.WebRtcTransportOptions
             {
-                ListenIps = _webRtcTransportSettings.ListenIps,
+                ListenInfos = _webRtcTransportSettings.ListenInfos,
                 InitialAvailableOutgoingBitrate = _webRtcTransportSettings.InitialAvailableOutgoingBitrate,
                 MaxSctpMessageSize = _webRtcTransportSettings.MaxSctpMessageSize,
                 EnableSctp = createWebRtcTransportRequest.SctpCapabilities != null,
@@ -215,7 +217,7 @@ namespace Tubumu.Meeting.Server
                     });
 
                     // If set, apply max incoming bitrate limit.
-                    if(_webRtcTransportSettings.MaximumIncomingBitrate.HasValue && _webRtcTransportSettings.MaximumIncomingBitrate.Value > 0)
+                    if(_webRtcTransportSettings.MaximumIncomingBitrate > 0)
                     {
                         // Fire and forget
                         transport.SetMaxIncomingBitrateAsync(_webRtcTransportSettings.MaximumIncomingBitrate.Value).ContinueWithOnFaultedHandleLog(_logger);
@@ -247,8 +249,7 @@ namespace Tubumu.Meeting.Server
                         {
                             throw new Exception($"ConnectWebRtcTransportAsync() | Transport:{connectWebRtcTransportRequest.TransportId} is not exists");
                         }
-
-                        await transport.ConnectAsync(connectWebRtcTransportRequest.DtlsParameters);
+                        await transport.ConnectAsync(connectWebRtcTransportRequest);
                         return true;
                     }
                 }
@@ -518,7 +519,7 @@ namespace Tubumu.Meeting.Server
                             _producers[producer.ProducerId] = producer;
 
                             // Add into the audioLevelObserver.
-                            if(producer.Data.Kind == MediaKind.Audio)
+                            if(producer.Data.Kind == MediaKind.AUDIO)
                             {
                                 // Fire and forget
                                 _room!.AudioLevelObserver.AddProducerAsync(new RtpObserverAddRemoveProducerOptions
@@ -1040,7 +1041,7 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         /// <param name="transportId"></param>
         /// <returns></returns>
-        public async Task<IceParameters> RestartIceAsync(string transportId)
+        public async Task<IceParametersT> RestartIceAsync(string transportId)
         {
             using(await _joinedLock.ReadLockAsync())
             {

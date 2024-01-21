@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 using FBS.Request;
 using FBS.RtpParameters;
@@ -48,7 +46,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Transport data.
         /// </summary>
-        public FBS.Transport.DumpT BaseData { get; }
+        public DumpT BaseData { get; }
 
         /// <summary>
         /// Channel instance.
@@ -173,7 +171,7 @@ namespace Tubumu.Mediasoup
         protected Transport(
             ILoggerFactory loggerFactory,
             TransportInternal @internal,
-            FBS.Transport.DumpT data,
+            DumpT data,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,
@@ -411,7 +409,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Dump Transport.
         /// </summary>
-        public virtual async Task<object> DumpAsync()
+        public async Task<object> DumpAsync()
         {
             _logger.LogDebug("DumpAsync() | Transport:{TransportId}", TransportId);
 
@@ -422,23 +420,53 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                var response = await Channel.RequestAsync(Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
-                var data = response.Value.BodyAsWebRtcTransport_DumpResponse().UnPack();
-                return data;
+                return await OnDumpAsync();
             }
         }
+
+        protected abstract Task<object> OnDumpAsync();
 
         /// <summary>
         /// Get Transport stats.
         /// </summary>
-        public abstract Task<object> GetStatsAsync();
+        public async Task<object[]> GetStatsAsync()
+        {
+            _logger.LogDebug("GetStatsAsync() | Transport:{TransportId}", TransportId);
+
+            using(await CloseLock.ReadLockAsync())
+            {
+                if(Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
+
+                return await OnGetStatsAsync();
+            }
+        }
+
+        protected abstract Task<object[]> OnGetStatsAsync();
 
         /// <summary>
         /// Provide the Transport remote parameters.
         /// </summary>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public abstract Task ConnectAsync(object parameters);
+        public async Task ConnectAsync(object parameters)
+        {
+            _logger.LogDebug("ConnectAsync() | Transport:{TransportId}", TransportId);
+
+            using(await CloseLock.ReadLockAsync())
+            {
+                if(Closed)
+                {
+                    throw new InvalidStateException("Transport closed");
+                }
+
+                await OnConnectAsync(parameters);
+            }
+        }
+
+        protected abstract Task OnConnectAsync(object parameters);
 
         /// <summary>
         /// Set maximum incoming bitrate for receiving media.
@@ -612,33 +640,40 @@ namespace Tubumu.Mediasoup
                     rtpMapping
                 );
 
-                var reqData = new
+                var producerId = producerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString());
+
+                var produceRequest = new ProduceRequestT
                 {
-                    ProducerId = producerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString()),
-                    producerOptions.Kind,
-                    producerOptions.RtpParameters,
+                    ProducerId = producerId,
+                    Kind = producerOptions.Kind,
+                    RtpParameters = producerOptions.RtpParameters.SerializeRtpParameters(),
                     RtpMapping = rtpMapping,
-                    producerOptions.KeyFrameRequestDelay,
-                    producerOptions.Paused,
+                    KeyFrameRequestDelay = producerOptions.KeyFrameRequestDelay,
+                    Paused = producerOptions.Paused,
                 };
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE, Internal.TransportId, reqData);
-                var responseData = JsonSerializer.Deserialize<TransportProduceResponseData>(
-                    resData!,
-                    ObjectExtensions.DefaultJsonSerializerOptions
-                )!;
-                var data = new ProducerData
+                var produceRequestOffset = FBS.Transport.ProduceRequest.Pack(Channel.BufferBuilder, produceRequest);
+
+                var response = await Channel.RequestAsync(
+                    Method.TRANSPORT_PRODUCE,
+                    Body.Transport_ProduceRequest,
+                    produceRequestOffset.Value,
+                    Internal.TransportId);
+
+                var data = response.Value.BodyAsTransport_ProduceResponse().UnPack();
+
+                var producerData = new ProducerData
                 {
                     Kind = producerOptions.Kind,
                     RtpParameters = producerOptions.RtpParameters,
-                    Type = responseData.Type,
+                    Type = data.Type,
                     ConsumableRtpParameters = consumableRtpParameters
                 };
 
                 var producer = new Producer(
                     _loggerFactory,
-                    new ProducerInternal(Internal.RouterId, Internal.TransportId, reqData.ProducerId),
-                    data,
+                    new ProducerInternal(Internal.RouterId, Internal.TransportId, producerId),
+                    producerData,
                     Channel,
                     producerOptions.AppData,
                     producerOptions.Paused
@@ -731,7 +766,7 @@ namespace Tubumu.Mediasoup
                     consumerOptions.Pipe
                 );
 
-                if(!pipe)
+                if(!consumerOptions.Pipe)
                 {
                     if(consumerOptions.Mid != null)
                     {
@@ -754,43 +789,50 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var reqData = new
+                var consumerId = Guid.NewGuid().ToString();
+
+                var consumeRequest = new ConsumeRequestT
                 {
-                    ConsumerId = Guid.NewGuid().ToString(),
+                    ConsumerId = consumerId,
                     ProducerId = consumerOptions.ProducerId,
-                    producer.Data.Kind,
-                    RtpParameters = rtpParameters,
-                    Type = consumerOptions.Pipe ? ProducerType.Pipe : producer.Data.Type,
+                    Kind = producer.Data.Kind,
+                    RtpParameters = rtpParameters.SerializeRtpParameters(),
+                    Type = consumerOptions.Pipe ? FBS.RtpParameters.Type.PIPE : producer.Data.Type,
                     ConsumableRtpEncodings = producer.Data.ConsumableRtpParameters.Encodings,
-                    consumerOptions.Paused,
-                    consumerOptions.PreferredLayers,
-                    consumerOptions.IgnoreDtx,
+                    Paused = consumerOptions.Paused,
+                    PreferredLayers = consumerOptions.PreferredLayers,
+                    IgnoreDtx = consumerOptions.IgnoreDtx,
                 };
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME, Internal.TransportId, reqData);
-                var responseData = JsonSerializer.Deserialize<TransportConsumeResponseData>(
-                    resData!,
-                    ObjectExtensions.DefaultJsonSerializerOptions
-                )!;
+                var consumeRequestOffset = FBS.Transport.ConsumeRequest.Pack(Channel.BufferBuilder, consumeRequest);
 
-                var data = new ConsumerData(
-                    consumerOptions.ProducerId,
-                    producer.Data.Kind,
-                    rtpParameters,
-                    (ConsumerType)(pipe ? ProducerType.Pipe : producer.Data.Type) // 注意：类型转换。ProducerType 的每一种值在 ConsumerType 都有对应且相同的值。
-                );
+                var response = await Channel.RequestAsync(
+                    Method.TRANSPORT_CONSUME,
+                    Body.Transport_ConsumeRequest,
+                    consumeRequestOffset.Value,
+                    Internal.TransportId);
+
+                var data = response.Value.BodyAsTransport_ConsumeResponse().UnPack();
+
+                var consumerData = new ConsumerData
+                {
+                    ProducerId = consumerOptions.ProducerId,
+                    Kind = producer.Data.Kind,
+                    RtpParameters = rtpParameters,
+                    Type = producer.Data.Type,
+                };
 
                 var consumer = new Consumer(
-                    _loggerFactory,
-                    new ConsumerInternal(Internal.RouterId, Internal.TransportId, reqData.ConsumerId),
-                    data,
-                    Channel,
-                    AppData,
-                    responseData.Paused,
-                    responseData.ProducerPaused,
-                    responseData.Score,
-                    responseData.PreferredLayers
-                );
+                _loggerFactory,
+                new ConsumerInternal(Internal.RouterId, Internal.TransportId, consumerId),
+                consumerData,
+                Channel,
+                AppData,
+                data.Paused,
+                data.ProducerPaused,
+                data.Score,
+                data.PreferredLayers
+            );
 
                 consumer.On(
                     "@close",
@@ -882,12 +924,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                DataProducerType type;
+                FBS.DataProducer.Type type;
                 // If this is not a DirectTransport, sctpStreamParameters are required.
                 // TODO: (alby) 反模式
                 if(GetType() != typeof(DirectTransport))
                 {
-                    type = DataProducerType.Sctp;
+                    type = FBS.DataProducer.Type.SCTP;
 
                     // This may throw.
                     ORTC.ValidateSctpStreamParameters(dataProducerOptions.SctpStreamParameters!);
@@ -895,7 +937,7 @@ namespace Tubumu.Mediasoup
                 // If this is a DirectTransport, sctpStreamParameters must not be given.
                 else
                 {
-                    type = DataProducerType.Direct;
+                    type = FBS.DataProducer.Type.DIRECT;
 
                     if(dataProducerOptions.SctpStreamParameters != null)
                     {
@@ -903,31 +945,42 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var reqData = new
+                var dataProducerId = dataProducerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString());
+
+                var dataProduceRequest = new FBS.Transport.ProduceDataRequestT
                 {
-                    DataProducerId = dataProducerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString()),
-                    Type = type.GetEnumMemberValue(),
-                    dataProducerOptions.SctpStreamParameters,
-                    Label = dataProducerOptions.Label!,
-                    Protocol = dataProducerOptions.Protocol!
+                    DataProducerId = dataProducerId,
+                    Type = type,
+                    SctpStreamParameters = dataProducerOptions.SctpStreamParameters,
+                    Protocol = dataProducerOptions.Protocol,
+                    Label = dataProducerOptions.Label,
+                    Paused = dataProducerOptions.Paused,
                 };
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_PRODUCE_DATA, Internal.TransportId, reqData);
-                var responseData = JsonSerializer.Deserialize<TransportDataProduceResponseData>(
-                    resData!,
-                    ObjectExtensions.DefaultJsonSerializerOptions
-                )!;
-                var data = new DataProducerData
+                var dataProduceRequestOffset = FBS.Transport.ProduceDataRequest.Pack(Channel.BufferBuilder, dataProduceRequest);
+
+                var response = await Channel.RequestAsync(
+                    Method.TRANSPORT_PRODUCE_DATA,
+                    Body.Transport_ProduceDataRequest,
+                    dataProduceRequestOffset.Value,
+                    Internal.TransportId);
+
+                var data = response.Value.BodyAsDataProducer_DumpResponse().UnPack();
+
+                var dataProducerData = new DataProducerData
                 {
-                    SctpStreamParameters = responseData.SctpStreamParameters,
-                    Label = responseData.Label!,
-                    Protocol = responseData.Protocol!,
+                    Type = data.Type,
+                    SctpStreamParameters = data.SctpStreamParameters,
+                    Label = data.Label!,
+                    Protocol = data.Protocol!,
                 };
+
                 var dataProducer = new DataProducer(
                     _loggerFactory,
-                    new DataProducerInternal(Internal.RouterId, Internal.TransportId, reqData.DataProducerId),
-                    data,
+                    new DataProducerInternal(Internal.RouterId, Internal.TransportId, dataProducerId),
+                    dataProducerData,
                     Channel,
+                    dataProducerOptions.Paused,
                     AppData
                 );
 
@@ -1021,8 +1074,8 @@ namespace Tubumu.Mediasoup
                             throw new IndexOutOfRangeException(nameof(_sctpStreamIds));
                         }
 
-                        _sctpStreamIds[sctpStreamId] = 1;
-                        sctpStreamParameters.StreamId = sctpStreamId;
+                        _sctpStreamIds[sctpStreamId.Value] = 1;
+                        sctpStreamParameters.StreamId = sctpStreamId.Value;
                     }
                 }
                 // If this is a DirectTransport, sctpStreamParameters must not be used.
@@ -1042,28 +1095,48 @@ namespace Tubumu.Mediasoup
                     }
                 }
 
-                var reqData = new
+                var dataConsumerId = Guid.NewGuid().ToString();
+
+                var consumeDataRequest = new ConsumeDataRequestT
                 {
-                    DataConsumerId = Guid.NewGuid().ToString(),
+                    DataConsumerId = dataConsumerId,
                     DataProducerId = dataConsumerOptions.DataProducerId,
-                    Type = type.GetEnumMemberValue(),
+                    Type = type,
                     SctpStreamParameters = sctpStreamParameters,
                     Label = dataProducer.Data.Label,
                     Protocol = dataProducer.Data.Protocol,
+                    Paused = dataConsumerOptions.Paused,
+                    Subchannels = dataConsumerOptions.Subchannels,
                 };
 
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONSUME_DATA, Internal.TransportId, reqData);
-                var responseData = JsonSerializer.Deserialize<TransportDataConsumeResponseData>(
-                    resData!,
-                    ObjectExtensions.DefaultJsonSerializerOptions
-                )!;
+                var consumeDataRequestOffset = FBS.Transport.ConsumeDataRequest.Pack(Channel.BufferBuilder, consumeDataRequest);
+
+                var response = await Channel.RequestAsync(
+                    Method.TRANSPORT_CONSUME_DATA,
+                    Body.Transport_ConsumeDataRequest,
+                    consumeDataRequestOffset.Value,
+                    Internal.TransportId);
+
+                var data = response.Value.BodyAsDataConsumer_DumpResponse().UnPack();
+
+                var dataConsumerData = new DataConsumerData
+                {
+                    DataProducerId = data.DataProducerId,
+                    Type = data.Type,
+                    SctpStreamParameters = data.SctpStreamParameters,
+                    Label = data.Label,
+                    Protocol = data.Protocol,
+                    BufferedAmountLowThreshold = data.BufferedAmountLowThreshold,
+                };
 
                 var dataConsumer = new DataConsumer(
                     _loggerFactory,
-                    new DataConsumerInternal(Internal.RouterId, Internal.TransportId, reqData.DataConsumerId),
-                    responseData, // 直接使用返回值
+                    new DataConsumerInternal(Internal.RouterId, Internal.TransportId, dataConsumerId),
+                    dataConsumerData,
                     Channel,
-                    PayloadChannel,
+                    data.Paused,
+                    data.DataProducerPaused,
+                    data.Subchannels,
                     AppData
                 );
 

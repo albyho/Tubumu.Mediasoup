@@ -44,7 +44,7 @@ namespace Tubumu.Mediasoup
 		 * Only used in case this data consumer receives messages from a local data
 		 * producer that specifies subchannel(s) when calling send().
 		 */
-        public ushort[]? Subchannels { get; set; }
+        public List<ushort>? Subchannels { get; set; }
 
         /// <summary>
         /// Custom application data.

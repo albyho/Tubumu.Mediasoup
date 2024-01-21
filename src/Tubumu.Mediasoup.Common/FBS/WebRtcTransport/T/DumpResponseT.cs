@@ -14,7 +14,7 @@ namespace FBS.WebRtcTransport
 
         public FBS.WebRtcTransport.IceState IceState { get; set; }
 
-        public FBS.Transport.TupleT IceSelectedTuple { get; set; }
+        public FBS.Transport.TupleT? IceSelectedTuple { get; set; }
 
         public FBS.WebRtcTransport.DtlsParametersT DtlsParameters { get; set; }
 

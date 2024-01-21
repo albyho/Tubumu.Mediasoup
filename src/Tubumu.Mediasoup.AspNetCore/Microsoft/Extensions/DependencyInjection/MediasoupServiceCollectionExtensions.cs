@@ -102,7 +102,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     var listenInfosTemp = (from ip in localIPv4IPAddresses
                                            let ipString = ip.ToString()
-                                           select new TransportListenInfo
+                                           select new ListenInfoT
                                            {
                                                Protocol = Protocol.TCP,
                                                Ip = ipString,
@@ -110,7 +110,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                                Port = 44444,
                                            }).ToList();
 
-                    listenInfosTemp.AddRange(listenInfosTemp.Select(m => new TransportListenInfo
+                    listenInfosTemp.AddRange(listenInfosTemp.Select(m => new ListenInfoT
                     {
                         Protocol = Protocol.UDP,
                         Ip = m.Ip,
@@ -159,7 +159,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     listenIps = (from ip in localIPv4IPAddresses
                                  let ipString = ip.ToString()
-                                 select new TransportListenInfo
+                                 select new ListenInfoT
                                  {
                                      Ip = ipString,
                                      AnnouncedIp = ipString
@@ -189,7 +189,7 @@ namespace Microsoft.Extensions.DependencyInjection
             // PlainTransportSettings
             if(plainTransportSettings != null)
             {
-                mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenIp = plainTransportSettings.ListenIp;
+                mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo = plainTransportSettings.ListenInfo;
                 mediasoupOptions.MediasoupSettings.PlainTransportSettings.MaxSctpMessageSize = plainTransportSettings.MaxSctpMessageSize;
 
                 var localIPv4IPAddress = IPAddressExtensions.GetLocalIPv4IPAddress();
@@ -198,15 +198,15 @@ namespace Microsoft.Extensions.DependencyInjection
                     throw new ArgumentException("无法获取本机 IPv4 配置 PlainTransport。");
                 }
 
-                var listenIp = mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenIp;
+                var listenIp = mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo;
                 if(listenIp == null)
                 {
-                    listenIp = new TransportListenInfo
+                    listenIp = new ListenInfoT
                     {
                         Ip = localIPv4IPAddress.ToString(),
                         AnnouncedIp = localIPv4IPAddress.ToString(),
                     };
-                    mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenIp = listenIp;
+                    mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo = listenIp;
                 }
                 else if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
                 {

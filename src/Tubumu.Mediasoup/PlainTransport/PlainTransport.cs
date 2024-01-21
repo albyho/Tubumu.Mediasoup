@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FBS.Notification;
 using FBS.PlainTransport;
+using FBS.Request;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -77,9 +79,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override Task OnCloseAsync()
         {
-            if(Data.SctpState.HasValue)
+            if(Data.Base.SctpState.HasValue)
             {
-                Data.SctpState = SctpState.Closed;
+                Data.Base.SctpState = FBS.SctpAssociation.SctpState.CLOSED;
             }
 
             return Task.CompletedTask;
@@ -94,49 +96,60 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
-        /// Provide the PipeTransport remote parameters.
+        /// Dump Transport.
         /// </summary>
-        public override async Task ConnectAsync(object parameters)
+        protected override async Task<object> OnDumpAsync()
         {
-            _logger.LogDebug("ConnectAsync()");
-
-            if(parameters is not PlainTransportConnectParameters connectParameters)
-            {
-                throw new Exception($"{nameof(parameters)} type is not PlainTransportConnectParameters");
-            }
-
-            await ConnectAsync(connectParameters);
+            var response = await Channel.RequestAsync(Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
+            var data = response.Value.BodyAsPlainTransport_DumpResponse().UnPack();
+            return data;
         }
 
-        private async Task ConnectAsync(PlainTransportConnectParameters plainTransportConnectParameters)
+        /// <summary>
+        /// Get Transport stats.
+        /// </summary>
+        protected override async Task<object[]> OnGetStatsAsync()
         {
-            using(await CloseLock.ReadLockAsync())
+            var response = await Channel.RequestAsync(Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            var data = response.Value.BodyAsPlainTransport_GetStatsResponse().UnPack();
+            return new[] { data };
+        }
+
+        /// <summary>
+        /// Provide the PlainTransport remote parameters.
+        /// </summary>
+        protected override async Task OnConnectAsync(object parameters)
+        {
+            _logger.LogDebug("OnConnectAsync() | PlainTransport:{TransportId}", TransportId);
+
+            if(parameters is not ConnectRequestT connectRequestT)
             {
-                if(Closed)
-                {
-                    throw new InvalidStateException("Transport closed");
-                }
-
-                var reqData = plainTransportConnectParameters;
-                var resData = await Channel.RequestAsync(MethodId.TRANSPORT_CONNECT, Internal.TransportId, reqData);
-                var responseData = JsonSerializer.Deserialize<PlainTransportConnectResponseData>(
-                    resData!,
-                    ObjectExtensions.DefaultJsonSerializerOptions
-                )!;
-
-                // Update data.
-                if(responseData.Tuple != null)
-                {
-                    Data.Tuple = responseData.Tuple;
-                }
-
-                if(responseData.RtcpTuple != null)
-                {
-                    Data.RtcpTuple = responseData.RtcpTuple;
-                }
-
-                Data.SrtpParameters = responseData.SrtpParameters;
+                throw new Exception($"{nameof(parameters)} type is not FBS.PlainTransport.ConnectRequestT");
             }
+
+            var connectRequestOffset = ConnectRequest.Pack(Channel.BufferBuilder, connectRequestT);
+
+            var response = await Channel.RequestAsync(
+                 FBS.Request.Method.PLAINTRANSPORT_CONNECT,
+                 FBS.Request.Body.PlainTransport_ConnectRequest,
+                 connectRequestOffset.Value,
+                 Internal.TransportId);
+
+            /* Decode Response. */
+            var data = response.Value.BodyAsPlainTransport_ConnectResponse().UnPack();
+
+            // Update data.
+            if(data.Tuple != null)
+            {
+                Data.Tuple = data.Tuple;
+            }
+
+            if(data.RtcpTuple != null)
+            {
+                Data.RtcpTuple = data.RtcpTuple;
+            }
+
+            Data.SrtpParameters = data.SrtpParameters;
         }
 
         #region Event Handlers
@@ -146,23 +159,20 @@ namespace Tubumu.Mediasoup
             Channel.OnNotification += OnNotificationHandle;
         }
 
-        private void OnNotificationHandle(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string handlerId, Event @event, Notification notification)
         {
-            if(targetId != Internal.TransportId)
+            if(handlerId != Internal.TransportId)
             {
                 return;
             }
 
             switch(@event)
             {
-                case "tuple":
+                case Event.PLAINTRANSPORT_TUPLE:
                     {
-                        var notification = JsonSerializer.Deserialize<PlainTransportTupleNotificationData>(
-                            data!,
-                            ObjectExtensions.DefaultJsonSerializerOptions
-                        )!;
+                        var tupleNotification = notification.BodyAsPlainTransport_TupleNotification().UnPack();
 
-                        Data.Tuple = notification.Tuple;
+                        Data.Tuple = tupleNotification.Tuple;
 
                         Emit("tuple", Data.Tuple);
 
@@ -171,15 +181,11 @@ namespace Tubumu.Mediasoup
 
                         break;
                     }
-
-                case "rtcptuple":
+                case Event.PLAINTRANSPORT_RTCP_TUPLE:
                     {
-                        var notification = JsonSerializer.Deserialize<PlainTransportRtcpTupleNotificationData>(
-                            data!,
-                            ObjectExtensions.DefaultJsonSerializerOptions
-                        )!;
+                        var rtcpTupleNotification = notification.BodyAsPlainTransport_RtcpTupleNotification().UnPack();
 
-                        Data.RtcpTuple = notification.RtcpTuple;
+                        Data.RtcpTuple = rtcpTupleNotification.Tuple;
 
                         Emit("rtcptuple", Data.RtcpTuple);
 
@@ -188,42 +194,33 @@ namespace Tubumu.Mediasoup
 
                         break;
                     }
-
-                case "sctpstatechange":
+                case Event.TRANSPORT_SCTP_STATE_CHANGE:
                     {
-                        var notification = JsonSerializer.Deserialize<TransportSctpStateChangeNotificationData>(
-                            data!,
-                            ObjectExtensions.DefaultJsonSerializerOptions
-                        )!;
+                        var sctpStateChangeNotification = notification.BodyAsTransport_SctpStateChangeNotification().UnPack();
 
-                        Data.SctpState = notification.SctpState;
+                        Data.Base.SctpState = sctpStateChangeNotification.SctpState;
 
-                        Emit("sctpstatechange", Data.SctpState);
+                        Emit("sctpstatechange", Data.Base.SctpState);
 
                         // Emit observer event.
-                        Observer.Emit("sctpstatechange", Data.SctpState);
+                        Observer.Emit("sctpstatechange", Data.Base.SctpState);
 
                         break;
                     }
-
-                case "trace":
+                case Event.TRANSPORT_TRACE:
                     {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
-                            data!,
-                            ObjectExtensions.DefaultJsonSerializerOptions
-                        )!;
+                        var traceNotification = notification.BodyAsTransport_TraceNotification().UnPack();
 
-                        Emit("trace", trace);
+                        Emit("trace", traceNotification);
 
                         // Emit observer event.
-                        Observer.Emit("trace", trace);
+                        Observer.Emit("trace", traceNotification);
 
                         break;
                     }
-
                 default:
                     {
-                        _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                        _logger.LogError("OnNotificationHandle() | PlainTransport:{TransportId} Ignoring unknown event:{@event}", TransportId, @event);
                         break;
                     }
             }

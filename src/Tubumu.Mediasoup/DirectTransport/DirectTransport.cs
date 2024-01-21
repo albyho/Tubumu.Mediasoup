@@ -4,6 +4,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using FBS.DirectTransport;
+using FBS.Request;
+using FBS.Transport;
+using FBS.Notification;
 
 namespace Tubumu.Mediasoup
 {
@@ -78,13 +81,32 @@ namespace Tubumu.Mediasoup
         }
 
         /// <summary>
+        /// Dump Transport.
+        /// </summary>
+        protected override async Task<object> OnDumpAsync()
+        {
+            var response = await Channel.RequestAsync(Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
+            var data = response.Value.BodyAsDirectTransport_DumpResponse().UnPack();
+            return data;
+        }
+
+        /// <summary>
+        /// Get Transport stats.
+        /// </summary>
+        protected override async Task<object[]> OnGetStatsAsync()
+        {
+            var response = await Channel.RequestAsync(Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            var data = response.Value.BodyAsDirectTransport_GetStatsResponse().UnPack();
+            return new[] { data };
+        }
+
+        /// <summary>
         /// NO-OP method in DirectTransport.
         /// </summary>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        public override Task ConnectAsync(object parameters)
+        protected override Task OnConnectAsync(object parameters)
         {
-            _logger.LogDebug($"ConnectAsync() | DiectTransport:{TransportId}");
             return Task.CompletedTask;
         }
 
@@ -93,9 +115,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public override Task<string> SetMaxIncomingBitrateAsync(int bitrate)
+        public override Task<string> SetMaxIncomingBitrateAsync(uint bitrate)
         {
-            _logger.LogError($"SetMaxIncomingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
+            _logger.LogError("SetMaxIncomingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}", TransportId, TransportId);
             throw new NotImplementedException("SetMaxIncomingBitrateAsync() not implemented in DirectTransport");
         }
 
@@ -104,9 +126,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public override Task<string> SetMaxOutgoingBitrateAsync(int bitrate)
+        public override Task<string> SetMaxOutgoingBitrateAsync(uint bitrate)
         {
-            _logger.LogError($"SetMaxOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
+            _logger.LogError("SetMaxOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}", TransportId, TransportId);
             throw new NotImplementedException("SetMaxOutgoingBitrateAsync is not implemented in DirectTransport");
         }
 
@@ -115,9 +137,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="bitrate"></param>
         /// <returns></returns>
-        public override Task<string> SetMinOutgoingBitrateAsync(int bitrate)
+        public override Task<string> SetMinOutgoingBitrateAsync(uint bitrate)
         {
-            _logger.LogError($"SetMinOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}");
+            _logger.LogError("SetMinOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}", TransportId, TransportId);
             throw new NotImplementedException("SetMinOutgoingBitrateAsync is not implemented in DirectTransport");
         }
 
@@ -126,7 +148,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public override Task<Producer> ProduceAsync(ProducerOptions producerOptions)
         {
-            _logger.LogError($"ProduceAsync() | DiectTransport:{TransportId}");
+            _logger.LogError("ProduceAsync() | DiectTransport:{TransportId}", TransportId);
             throw new NotImplementedException("ProduceAsync() is not implemented in DirectTransport");
         }
 
@@ -137,7 +159,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public override Task<Consumer> ConsumeAsync(ConsumerOptions consumerOptions)
         {
-            _logger.LogError($"ConsumeAsync() | DiectTransport:{TransportId}");
+            _logger.LogError("ConsumeAsync() | DiectTransport:{TransportId}", TransportId);
             throw new NotImplementedException("ConsumeAsync() not implemented in DirectTransport");
         }
 
@@ -150,7 +172,20 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                await PayloadChannel.NotifyAsync("transport.sendRtcp", Internal.TransportId, null, rtcpPacket);
+                var sendRtcpNotification = new SendRtcpNotificationT
+                {
+                    Data = rtcpPacket
+                };
+
+                var sendRtcpNotificationOffset = SendRtcpNotification.Pack(Channel.BufferBuilder, sendRtcpNotification);
+
+                // Fire and forget
+                Channel.NotifyAsync(
+                    FBS.Notification.Event.TRANSPORT_SEND_RTCP,
+                    FBS.Notification.Body.Transport_SendRtcpNotification,
+                    sendRtcpNotificationOffset.Value,
+                    Internal.TransportId
+                    ).ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -161,33 +196,29 @@ namespace Tubumu.Mediasoup
             Channel.OnNotification += OnNotificationHandle;
         }
 
-        private void OnNotificationHandle(string targetId, string @event, string? data)
+        private void OnNotificationHandle(string handlerId, Event @event, Notification notification)
         {
-            if(targetId != Internal.TransportId)
+            if(handlerId != Internal.TransportId)
             {
                 return;
             }
 
             switch(@event)
             {
-                case "trace":
+                case Event.TRANSPORT_TRACE:
                     {
-                        var trace = JsonSerializer.Deserialize<TransportTraceEventData>(
-                            data!,
-                            ObjectExtensions.DefaultJsonSerializerOptions
-                        )!;
+                        var traceNotification = notification.BodyAsTransport_TraceNotification().UnPack();
 
-                        Emit("trace", trace);
+                        Emit("trace", traceNotification);
 
                         // Emit observer event.
-                        Observer.Emit("trace", trace);
+                        Observer.Emit("trace", traceNotification);
 
                         break;
                     }
-
                 default:
                     {
-                        _logger.LogError($"OnNotificationHandle() | DiectTransport:{TransportId} Ignoring unknown event{@event}");
+                        _logger.LogError("OnNotificationHandle() | DiectTransport:{TransportId} Ignoring unknown event:{@event}", TransportId, @event);
                         break;
                     }
             }

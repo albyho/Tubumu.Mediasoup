@@ -16,4 +16,3 @@ namespace Tubumu.Mediasoup
         public SctpState? SctpState { get; set; }
     }
 }
-

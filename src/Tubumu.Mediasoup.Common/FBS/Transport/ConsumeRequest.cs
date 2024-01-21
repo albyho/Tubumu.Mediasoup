@@ -139,39 +139,4 @@ namespace FBS.Transport
               _o.IgnoreDtx);
         }
     }
-
-    public class ConsumeRequestT
-    {
-        [JsonPropertyName("consumer_id")]
-        public string ConsumerId { get; set; }
-        [JsonPropertyName("producer_id")]
-        public string ProducerId { get; set; }
-        [JsonPropertyName("kind")]
-        public FBS.RtpParameters.MediaKind Kind { get; set; }
-        [JsonPropertyName("rtp_parameters")]
-        public FBS.RtpParameters.RtpParametersT RtpParameters { get; set; }
-        [JsonPropertyName("type")]
-        public FBS.RtpParameters.Type Type { get; set; }
-        [JsonPropertyName("consumable_rtp_encodings")]
-        public List<FBS.RtpParameters.RtpEncodingParametersT> ConsumableRtpEncodings { get; set; }
-        [JsonPropertyName("paused")]
-        public bool Paused { get; set; }
-        [JsonPropertyName("preferred_layers")]
-        public FBS.Consumer.ConsumerLayersT PreferredLayers { get; set; }
-        [JsonPropertyName("ignore_dtx")]
-        public bool IgnoreDtx { get; set; }
-
-        public ConsumeRequestT()
-        {
-            this.ConsumerId = null;
-            this.ProducerId = null;
-            this.Kind = FBS.RtpParameters.MediaKind.AUDIO;
-            this.RtpParameters = null;
-            this.Type = FBS.RtpParameters.Type.SIMPLE;
-            this.ConsumableRtpEncodings = null;
-            this.Paused = false;
-            this.PreferredLayers = null;
-            this.IgnoreDtx = false;
-        }
-    }
 }

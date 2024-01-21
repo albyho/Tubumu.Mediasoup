@@ -55,15 +55,4 @@ namespace FBS.PipeTransport
               _tuple);
         }
     }
-
-    public class ConnectResponseT
-    {
-        [JsonPropertyName("tuple")]
-        public FBS.Transport.TupleT Tuple { get; set; }
-
-        public ConnectResponseT()
-        {
-            this.Tuple = null;
-        }
-    }
 }

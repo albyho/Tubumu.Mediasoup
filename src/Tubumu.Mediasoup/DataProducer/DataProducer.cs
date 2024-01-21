@@ -358,7 +358,7 @@ namespace Tubumu.Mediasoup
 
         #region Event Handlers
 
-        private void HandleWorkerNotifications()
+        private static void HandleWorkerNotifications()
         {
             // No need to subscribe to any event.
         }

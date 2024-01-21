@@ -3,7 +3,9 @@
 namespace Tubumu.Mediasoup
 {
     public class DataProducerData
-	{
+    {
+        public FBS.DataProducer.Type Type { get; set; }
+
         /// <summary>
         /// SCTP stream parameters.
         /// </summary>

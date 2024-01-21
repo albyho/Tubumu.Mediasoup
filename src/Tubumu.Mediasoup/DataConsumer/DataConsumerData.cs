@@ -9,6 +9,8 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public string DataProducerId { get; init; }
 
+        public FBS.DataProducer.Type Type { get; set; }
+
         /// <summary>
         /// SCTP stream parameters.
         /// </summary>
@@ -23,5 +25,7 @@ namespace Tubumu.Mediasoup
         /// DataChannel protocol.
         /// </summary>
         public string Protocol { get; init; }
+
+        public uint BufferedAmountLowThreshold { get; set; }
     }
 }

@@ -6,6 +6,6 @@ namespace Tubumu.Mediasoup
     {
         public ListenInfoT ListenInfo { get; set; }
 
-        public int MaxSctpMessageSize { get; set; }
+        public uint MaxSctpMessageSize { get; set; }
     }
 }

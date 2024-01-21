@@ -27,7 +27,7 @@ namespace Tubumu.Mediasoup
         public string DataConsumerId => _internal.DataConsumerId;
 
         /// <summary>
-        /// DataChannel data.
+        /// DataConsumer data.
         /// </summary>
         public DataConsumerData Data { get; set; }
 

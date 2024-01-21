@@ -774,13 +774,13 @@ namespace Tubumu.Mediasoup
                             localPipeTransport = pipeTransports[0];
                             remotePipeTransport = pipeTransports[1];
 
-                            await Task.WhenAll(localPipeTransport.ConnectAsync(new PipeTransportConnectParameters
+                            await Task.WhenAll(localPipeTransport.ConnectAsync(new FBS.PipeTransport.ConnectRequestT
                             {
                                 Ip = remotePipeTransport.Data.Tuple.LocalIp,
                                 Port = remotePipeTransport.Data.Tuple.LocalPort,
                                 SrtpParameters = remotePipeTransport.Data.SrtpParameters,
                             }),
-                            remotePipeTransport.ConnectAsync(new PipeTransportConnectParameters
+                            remotePipeTransport.ConnectAsync(new FBS.PipeTransport.ConnectRequestT
                             {
                                 Ip = localPipeTransport.Data.Tuple.LocalIp,
                                 Port = localPipeTransport.Data.Tuple.LocalPort,
@@ -843,7 +843,7 @@ namespace Tubumu.Mediasoup
                         {
                             Id = producer.ProducerId,
                             Kind = pipeConsumer.Data.Kind,
-                            RtpParameters = pipeConsumer.Data.RtpParameters.DeserializeRtpParameters(),
+                            RtpParameters = pipeConsumer.Data.RtpParameters,
                             Paused = pipeConsumer.ProducerPaused,
                             AppData = producer.AppData,
                         });

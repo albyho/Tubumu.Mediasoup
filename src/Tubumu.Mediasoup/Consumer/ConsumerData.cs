@@ -7,30 +7,22 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Associated Producer id.
         /// </summary>
-        public string ProducerId { get; }
+        public string ProducerId { get; set; }
 
         /// <summary>
         /// Media kind.
         /// </summary>
-        public MediaKind Kind { get; }
+        public MediaKind Kind { get; set; }
 
         /// <summary>
         /// RTP parameters.
         /// </summary>
-        public RtpParametersT RtpParameters { get; }
+        public RtpParameters RtpParameters { get; set; }
 
         /// <summary>
         /// Consumer type.
         /// </summary>
-        public Type Type { get; }
+        public Type Type { get; set; }
 
-        public ConsumerData(string producerId, MediaKind kind, RtpParametersT rtpParameters, Type type)
-        {
-            ProducerId = producerId;
-            Kind = kind;
-            RtpParameters = rtpParameters;
-            Type = type;
-        }
     }
 }
-

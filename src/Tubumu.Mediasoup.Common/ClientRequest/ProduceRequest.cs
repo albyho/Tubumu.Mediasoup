@@ -7,7 +7,7 @@ namespace Tubumu.Mediasoup
     {
         public MediaKind Kind { get; set; }
 
-        public RtpParametersT RtpParameters { get; set; }
+        public RtpParameters RtpParameters { get; set; }
 
         public string Source { get; set; }
 

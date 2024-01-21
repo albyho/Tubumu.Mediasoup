@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FBS.RtpParameters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -111,7 +112,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "Join 调用失败.");
             }
             catch(Exception ex)
             {
@@ -302,7 +303,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "ConnectWebRtcTransport 调用失败.");
             }
             catch(Exception ex)
             {
@@ -576,7 +577,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "RequestProduce 调用失败.");
             }
             catch(Exception ex)
             {
@@ -598,7 +599,7 @@ namespace Tubumu.Meeting.Server
         public async Task<MeetingMessage<ProduceRespose>> Produce(ProduceRequest produceRequest)
         {
             // HACK: (alby) Android 传入 RtpParameters 有误的临时处理方案。See: https://mediasoup.discourse.group/t/audio-codec-channel-not-supported/1877
-            if(produceRequest.Kind == MediaKind.Audio && produceRequest.RtpParameters.Codecs[0].MimeType == "audio/opus")
+            if(produceRequest.Kind == MediaKind.AUDIO && produceRequest.RtpParameters.Codecs[0].MimeType == "audio/opus")
             {
                 produceRequest.RtpParameters.Codecs[0].Channels = 2;
             }

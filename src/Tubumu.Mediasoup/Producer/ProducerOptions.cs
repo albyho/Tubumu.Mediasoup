@@ -29,7 +29,7 @@ namespace Tubumu.Mediasoup
         /// Just for video. Time (in ms) before asking the sender for a new key frame
         /// after having asked a previous one. Default 0.
         /// </summary>
-        public int KeyFrameRequestDelay { get; set; }
+        public uint KeyFrameRequestDelay { get; set; }
 
         /// <summary>
         /// Custom application data.
