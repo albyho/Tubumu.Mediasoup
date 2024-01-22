@@ -86,7 +86,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        protected override void SendRequest(RequestMessage requestMessage, Sent sent)
+        protected override void SendRequest(Sent sent)
         {
             Loop.Default.Sync(() =>
             {
@@ -94,7 +94,7 @@ namespace Tubumu.Mediasoup
                 {
                     // This may throw if closed or remote side ended.
                     _producerSocket.Write(
-                        requestMessage.Payload,
+                        sent.RequestMessage.Payload,
                         ex =>
                         {
                             if(ex != null)

@@ -177,13 +177,13 @@ namespace Tubumu.Mediasoup
                     () => _sents.TryRemove(requestMessage.Id!.Value, out _)
                 );
 
-                SendRequest(requestMessage, sent);
+                SendRequest(sent);
 
                 return await tcs.Task;
             }
         }
 
-        protected abstract void SendRequest(RequestMessage requestMessage, Sent sent);
+        protected abstract void SendRequest(Sent sent);
 
         #region Event handles
 
@@ -334,6 +334,7 @@ namespace Tubumu.Mediasoup
 
         private RequestMessage CreateRequestRequestMessage(
             Method method,
+            FlatBufferBuilder bufferBuilder,
             FBS.Request.Body? bodyType,
             int? bodyOffset,
             string? handlerId
@@ -358,20 +359,20 @@ namespace Tubumu.Mediasoup
             }
             else
             {
-                requestOffset = Request.CreateRequest(BufferBuilder, id, method, handlerIdOffset, FBS.Request.Body.NONE, 0);
+                requestOffset = Request.CreateRequest(bufferBuilder, id, method, handlerIdOffset, FBS.Request.Body.NONE, 0);
             }
 
-            var messageOffset = Message.CreateMessage(BufferBuilder, FBS.Message.Body.Request, requestOffset.Value);
+            var messageOffset = Message.CreateMessage(bufferBuilder, FBS.Message.Body.Request, requestOffset.Value);
 
             // Finalizes the buffer and adds a 4 byte prefix with the size of the buffer.
-            BufferBuilder.FinishSizePrefixed(messageOffset.Value);
+            bufferBuilder.FinishSizePrefixed(messageOffset.Value);
 
             // Create a new buffer with this data so multiple contiguous flatbuffers
             // do not point to the builder buffer overriding others info.
-            var buffer = BufferBuilder.DataBuffer.ToSizedArray();
+            var buffer = bufferBuilder.DataBuffer.ToSizedArray();
 
             // Clear the buffer builder so it's reused for the next request.
-            BufferBuilder.Clear();
+            //BufferBuilder.Clear();
 
             if(buffer.Length > MessageMaxLen)
             {

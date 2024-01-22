@@ -13,9 +13,9 @@ namespace Tubumu.Mediasoup
         public ChannelNative(ILogger<ChannelNative> logger, int workerId)
             : base(logger, workerId) { }
 
-        protected override void SendRequest(RequestMessage requestMessage, Sent sent)
+        protected override void SendRequest(Sent sent)
         {
-            _requestMessageQueue.Queue.Enqueue(requestMessage);
+            _requestMessageQueue.Queue.Enqueue(sent.RequestMessage);
 
             try
             {
