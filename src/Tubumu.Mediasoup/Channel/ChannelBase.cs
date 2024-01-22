@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FBS.Log;
@@ -217,15 +216,14 @@ namespace Tubumu.Mediasoup
                         break;
                     default:
                         {
-                            _logger.LogWarning($"ProcessMessage() | worker[workerId/pid:{_workerId}] unexpected data: {Encoding.UTF8.GetString(message.ByteBuffer.ToFullArray())}");
+                            _logger.LogWarning("ProcessMessage() | worker[WorkerId/Pid:{WorkerId}] unexpected", _workerId);
                         }
                         break;
                 }
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, $"ProcessMessage() | Worker[{_workerId}] Received invalid message from the worker process, message: {message}"
-                );
+                _logger.LogError(ex, "ProcessMessage() | Worker[{WorkerId}] Received invalid message from the worker process", _workerId);
                 return;
             }
         }
@@ -288,7 +286,7 @@ namespace Tubumu.Mediasoup
                 // 'D' (a debug log).
                 case 'D':
                     {
-                        _logger.LogDebug($"[workerId/pid:{_workerId}] {logData[1..]}");
+                        _logger.LogDebug("[WorkerId/Pid:{WorkerId}] {Flag}", _workerId, logData[1..]);
 
                         break;
                     }
@@ -296,7 +294,7 @@ namespace Tubumu.Mediasoup
                 // 'W' (a warn log).
                 case 'W':
                     {
-                        _logger.LogWarning($"[workerId/pid:{_workerId}] {logData[1..]}");
+                        _logger.LogWarning("[WorkerId/Pid:{WorkerId}] {Flag}", _workerId, logData[1..]);
 
                         break;
                     }
@@ -304,7 +302,7 @@ namespace Tubumu.Mediasoup
                 // 'E' (a error log).
                 case 'E':
                     {
-                        _logger.LogError($"[workerId/pid:{_workerId}] {logData[1..]}");
+                        _logger.LogError("[WorkerId/Pid:{WorkerId}] {Flag}", _workerId, logData[1..]);
 
                         break;
                     }
@@ -313,7 +311,7 @@ namespace Tubumu.Mediasoup
                 case 'X':
                     {
                         // eslint-disable-next-line no-console
-                        _logger.LogTrace(logData[1..]);
+                        _logger.LogTrace("[WorkerId/Pid:{WorkerId}] {Flag}", _workerId, logData[1..]);
 
                         break;
                     }

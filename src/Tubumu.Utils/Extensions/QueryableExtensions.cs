@@ -117,16 +117,17 @@ namespace System.Linq
              * SELECT * FROM [User] Where Name='Test' AND (Tags LIKE '%A%' Or Tags LIKE  '%B%')
              */
 
-            if (selector == null)
+            if(selector == null)
             {
                 throw new ArgumentNullException(nameof(selector));
             }
-            if (values == null)
+
+            if(values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
 
-            if (!values.Any())
+            if(!values.Any())
             {
                 return query;
             }
@@ -146,16 +147,17 @@ namespace System.Linq
             IEnumerable<TMemberValue> values
             )
         {
-            if (selector == null)
+            if(selector == null)
             {
                 throw new ArgumentNullException(nameof(selector));
             }
-            if (values == null)
+
+            if(values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
 
-            if (!values.Any())
+            if(!values.Any())
             {
                 return query;
             }
@@ -202,16 +204,17 @@ namespace System.Linq
              * var query = DbContext.User.Where(m => names.Contains(m.Name));
              */
 
-            if (selector == null)
+            if(selector == null)
             {
                 throw new ArgumentNullException(nameof(selector));
             }
-            if (values == null)
+
+            if(values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
 
-            if (!values.Any())
+            if(!values.Any())
             {
                 return query;
             }
@@ -277,7 +280,7 @@ namespace System.Linq
             var selectManyCollectionSelector = (Expression<Func<LeftJoinIntermediate<TOuter, TInner>, IEnumerable<TInner>>>)
                                                (t => t.ManyInners.DefaultIfEmpty()!);
 
-            ParameterExpression paramUser = resultSelector.Parameters.First();
+            ParameterExpression paramUser = resultSelector.Parameters[0];
 
             ParameterExpression paramNew = Expression.Parameter(typeof(LeftJoinIntermediate<TOuter, TInner>), "t");
             MemberExpression propExpr = Expression.Property(paramNew, "OneOuter");
@@ -293,6 +296,7 @@ namespace System.Linq
         {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
             public TOuter OneOuter { get; set; }
+
             public IEnumerable<TInner> ManyInners { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         }
@@ -300,6 +304,7 @@ namespace System.Linq
         private class Replacer : ExpressionVisitor
         {
             private readonly ParameterExpression _oldParam;
+
             private readonly Expression _replacement;
 
             public Replacer(ParameterExpression oldParam, Expression replacement)
@@ -326,11 +331,9 @@ namespace System.Linq
         public static IOrderedQueryable<T> Order<T>(this IQueryable<T> source, string propertyName, bool descending, bool anotherLevel = false)
         {
             var type = typeof(T);
-            var propertyInfo = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public);
-            if (propertyInfo == null)
-            {
-                throw new ArgumentOutOfRangeException(nameof(propertyName));
-            }
+            var propertyInfo = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public)
+            ?? throw new ArgumentOutOfRangeException(nameof(propertyName));
+
             ParameterExpression parameter = Expression.Parameter(type, string.Empty); // I don't care about some naming
             MemberExpression property = Expression.Property(parameter, propertyInfo);
             LambdaExpression sort = Expression.Lambda(property, parameter);
@@ -348,8 +351,7 @@ namespace System.Linq
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
-        /// <param name="propertyName"></param>
-        /// <param name="descending"></param>
+        /// <param name="sortInfo"></param>
         /// <param name="anotherLevel"></param>
         /// <returns></returns>
         public static IOrderedQueryable<T> Order<T>(this IQueryable<T> source, SortInfo sortInfo, bool anotherLevel = false)
@@ -364,19 +366,18 @@ namespace System.Linq
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
-        /// <param name="propertyName"></param>
-        /// <param name="descending"></param>
-        /// <param name="anotherLevel"></param>
+        /// <param name="sortInfos"></param>
         /// <returns></returns>
         public static IOrderedQueryable<T>? Order<T>(this IQueryable<T> source, ICollection<SortInfo> sortInfos)
         {
             IOrderedQueryable<T>? result = null;
             var isFirst = true;
-            foreach (var sortInfo in sortInfos)
+            foreach(var sortInfo in sortInfos)
             {
                 result = Order(source, sortInfo, !isFirst);
                 isFirst = false;
             }
+
             return result;
         }
 

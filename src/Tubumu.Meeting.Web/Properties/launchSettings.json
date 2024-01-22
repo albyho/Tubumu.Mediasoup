@@ -17,10 +17,10 @@
     },
     "Tubumu.Meeting.Web": {
       "commandName": "Project",
-        "environmentVariables": {
-            "ASPNETCORE_ENVIRONMENT": "Development",
-            "DYLD_LIBRARY_PATH": "/opt/homebrew/opt/libuv/lib:/opt/homebrew/opt/llvm/lib/c++:/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release"
-        }
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DYLD_LIBRARY_PATH": "/opt/homebrew/opt/libuv/lib:/opt/homebrew/opt/llvm/lib/c++:/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Release"
+      }
     }
   }
 }

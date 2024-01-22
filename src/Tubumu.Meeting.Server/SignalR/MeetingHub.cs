@@ -547,7 +547,7 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Request produce medias.
         /// </summary>
-        /// <param name="inviteRequest"></param>
+        /// <param name="requestProduceRequest"></param>
         /// <returns></returns>
         public async Task<MeetingMessage> RequestProduce(RequestProduceRequest requestProduceRequest)
         {

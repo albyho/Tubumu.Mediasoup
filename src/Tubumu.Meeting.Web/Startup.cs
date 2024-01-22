@@ -67,7 +67,7 @@ namespace Tubumu.Meeting.Web
                         ValidAudience = tokenValidationSettings.ValidAudience,
                         ValidateAudience = true,
 
-                        IssuerSigningKey = SignatureHelper.GenerateSigningKey(tokenValidationSettings.IssuerSigningKey),
+                        IssuerSigningKey = SignatureHelper.GenerateSymmetricSecurityKey(tokenValidationSettings.IssuerSigningKey),
                         ValidateIssuerSigningKey = true,
 
                         ValidateLifetime = tokenValidationSettings.ValidateLifetime,
@@ -86,20 +86,22 @@ namespace Tubumu.Meeting.Web
 
                             // If the request is for our hub...
                             var path = context.HttpContext.Request.Path;
-                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                            if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
                             {
                                 // Read the token out of the query string
                                 context.Token = accessToken;
                             }
+
                             return Task.CompletedTask;
                         },
                         OnAuthenticationFailed = context =>
                         {
                             //_logger.LogError($"Authentication Failed(OnAuthenticationFailed): {context.Request.Path} Error: {context.Exception}");
-                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                            if(context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                             {
                                 context.Response.Headers.Add("Token-Expired", "true");
                             }
+
                             return Task.CompletedTask;
                         },
                         OnChallenge = async context =>
@@ -108,7 +110,7 @@ namespace Tubumu.Meeting.Web
                             var body = Encoding.UTF8.GetBytes("{\"code\": 400, \"message\": \"Authentication Challenge\"}");
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                             context.Response.ContentType = "application/json";
-                            await context.Response.Body.WriteAsync(body, 0, body.Length);
+                            await context.Response.Body.WriteAsync(body);
                             context.HandleResponse();
                         }
                     };
@@ -123,7 +125,8 @@ namespace Tubumu.Meeting.Web
             // Swagger
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
                     Title = "Meeting API",
                     Version = "v1"
                 });
@@ -133,7 +136,7 @@ namespace Tubumu.Meeting.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime, ILogger<Startup> logger)
         {
-            if (env.IsDevelopment())
+            if(env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -161,18 +164,11 @@ namespace Tubumu.Meeting.Web
             //    });
             //});
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
 
             // Swagger
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-            });
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"));
 
             #region Mediasoup configure
 
@@ -180,13 +176,7 @@ namespace Tubumu.Meeting.Web
 
             #endregion
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/api/Health", async context =>
-                {
-                    await context.Response.WriteAsync("ok");
-                });
-            });
+            app.UseEndpoints(endpoints => endpoints.MapGet("/api/Health", async context => await context.Response.WriteAsync("ok")));
         }
     }
 }

@@ -110,7 +110,7 @@ namespace Tubumu.Meeting.Server.Authorization
                 ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = SignatureHelper.GenerateSigningKey(_tokenValidationSettings.IssuerSigningKey),
+                IssuerSigningKey = SignatureHelper.GenerateSymmetricSecurityKey(_tokenValidationSettings.IssuerSigningKey),
                 ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
             };
 

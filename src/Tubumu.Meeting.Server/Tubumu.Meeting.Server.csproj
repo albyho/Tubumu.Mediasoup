@@ -10,7 +10,7 @@
     <Company>Tubumu</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
-    <RepositoryUrl>https://github.com/albyho/Tubumu.Meeting.Server</RepositoryUrl> 
+    <RepositoryUrl>https://github.com/albyho/Tubumu.Meeting.Server</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
   </PropertyGroup>
@@ -36,7 +36,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
-    <PackageReference Include="SignalRSwaggerGen" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
