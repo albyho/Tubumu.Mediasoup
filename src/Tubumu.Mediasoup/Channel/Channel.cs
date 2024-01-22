@@ -2,7 +2,6 @@
 using System.Text;
 using FBS.Message;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
 
@@ -32,6 +31,7 @@ namespace Tubumu.Mediasoup
         /// Buffer for reading messages from the worker.
         /// </summary>
         private readonly byte[] _recvBuffer;
+
         private int _recvBufferCount;
 
         #endregion Private Fields

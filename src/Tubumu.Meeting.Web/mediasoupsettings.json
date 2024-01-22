@@ -2,11 +2,11 @@
     "MediasoupStartupSettings": {
         "MediasoupVersion": "3.13.16",
         "WorkerInProcess": false,
-        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Debug/mediasoup-worker",
+        "WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Debug/mediasoup-worker",
         //"WorkerPath": "/Users/alby/Workspace/Tubumu.Mediasoup/Tubumu.Mediasoup.Executable/runtimes/osx/native/mediasoup-worker",
         //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/xcode/debug/mediasoup-worker",
         //"WorkerPath": "C:\\Developer\\OpenSource\\Meeting\\mediasoup\\worker\\out\\Release\\mediasoup-worker",
-        "WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/prebuild/3.13.16/mediasoup-worker",
+        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/prebuild/3.13.16/mediasoup-worker",
         "NumberOfWorkers": 1,
         "UseWebRtcServer": false
     },

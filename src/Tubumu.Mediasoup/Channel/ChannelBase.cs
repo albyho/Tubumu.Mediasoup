@@ -12,7 +12,6 @@ using FBS.Response;
 using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
-using Body = FBS.Request.Body;
 
 namespace Tubumu.Mediasoup
 {
@@ -152,6 +151,7 @@ namespace Tubumu.Mediasoup
                             );
                             return;
                         }
+
                         tcs.TrySetResult(data);
                     },
                     Reject = e =>
@@ -163,6 +163,7 @@ namespace Tubumu.Mediasoup
                             );
                             return;
                         }
+
                         tcs.TrySetException(e);
                     },
                     Close = () => tcs.TrySetException(new InvalidStateException("Channel closed"))
@@ -171,6 +172,7 @@ namespace Tubumu.Mediasoup
                 {
                     throw new Exception($"Error add sent request [id:{requestMessage.Id}]");
                 }
+
                 tcs.WithTimeout(
                     TimeSpan.FromSeconds(15 + (0.1 * _sents.Count)),
                     () => _sents.TryRemove(requestMessage.Id!.Value, out _)
@@ -190,7 +192,6 @@ namespace Tubumu.Mediasoup
         {
             try
             {
-                var log = $"ProcessResponse() | Worker[{_workerId}] message: {message}";
                 switch(message.DataType)
                 {
                     case FBS.Message.Body.Response:
@@ -347,7 +348,7 @@ namespace Tubumu.Mediasoup
             }
             else
             {
-                requestOffset = Request.CreateRequest(BufferBuilder, id, method, handlerIdOffset, Body.NONE, 0);
+                requestOffset = Request.CreateRequest(BufferBuilder, id, method, handlerIdOffset, FBS.Request.Body.NONE, 0);
             }
 
             var messageOffset = Message.CreateMessage(BufferBuilder, FBS.Message.Body.Request, requestOffset.Value);
@@ -371,6 +372,7 @@ namespace Tubumu.Mediasoup
             {
                 Id = id,
                 Method = method,
+                HandlerId = handlerId,
                 Payload = buffer
             };
             return requestMessage;
@@ -415,7 +417,7 @@ namespace Tubumu.Mediasoup
 
             // Create a new buffer with this data so multiple contiguous flatbuffers
             // do not point to the builder buffer overriding others info.
-            var buffer = BufferBuilder.DataBuffer.ToFullArray();
+            var buffer = BufferBuilder.DataBuffer.ToSizedArray();
 
             // Clear the buffer builder so it's reused for the next request.
             BufferBuilder.Clear();

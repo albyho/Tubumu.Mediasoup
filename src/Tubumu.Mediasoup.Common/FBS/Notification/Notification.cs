@@ -183,12 +183,5 @@ namespace FBS.Notification
         public FBS.Notification.Event Event { get; set; }
 
         public FBS.Notification.BodyUnion Body { get; set; }
-
-        public NotificationT()
-        {
-            this.HandlerId = null;
-            this.Event = FBS.Notification.Event.TRANSPORT_SEND_RTCP;
-            this.Body = null;
-        }
     }
 }

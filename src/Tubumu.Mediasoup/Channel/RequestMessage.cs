@@ -21,35 +21,14 @@ namespace Tubumu.Mediasoup
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Event? Event { get; set; }
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? HandlerId { get; set; }
-
         #endregion
 
         #region Common
+
+        public string? HandlerId { get; set; }
 
         public byte[] Payload { get; set; }
 
         #endregion
     }
-
-    // Note: For testing.
-    /*
-    public class ResponseMessage
-    {
-        public uint? Id { get; set; }
-
-        public string? TargetId { get; set; }
-
-        public string? Event { get; set; }
-
-        public bool? Accepted { get; set; }
-
-        public string? Error { get; set; }
-
-        public string? Reason { get; set; }
-
-        public object? Data { get; set; }
-    }
-    */
 }
