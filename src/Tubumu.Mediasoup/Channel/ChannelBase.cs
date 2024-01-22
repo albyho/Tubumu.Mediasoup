@@ -58,12 +58,6 @@ namespace Tubumu.Mediasoup
 
         #endregion Protected Fields
 
-        /// <summary>
-        /// flatbuffers builder.
-        /// </summary>
-        /// <returns></returns>
-        public FlatBufferBuilder BufferBuilder { get; } = new FlatBufferBuilder(1024);
-
         #region Events
 
         public event Action<string, Event, Notification>? OnNotification;
@@ -106,7 +100,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        public async Task NotifyAsync(Event @event, FBS.Notification.Body? bodyType, int? bodyOffset, string? handlerId)
+        public async Task NotifyAsync(FlatBufferBuilder bufferBuilder, Event @event, FBS.Notification.Body? bodyType, int? bodyOffset, string? handlerId)
         {
             _logger.LogDebug("NotifyAsync() | Worker[{WorkId}] Event:{Event}", _workerId, @event);
 
@@ -117,14 +111,14 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("PayloadChannel closed");
                 }
 
-                var notificationRequestMessage = CreateNotificationRequestMessage(@event, bodyType, bodyOffset, handlerId);
+                var notificationRequestMessage = CreateNotificationRequestMessage(bufferBuilder, @event, bodyType, bodyOffset, handlerId);
                 SendNotification(notificationRequestMessage);
             }
         }
 
         protected abstract void SendNotification(RequestMessage requestMessage);
 
-        public async Task<Response?> RequestAsync(Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null)
+        public async Task<Response?> RequestAsync(FlatBufferBuilder bufferBuilder, Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null)
         {
             _logger.LogDebug("RequestAsync() | Worker[{WorkId}] Method:{Method}", _workerId, method);
 
@@ -135,7 +129,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Channel closed");
                 }
 
-                var requestMessage = CreateRequestRequestMessage(method, bodyType, bodyOffset, handlerId);
+                var requestMessage = CreateRequestRequestMessage(bufferBuilder, method, bodyType, bodyOffset, handlerId);
 
                 var tcs = new TaskCompletionSource<Response?>();
                 var sent = new Sent
@@ -333,8 +327,8 @@ namespace Tubumu.Mediasoup
         #endregion Event handles
 
         private RequestMessage CreateRequestRequestMessage(
-            Method method,
             FlatBufferBuilder bufferBuilder,
+            Method method,
             FBS.Request.Body? bodyType,
             int? bodyOffset,
             string? handlerId
@@ -342,14 +336,14 @@ namespace Tubumu.Mediasoup
         {
             var id = InterlockedExtensions.Increment(ref _nextId);
 
-            var handlerIdOffset = BufferBuilder.CreateString(handlerId ?? "");
+            var handlerIdOffset = bufferBuilder.CreateString(handlerId ?? "");
 
             Offset<Request> requestOffset;
 
             if(bodyType.HasValue && bodyOffset.HasValue)
             {
                 requestOffset = Request.CreateRequest(
-                    BufferBuilder,
+                    bufferBuilder,
                     id,
                     method,
                     handlerIdOffset,
@@ -369,12 +363,15 @@ namespace Tubumu.Mediasoup
 
             // Create a new buffer with this data so multiple contiguous flatbuffers
             // do not point to the builder buffer overriding others info.
-            var buffer = bufferBuilder.DataBuffer.ToSizedArray();
+            //var buffer = bufferBuilder.DataBuffer.ToSizedArray();
+
+            // Zero copy.
+            var buffer = bufferBuilder.DataBuffer.ToArraySegment(bufferBuilder.DataBuffer.Position, bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position);
 
             // Clear the buffer builder so it's reused for the next request.
-            //BufferBuilder.Clear();
+            //bufferBuilder.Clear();
 
-            if(buffer.Length > MessageMaxLen)
+            if(buffer.Count > MessageMaxLen)
             {
                 throw new Exception($"request too big [method:{method}]");
             }
@@ -389,21 +386,22 @@ namespace Tubumu.Mediasoup
             return requestMessage;
         }
 
-        private RequestMessage CreateNotificationRequestMessage(
+        private static RequestMessage CreateNotificationRequestMessage(
+            FlatBufferBuilder bufferBuilder,
             Event @event,
             FBS.Notification.Body? bodyType,
             int? bodyOffset,
             string? handlerId
         )
         {
-            var handlerIdOffset = BufferBuilder.CreateString(handlerId ?? "");
+            var handlerIdOffset = bufferBuilder.CreateString(handlerId ?? "");
 
             Offset<Notification> notificationOffset;
 
             if(bodyType.HasValue && bodyOffset.HasValue)
             {
                 notificationOffset = Notification.CreateNotification(
-                    BufferBuilder,
+                    bufferBuilder,
                     handlerIdOffset,
                     @event,
                     bodyType.Value,
@@ -413,7 +411,7 @@ namespace Tubumu.Mediasoup
             else
             {
                 notificationOffset = Notification.CreateNotification(
-                    BufferBuilder,
+                    bufferBuilder,
                     handlerIdOffset,
                     @event,
                     FBS.Notification.Body.NONE,
@@ -421,19 +419,22 @@ namespace Tubumu.Mediasoup
                 );
             }
 
-            var messageOffset = Message.CreateMessage(BufferBuilder, FBS.Message.Body.Notification, notificationOffset.Value);
+            var messageOffset = Message.CreateMessage(bufferBuilder, FBS.Message.Body.Notification, notificationOffset.Value);
 
             // Finalizes the buffer and adds a 4 byte prefix with the size of the buffer.
-            BufferBuilder.FinishSizePrefixed(messageOffset.Value);
+            bufferBuilder.FinishSizePrefixed(messageOffset.Value);
 
             // Create a new buffer with this data so multiple contiguous flatbuffers
             // do not point to the builder buffer overriding others info.
-            var buffer = BufferBuilder.DataBuffer.ToSizedArray();
+            //var buffer = bufferBuilder.DataBuffer.ToSizedArray();
+
+            // Zero copy.
+            var buffer = bufferBuilder.DataBuffer.ToArraySegment(bufferBuilder.DataBuffer.Position, bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position);
 
             // Clear the buffer builder so it's reused for the next request.
-            BufferBuilder.Clear();
+            //BufferBuilder.Clear();
 
-            if(buffer.Length > MessageMaxLen)
+            if(buffer.Count > MessageMaxLen)
             {
                 throw new Exception($"notification too big [event:{@event}]");
             }

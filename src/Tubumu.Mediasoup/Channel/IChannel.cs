@@ -10,15 +10,13 @@ namespace Tubumu.Mediasoup
 {
     public interface IChannel
     {
-        FlatBufferBuilder BufferBuilder { get; }
-
         event Action<string, Event, Notification>? OnNotification;
 
         Task CloseAsync();
 
-        Task<Response?> RequestAsync(Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null);
+        Task<Response?> RequestAsync(FlatBufferBuilder bufferBuilder, Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null);
 
-        Task NotifyAsync(Event @event, FBS.Notification.Body? bodyType, int? bodyOffset, string? handlerId);
+        Task NotifyAsync(FlatBufferBuilder bufferBuilder, Event @event, FBS.Notification.Body? bodyType, int? bodyOffset, string? handlerId);
 
         void ProcessMessage(Message message);
     }

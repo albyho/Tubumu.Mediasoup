@@ -60,29 +60,34 @@ namespace Tubumu.Mediasoup
                 return null;
             }
 
-            if(requestMessage!.Payload == null || requestMessage!.Payload.Length == 0)
+            if(requestMessage!.Payload.Count == 0)
             {
                 throw new Exception("Channel request failed. Zero length.");
             }
 
-            if(requestMessage!.Payload.Length > MessageMaxLen)
+            if(requestMessage!.Payload.Count > MessageMaxLen)
             {
                 throw new Exception("Channel request failed. Invalid length.");
             }
 
+            var messageBytesHandle = GCHandle.Alloc(requestMessage!.Payload.Array!, GCHandleType.Pinned);
+            //var messagePtr = (IntPtr)(messageBytesHandle.AddrOfPinnedObject().ToInt64() + requestMessage!.Payload.Offset);
+            //var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(requestMessage!.Payload.Array!, 0);
+
+            var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(requestMessage!.Payload.Array!, requestMessage!.Payload.Offset);
+
             // 将数据的指针写入 message
-            var messageBytesHandle = GCHandle.Alloc(requestMessage!.Payload, GCHandleType.Pinned);
-            var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(requestMessage!.Payload, 0);
-            var temp = messagePtr.IntPtrToBytes();
-            Marshal.Copy(temp, 0, message, temp.Length);
+            var temp1 = messagePtr.IntPtrToBytes(); // 4 or 8 bytes
+            Marshal.Copy(temp1, 0, message, temp1.Length);
 
             // 将数据的长度写入 messageLen
-            temp = BitConverter.GetBytes(requestMessage!.Payload.Length);
-            Marshal.Copy(temp, 0, messageLen, temp.Length);
+            //var temp2 = BitConverter.GetBytes(requestMessage!.Payload.Array!.Length); // 4 bytes
+            var temp2 = BitConverter.GetBytes(requestMessage!.Payload.Count); // 4 bytes
+            Marshal.Copy(temp2, 0, messageLen, requestMessage!.Payload.Count);
 
             // 将消息句柄写入 messageCtx，以便 OnChannelReadFree 释放。
-            temp = GCHandle.ToIntPtr(messageBytesHandle).IntPtrToBytes();
-            Marshal.Copy(temp, 0, messageCtx, temp.Length);
+            var temp3 = GCHandle.ToIntPtr(messageBytesHandle).IntPtrToBytes();  // 4 or 8 bytes
+            Marshal.Copy(temp3, 0, messageCtx, temp3.Length);
             return requestMessage;
         }
 

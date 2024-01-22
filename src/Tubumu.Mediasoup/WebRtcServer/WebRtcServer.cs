@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FBS.Request;
 using FBS.WebRtcServer;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -95,16 +96,18 @@ namespace Tubumu.Mediasoup
 
                 _closed = true;
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var closeWebRtcServerRequest = new FBS.Worker.CloseWebRtcServerRequestT
                 {
                     WebRtcServerId = _internal.WebRtcServerId,
                 };
 
-                var closeWebRtcServerRequestOffset = FBS.Worker.CloseWebRtcServerRequest.Pack(_channel.BufferBuilder, closeWebRtcServerRequest);
+                var closeWebRtcServerRequestOffset = FBS.Worker.CloseWebRtcServerRequest.Pack(bufferBuilder, closeWebRtcServerRequest);
 
                 // Fire and forget
-                _channel.RequestAsync(
-                    Method.WORKER_WEBRTCSERVER_CLOSE,
+                _channel.RequestAsync(bufferBuilder, Method.WORKER_WEBRTCSERVER_CLOSE,
                     Body.Worker_CloseWebRtcServerRequest,
                     closeWebRtcServerRequestOffset.Value
                     ).ContinueWithOnFaultedHandleLog(_logger);
@@ -174,8 +177,10 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("WebRtcServer closed");
                 }
 
-                var response = await _channel.RequestAsync(
-                    Method.WEBRTCSERVER_DUMP,
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await _channel.RequestAsync(bufferBuilder, Method.WEBRTCSERVER_DUMP,
                     null,
                     null,
                     _internal.WebRtcServerId);

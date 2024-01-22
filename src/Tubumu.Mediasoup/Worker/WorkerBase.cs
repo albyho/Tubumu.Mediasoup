@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FBS.Request;
 using FBS.Transport;
 using FBS.Worker;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 using Org.BouncyCastle.Asn1.Ocsp;
@@ -112,7 +113,10 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Worker closed");
                 }
 
-                var response = await _channel.RequestAsync(Method.WORKER_DUMP);
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await _channel.RequestAsync(bufferBuilder, Method.WORKER_DUMP);
                 var data = response.Value.BodyAsWorker_DumpResponse().UnPack();
                 return data;
             }
@@ -132,8 +136,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Worker closed");
                 }
 
-                var response = await _channel.RequestAsync(Method.WORKER_GET_RESOURCE_USAGE);
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await _channel.RequestAsync(bufferBuilder, Method.WORKER_GET_RESOURCE_USAGE);
                 var data = response.Value.BodyAsWorker_ResourceUsageResponse().UnPack();
+
                 return data;
             }
         }
@@ -157,17 +165,19 @@ namespace Tubumu.Mediasoup
                 var logTags = workerUpdateableSettings.LogTags ?? Array.Empty<WorkerLogTag>();
                 var logTagStrings = logTags.Select(m => m.GetEnumMemberValue()).ToList();
 
-                // Build the request.
-                var updateSettingsRequestT = new FBS.Worker.UpdateSettingsRequestT
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var updateSettingsRequestT = new UpdateSettingsRequestT
                 {
                     LogLevel = logLevelString,
                     LogTags = logTagStrings
                 };
-                var requestOffset = FBS.Worker.UpdateSettingsRequest.Pack(_channel.BufferBuilder, updateSettingsRequestT);
+
+                var requestOffset = UpdateSettingsRequest.Pack(bufferBuilder, updateSettingsRequestT);
 
                 // Fire and forget
-                _channel.RequestAsync(
-                    Method.WORKER_UPDATE_SETTINGS,
+                _channel.RequestAsync(bufferBuilder, Method.WORKER_UPDATE_SETTINGS,
                     Body.Worker_UpdateSettingsRequest,
                     requestOffset.Value
                 ).ContinueWithOnFaultedHandleLog(_logger);
@@ -202,16 +212,19 @@ namespace Tubumu.Mediasoup
                 }).ToList();
 
                 var webRtcServerId = Guid.NewGuid().ToString();
-                var createWebRtcServerRequestT =
-                    new CreateWebRtcServerRequestT
-                    {
-                        WebRtcServerId = webRtcServerId,
-                        ListenInfos = fbsListenInfos
-                    };
-                var createWebRtcServerRequestOffset = CreateWebRtcServerRequest.Pack(_channel.BufferBuilder, createWebRtcServerRequestT);
 
-                await _channel.RequestAsync(
-                    Method.WORKER_CREATE_WEBRTCSERVER,
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var createWebRtcServerRequestT = new CreateWebRtcServerRequestT
+                {
+                    WebRtcServerId = webRtcServerId,
+                    ListenInfos = fbsListenInfos
+                };
+
+                var createWebRtcServerRequestOffset = CreateWebRtcServerRequest.Pack(bufferBuilder, createWebRtcServerRequestT);
+
+                await _channel.RequestAsync(bufferBuilder, Method.WORKER_CREATE_WEBRTCSERVER,
                     Body.Worker_CreateWebRtcServerRequest,
                     createWebRtcServerRequestOffset.Value
                 );
@@ -266,17 +279,19 @@ namespace Tubumu.Mediasoup
                 // This may throw.
                 var rtpCapabilities = ORTC.GenerateRouterRtpCapabilities(routerOptions.MediaCodecs);
 
-                // Build the request.
                 var routerId = Guid.NewGuid().ToString();
+
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var createRouterRequestT = new CreateRouterRequestT
                 {
                     RouterId = routerId
                 };
 
-                var createRouterRequestOffset = CreateRouterRequest.Pack(_channel.BufferBuilder, createRouterRequestT);
+                var createRouterRequestOffset = CreateRouterRequest.Pack(bufferBuilder, createRouterRequestT);
 
-                await _channel.RequestAsync(
-                    Method.WORKER_CREATE_ROUTER,
+                await _channel.RequestAsync(bufferBuilder, Method.WORKER_CREATE_ROUTER,
                     Body.Worker_CreateRouterRequest,
                     createRouterRequestOffset.Value);
 

@@ -6,6 +6,7 @@ using FBS.Notification;
 using FBS.Request;
 using FBS.Transport;
 using FBS.WebRtcTransport;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using NPOI.SS.Formula.Functions;
 
@@ -105,8 +106,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task<object> OnDumpAsync()
         {
-            var response = await Channel.RequestAsync(Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
             var data = response.Value.BodyAsWebRtcTransport_DumpResponse().UnPack();
+
             return data;
         }
 
@@ -115,8 +120,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task<object[]> OnGetStatsAsync()
         {
-            var response = await Channel.RequestAsync(Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
             var data = response.Value.BodyAsWebRtcTransport_GetStatsResponse().UnPack();
+
             return new[] { data };
         }
 
@@ -132,10 +141,12 @@ namespace Tubumu.Mediasoup
                 throw new Exception($"{nameof(parameters)} type is not FBS.WebRtcTransport.ConnectRequestT");
             }
 
-            var connectRequestOffset = ConnectRequest.Pack(Channel.BufferBuilder, connectRequestT);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
 
-            var response = await Channel.RequestAsync(
-                 Method.WEBRTCTRANSPORT_CONNECT,
+            var connectRequestOffset = ConnectRequest.Pack(bufferBuilder, connectRequestT);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.WEBRTCTRANSPORT_CONNECT,
                  FBS.Request.Body.WebRtcTransport_ConnectRequest,
                  connectRequestOffset.Value,
                  Internal.TransportId);
@@ -161,8 +172,10 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                var response = await Channel.RequestAsync(
-                     Method.TRANSPORT_RESTART_ICE,
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_RESTART_ICE,
                      null,
                      null,
                      Internal.TransportId);

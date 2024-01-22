@@ -8,6 +8,7 @@ using FBS.Notification;
 using FBS.Producer;
 using FBS.Request;
 using FBS.RtpStream;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -168,14 +169,16 @@ namespace Tubumu.Mediasoup
             // Remove notification subscriptions.
             _channel.OnNotification -= OnNotificationHandle;
 
-            var requestOffset = FBS.Transport.CloseProducerRequest.Pack(_channel.BufferBuilder, new FBS.Transport.CloseProducerRequestT
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var requestOffset = FBS.Transport.CloseProducerRequest.Pack(bufferBuilder, new FBS.Transport.CloseProducerRequestT
             {
                 ProducerId = _internal.ProducerId
             });
 
             // Fire and forget
-            _channel.RequestAsync(
-                Method.TRANSPORT_CLOSE_CONSUMER,
+            _channel.RequestAsync(bufferBuilder, Method.TRANSPORT_CLOSE_CONSUMER,
                 FBS.Request.Body.Transport_CloseConsumerRequest,
                 requestOffset.Value,
                 _internal.TransportId
@@ -233,8 +236,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                var response = await _channel.RequestAsync(Method.PRODUCER_DUMP, null, null, _internal.ProducerId);
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_DUMP, null, null, _internal.ProducerId);
                 var data = response.Value.BodyAsProducer_DumpResponse().UnPack();
+
                 return data;
             }
         }
@@ -253,8 +260,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                var response = await _channel.RequestAsync(Method.PRODUCER_GET_STATS, null, null, _internal.ProducerId);
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_GET_STATS, null, null, _internal.ProducerId);
                 var stats = response.Value.BodyAsProducer_GetStatsResponse().UnPack().Stats;
+
                 return stats;
             }
         }
@@ -278,7 +289,10 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = Paused;
 
-                    await _channel.RequestAsync(Method.PRODUCER_PAUSE, null, null, _internal.ProducerId);
+                    // Build Request
+                    var bufferBuilder = new FlatBufferBuilder(1024);
+
+                    await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_PAUSE, null, null, _internal.ProducerId);
 
                     Paused = true;
 
@@ -318,7 +332,10 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = Paused;
 
-                    await _channel.RequestAsync(Method.PRODUCER_RESUME, null, null, _internal.ProducerId);
+                    // Build Request
+                    var bufferBuilder = new FlatBufferBuilder(1024);
+
+                    await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_RESUME, null, null, _internal.ProducerId);
 
                     Paused = false;
 
@@ -353,14 +370,16 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                var requestOffset = FBS.Producer.EnableTraceEventRequest.Pack(_channel.BufferBuilder, new FBS.Producer.EnableTraceEventRequestT
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var requestOffset = EnableTraceEventRequest.Pack(bufferBuilder, new EnableTraceEventRequestT
                 {
                     Events = types ?? new List<TraceEventType>(0)
                 });
 
                 // Fire and forget
-                _channel
-                    .RequestAsync(Method.CONSUMER_ENABLE_TRACE_EVENT,
+                _channel.RequestAsync(bufferBuilder, Method.CONSUMER_ENABLE_TRACE_EVENT,
                     FBS.Request.Body.Consumer_EnableTraceEventRequest,
                     requestOffset.Value,
                      _internal.ProducerId)
@@ -381,16 +400,18 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Producer closed");
                 }
 
-                var builder = _channel.BufferBuilder;
-                var dataOffset = SendNotification.CreateDataVector(
-                    builder,
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024 + rtpPacket.Length);
+
+                var dataOffset = SendNotification.CreateDataVectorBlock(
+                    bufferBuilder,
                     rtpPacket
                 );
-                var notificationOffset = SendNotification.CreateSendNotification(builder, dataOffset);
+
+                var notificationOffset = SendNotification.CreateSendNotification(bufferBuilder, dataOffset);
 
                 // Fire and forget
-                _channel.NotifyAsync(
-                    Event.PRODUCER_SEND,
+                _channel.NotifyAsync(bufferBuilder, Event.PRODUCER_SEND,
                     FBS.Notification.Body.Producer_SendNotification,
                     notificationOffset.Value,
                     _internal.ProducerId

@@ -6,6 +6,7 @@ using FBS.RtpParameters;
 using FBS.SctpParameters;
 using FBS.Transport;
 using Force.DeepCloner;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -217,14 +218,16 @@ namespace Tubumu.Mediasoup
                 // Remove notification subscriptions.
                 //_channel.OnNotification -= OnNotificationHandle;
 
-                var requestOffset = FBS.Router.CloseTransportRequest.Pack(Channel.BufferBuilder, new FBS.Router.CloseTransportRequestT
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var requestOffset = FBS.Router.CloseTransportRequest.Pack(bufferBuilder, new FBS.Router.CloseTransportRequestT
                 {
                     TransportId = Internal.TransportId
                 });
 
                 // Fire and forget
-                Channel.RequestAsync(
-                    Method.ROUTER_CLOSE_TRANSPORT,
+                Channel.RequestAsync(bufferBuilder, Method.ROUTER_CLOSE_TRANSPORT,
                     Body.Router_CloseTransportRequest,
                     requestOffset.Value,
                     Internal.RouterId
@@ -484,16 +487,18 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var setMaxIncomingBitrateRequest = new SetMaxIncomingBitrateRequestT
                 {
                     MaxIncomingBitrate = bitrate
                 };
 
-                var setMaxIncomingBitrateRequestOffset = SetMaxIncomingBitrateRequest.Pack(Channel.BufferBuilder, setMaxIncomingBitrateRequest);
+                var setMaxIncomingBitrateRequestOffset = SetMaxIncomingBitrateRequest.Pack(bufferBuilder, setMaxIncomingBitrateRequest);
 
                 // Fire and forget
-                Channel.RequestAsync(
-                    Method.TRANSPORT_SET_MAX_INCOMING_BITRATE,
+                Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_SET_MAX_INCOMING_BITRATE,
                     Body.Transport_SetMaxIncomingBitrateRequest,
                     setMaxIncomingBitrateRequestOffset.Value,
                     Internal.TransportId
@@ -517,16 +522,18 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var setMaxOutgoingBitrateRequest = new SetMaxOutgoingBitrateRequestT
                 {
                     MaxOutgoingBitrate = bitrate
                 };
 
-                var setMaxOutgoingBitrateRequestOffset = SetMaxOutgoingBitrateRequest.Pack(Channel.BufferBuilder, setMaxOutgoingBitrateRequest);
+                var setMaxOutgoingBitrateRequestOffset = SetMaxOutgoingBitrateRequest.Pack(bufferBuilder, setMaxOutgoingBitrateRequest);
 
                 // Fire and forget
-                Channel.RequestAsync(
-                    Method.TRANSPORT_SET_MAX_OUTGOING_BITRATE,
+                Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_SET_MAX_OUTGOING_BITRATE,
                     Body.Transport_SetMaxOutgoingBitrateRequest,
                     setMaxOutgoingBitrateRequestOffset.Value,
                     Internal.TransportId
@@ -550,16 +557,18 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var setMinOutgoingBitrateRequest = new SetMinOutgoingBitrateRequestT
                 {
                     MinOutgoingBitrate = bitrate
                 };
 
-                var setMinOutgoingBitrateRequestOffset = SetMinOutgoingBitrateRequest.Pack(Channel.BufferBuilder, setMinOutgoingBitrateRequest);
+                var setMinOutgoingBitrateRequestOffset = SetMinOutgoingBitrateRequest.Pack(bufferBuilder, setMinOutgoingBitrateRequest);
 
                 // Fire and forget
-                Channel.RequestAsync(
-                    Method.TRANSPORT_SET_MIN_OUTGOING_BITRATE,
+                Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_SET_MIN_OUTGOING_BITRATE,
                     Body.Transport_SetMinOutgoingBitrateRequest,
                     setMinOutgoingBitrateRequestOffset.Value,
                     Internal.TransportId
@@ -642,6 +651,9 @@ namespace Tubumu.Mediasoup
 
                 var producerId = producerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString());
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var produceRequest = new ProduceRequestT
                 {
                     ProducerId = producerId,
@@ -652,10 +664,9 @@ namespace Tubumu.Mediasoup
                     Paused = producerOptions.Paused,
                 };
 
-                var produceRequestOffset = FBS.Transport.ProduceRequest.Pack(Channel.BufferBuilder, produceRequest);
+                var produceRequestOffset = FBS.Transport.ProduceRequest.Pack(bufferBuilder, produceRequest);
 
-                var response = await Channel.RequestAsync(
-                    Method.TRANSPORT_PRODUCE,
+                var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_PRODUCE,
                     Body.Transport_ProduceRequest,
                     produceRequestOffset.Value,
                     Internal.TransportId);
@@ -791,6 +802,9 @@ namespace Tubumu.Mediasoup
 
                 var consumerId = Guid.NewGuid().ToString();
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var consumeRequest = new ConsumeRequestT
                 {
                     ConsumerId = consumerId,
@@ -804,10 +818,9 @@ namespace Tubumu.Mediasoup
                     IgnoreDtx = consumerOptions.IgnoreDtx,
                 };
 
-                var consumeRequestOffset = FBS.Transport.ConsumeRequest.Pack(Channel.BufferBuilder, consumeRequest);
+                var consumeRequestOffset = ConsumeRequest.Pack(bufferBuilder, consumeRequest);
 
-                var response = await Channel.RequestAsync(
-                    Method.TRANSPORT_CONSUME,
+                var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_CONSUME,
                     Body.Transport_ConsumeRequest,
                     consumeRequestOffset.Value,
                     Internal.TransportId);
@@ -947,7 +960,10 @@ namespace Tubumu.Mediasoup
 
                 var dataProducerId = dataProducerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString());
 
-                var dataProduceRequest = new FBS.Transport.ProduceDataRequestT
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var dataProduceRequest = new ProduceDataRequestT
                 {
                     DataProducerId = dataProducerId,
                     Type = type,
@@ -957,10 +973,9 @@ namespace Tubumu.Mediasoup
                     Paused = dataProducerOptions.Paused,
                 };
 
-                var dataProduceRequestOffset = ProduceDataRequest.Pack(Channel.BufferBuilder, dataProduceRequest);
+                var dataProduceRequestOffset = ProduceDataRequest.Pack(bufferBuilder, dataProduceRequest);
 
-                var response = await Channel.RequestAsync(
-                    Method.TRANSPORT_PRODUCE_DATA,
+                var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_PRODUCE_DATA,
                     Body.Transport_ProduceDataRequest,
                     dataProduceRequestOffset.Value,
                     Internal.TransportId);
@@ -1098,6 +1113,9 @@ namespace Tubumu.Mediasoup
 
                 var dataConsumerId = Guid.NewGuid().ToString();
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var consumeDataRequest = new ConsumeDataRequestT
                 {
                     DataConsumerId = dataConsumerId,
@@ -1110,10 +1128,9 @@ namespace Tubumu.Mediasoup
                     Subchannels = dataConsumerOptions.Subchannels,
                 };
 
-                var consumeDataRequestOffset = FBS.Transport.ConsumeDataRequest.Pack(Channel.BufferBuilder, consumeDataRequest);
+                var consumeDataRequestOffset = ConsumeDataRequest.Pack(bufferBuilder, consumeDataRequest);
 
-                var response = await Channel.RequestAsync(
-                    Method.TRANSPORT_CONSUME_DATA,
+                var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_CONSUME_DATA,
                     Body.Transport_ConsumeDataRequest,
                     consumeDataRequestOffset.Value,
                     Internal.TransportId);
@@ -1232,14 +1249,18 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
-                var requestOffset = FBS.Transport.EnableTraceEventRequest.Pack(Channel.BufferBuilder, new FBS.Transport.EnableTraceEventRequestT
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var enableTraceEventRequest = new EnableTraceEventRequestT
                 {
                     Events = types ?? new List<TraceEventType>(0)
-                });
+                };
+
+                var requestOffset = EnableTraceEventRequest.Pack(bufferBuilder, enableTraceEventRequest);
 
                 // Fire and forget
-                Channel
-                    .RequestAsync(Method.TRANSPORT_ENABLE_TRACE_EVENT,
+                Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_ENABLE_TRACE_EVENT,
                     Body.Transport_EnableTraceEventRequest,
                     requestOffset.Value,
                      Internal.TransportId)

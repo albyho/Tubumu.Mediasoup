@@ -7,6 +7,7 @@ using FBS.DirectTransport;
 using FBS.Request;
 using FBS.Transport;
 using FBS.Notification;
+using Google.FlatBuffers;
 
 namespace Tubumu.Mediasoup
 {
@@ -85,8 +86,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task<object> OnDumpAsync()
         {
-            var response = await Channel.RequestAsync(Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
             var data = response.Value.BodyAsDirectTransport_DumpResponse().UnPack();
+
             return data;
         }
 
@@ -95,7 +100,10 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task<object[]> OnGetStatsAsync()
         {
-            var response = await Channel.RequestAsync(Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
             var data = response.Value.BodyAsDirectTransport_GetStatsResponse().UnPack();
             return new[] { data };
         }
@@ -172,16 +180,18 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Transport closed");
                 }
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var sendRtcpNotification = new SendRtcpNotificationT
                 {
                     Data = rtcpPacket
                 };
 
-                var sendRtcpNotificationOffset = SendRtcpNotification.Pack(Channel.BufferBuilder, sendRtcpNotification);
+                var sendRtcpNotificationOffset = SendRtcpNotification.Pack(bufferBuilder, sendRtcpNotification);
 
                 // Fire and forget
-                Channel.NotifyAsync(
-                    Event.TRANSPORT_SEND_RTCP,
+                Channel.NotifyAsync(bufferBuilder, Event.TRANSPORT_SEND_RTCP,
                     FBS.Notification.Body.Transport_SendRtcpNotification,
                     sendRtcpNotificationOffset.Value,
                     Internal.TransportId

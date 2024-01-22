@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FBS.Request;
 using FBS.Router;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -137,18 +138,21 @@ namespace Tubumu.Mediasoup
 
                 _closed = true;
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var closeRouterRequest = new FBS.Worker.CloseRouterRequestT
                 {
                     RouterId = _internal.RouterId,
                 };
 
-                var closeRouterRequestOffset = FBS.Worker.CloseRouterRequest.Pack(_channel.BufferBuilder, closeRouterRequest);
+                var closeRouterRequestOffset = FBS.Worker.CloseRouterRequest.Pack(bufferBuilder, closeRouterRequest);
 
                 // Fire and forget
-                _channel.RequestAsync(
-                        Method.WORKER_CLOSE_ROUTER,
-                        Body.Worker_CloseRouterRequest,
-                        closeRouterRequestOffset.Value).ContinueWithOnFaultedHandleLog(_logger);
+                _channel.RequestAsync(bufferBuilder,Method.WORKER_CLOSE_ROUTER,
+                    Body.Worker_CloseRouterRequest,
+                    closeRouterRequestOffset.Value
+                    ).ContinueWithOnFaultedHandleLog(_logger);
 
                 await CloseInternalAsync();
 
@@ -198,8 +202,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                var response = await _channel.RequestAsync(Method.ROUTER_DUMP, null, null, _internal.RouterId);
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await _channel.RequestAsync(bufferBuilder, Method.ROUTER_DUMP, null, null, _internal.RouterId);
                 var data = response.Value.BodyAsRouter_DumpResponse().UnPack();
+
                 return data;
             }
         }
@@ -302,15 +310,19 @@ namespace Tubumu.Mediasoup
                 };
 
                 var transportId = Guid.NewGuid().ToString();
-                var createWebRtcTransportRequest = new FBS.Router.CreateWebRtcTransportRequestT
+
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var createWebRtcTransportRequest = new CreateWebRtcTransportRequestT
                 {
                     TransportId = transportId,
                     Options = webRtcTransportOptionsForCreate
                 };
 
-                var createWebRtcTransportRequestOffset = FBS.Router.CreateWebRtcTransportRequest.Pack(_channel.BufferBuilder, createWebRtcTransportRequest);
+                var createWebRtcTransportRequestOffset = FBS.Router.CreateWebRtcTransportRequest.Pack(bufferBuilder, createWebRtcTransportRequest);
 
-                var response = await _channel.RequestAsync(webRtcServer != null
+                var response = await _channel.RequestAsync(bufferBuilder, webRtcServer != null
                         ? Method.ROUTER_CREATE_WEBRTCTRANSPORT_WITH_SERVER
                         : Method.ROUTER_CREATE_WEBRTCTRANSPORT,
                         Body.Router_CreateWebRtcTransportRequest,
@@ -396,15 +408,19 @@ namespace Tubumu.Mediasoup
                 };
 
                 var transportId = Guid.NewGuid().ToString();
-                var createPlainTransportRequest = new FBS.Router.CreatePlainTransportRequestT
+
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var createPlainTransportRequest = new CreatePlainTransportRequestT
                 {
                     TransportId = transportId,
                     Options = plainTransportOptionsForCreate
                 };
 
-                var createPlainTransportRequestOffset = FBS.Router.CreatePlainTransportRequest.Pack(_channel.BufferBuilder, createPlainTransportRequest);
+                var createPlainTransportRequestOffset = FBS.Router.CreatePlainTransportRequest.Pack(bufferBuilder, createPlainTransportRequest);
 
-                var response = await _channel.RequestAsync(Method.ROUTER_CREATE_PLAINTRANSPORT,
+                var response = await _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_PLAINTRANSPORT,
                         Body.Router_CreatePlainTransportRequest,
                         createPlainTransportRequestOffset.Value,
                         _internal.RouterId);
@@ -484,15 +500,19 @@ namespace Tubumu.Mediasoup
                 };
 
                 var transportId = Guid.NewGuid().ToString();
-                var createPipeTransportRequest = new FBS.Router.CreatePipeTransportRequestT
+
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var createPipeTransportRequest = new CreatePipeTransportRequestT
                 {
                     TransportId = transportId,
                     Options = pipeTransportOptionsForCreate
                 };
 
-                var createPipeTransportRequestOffset = FBS.Router.CreatePipeTransportRequest.Pack(_channel.BufferBuilder, createPipeTransportRequest);
+                var createPipeTransportRequestOffset = CreatePipeTransportRequest.Pack(bufferBuilder, createPipeTransportRequest);
 
-                var response = await _channel.RequestAsync(Method.ROUTER_CREATE_PIPETRANSPORT,
+                var response = await _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_PIPETRANSPORT,
                         Body.Router_CreatePipeTransportRequest,
                         createPipeTransportRequestOffset.Value,
                         _internal.RouterId);
@@ -562,15 +582,19 @@ namespace Tubumu.Mediasoup
                 };
 
                 var transportId = Guid.NewGuid().ToString();
-                var createDirectTransportRequest = new FBS.Router.CreateDirectTransportRequestT
+
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var createDirectTransportRequest = new CreateDirectTransportRequestT
                 {
                     TransportId = transportId,
                     Options = directTransportOptionsForCreate
                 };
 
-                var createDirectTransportRequestOffset = FBS.Router.CreateDirectTransportRequest.Pack(_channel.BufferBuilder, createDirectTransportRequest);
+                var createDirectTransportRequestOffset = CreateDirectTransportRequest.Pack(bufferBuilder, createDirectTransportRequest);
 
-                var response = await _channel.RequestAsync(Method.ROUTER_CREATE_DIRECTTRANSPORT,
+                var response = await _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_DIRECTTRANSPORT,
                         Body.Router_CreateDirectTransportRequest,
                         createDirectTransportRequestOffset.Value,
                         _internal.RouterId);
@@ -959,7 +983,10 @@ namespace Tubumu.Mediasoup
 
                 var rtpObserverId = Guid.NewGuid().ToString();
 
-                var createActiveSpeakerObserverRequest = new FBS.Router.CreateActiveSpeakerObserverRequestT
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var createActiveSpeakerObserverRequest = new CreateActiveSpeakerObserverRequestT
                 {
                     RtpObserverId = rtpObserverId,
                     Options = new FBS.ActiveSpeakerObserver.ActiveSpeakerObserverOptionsT
@@ -968,10 +995,10 @@ namespace Tubumu.Mediasoup
                     }
                 };
 
-                var createActiveSpeakerObserverRequestOffset = FBS.Router.CreateActiveSpeakerObserverRequest.Pack(_channel.BufferBuilder, createActiveSpeakerObserverRequest);
+                var createActiveSpeakerObserverRequestOffset = CreateActiveSpeakerObserverRequest.Pack(bufferBuilder, createActiveSpeakerObserverRequest);
 
                 // Fire and forget
-                _channel.RequestAsync(Method.ROUTER_CREATE_ACTIVESPEAKEROBSERVER,
+                _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_ACTIVESPEAKEROBSERVER,
                 Body.Router_CreateActiveSpeakerObserverRequest,
                 createActiveSpeakerObserverRequestOffset.Value,
                 _internal.RouterId).ContinueWithOnFaultedHandleLog(_logger);
@@ -1010,7 +1037,10 @@ namespace Tubumu.Mediasoup
 
                 var rtpObserverId = Guid.NewGuid().ToString();
 
-                var createAudioLevelObserverRequest = new FBS.Router.CreateAudioLevelObserverRequestT
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var createAudioLevelObserverRequest = new CreateAudioLevelObserverRequestT
                 {
                     RtpObserverId = rtpObserverId,
                     Options = new FBS.AudioLevelObserver.AudioLevelObserverOptionsT
@@ -1021,11 +1051,10 @@ namespace Tubumu.Mediasoup
                     }
                 };
 
-                var createAudioLevelObserverRequestOffset = FBS.Router.CreateAudioLevelObserverRequest.Pack(_channel.BufferBuilder, createAudioLevelObserverRequest);
+                var createAudioLevelObserverRequestOffset = CreateAudioLevelObserverRequest.Pack(bufferBuilder, createAudioLevelObserverRequest);
 
                 // Fire and forget
-                _channel.RequestAsync(
-                    Method.ROUTER_CREATE_AUDIOLEVELOBSERVER,
+                _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_AUDIOLEVELOBSERVER,
                     Body.Router_CreateAudioLevelObserverRequest,
                     createAudioLevelObserverRequestOffset.Value,
                     _internal.RouterId

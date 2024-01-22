@@ -6,6 +6,7 @@ using FBS.Notification;
 using FBS.PipeTransport;
 using FBS.Request;
 using FBS.Transport;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -103,8 +104,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task<object> OnDumpAsync()
         {
-            var response = await Channel.RequestAsync(Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
             var data = response.Value.BodyAsPipeTransport_DumpResponse().UnPack();
+
             return data;
         }
 
@@ -113,8 +118,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task<object[]> OnGetStatsAsync()
         {
-            var response = await Channel.RequestAsync(Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
             var data = response.Value.BodyAsPipeTransport_GetStatsResponse().UnPack();
+
             return new[] { data };
         }
 
@@ -132,10 +141,12 @@ namespace Tubumu.Mediasoup
                 throw new Exception($"{nameof(parameters)} type is not FBS.PipeTransport.ConnectRequestT");
             }
 
-            var connectRequestOffset = ConnectRequest.Pack(Channel.BufferBuilder, connectRequestT);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
 
-            var response = await Channel.RequestAsync(
-                 Method.PIPETRANSPORT_CONNECT,
+            var connectRequestOffset = ConnectRequest.Pack(bufferBuilder, connectRequestT);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.PIPETRANSPORT_CONNECT,
                  FBS.Request.Body.PipeTransport_ConnectRequest,
                  connectRequestOffset.Value,
                  Internal.TransportId);
@@ -168,6 +179,9 @@ namespace Tubumu.Mediasoup
 
             var consumerId = Guid.NewGuid().ToString();
 
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
             var consumeRequest = new ConsumeRequestT
             {
                 ProducerId = consumerOptions.ProducerId,
@@ -178,10 +192,9 @@ namespace Tubumu.Mediasoup
                 ConsumableRtpEncodings = producer.Data.ConsumableRtpParameters.Encodings,
             };
 
-            var consumeRequestOffset = ConsumeRequest.Pack(Channel.BufferBuilder, consumeRequest);
+            var consumeRequestOffset = ConsumeRequest.Pack(bufferBuilder, consumeRequest);
 
-            var response = await Channel.RequestAsync(
-                 Method.TRANSPORT_CONSUME,
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_CONSUME,
                  FBS.Request.Body.Transport_ConsumeRequest,
                  consumeRequestOffset.Value,
                  Internal.TransportId);

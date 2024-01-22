@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FBS.DataProducer;
 using FBS.Notification;
 using FBS.Request;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -111,16 +112,18 @@ namespace Tubumu.Mediasoup
                 // Remove notification subscriptions.
                 //_channel.OnNotification -= OnNotificationHandle;
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var closeDataProducerRequest = new FBS.Transport.CloseDataProducerRequestT
                 {
                     DataProducerId = _internal.DataProducerId,
                 };
 
-                var closeDataProducerRequestOffset = FBS.Transport.CloseDataProducerRequest.Pack(_channel.BufferBuilder, closeDataProducerRequest);
+                var closeDataProducerRequestOffset = FBS.Transport.CloseDataProducerRequest.Pack(bufferBuilder, closeDataProducerRequest);
 
                 // Fire and forget
-                _channel.RequestAsync(
-                    Method.TRANSPORT_CLOSE_DATAPRODUCER,
+                _channel.RequestAsync(bufferBuilder, Method.TRANSPORT_CLOSE_DATAPRODUCER,
                     FBS.Request.Body.Transport_CloseDataProducerRequest,
                     closeDataProducerRequestOffset.Value,
                     _internal.TransportId
@@ -173,8 +176,10 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                var response = await _channel.RequestAsync(
-                    Method.DATAPRODUCER_DUMP,
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await _channel.RequestAsync(bufferBuilder, Method.DATAPRODUCER_DUMP,
                     null,
                     null,
                     _internal.DataProducerId);
@@ -199,8 +204,10 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                var response = await _channel.RequestAsync(
-                    Method.DATAPRODUCER_GET_STATS,
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var response = await _channel.RequestAsync(bufferBuilder, Method.DATAPRODUCER_GET_STATS,
                     null,
                     null,
                     _internal.DataProducerId);
@@ -225,9 +232,10 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
-                /* Ignore Response. */
-                _ = await _channel.RequestAsync(
-                     Method.DATACONSUMER_PAUSE,
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE,
                      null,
                      null,
                      _internal.DataProducerId);
@@ -258,12 +266,13 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataConsumer closed");
                 }
 
-                /* Ignore Response. */
-                _ = await _channel.RequestAsync(
-                     Method.DATACONSUMER_RESUME,
-                     null,
-                     null,
-                     _internal.DataProducerId);
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_RESUME,
+                    null,
+                    null,
+                    _internal.DataProducerId);
 
                 var wasPaused = _paused;
 
@@ -338,6 +347,9 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("DataProducer closed");
                 }
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var sendNotification = new SendNotificationT
                 {
                     Ppid = ppid,
@@ -346,11 +358,10 @@ namespace Tubumu.Mediasoup
                     RequiredSubchannel = requiredSubchannel,
                 };
 
-                var sendNotificationOffset = SendNotification.Pack(_channel.BufferBuilder, sendNotification);
+                var sendNotificationOffset = SendNotification.Pack(bufferBuilder, sendNotification);
 
                 // Fire and forget
-                _channel.NotifyAsync(
-                    Event.PRODUCER_SEND,
+                _channel.NotifyAsync(bufferBuilder, Event.PRODUCER_SEND,
                     FBS.Notification.Body.DataProducer_SendNotification,
                     sendNotificationOffset.Value,
                     _internal.DataProducerId

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FBS.Notification;
 using FBS.PlainTransport;
 using FBS.Request;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -100,8 +101,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task<object> OnDumpAsync()
         {
-            var response = await Channel.RequestAsync(Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
             var data = response.Value.BodyAsPlainTransport_DumpResponse().UnPack();
+
             return data;
         }
 
@@ -110,8 +115,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task<object[]> OnGetStatsAsync()
         {
-            var response = await Channel.RequestAsync(Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
             var data = response.Value.BodyAsPlainTransport_GetStatsResponse().UnPack();
+
             return new[] { data };
         }
 
@@ -127,10 +136,12 @@ namespace Tubumu.Mediasoup
                 throw new Exception($"{nameof(parameters)} type is not FBS.PlainTransport.ConnectRequestT");
             }
 
-            var connectRequestOffset = ConnectRequest.Pack(Channel.BufferBuilder, connectRequestT);
+            // Build Request
+            var bufferBuilder = new FlatBufferBuilder(1024);
 
-            var response = await Channel.RequestAsync(
-                 Method.PLAINTRANSPORT_CONNECT,
+            var connectRequestOffset = ConnectRequest.Pack(bufferBuilder, connectRequestT);
+
+            var response = await Channel.RequestAsync(bufferBuilder, Method.PLAINTRANSPORT_CONNECT,
                  FBS.Request.Body.PlainTransport_ConnectRequest,
                  connectRequestOffset.Value,
                  Internal.TransportId);

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 using FBS.Notification;
 using FBS.Request;
 
@@ -27,7 +28,7 @@ namespace Tubumu.Mediasoup
 
         public string? HandlerId { get; set; }
 
-        public byte[] Payload { get; set; }
+        public ArraySegment<byte> Payload { get; set; }
 
         #endregion
     }

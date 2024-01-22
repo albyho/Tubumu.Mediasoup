@@ -5,6 +5,7 @@ using FBS.Consumer;
 using FBS.Notification;
 using FBS.Request;
 using FBS.RtpStream;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -171,13 +172,17 @@ namespace Tubumu.Mediasoup
                 // Remove notification subscriptions.
                 _channel.OnNotification -= OnNotificationHandle;
 
-                var requestOffset = FBS.Transport.CloseConsumerRequest.Pack(_channel.BufferBuilder, new FBS.Transport.CloseConsumerRequestT
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var requestOffset = FBS.Transport.CloseConsumerRequest.Pack(bufferBuilder, new FBS.Transport.CloseConsumerRequestT
                 {
                     ConsumerId = _internal.ConsumerId
                 });
 
                 // Fire and forget
                 _channel.RequestAsync(
+                    bufferBuilder,
                     Method.TRANSPORT_CLOSE_CONSUMER,
                     FBS.Request.Body.Transport_CloseConsumerRequest,
                     requestOffset.Value,
@@ -232,7 +237,8 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var response = await _channel.RequestAsync(Method.CONSUMER_DUMP, null, null, _internal.ConsumerId);
+                var bufferBuilder = new FlatBufferBuilder(1024);
+                var response = await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_DUMP, null, null, _internal.ConsumerId);
                 var data = response.Value.BodyAsConsumer_DumpResponse().UnPack();
                 return data;
             }
@@ -252,7 +258,8 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var response = await _channel.RequestAsync(Method.CONSUMER_GET_STATS, null, null, _internal.ConsumerId);
+                var bufferBuilder = new FlatBufferBuilder(1024);
+                var response = await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_GET_STATS, null, null, _internal.ConsumerId);
                 var stats = response.Value.BodyAsConsumer_GetStatsResponse().UnPack().Stats;
                 return stats;
             }
@@ -277,9 +284,10 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused || ProducerPaused;
 
+                    var bufferBuilder = new FlatBufferBuilder(1024);
+
                     // Fire and forget
-                    _channel
-                        .RequestAsync(Method.CONSUMER_PAUSE, null, null, _internal.ConsumerId)
+                    _channel.RequestAsync(bufferBuilder, Method.CONSUMER_PAUSE, null, null, _internal.ConsumerId)
                         .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = true;
@@ -320,9 +328,10 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused || ProducerPaused;
 
+                    var bufferBuilder = new FlatBufferBuilder(1024);
+
                     // Fire and forget
-                    _channel
-                        .RequestAsync(Method.CONSUMER_RESUME, null, null, _internal.ConsumerId)
+                    _channel.RequestAsync(bufferBuilder, Method.CONSUMER_RESUME, null, null, _internal.ConsumerId)
                         .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = false;
@@ -358,9 +367,13 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var setPreferredLayersRequestOffset = SetPreferredLayersRequest.Pack(_channel.BufferBuilder, setPreferredLayersRequest);
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var setPreferredLayersRequestOffset = SetPreferredLayersRequest.Pack(bufferBuilder, setPreferredLayersRequest);
 
                 var response = await _channel.RequestAsync(
+                    bufferBuilder,
                     Method.CONSUMER_SET_PREFERRED_LAYERS,
                     FBS.Request.Body.Consumer_SetPreferredLayersRequest,
                     setPreferredLayersRequestOffset.Value,
@@ -385,9 +398,12 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var setPriorityRequestOffset = SetPriorityRequest.Pack(_channel.BufferBuilder, setPriorityRequest);
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                var setPriorityRequestOffset = SetPriorityRequest.Pack(bufferBuilder, setPriorityRequest);
 
                 var response = await _channel.RequestAsync(
+                    bufferBuilder,
                     Method.CONSUMER_SET_PRIORITY,
                     FBS.Request.Body.Consumer_SetPriorityRequest,
                     setPriorityRequestOffset.Value,
@@ -426,8 +442,10 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                await _channel.RequestAsync(
-                    Method.CONSUMER_REQUEST_KEY_FRAME,
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
+                await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_REQUEST_KEY_FRAME,
                     null,
                     null,
                     _internal.ConsumerId);
@@ -448,16 +466,20 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var request = new EnableTraceEventRequestT
                 {
                     Events = types ?? new List<TraceEventType>(0)
                 };
 
-                var requestOffset = FBS.Consumer.EnableTraceEventRequest.Pack(_channel.BufferBuilder, request);
+                var requestOffset = FBS.Consumer.EnableTraceEventRequest.Pack(bufferBuilder, request);
 
                 // Fire and forget
-                _channel
-                    .RequestAsync(Method.CONSUMER_ENABLE_TRACE_EVENT,
+                _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.CONSUMER_ENABLE_TRACE_EVENT,
                     FBS.Request.Body.Consumer_EnableTraceEventRequest,
                     requestOffset.Value,
                      _internal.ConsumerId)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FBS.Notification;
 using FBS.Request;
+using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -108,16 +109,18 @@ namespace Tubumu.Mediasoup
                 // Remove notification subscriptions.
                 Channel.OnNotification -= OnNotificationHandle;
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var closeRtpObserverRequest = new FBS.Router.CloseRtpObserverRequestT
                 {
                     RtpObserverId = Internal.RtpObserverId,
                 };
 
-                var closeRtpObserverRequestOffset = FBS.Router.CloseRtpObserverRequest.Pack(Channel.BufferBuilder, closeRtpObserverRequest);
+                var closeRtpObserverRequestOffset = FBS.Router.CloseRtpObserverRequest.Pack(bufferBuilder, closeRtpObserverRequest);
 
                 // Fire and forget
-                Channel.RequestAsync(
-                    Method.ROUTER_CLOSE_RTPOBSERVER,
+                Channel.RequestAsync(bufferBuilder, Method.ROUTER_CLOSE_RTPOBSERVER,
                     FBS.Request.Body.Router_CloseRtpObserverRequest,
                     closeRtpObserverRequestOffset.Value,
                     Internal.RouterId
@@ -175,9 +178,11 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused;
 
+                    // Build Request
+                    var bufferBuilder = new FlatBufferBuilder(1024);
+
                     // Fire and forget
-                    Channel.RequestAsync(
-                        Method.RTPOBSERVER_PAUSE,
+                    Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_PAUSE,
                         null,
                         null,
                         Internal.RtpObserverId
@@ -221,9 +226,11 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused;
 
+                    // Build Request
+                    var bufferBuilder = new FlatBufferBuilder(1024);
+
                     // Fire and forget
-                    Channel.RequestAsync(
-                        Method.RTPOBSERVER_RESUME,
+                    Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_RESUME,
                         null,
                         null,
                         Internal.RtpObserverId
@@ -268,16 +275,18 @@ namespace Tubumu.Mediasoup
                     return;
                 }
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var addProducerRequest = new FBS.RtpObserver.AddProducerRequestT
                 {
                     ProducerId = rtpObserverAddRemoveProducerOptions.ProducerId
                 };
 
-                var addProducerRequestOffset = FBS.RtpObserver.AddProducerRequest.Pack(Channel.BufferBuilder, addProducerRequest);
+                var addProducerRequestOffset = FBS.RtpObserver.AddProducerRequest.Pack(bufferBuilder, addProducerRequest);
 
                 // Fire and forget
-                Channel.RequestAsync(
-                    Method.RTPOBSERVER_ADD_PRODUCER,
+                Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_ADD_PRODUCER,
                     FBS.Request.Body.RtpObserver_AddProducerRequest,
                     addProducerRequestOffset.Value,
                     Internal.RtpObserverId
@@ -308,16 +317,18 @@ namespace Tubumu.Mediasoup
                     return;
                 }
 
+                // Build Request
+                var bufferBuilder = new FlatBufferBuilder(1024);
+
                 var removeProducerRequest = new FBS.RtpObserver.RemoveProducerRequestT
                 {
                     ProducerId = rtpObserverAddRemoveProducerOptions.ProducerId
                 };
 
-                var removeProducerRequestOffset = FBS.RtpObserver.RemoveProducerRequest.Pack(Channel.BufferBuilder, removeProducerRequest);
+                var removeProducerRequestOffset = FBS.RtpObserver.RemoveProducerRequest.Pack(bufferBuilder, removeProducerRequest);
 
                 // Fire and forget
-                Channel.RequestAsync(
-                    Method.RTPOBSERVER_REMOVE_PRODUCER,
+                Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_REMOVE_PRODUCER,
                     FBS.Request.Body.RtpObserver_RemoveProducerRequest,
                     removeProducerRequestOffset.Value,
                     Internal.RtpObserverId
