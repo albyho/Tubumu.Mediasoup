@@ -1,27 +1,27 @@
 {
-  "Serilog": {
-    "Using": [ "Serilog.Sinks.Console" ],
-    "MinimumLevel": {
-      "Default": "Debug",
-      "Override": {
-        "System": "Warning",
-        "Microsoft": "Warning",
-        "Microsoft.Hosting.Lifetime": "Information"
-      }
-    },
-    "WriteTo": [
-      {
-        "Name": "Console",
-        "Args": {
-          "restrictedToMinimumLevel": "Debug",
-          "theme": "Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Literate, Serilog.Sinks.Console",
-          "outputTemplate": "{Timestamp:HH:mm:ss.fff} [{Level:u3}] {Message:lj} <s:{SourceContext}>{NewLine}{Exception}"
+    "Serilog": {
+        "Using": ["Serilog.Sinks.Console"],
+        "MinimumLevel": {
+            "Default": "Debug",
+            "Override": {
+                "System": "Warning",
+                "Microsoft": "Warning",
+                "Microsoft.Hosting.Lifetime": "Information"
+            }
+        },
+        "WriteTo": [
+            {
+                "Name": "Console",
+                "Args": {
+                    "restrictedToMinimumLevel": "Debug",
+                    "theme": "Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Literate, Serilog.Sinks.Console",
+                    "outputTemplate": "{Timestamp:HH:mm:ss.fff} [{Level:u3}] {Message:lj} | {SourceContext} {NewLine}{Exception}"
+                }
+            }
+        ],
+        "Enrich": ["WithMachineName", "WithThreadId"],
+        "Properties": {
+            "Application": "Tubumu.Meeting.Web"
         }
-      }
-    ],
-    "Enrich": [ "WithMachineName", "WithThreadId" ],
-    "Properties": {
-      "Application": "Tubumu.Meeting.Web"
     }
-  }
 }

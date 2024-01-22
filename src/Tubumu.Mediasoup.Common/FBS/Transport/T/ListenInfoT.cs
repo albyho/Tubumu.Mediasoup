@@ -1,20 +1,20 @@
-using System;
-using System.Text.Json.Serialization;
-using Google.FlatBuffers;
+using System.ComponentModel.DataAnnotations;
 
 namespace FBS.Transport
 {
     public class ListenInfoT
     {
-        public FBS.Transport.Protocol Protocol { get; set; }
+        public Protocol Protocol { get; set; }
 
+        [Required]
         public string Ip { get; set; }
 
-        public string AnnouncedIp { get; set; }
+        public string? AnnouncedIp { get; set; }
 
         public ushort Port { get; set; }
 
-        public FBS.Transport.SocketFlagsT Flags { get; set; } = new SocketFlagsT { Ipv6Only = false, UdpReusePort = false };
+        [Required]
+        public SocketFlagsT Flags { get; set; } = new SocketFlagsT { Ipv6Only = false, UdpReusePort = false };
 
         public uint SendBufferSize { get; set; }
 

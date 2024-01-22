@@ -216,7 +216,7 @@ namespace Tubumu.Mediasoup
                         break;
                     default:
                         {
-                            _logger.LogWarning($"ProcessMessage() | worker[workerId/pid:${_workerId}] unexpected data: {Encoding.UTF8.GetString(message.ByteBuffer.ToFullArray())}");
+                            _logger.LogWarning($"ProcessMessage() | worker[workerId/pid:{_workerId}] unexpected data: {Encoding.UTF8.GetString(message.ByteBuffer.ToFullArray())}");
                         }
                         break;
                 }
@@ -287,7 +287,7 @@ namespace Tubumu.Mediasoup
                 // 'D' (a debug log).
                 case 'D':
                     {
-                        _logger.LogDebug($"[workerId/pid:${_workerId}] ${logData[1..]}");
+                        _logger.LogDebug($"[workerId/pid:{_workerId}] {logData[1..]}");
 
                         break;
                     }
@@ -295,7 +295,7 @@ namespace Tubumu.Mediasoup
                 // 'W' (a warn log).
                 case 'W':
                     {
-                        _logger.LogWarning($"[workerId/pid:${_workerId}] ${logData[1..]}");
+                        _logger.LogWarning($"[workerId/pid:{_workerId}] {logData[1..]}");
 
                         break;
                     }
@@ -303,7 +303,7 @@ namespace Tubumu.Mediasoup
                 // 'E' (a error log).
                 case 'E':
                     {
-                        _logger.LogError($"[workerId/pid:${_workerId}] ${logData[1..]}");
+                        _logger.LogError($"[workerId/pid:{_workerId}] {logData[1..]}");
 
                         break;
                     }
