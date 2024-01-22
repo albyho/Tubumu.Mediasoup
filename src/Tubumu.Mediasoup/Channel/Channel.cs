@@ -73,7 +73,7 @@ namespace Tubumu.Mediasoup
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}] _producerSocket.Close()");
+                _logger.LogError(ex, "CloseAsync() | Worker[{WorkerId}] _producerSocket.Close()", _workerId);
             }
 
             try
@@ -82,7 +82,7 @@ namespace Tubumu.Mediasoup
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, $"CloseAsync() | Worker[{_workerId}] _consumerSocket.Close()");
+                _logger.LogError(ex, "CloseAsync() | Worker[{WorkerId}] _consumerSocket.Close()", _workerId);
             }
         }
 
@@ -99,7 +99,7 @@ namespace Tubumu.Mediasoup
                         {
                             if(ex != null)
                             {
-                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
+                                _logger.LogError(ex, "_producerSocket.Write() | Worker[{WorkerId}] Error", _workerId);
                                 sent.Reject(ex);
                             }
                         }
@@ -107,7 +107,7 @@ namespace Tubumu.Mediasoup
                 }
                 catch(Exception ex)
                 {
-                    _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
+                    _logger.LogError(ex, "_producerSocket.Write() | Worker[{WorkerId}] Error", _workerId);
                     sent.Reject(ex);
                 }
             });
@@ -126,14 +126,14 @@ namespace Tubumu.Mediasoup
                         {
                             if(ex != null)
                             {
-                                _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
+                                _logger.LogError(ex, "_producerSocket.Write() | Worker[{WorkerId}] Error", _workerId);
                             }
                         }
                     );
                 }
                 catch(Exception ex)
                 {
-                    _logger.LogError(ex, $"_producerSocket.Write() | Worker[{_workerId}] Error");
+                    _logger.LogError(ex, "_producerSocket.Write() | Worker[{WorkerId}] Error", _workerId);
                 }
             });
         }
@@ -146,7 +146,8 @@ namespace Tubumu.Mediasoup
             if(_recvBufferCount + data.Count > RecvBufferMaxLen)
             {
                 _logger.LogError(
-                    $"ConsumerSocketOnData() | Worker[{_workerId}] Receiving buffer is full, discarding all data into it"
+                    "ConsumerSocketOnData() | Worker[{WorkerId}] Receiving buffer is full, discarding all data into it",
+                    _workerId
                 );
                 _recvBufferCount = 0;
                 return;
@@ -191,32 +192,29 @@ namespace Tubumu.Mediasoup
             }
             catch(Exception ex)
             {
-                _logger.LogError(
-                    ex,
-                    $"ConsumerSocketOnData() | Worker[{_workerId}] Invalid data received from the worker process."
-                );
+                _logger.LogError(ex, "ConsumerSocketOnData() | Worker[{WorkerId}] Invalid data received from the worker process.", _workerId);
                 return;
             }
         }
 
         private void ConsumerSocketOnClosed()
         {
-            _logger.LogDebug($"ConsumerSocketOnClosed() | Worker[{_workerId}] Consumer Channel ended by the worker process");
+            _logger.LogDebug("ConsumerSocketOnClosed() | Worker[{WorkerId}] Consumer Channel ended by the worker process", _workerId);
         }
 
         private void ConsumerSocketOnError(Exception? exception)
         {
-            _logger.LogDebug(exception, $"ConsumerSocketOnError() | Worker[{_workerId}] Consumer Channel error");
+            _logger.LogDebug(exception, "ConsumerSocketOnError() | Worker[{WorkerId}] Consumer Channel error", _workerId);
         }
 
         private void ProducerSocketOnClosed()
         {
-            _logger.LogDebug($"ProducerSocketOnClosed() | Worker[{_workerId}] Producer Channel ended by the worker process");
+            _logger.LogDebug("ProducerSocketOnClosed() | Worker[{WorkerId}] Producer Channel ended by the worker process", _workerId);
         }
 
         private void ProducerSocketOnError(Exception? exception)
         {
-            _logger.LogDebug(exception, $"ProducerSocketOnError() | Worker[{_workerId}] Producer Channel error");
+            _logger.LogDebug(exception, "ProducerSocketOnError() | Worker[{WorkerId}] Producer Channel error", _workerId);
         }
 
         #endregion Event handles

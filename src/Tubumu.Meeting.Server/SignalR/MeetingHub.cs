@@ -74,7 +74,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("LeaveAsync 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -119,7 +119,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "Join 调用失败.");
+                _logger.LogError("Join 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -158,7 +158,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("JoinRoom 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -189,7 +189,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("LeaveRoom 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -235,7 +235,7 @@ namespace Tubumu.Meeting.Server
                 var transport = await _scheduler.CreateWebRtcTransportAsync(UserId, ConnectionId, createWebRtcTransportRequest, isSend);
                 transport.On("sctpstatechange", (_, obj) =>
                 {
-                    _logger.LogDebug("WebRtcTransport \"sctpstatechange\" event [sctpState:{obj}]", obj);
+                    _logger.LogDebug("WebRtcTransport \"sctpstatechange\" event [sctpState:{SctpState}]", obj);
                     return Task.CompletedTask;
                 });
 
@@ -244,7 +244,7 @@ namespace Tubumu.Meeting.Server
                     var dtlsState = (DtlsState)obj!;
                     if(dtlsState is DtlsState.FAILED or DtlsState.CLOSED)
                     {
-                        _logger.LogWarning("WebRtcTransport dtlsstatechange event [dtlsState:{obj}]", obj);
+                        _logger.LogWarning("WebRtcTransport dtlsstatechange event [dtlsState:{SctpState}]", obj);
                     }
 
                     return Task.CompletedTask;
@@ -286,7 +286,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "CreateWebRtcTransportAsync 调用失败.");
+                _logger.LogError("CreateWebRtcTransportAsync 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -312,7 +312,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "ConnectWebRtcTransport 调用失败.");
+                _logger.LogError("ConnectWebRtcTransport 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -346,7 +346,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("Ready 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -397,7 +397,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("Pull 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -467,7 +467,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "Invite 调用失败.");
+                _logger.LogError("Invite 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -534,7 +534,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("Deinvite 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -584,7 +584,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "RequestProduce 调用失败.");
+                _logger.LogError("RequestProduce 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -680,7 +680,7 @@ namespace Tubumu.Meeting.Server
 
                 producer.On("trace", (_, obj) =>
                 {
-                    _logger.LogDebug("producer \"trace\" event [producerId:{producer.ProducerId}, trace:{obj}", producer.ProducerId, obj);
+                    _logger.LogDebug("producer \"trace\" event [producerId:{ProducerId}, trace:{Trace}]", producer.ProducerId, obj);
                     return Task.CompletedTask;
                 });
 
@@ -703,7 +703,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("Produce 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -729,7 +729,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "CloseProducer 调用失败.");
+                _logger.LogError("CloseProducer 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -755,7 +755,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "PauseProducer 调用失败.");
+                _logger.LogError("PauseProducer 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -781,7 +781,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "ResumeProducer 调用失败.");
+                _logger.LogError("CloseProducer 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -811,7 +811,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "CloseConsumer 调用失败.");
+                _logger.LogError("CloseConsumer 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -837,7 +837,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "PauseConsumer 调用失败.");
+                _logger.LogError("PauseConsumer 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -871,7 +871,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "ResumeConsumer 调用失败.");
+                _logger.LogError("ResumeConsumer 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -897,7 +897,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("SetConsumerPreferedLayers 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -923,7 +923,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "SetConsumerPriority 调用失败.");
+                _logger.LogError("SetConsumerPriority 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -949,7 +949,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "RequestConsumerKeyFrame 调用失败.");
+                _logger.LogError("RequestConsumerKeyFrame 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -979,7 +979,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "GetWebRtcTransportStats 调用失败.");
+                _logger.LogError("GetWebRtcTransportStats 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -1005,7 +1005,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "GetProducerStats 调用失败.");
+                _logger.LogError("GetProducerStats 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -1031,7 +1031,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "GetConsumerStats 调用失败.");
+                _logger.LogError("GetConsumerStats 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -1055,11 +1055,11 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "GetConsumerStats 调用失败.");
+                _logger.LogError("RestartIce 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "GetConsumerStats 调用失败.");
+                _logger.LogError(ex, "RestartIce 调用失败.");
             }
 
             return MeetingMessage<IceParametersT>.Failure("RestartIce 失败");
@@ -1090,7 +1090,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex, "SendMessage 调用失败.");
+                _logger.LogError("SendMessage 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -1126,7 +1126,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("SetPeerAppData 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -1158,7 +1158,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("UnsetPeerAppData 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {
@@ -1205,7 +1205,12 @@ namespace Tubumu.Meeting.Server
 
         private async Task CreateConsumer(string consumerPeerId, string producerPeerId, Producer producer)
         {
-            _logger.LogDebug($"CreateConsumer() | [ConsumerPeer:\"{consumerPeerId}\", ProducerPeer:\"{producerPeerId}\", ProducerId:\"{producer.ProducerId}\"]");
+            _logger.LogDebug(
+                "CreateConsumer() | [ConsumerPeerId:\"{ConsumerPeerId}\", ProducerPeerId:\"{ProducerPeerId}\", ProducerId:\"{ProducerId}\"]",
+                consumerPeerId,
+                producerPeerId,
+                producer.ProducerId
+                );
 
             // Create the Consumer in paused mode.
             Consumer? consumer;
@@ -1304,7 +1309,7 @@ namespace Tubumu.Meeting.Server
 
             consumer.On("trace", (_, obj) =>
             {
-                _logger.LogDebug("consumer \"trace\" event [consumerId:{consumer.ConsumerId}, trace:{obj}]", consumer.ConsumerId, obj);
+                _logger.LogDebug("consumer \"trace\" event [consumerId:{ConsumerId}, trace:{Trace}]", consumer.ConsumerId, obj);
                 return Task.CompletedTask;
             });
 

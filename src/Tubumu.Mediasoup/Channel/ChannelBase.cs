@@ -233,7 +233,9 @@ namespace Tubumu.Mediasoup
             if(!_sents.TryGetValue(response.Id, out var sent))
             {
                 _logger.LogError(
-                    $"ProcessResponse() | Worker[{_workerId}] Received response does not match any sent request [id:{response.Id}], response:{response}"
+                    "ProcessResponse() | Worker[{WorkerId}] Received response does not match any sent request [id:{Id}]",
+                    _workerId,
+                    response.Id
                 );
                 return;
             }
@@ -241,7 +243,10 @@ namespace Tubumu.Mediasoup
             if(response.Accepted)
             {
                 _logger.LogDebug(
-                    $"ProcessResponse() | Worker[{_workerId}] Request succeed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]"
+                    "ProcessResponse() | Worker[{WorkerId}] Request succeed [method:{Method}, id:{Id}]",
+                    _workerId,
+                    sent.RequestMessage.Method,
+                    response.Id
                 );
                 sent.Resolve(response);
             }
@@ -249,24 +254,31 @@ namespace Tubumu.Mediasoup
             {
                 // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
                 _logger.LogWarning(
-                    $"ProcessResponse() | Worker[{_workerId}] Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {response.Reason}. response:{response}"
+                    "ProcessResponse() | Worker[{WorkerId}] Request failed [method:{Method}, id:{Id}, reason:{Reson}]",
+                    _workerId,
+                    sent.RequestMessage.Method,
+                    response.Reason,
+                    response.Id
                 );
 
                 sent.Reject(
                     new Exception(
-                        $"Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]: {response.Reason}. response:{response}"
+                        $"Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}, reason:{response.Reason}]"
                     )
                 );
             }
             else
             {
                 _logger.LogError(
-                    $"ProcessResponse() | Worker[{_workerId}] Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]. response:{response}"
+                    "ProcessResponse() | Worker[{WorkerId}] Received response is not accepted nor rejected [method:{Method}, id:{Id}]",
+                    _workerId,
+                    sent.RequestMessage.Method,
+                    response.Id
                 );
 
                 sent.Reject(
                     new Exception(
-                        $"Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]. response:{response}"
+                        $"Received response is not accepted nor rejected [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}]"
                     )
                 );
             }

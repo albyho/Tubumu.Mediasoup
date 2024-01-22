@@ -125,7 +125,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override async Task OnConnectAsync(object parameters)
         {
-            _logger.LogDebug("OnConnectAsync() | WebRtcTransport:{TransportId}", TransportId);
+            _logger.LogDebug("OnConnectAsync() | WebRtcTransportId:{WebRtcTransportId}", TransportId);
 
             if(parameters is not ConnectRequestT connectRequestT)
             {
@@ -152,7 +152,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<IceParametersT> RestartIceAsync()
         {
-            _logger.LogDebug("RestartIceAsync() | WebRtcTransport:{TransportId}", TransportId);
+            _logger.LogDebug("RestartIceAsync() | WebRtcTransportId:{WebRtcTransportId}", TransportId);
 
             using(await CloseLock.ReadLockAsync())
             {

@@ -18,7 +18,7 @@ namespace Tubumu.Meeting.Server
 
         public bool Equals(Room? other)
         {
-            if (other is null)
+            if(other is null)
             {
                 return false;
             }
@@ -88,18 +88,18 @@ namespace Tubumu.Meeting.Server
 
         public async Task<JoinRoomResult> PeerJoinAsync(Peer peer)
         {
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
-                    throw new Exception($"PeerJoinAsync() | Room:{RoomId} was closed.");
+                    throw new Exception($"PeerJoinAsync() | RoomId:{RoomId} was closed.");
                 }
 
-                using (await _peersLock.WriteLockAsync())
+                using(await _peersLock.WriteLockAsync())
                 {
-                    if (_peers.ContainsKey(peer.PeerId))
+                    if(_peers.ContainsKey(peer.PeerId))
                     {
-                        throw new Exception($"PeerJoinAsync() | Peer:{peer.PeerId} was in Room:{RoomId} already.");
+                        throw new Exception($"PeerJoinAsync() | Peer:{peer.PeerId} was in RoomId:{RoomId} already.");
                     }
 
                     _peers[peer.PeerId] = peer;
@@ -115,18 +115,18 @@ namespace Tubumu.Meeting.Server
 
         public async Task<LeaveRoomResult> PeerLeaveAsync(string peerId)
         {
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
-                    throw new Exception($"PeerLeaveAsync() | Room:{RoomId} was closed.");
+                    throw new Exception($"PeerLeaveAsync() | RoomId:{RoomId} was closed.");
                 }
 
-                using (await _peersLock.WriteLockAsync())
+                using(await _peersLock.WriteLockAsync())
                 {
-                    if (!_peers.TryGetValue(peerId, out var peer))
+                    if(!_peers.TryGetValue(peerId, out var peer))
                     {
-                        throw new Exception($"PeerLeaveAsync() | Peer:{peerId} is not in Room:{RoomId}.");
+                        throw new Exception($"PeerLeaveAsync() | Peer:{peerId} is not in RoomId:{RoomId}.");
                     }
 
                     _peers.Remove(peerId);
@@ -142,14 +142,14 @@ namespace Tubumu.Meeting.Server
 
         public async Task<string[]> GetPeerIdsAsync()
         {
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
-                    throw new Exception($"GetPeerIdsAsync() | Room:{RoomId} was closed.");
+                    throw new Exception($"GetPeerIdsAsync() | RoomId:{RoomId} was closed.");
                 }
 
-                using (await _peersLock.ReadLockAsync())
+                using(await _peersLock.ReadLockAsync())
                 {
                     return _peers.Keys.ToArray();
                 }
@@ -158,14 +158,14 @@ namespace Tubumu.Meeting.Server
 
         public async Task<Peer[]> GetPeersAsync()
         {
-            using (await _closeLock.ReadLockAsync())
+            using(await _closeLock.ReadLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
-                    throw new Exception($"GetPeersAsync() | Room:{RoomId} was closed.");
+                    throw new Exception($"GetPeersAsync() | RoomId:{RoomId} was closed.");
                 }
 
-                using (await _peersLock.ReadLockAsync())
+                using(await _peersLock.ReadLockAsync())
                 {
                     return _peers.Values.ToArray();
                 }
@@ -174,14 +174,14 @@ namespace Tubumu.Meeting.Server
 
         public async Task CloseAsync()
         {
-            using (await _closeLock.WriteLockAsync())
+            using(await _closeLock.WriteLockAsync())
             {
-                if (_closed)
+                if(_closed)
                 {
                     return;
                 }
 
-                _logger.LogDebug($"CloseAsync() | Room:{RoomId}");
+                _logger.LogDebug("CloseAsync() | RoomId:{RoomId}", RoomId);
 
                 _closed = true;
 
@@ -193,14 +193,14 @@ namespace Tubumu.Meeting.Server
         {
             AudioLevelObserver.On("volumes", async (_, volumes) =>
             {
-                using (await _closeLock.ReadLockAsync())
+                using(await _closeLock.ReadLockAsync())
                 {
-                    if (_closed)
+                    if(_closed)
                     {
                         return;
                     }
 
-                    using (await _peersLock.ReadLockAsync())
+                    using(await _peersLock.ReadLockAsync())
                     {
                         foreach(var peer in _peers.Values)
                         {
@@ -217,16 +217,16 @@ namespace Tubumu.Meeting.Server
 
             AudioLevelObserver.On("silence", async (_, _) =>
             {
-                using (await _closeLock.ReadLockAsync())
+                using(await _closeLock.ReadLockAsync())
                 {
-                    if (_closed)
+                    if(_closed)
                     {
                         return;
                     }
 
-                    using (await _peersLock.ReadLockAsync())
+                    using(await _peersLock.ReadLockAsync())
                     {
-                        foreach (var peer in _peers.Values)
+                        foreach(var peer in _peers.Values)
                         {
                             peer.HubClient?.Notify(new MeetingNotification
                             {

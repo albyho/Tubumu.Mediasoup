@@ -413,7 +413,7 @@ namespace Tubumu.Mediasoup
 
         public async Task RemoveConsumerAsync(string consumerId)
         {
-            _logger.LogDebug("RemoveConsumer() | Producer:{ProducerId} ConsumerId:{consumerId}", ProducerId, consumerId);
+            _logger.LogDebug("RemoveConsumer() | Producer:{ProducerId} ConsumerId:{ConsumerId}", ProducerId, consumerId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -491,7 +491,7 @@ namespace Tubumu.Mediasoup
         private async void CheckConsumers(object? state)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            _logger.LogDebug("CheckConsumer() | Producer: {_internal.ProducerId} Consumers: {_consumers.Count}", _internal.ProducerId, _consumers.Count);
+            _logger.LogDebug("CheckConsumer() | Producer:{ProducerId} ConsumerCount:{Count}", _internal.ProducerId, _consumers.Count);
 
             // NOTE: 使用写锁
             using(await _closeLock.WriteLockAsync())

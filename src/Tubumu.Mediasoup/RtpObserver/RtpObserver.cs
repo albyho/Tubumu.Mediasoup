@@ -94,7 +94,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug("Close() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
+            _logger.LogDebug("Close() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -135,7 +135,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task RouterClosedAsync()
         {
-            _logger.LogDebug("RouterClosed() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
+            _logger.LogDebug("RouterClosed() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -161,7 +161,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task PauseAsync()
         {
-            _logger.LogDebug("PauseAsync() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
+            _logger.LogDebug("PauseAsync() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -207,7 +207,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task ResumeAsync()
         {
-            _logger.LogDebug("ResumeAsync() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
+            _logger.LogDebug("ResumeAsync() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -253,7 +253,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task AddProducerAsync(RtpObserverAddRemoveProducerOptions rtpObserverAddRemoveProducerOptions)
         {
-            _logger.LogDebug("AddProducerAsync() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
+            _logger.LogDebug("AddProducerAsync() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
             using(await _closeLock.ReadLockAsync())
             {
@@ -293,7 +293,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task RemoveProducerAsync(RtpObserverAddRemoveProducerOptions rtpObserverAddRemoveProducerOptions)
         {
-            _logger.LogDebug("RemoveProducerAsync() | RtpObserver:{Internal.RtpObserverId}", Internal.RtpObserverId);
+            _logger.LogDebug("RemoveProducerAsync() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
             using(await _closeLock.ReadLockAsync())
             {

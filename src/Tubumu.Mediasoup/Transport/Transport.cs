@@ -201,7 +201,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug("CloseAsync() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("CloseAsync() | TransportId:{TransportId}", TransportId);
 
             using(await CloseLock.WriteLockAsync())
             {
@@ -247,7 +247,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task RouterClosedAsync()
         {
-            _logger.LogDebug("RouterClosed() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("RouterClosed() | TransportId:{TransportId}", TransportId);
 
             using(await CloseLock.WriteLockAsync())
             {
@@ -388,7 +388,7 @@ namespace Tubumu.Mediasoup
 
                 Closed = true;
 
-                _logger.LogDebug("ListenServerClosedAsync() | Transport:{TransportId}", TransportId);
+                _logger.LogDebug("ListenServerClosedAsync() | TransportId:{TransportId}", TransportId);
 
                 // Remove notification subscriptions.
                 //_channel.OnNotification -= OnNotificationHandle;
@@ -411,7 +411,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<object> DumpAsync()
         {
-            _logger.LogDebug("DumpAsync() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("DumpAsync() | TransportId:{TransportId}", TransportId);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -431,7 +431,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<object[]> GetStatsAsync()
         {
-            _logger.LogDebug("GetStatsAsync() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("GetStatsAsync() | TransportId:{TransportId}", TransportId);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -453,7 +453,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task ConnectAsync(object parameters)
         {
-            _logger.LogDebug("ConnectAsync() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("ConnectAsync() | TransportId:{TransportId}", TransportId);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -475,7 +475,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public virtual async Task SetMaxIncomingBitrateAsync(uint bitrate)
         {
-            _logger.LogDebug("SetMaxIncomingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
+            _logger.LogDebug("SetMaxIncomingBitrateAsync() | TransportId:{TransportId} Bitrate:{Bitrate}", TransportId, bitrate);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -508,7 +508,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public virtual async Task SetMaxOutgoingBitrateAsync(uint bitrate)
         {
-            _logger.LogDebug("SetMaxOutgoingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
+            _logger.LogDebug("SetMaxOutgoingBitrateAsync() | TransportId:{TransportId} Bitrate:{Bitrate}", TransportId, bitrate);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -541,7 +541,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public virtual async Task SetMinOutgoingBitrateAsync(uint bitrate)
         {
-            _logger.LogDebug("SetMinOutgoingBitrateAsync() | Transport:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
+            _logger.LogDebug("SetMinOutgoingBitrateAsync() | TransportId:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
 
             using(await CloseLock.ReadLockAsync())
             {
@@ -572,7 +572,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public virtual async Task<Producer> ProduceAsync(ProducerOptions producerOptions)
         {
-            _logger.LogDebug("ProduceAsync() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("ProduceAsync() | TransportId:{TransportId}", TransportId);
 
             if(!producerOptions.Id.IsNullOrWhiteSpace() && Producers.ContainsKey(producerOptions.Id!))
             {
@@ -730,7 +730,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public virtual async Task<Consumer> ConsumeAsync(ConsumerOptions consumerOptions)
         {
-            _logger.LogDebug("ConsumeAsync() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("ConsumeAsync() | TransportId:{TransportId}", TransportId);
 
             if(consumerOptions.ProducerId.IsNullOrWhiteSpace())
             {
@@ -782,7 +782,7 @@ namespace Tubumu.Mediasoup
                             // We use up to 8 bytes for MID (string).
                             if(_nextMidForConsumers == 100_000_000)
                             {
-                                _logger.LogDebug("ConsumeAsync() | Reaching max MID value {_nextMidForConsumers}", _nextMidForConsumers);
+                                _logger.LogDebug("ConsumeAsync() | Reaching max MID value {NextMidForConsumers}", _nextMidForConsumers);
                                 _nextMidForConsumers = 0;
                             }
                         }
@@ -900,7 +900,7 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task<DataProducer> ProduceDataAsync(DataProducerOptions dataProducerOptions)
         {
-            _logger.LogDebug("ProduceDataAsync() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("ProduceDataAsync() | TransportId:{TransportId}", TransportId);
 
             if(!dataProducerOptions.Id.IsNullOrWhiteSpace() && DataProducers.ContainsKey(dataProducerOptions.Id!))
             {
@@ -941,7 +941,7 @@ namespace Tubumu.Mediasoup
 
                     if(dataProducerOptions.SctpStreamParameters != null)
                     {
-                        _logger.LogWarning("ProduceDataAsync() | Transport:{TransportId} sctpStreamParameters are ignored when producing data on a DirectTransport", TransportId);
+                        _logger.LogWarning("ProduceDataAsync() | TransportId:{TransportId} sctpStreamParameters are ignored when producing data on a DirectTransport", TransportId);
                     }
                 }
 
@@ -957,7 +957,7 @@ namespace Tubumu.Mediasoup
                     Paused = dataProducerOptions.Paused,
                 };
 
-                var dataProduceRequestOffset = FBS.Transport.ProduceDataRequest.Pack(Channel.BufferBuilder, dataProduceRequest);
+                var dataProduceRequestOffset = ProduceDataRequest.Pack(Channel.BufferBuilder, dataProduceRequest);
 
                 var response = await Channel.RequestAsync(
                     Method.TRANSPORT_PRODUCE_DATA,
@@ -1036,14 +1036,15 @@ namespace Tubumu.Mediasoup
         /// <returns></returns>
         public async Task<DataConsumer> ConsumeDataAsync(DataConsumerOptions dataConsumerOptions)
         {
-            _logger.LogDebug("ConsumeDataAsync() | Transport:{TransportId}", TransportId);
+            _logger.LogDebug("ConsumeDataAsync() | TransportId:{TransportId}", TransportId);
 
             if(dataConsumerOptions.DataProducerId.IsNullOrWhiteSpace())
             {
                 throw new Exception("Missing dataProducerId");
             }
 
-            var dataProducer = await GetDataProducerById(dataConsumerOptions.DataProducerId) ?? throw new Exception($"DataProducer with id {dataConsumerOptions.DataProducerId} not found");
+            var dataProducer = await GetDataProducerById(dataConsumerOptions.DataProducerId)
+                ?? throw new Exception($"DataProducer with id {dataConsumerOptions.DataProducerId} not found");
 
             using(await CloseLock.ReadLockAsync())
             {

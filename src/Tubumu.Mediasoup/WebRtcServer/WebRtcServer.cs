@@ -84,7 +84,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task CloseAsync()
         {
-            _logger.LogDebug("CloseAsync() | WebRtcServer: {WebRtcServerId}", WebRtcServerId);
+            _logger.LogDebug("CloseAsync() | WebRtcServerId:{WebRtcServerId}", WebRtcServerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -123,7 +123,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task WorkerClosedAsync()
         {
-            _logger.LogDebug("WorkerClosedAsync() | WebRtcServer: {WebRtcServerId}", WebRtcServerId);
+            _logger.LogDebug("WorkerClosedAsync() | WebRtcServerId:{WebRtcServerId}", WebRtcServerId);
 
             using(await _closeLock.WriteLockAsync())
             {
@@ -165,7 +165,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task<DumpResponseT> DumpAsync()
         {
-            _logger.LogDebug("DumpAsync() | WebRtcServer: {WebRtcServerId}", WebRtcServerId);
+            _logger.LogDebug("DumpAsync() | WebRtcServerId:{WebRtcServerId}", WebRtcServerId);
 
             using(await _closeLock.ReadLockAsync())
             {

@@ -21,7 +21,7 @@ namespace System.Threading.Tasks
                 // ReSharper disable once PossibleNullReferenceException
                 foreach(var ex in val.Exception!.Flatten().InnerExceptions)
                 {
-                    logger.LogError(ex, $"Task exception");
+                    logger.LogError(ex, "Task exception");
                 }
             }, TaskContinuationOptions.OnlyOnFaulted);
         }
@@ -32,7 +32,7 @@ namespace System.Threading.Tasks
             {
                 val.Exception!.Handle(ex =>
                 {
-                    logger.LogError(ex, $"Task exception");
+                    logger.LogError(ex, "Task exception");
                     return true;
                 });
             }, TaskContinuationOptions.OnlyOnFaulted);
