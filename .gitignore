@@ -407,5 +407,4 @@ ASALocalRun/
 temp/
 nuget-build/
 publish/
-src/Tubumu.Meeting.Web/wwwroot/
 dist/
