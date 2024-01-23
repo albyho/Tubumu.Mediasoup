@@ -1,9 +1,9 @@
-using FBS.RtpParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Xml.Linq;
+using FBS.RtpParameters;
+using SixLabors.ImageSharp.Metadata.Profiles.Iptc;
 
 namespace Tubumu.Mediasoup
 {
@@ -34,7 +34,7 @@ namespace Tubumu.Mediasoup
                 return result;
             }
 
-            if(value is System.Text.Json.JsonElement element)
+            if(value is JsonElement element)
             {
                 switch(element.ValueKind)
                 {
@@ -43,19 +43,28 @@ namespace Tubumu.Mediasoup
                             if(element.TryGetInt32(out int intValue))
                             {
                                 result.Type = Value.Integer32;
-                                result.Value_ = intValue;
+                                result.Value_ = new Integer32T
+                                {
+                                    Value = intValue,
+                                };
                                 return result;
                             }
                             if(element.TryGetDouble(out double doubleValue))
                             {
                                 result.Type = Value.Double;
-                                result.Value_ = doubleValue;
+                                result.Value_ = new DoubleT
+                                {
+                                    Value = intValue,
+                                };
                                 return result;
                             }
                             if(element.TryGetSingle(out float floatValue))
                             {
                                 result.Type = Value.Double;
-                                result.Value_ = floatValue;
+                                result.Value_ = new DoubleT
+                                {
+                                    Value = intValue,
+                                };
                                 return result;
                             }
                         }
@@ -63,25 +72,34 @@ namespace Tubumu.Mediasoup
                     case JsonValueKind.String:
                         {
                             result.Type = Value.String;
-                            result.Value_ = element.ToString();
+                            result.Value_ = new StringT
+                            {
+                                Value = element.ToString(),
+                            };
                             return result;
                         }
                     case JsonValueKind.True:
                     case JsonValueKind.False:
                         {
                             result.Type = Value.Boolean;
-                            result.Value_ = element.GetBoolean();
+                            result.Value_ = new BooleanT
+                            {
+                                Value = element.GetBoolean() ? (byte)1 : (byte)0
+                            };
                             return result;
                         }
                     case JsonValueKind.Array:
                         {
-                            var integer32Array = new int[element.GetArrayLength()];
+                            var integer32Array = new Integer32T[element.GetArrayLength()];
                             var index = 0;
                             foreach(var itemElement in element.EnumerateArray())
                             {
                                 if(element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int intValue))
                                 {
-                                    integer32Array[index++] = intValue;
+                                    integer32Array[index++] = new Integer32T
+                                    {
+                                        Value = intValue,
+                                    };
                                 }
                                 else
                                 {
@@ -110,13 +128,19 @@ namespace Tubumu.Mediasoup
                 else if(bool.TryParse(stringValue, out bool boolValue))
                 {
                     result.Type = Value.Boolean;
-                    result.Value_ = boolValue;
+                    result.Value_ = new BooleanT
+                    {
+                        Value = boolValue ? (byte)1 : (byte)0
+                    };
                     return result;
                 }
                 else
                 {
                     result.Type = Value.String;
-                    result.Value_ = stringValue;
+                    result.Value_ = new StringT
+                    {
+                        Value = stringValue,
+                    };
                     return result;
                 }
             }
@@ -124,20 +148,30 @@ namespace Tubumu.Mediasoup
             if(IsInteger32Type(value))
             {
                 result.Type = Value.Integer32;
-                result.Value_ = (int)value;
+                result.Value_ = new Integer32T
+                {
+                    Value = (int)value,
+                };
                 return result;
             }
 
             if(value is IEnumerable<int> intEnumerableValue)
             {
                 result.Type = Value.Integer32Array;
-                result.Value_ = intEnumerableValue.ToArray();
+                result.Value_ = intEnumerableValue.Select(m=> new Integer32T
+                {
+                    Value = (int)value,
+                }).ToArray();
                 return result;
             }
 
             if(value is double || value is float)
             {
                 result.Type = Value.Double;
+                result.Value_ = new DoubleT
+                {
+                    Value = Convert.ToDouble(value),
+                };
                 result.Value_ = Convert.ToDouble(value);
                 return result;
             }
@@ -145,7 +179,10 @@ namespace Tubumu.Mediasoup
             if(value is bool x)
             {
                 result.Type = Value.Boolean;
-                result.Value_ = x;
+                result.Value_ = new BooleanT
+                {
+                    Value = x ? (byte)1 : (byte)0
+                };
                 return result;
             }
 

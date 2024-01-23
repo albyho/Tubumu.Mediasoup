@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FBS.Notification;
@@ -260,7 +260,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task AddProducerAsync(RtpObserverAddRemoveProducerOptions rtpObserverAddRemoveProducerOptions)
         {
-            _logger.LogDebug("AddProducerAsync() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
+            _logger.LogDebug("AddProducerAsync() | RtpObserverId:{RtpObserverId} ProducerId:{ProducerId}", Internal.RtpObserverId, rtpObserverAddRemoveProducerOptions.ProducerId);
 
             using(await _closeLock.ReadLockAsync())
             {

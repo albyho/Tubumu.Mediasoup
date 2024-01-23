@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -997,11 +997,10 @@ namespace Tubumu.Mediasoup
 
                 var createActiveSpeakerObserverRequestOffset = CreateActiveSpeakerObserverRequest.Pack(bufferBuilder, createActiveSpeakerObserverRequest);
 
-                // Fire and forget
-                _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_ACTIVESPEAKEROBSERVER,
-                Body.Router_CreateActiveSpeakerObserverRequest,
-                createActiveSpeakerObserverRequestOffset.Value,
-                _internal.RouterId).ContinueWithOnFaultedHandleLog(_logger);
+                await _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_ACTIVESPEAKEROBSERVER,
+                    Body.Router_CreateActiveSpeakerObserverRequest,
+                    createActiveSpeakerObserverRequestOffset.Value,
+                    _internal.RouterId);
 
                 var activeSpeakerObserver = new ActiveSpeakerObserver(_loggerFactory,
                                     new RtpObserverInternal(_internal.RouterId, rtpObserverId),
@@ -1053,12 +1052,10 @@ namespace Tubumu.Mediasoup
 
                 var createAudioLevelObserverRequestOffset = CreateAudioLevelObserverRequest.Pack(bufferBuilder, createAudioLevelObserverRequest);
 
-                // Fire and forget
-                _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_AUDIOLEVELOBSERVER,
+                await _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_AUDIOLEVELOBSERVER,
                     Body.Router_CreateAudioLevelObserverRequest,
                     createAudioLevelObserverRequestOffset.Value,
-                    _internal.RouterId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                    _internal.RouterId);
 
                 var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
                                     new RtpObserverInternal(_internal.RouterId, rtpObserverId),

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FBS.WebRtcTransport;
@@ -138,7 +138,7 @@ namespace Tubumu.Meeting.Server
                         });
 
                         /*
-                        // Create a mediasoup AudioLevelObserver.
+                        // Create a mediasoup PassthroughObserver.
                         var passthroughObserver = await router.CreatePassthroughObserverAsync(new PassthroughObserverOptions());
 
                         room = new Room(_loggerFactory, router, audioLevelObserver, passthroughObserver, joinRoomRequest.RoomId, "Default");
