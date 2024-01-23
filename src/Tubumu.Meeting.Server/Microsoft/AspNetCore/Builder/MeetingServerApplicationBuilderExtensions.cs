@@ -1,4 +1,4 @@
-﻿using Tubumu.Meeting.Server;
+using Tubumu.Meeting.Server;
 
 namespace Microsoft.AspNetCore.Builder
 {
