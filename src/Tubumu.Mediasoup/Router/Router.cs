@@ -149,7 +149,7 @@ namespace Tubumu.Mediasoup
                 var closeRouterRequestOffset = FBS.Worker.CloseRouterRequest.Pack(bufferBuilder, closeRouterRequest);
 
                 // Fire and forget
-                _channel.RequestAsync(bufferBuilder,Method.WORKER_CLOSE_ROUTER,
+                _channel.RequestAsync(bufferBuilder, Method.WORKER_CLOSE_ROUTER,
                     Body.Worker_CloseRouterRequest,
                     closeRouterRequestOffset.Value
                     ).ContinueWithOnFaultedHandleLog(_logger);
@@ -1058,7 +1058,7 @@ namespace Tubumu.Mediasoup
                 _channel.RequestAsync(bufferBuilder, Method.ROUTER_CREATE_AUDIOLEVELOBSERVER,
                     Body.Router_CreateAudioLevelObserverRequest,
                     createAudioLevelObserverRequestOffset.Value,
-                                        _internal.RouterId
+                    _internal.RouterId
                     ).ContinueWithOnFaultedHandleLog(_logger);
 
                 var audioLevelObserver = new AudioLevelObserver(_loggerFactory,
