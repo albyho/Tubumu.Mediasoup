@@ -161,8 +161,8 @@ export default {
       sendTransport: null,
       recvTransport: null,
       nextDataChannelTestNumber: 0,
-      cams: {},
-      audioDevices: {},
+      cams: new Map(),
+      audioDevices: new Map(),
       camProducer: null,
       micProducer: null,
       useSimulcast: false,
@@ -171,8 +171,8 @@ export default {
       forceTcp: false,
       localAudioStream: null,
       localVideoStream: null,
-      remoteVideoStreams: {},
-      remoteAudioStreams: {},
+      remoteVideoStreams: new Map(),
+      remoteAudioStreams: new Map(),
       producers: new Map(),
       consumers: new Map(),
       dataProducer: null,
@@ -197,7 +197,7 @@ export default {
         produce: true,
         produceAudio: true,
         produceVideo: true,
-        useDataChannel: true
+        useDataChannel: false
       },
       rooms: [
         'Room 0',
@@ -227,51 +227,55 @@ export default {
   },
   computed: {
     isAdmin: function () {
-      return this.connectForm.peerId === 8 || this.connectForm.peerId === 9
+      var self = this
+      return self.connectForm.peerId === 8 || self.connectForm.peerId === 9
     },
     serveModeText: function () {
-      return this.serveMode === 'Open'
+      var self = this
+      return self.serveMode === 'Open'
         ? '开放(Open)模式'
-        : this.serveMode === 'Invite'
+        : self.serveMode === 'Invite'
           ? '邀请(Invite)模式'
           : '拉取(Pull)模式'
     }
   },
   async mounted() {
+    var self = this
     var searchParams = new URLSearchParams(location.search.replace('?', ''))
-    this.connectForm.peerId = searchParams.get('peerId') || searchParams.get('peerid')
-    if (this.connectForm.peerId) {
-      this.connectForm.peerId = parseInt(this.connectForm.peerId)
+    self.connectForm.peerId = searchParams.get('peerId') || searchParams.get('peerid')
+    if (self.connectForm.peerId) {
+      self.connectForm.peerId = parseInt(self.connectForm.peerId)
     }
 
-    this.roomForm.roomId = searchParams.get('roomId') || searchParams.get('roomid')
-    if (this.roomForm.roomId) {
-      this.roomForm.roomId = parseInt(this.roomForm.roomId)
+    self.roomForm.roomId = searchParams.get('roomId') || searchParams.get('roomid')
+    if (self.roomForm.roomId) {
+      self.roomForm.roomId = parseInt(self.roomForm.roomId)
     }
 
     // For Testing
-    // this.form.produce = this.connectForm.peerId !== '0' && this.connectForm.peerId !== '1';
+    // self.form.produce = self.connectForm.peerId !== '0' && self.connectForm.peerId !== '1';
   },
   methods: {
     async handleConnect() {
-      if (this.connectForm.isConnected) {
-        if (this.connection) {
-          await this.connection.stop()
+      var self = this
+      if (self.connectForm.isConnected) {
+        if (self.connection) {
+          await self.connection.stop()
         }
-        this.reset()
+        self.reset()
         return
       }
 
-      if (!this.connectForm.peerId && this.connectForm.peerId !== 0) {
-        this.$message.error('Select a peer, please.')
+      if (!self.connectForm.peerId && self.connectForm.peerId !== 0) {
+        self.$message.error('Select a peer, please.')
         return
       }
 
       try {
         const host = import.meta.env.DEV ? `https://${window.location.hostname}:9001` : ''
-        this.connection = new signalR.HubConnectionBuilder()
+        self.connection = new signalR.HubConnectionBuilder()
           .withUrl(`${host}/hubs/meetingHub`, {
-            accessTokenFactory: () => this.accessTokens[this.connectForm.peerId],
+            accessTokenFactory: () => self.accessTokens[self.connectForm.peerId],
             skipNegotiation: true,
             transport: signalR.HttpTransportType.WebSockets
           })
@@ -289,54 +293,57 @@ export default {
           // })
           .build()
 
-        this.connection.onclose((e) => {
-          this.reset()
+        self.connection.onclose((e) => {
+          self.reset()
           if (e) {
             logger.error(e)
           }
         })
 
-        this.connection.on('Notify', async (data) => {
-          await this.processNotification(data)
+        self.connection.on('Notify', async (data) => {
+          await self.processNotification(data)
         })
-        await this.connection.start()
-        await this.start()
-        this.connectForm.isConnected = true
+        await self.connection.start()
+        await self.start()
+        self.connectForm.isConnected = true
       } catch (e) {
         logger.debug(e.message)
       }
     },
     reset() {
-      this.connectForm.isConnected = false
-      this.roomForm.isJoinedRoom = false
-      this.disableMic().catch(() => {})
-      this.disableCam().catch(() => {})
-      this.peersForm.peers = []
-      this.remoteVideoStreams = {}
-      this.remoteAudioStreams = {}
-      this.producers = {}
-      ;(this.dataProducer = null), (this.consumers = {})
-      this.dataConsumers = {}
+      var self = this
+      self.connectForm.isConnected = false
+      self.roomForm.isJoinedRoom = false
+      self.disableMic().catch(() => {})
+      self.disableCam().catch(() => {})
+      self.peersForm.peers = []
+      self.remoteVideoStreams = new Map()
+      self.remoteAudioStreams = new Map()
+      self.producers = new Map()
+      self.dataProducer = null
+      self.consumers = new Map()
+      self.dataConsumers = new Map()
     },
     async start() {
-      let result = await this.connection.invoke('GetServeMode')
+      var self = this
+      let result = await self.connection.invoke('GetServeMode')
       if (result.code !== 200) {
         logger.error(`start() | GetServeMode failed: ${result.message}`)
-        this.$message.error(`start() | GetServeMode failed: ${result.message}`)
+        self.$message.error(`start() | GetServeMode failed: ${result.message}`)
         return
       }
-      this.serveMode = result.data.serveMode
+      self.serveMode = result.data.serveMode
 
-      result = await this.connection.invoke('GetRouterRtpCapabilities')
+      result = await self.connection.invoke('GetRouterRtpCapabilities')
       if (result.code !== 200) {
         logger.error(`start() | GetRouterRtpCapabilities failed: ${result.message}`)
-        this.$message.error(`start() | GetRouterRtpCapabilities failed: ${result.message}`)
+        self.$message.error(`start() | GetRouterRtpCapabilities failed: ${result.message}`)
         return
       }
 
       const routerRtpCapabilities = result.data
-      this.mediasoupDevice = new mediasoupClient.Device()
-      await this.mediasoupDevice.load({
+      self.mediasoupDevice = new mediasoupClient.Device()
+      await self.mediasoupDevice.load({
         routerRtpCapabilities
       })
 
@@ -354,11 +361,11 @@ export default {
       // }
 
       // GetRouterRtpCapabilities 成功, Join
-      result = await this.connection.invoke('Join', {
-        rtpCapabilities: this.mediasoupDevice.rtpCapabilities,
+      result = await self.connection.invoke('Join', {
+        rtpCapabilities: self.mediasoupDevice.rtpCapabilities,
         sctpCapabilities:
-          this.form.useDataChannel && this.form.consume
-            ? this.mediasoupDevice.sctpCapabilities
+          self.form.useDataChannel && self.form.consume
+            ? self.mediasoupDevice.sctpCapabilities
             : undefined,
         displayName: null,
         sources: ['audio:mic', 'video:cam'],
@@ -366,63 +373,64 @@ export default {
       })
       if (result.code !== 200) {
         logger.error(`processNotification() | Join failed: ${result.message}`)
-        this.$message.error(`processNotification() | Join failed: ${result.message}`)
+        self.$message.error(`processNotification() | Join failed: ${result.message}`)
         return
       }
     },
     async handleJoinRoom() {
-      if (this.roomForm.isJoinedRoom) {
-        let result = await this.connection.invoke('LeaveRoom')
+      var self = this
+      if (self.roomForm.isJoinedRoom) {
+        let result = await self.connection.invoke('LeaveRoom')
         if (result.code !== 200) {
           logger.error(`handleJoinRoom() | LeaveRoom failed: ${result.message}`)
-          this.$message.error(`handleJoinRoom() | LeaveRoom failed: ${result.message}`)
+          self.$message.error(`handleJoinRoom() | LeaveRoom failed: ${result.message}`)
           return
         }
-        this.peersForm.peers = []
-        this.roomForm.isJoinedRoom = false
-        await this.disableMic()
-        await this.disableCam()
+        self.peersForm.peers = []
+        self.roomForm.isJoinedRoom = false
+        await self.disableMic()
+        await self.disableCam()
         return
       }
-      if (!this.roomForm.roomId && this.roomForm.roomId !== 0) {
-        this.$message.error('Select a room, please.')
+      if (!self.roomForm.roomId && self.roomForm.roomId !== 0) {
+        self.$message.error('Select a room, please.')
         return
       }
 
-      let result = await this.connection.invoke('JoinRoom', {
-        roomId: this.roomForm.roomId.toString(),
-        role: this.isAdmin ? 'admin' : 'normal'
+      let result = await self.connection.invoke('JoinRoom', {
+        roomId: self.roomForm.roomId.toString(),
+        role: self.isAdmin ? 'admin' : 'normal'
       })
       if (result.code !== 200) {
         logger.error('handleJoinRoom() | JoinRoom failed.')
-        this.$message.error(`handleJoinRoom() | JoinRoom failed: ${result.message}`)
+        self.$message.error(`handleJoinRoom() | JoinRoom failed: ${result.message}`)
         return
       }
 
       let { peers } = result.data
       for (let i = 0; i < peers.length; i++) {
-        this.peersForm.peers.push(peers[i])
+        self.peersForm.peers.push(peers[i])
       }
-      this.roomForm.isJoinedRoom = true
+      self.roomForm.isJoinedRoom = true
 
-      if (this.form.produce) {
+      if (self.form.produce) {
         // Join成功，CreateSendWebRtcTransport(生产)
-        result = await this.connection.invoke('CreateSendWebRtcTransport', {
-          forceTcp: this.forceTcp,
-          sctpCapabilities: this.form.useDataChannel
-            ? this.mediasoupDevice.sctpCapabilities
+        result = await self.connection.invoke('CreateSendWebRtcTransport', {
+          forceTcp: self.forceTcp,
+          sctpCapabilities: self.form.useDataChannel
+            ? self.mediasoupDevice.sctpCapabilities
             : undefined
         })
         if (result.code !== 200) {
           logger.error(`handleJoinRoom() | CreateSendWebRtcTransport failed: ${result.message}`)
-          this.$message.error(
+          self.$message.error(
             `handleJoinRoom() | CreateSendWebRtcTransport failed: ${result.message}`
           )
           return
         }
 
         // CreateSendWebRtcTransport(生产)成功, createSendTransport
-        this.sendTransport = this.mediasoupDevice.createSendTransport({
+        self.sendTransport = self.mediasoupDevice.createSendTransport({
           id: result.data.transportId,
           iceParameters: result.data.iceParameters,
           iceCandidates: result.data.iceCandidates,
@@ -432,26 +440,26 @@ export default {
           proprietaryConstraints: PC_PROPRIETARY_CONSTRAINTS
         })
 
-        this.sendTransport.on('connect', ({ dtlsParameters }, callback, errback) => {
+        self.sendTransport.on('connect', ({ dtlsParameters }, callback, errback) => {
           logger.debug('sendTransport.on() connect dtls: %o', dtlsParameters)
-          this.connection
+          self.connection
             .invoke('ConnectWebRtcTransport', {
-              transportId: this.sendTransport.id,
+              transportId: self.sendTransport.id,
               dtlsParameters
             })
             .then(callback)
             .catch(errback)
         })
 
-        this.sendTransport.on(
+        self.sendTransport.on(
           'produce',
           // appData 需要包含 source
           // eslint-disable-next-line no-unused-vars
           async ({ kind, rtpParameters, appData }, callback, errback) => {
             logger.debug('sendTransport.on() produce, appData: %o', appData)
             try {
-              const result = await this.connection.invoke('Produce', {
-                transportId: this.sendTransport.id,
+              const result = await self.connection.invoke('Produce', {
+                transportId: self.sendTransport.id,
                 kind,
                 rtpParameters,
                 source: appData.source,
@@ -459,11 +467,11 @@ export default {
               })
               if (result.code !== 200) {
                 logger.error(`sendTransport 'produce' callbak | failed: ${result.message}`)
-                this.$message.error(`sendTransport 'produce' callbak | failed: ${result.message}`)
+                self.$message.error(`sendTransport 'produce' callbak | failed: ${result.message}`)
                 errback(new Error(result.message))
                 return
               }
-              this.producers.set(result.data.id, result.data)
+              self.producers.set(result.data.id, result.data)
               callback({ id: result.data.id })
             } catch (error) {
               errback(error)
@@ -471,7 +479,7 @@ export default {
           }
         )
 
-        this.sendTransport.on(
+        self.sendTransport.on(
           'producedata',
           async ({ sctpStreamParameters, label, protocol, appData }, callback, errback) => {
             logger.debug(
@@ -482,8 +490,8 @@ export default {
 
             try {
               // eslint-disable-next-line no-shadow
-              const { id } = await this.connection.invoke('ProduceData', {
-                transportId: this.sendTransport.id,
+              const { id } = await self.connection.invoke('ProduceData', {
+                transportId: self.sendTransport.id,
                 sctpStreamParameters,
                 label,
                 protocol,
@@ -497,23 +505,23 @@ export default {
           }
         )
 
-        this.sendTransport.on('connectionstatechange', (connectionState) => {
+        self.sendTransport.on('connectionstatechange', (connectionState) => {
           logger.debug(`sendTransport.on() connectionstatechange: ${connectionState}`)
           if (connectionState === 'connected') {
-            this.enableDataProducer()
+            self.enableDataProducer()
           }
         })
       }
       // createSendTransport 成功, CreateRecvWebRtcTransport(消费)
-      result = await this.connection.invoke('CreateRecvWebRtcTransport', {
-        forceTcp: this.forceTcp,
-        sctpCapabilities: this.form.useDataChannel
-          ? this.mediasoupDevice.sctpCapabilities
+      result = await self.connection.invoke('CreateRecvWebRtcTransport', {
+        forceTcp: self.forceTcp,
+        sctpCapabilities: self.form.useDataChannel
+          ? self.mediasoupDevice.sctpCapabilities
           : undefined
       })
 
       // CreateRecvWebRtcTransport(消费)成功, createRecvTransport
-      this.recvTransport = this.mediasoupDevice.createRecvTransport({
+      self.recvTransport = self.mediasoupDevice.createRecvTransport({
         id: result.data.transportId,
         iceParameters: result.data.iceParameters,
         iceCandidates: result.data.iceCandidates,
@@ -522,53 +530,55 @@ export default {
         iceServers: []
       })
 
-      this.recvTransport.on('connect', ({ dtlsParameters }, callback, errback) => {
+      self.recvTransport.on('connect', ({ dtlsParameters }, callback, errback) => {
         logger.debug('recvTransport.on() connect dtls: %o', dtlsParameters)
-        this.connection
+        self.connection
           .invoke('ConnectWebRtcTransport', {
-            transportId: this.recvTransport.id,
+            transportId: self.recvTransport.id,
             dtlsParameters
           })
           .then(callback)
           .catch(errback)
       })
 
-      this.recvTransport.on('connectionstatechange', (connectionState) => {
+      self.recvTransport.on('connectionstatechange', (connectionState) => {
         logger.debug(`recvTransport.on() connectionstatechange: ${connectionState}`)
       })
 
-      if (this.serveMode === 'Open' && this.form.produce) {
-        if (this.form.produceAudio) {
-          await this.enableMic()
+      if (self.serveMode === 'Open' && self.form.produce) {
+        if (self.form.produceAudio) {
+          await self.enableMic()
         }
-        if (this.form.produceVideo) {
-          await this.enableCam()
+        if (self.form.produceVideo) {
+          await self.enableCam()
         }
       }
 
-      if (this.serveMode !== 'Pull') {
-        let result = await this.connection.invoke('Ready')
+      if (self.serveMode !== 'Pull') {
+        let result = await self.connection.invoke('Ready')
         if (result.code !== 200) {
           logger.error(`Ready() | failed: ${result.message}`)
-          this.$message.error(`Ready() | failed: ${result.message}`)
+          self.$message.error(`Ready() | failed: ${result.message}`)
           return
         }
       }
     },
     async onPeerNodeClick(peer) {
+      var self = this
       if (!peer) return
       logger.debug('onPeerNodeClick() | %o', peer)
-      if (this.serveMode === 'Pull') {
-        await this.pull(peer.peerId, peer.sources)
-      } else if (this.serveMode === 'Invite') {
-        if (this.isAdmin) {
-          await this.invite(peer.peerId, peer.sources)
+      if (self.serveMode === 'Pull') {
+        await self.pull(peer.peerId, peer.sources)
+      } else if (self.serveMode === 'Invite') {
+        if (self.isAdmin) {
+          await self.invite(peer.peerId, peer.sources)
         } else {
-          this.$message.error('仅管理员可进行邀请操作。')
+          self.$message.error('仅管理员可进行邀请操作。')
         }
       }
     },
     async processNewConsumer(data) {
+      var self = this
       const {
         producerPeerId,
         producerId,
@@ -580,7 +590,7 @@ export default {
         //producerPaused // mediasoup-client 的 Transport.ts 不使用该参数
       } = data
 
-      const consumer = await this.recvTransport.consume({
+      const consumer = await self.recvTransport.consume({
         id: consumerId,
         producerId,
         kind,
@@ -591,10 +601,10 @@ export default {
       logger.debug('processNewConsumer() Consumer: %o', consumer)
 
       // Store in the map.
-      this.consumers.set(consumer.id, consumer)
+      self.consumers.set(consumer.id, consumer)
 
       consumer.on('transportclose', () => {
-        this.consumers.delete(consumer.id)
+        self.consumers.delete(consumer.id)
       })
 
       const {
@@ -623,23 +633,25 @@ export default {
       const stream = new MediaStream()
       stream.addTrack(consumer.track)
 
-      this.$set(
-        kind === 'video' ? this.remoteVideoStreams : this.remoteAudioStreams,
-        consumerId,
-        stream
-      )
+      // TODO: FIX "Failed to set the 'srcObject' property on 'HTMLMediaElement': The provided value is not of type '(MediaSourceHandle or MediaStream)'."
+      if (kind === 'video') {
+        self.remoteVideoStreams.set(consumerId, stream)
+      } else {
+        self.remoteAudioStreams.set(consumerId, stream)
+      }
 
       // We are ready. Answer the request so the server will
       // resume this Consumer (which was paused for now).
       logger.debug('processNewConsumer() ResumeConsumer')
-      const result = await this.connection.invoke('ResumeConsumer', consumerId)
+      const result = await self.connection.invoke('ResumeConsumer', consumerId)
       if (result.code !== 200) {
         logger.error(`processNewConsumer() | ResumeConsumer failed: ${result.message}`)
-        this.$message.error(`processNewConsumer() | ResumeConsumer failed: ${result.message}`)
+        self.$message.error(`processNewConsumer() | ResumeConsumer failed: ${result.message}`)
         return
       }
     },
     async processNewDataConsumer(data) {
+      var self = this
       const {
         dataProducerPeerId, // NOTE: Null if bot.
         dataProducerId,
@@ -651,7 +663,7 @@ export default {
       } = data
 
       try {
-        const dataConsumer = await this.recvTransport.consumeData({
+        const dataConsumer = await self.recvTransport.consumeData({
           dataCosumerId,
           dataProducerId,
           sctpStreamParameters,
@@ -661,10 +673,10 @@ export default {
         })
 
         // Store in the map.
-        this.dataConsumers.set(dataConsumer.id, dataConsumer)
+        self.dataConsumers.set(dataConsumer.id, dataConsumer)
 
         dataConsumer.on('transportclose', () => {
-          this.dataConsumers.delete(dataConsumer.id)
+          self.dataConsumers.delete(dataConsumer.id)
         })
 
         dataConsumer.on('open', () => {
@@ -673,7 +685,7 @@ export default {
 
         dataConsumer.on('close', () => {
           logger.warn('DataConsumer "close" event')
-          this.dataConsumers.delete(dataConsumer.id)
+          self.dataConsumers.delete(dataConsumer.id)
         })
 
         dataConsumer.on('error', (error) => {
@@ -692,24 +704,23 @@ export default {
 
             if (number == Math.pow(2, 32) - 1) {
               logger.warn('dataChannelTest finished!')
-              this.nextDataChannelTestNumber = 0
+              self.nextDataChannelTestNumber = 0
 
               return
             }
 
-            if (number > this.nextDataChannelTestNumber) {
+            if (number > self.nextDataChannelTestNumber) {
               logger.warn(
                 'dataChannelTest: %s packets missing',
-                number - this.nextDataChannelTestNumber
+                number - self.nextDataChannelTestNumber
               )
             }
 
-            this.nextDataChannelTestNumber = number + 1
+            self.nextDataChannelTestNumber = number + 1
 
             return
           } else if (typeof message !== 'string') {
             logger.warn('ignoring DataConsumer "message" (not a string)')
-
             return
           }
 
@@ -721,38 +732,40 @@ export default {
       }
     },
     async pull(peerId, sources) {
-      const result = await this.connection.invoke('Pull', {
+      var self = this
+      const result = await self.connection.invoke('Pull', {
         peerId,
         sources
       })
       if (result.code !== 200) {
         logger.error(`pull() | failed: ${result.message}`)
-        this.$message.error(`pull() | failed: ${result.message}`)
+        self.$message.error(`pull() | failed: ${result.message}`)
         return
       }
     },
     async invite(peerId, sources) {
-      const result = await this.connection.invoke('Invite', {
+      const result = await self.connection.invoke('Invite', {
         peerId,
         sources
       })
       if (result.code !== 200) {
         logger.error(`invite() | failed: ${result.message}`)
-        this.$message.error(`invite() | failed: ${result.message}`)
+        self.$message.error(`invite() | failed: ${result.message}`)
         return
       }
     },
     async processNotification(data) {
+      var self = this
       logger.debug('processNotification() | %o', data)
       switch (data.type) {
         case 'newConsumer': {
-          await this.processNewConsumer(data.data)
+          await self.processNewConsumer(data.data)
 
           break
         }
 
         case 'newDataConsumer': {
-          await this.processNewDataConsumer(data.data)
+          await self.processNewDataConsumer(data.data)
 
           break
         }
@@ -767,7 +780,7 @@ export default {
         case 'peerJoinRoom': {
           // eslint-disable-next-line no-unused-vars
           const { peer } = data.data
-          this.peersForm.peers.push(peer)
+          self.peersForm.peers.push(peer)
           break
         }
 
@@ -775,14 +788,14 @@ export default {
           // eslint-disable-next-line no-unused-vars
           const { peerId } = data.data
           let idx = -1
-          for (let i = 0; i < this.peersForm.peers.length; i++) {
-            if (this.peersForm.peers[i].peerId === peerId) {
+          for (let i = 0; i < self.peersForm.peers.length; i++) {
+            if (self.peersForm.peers[i].peerId === peerId) {
               idx = i
               break
             }
           }
           if (idx >= 0) {
-            this.peersForm.peers.splice(idx, 1)
+            self.peersForm.peers.splice(idx, 1)
           }
           break
         }
@@ -792,17 +805,17 @@ export default {
         }
 
         case 'produceSources': {
-          if (!this.form.produce) break
+          if (!self.form.produce) break
 
           const { /*roomId, */ sources } = data.data
           for (let i = 0; i < sources.length; i++) {
-            if (sources[i] === 'audio:mic' && this.mediasoupDevice.canProduce('audio')) {
-              if (!this.micProducer) {
-                await this.enableMic()
+            if (sources[i] === 'audio:mic' && self.mediasoupDevice.canProduce('audio')) {
+              if (!self.micProducer) {
+                await self.enableMic()
               }
-            } else if (sources[i] === 'video:cam' && this.mediasoupDevice.canProduce('video')) {
-              if (!this.camProducer) {
-                await this.enableCam()
+            } else if (sources[i] === 'video:cam' && self.mediasoupDevice.canProduce('video')) {
+              if (!self.camProducer) {
+                await self.enableCam()
               }
             }
           }
@@ -818,23 +831,25 @@ export default {
 
         case 'consumerClosed': {
           const { consumerId } = data.data
-          const consumer = this.consumers.get(consumerId)
+          const consumer = self.consumers.get(consumerId)
 
           if (!consumer) break
 
-          this.$delete(
-            consumer.kind === 'video' ? this.remoteVideoStreams : this.remoteAudioStreams,
-            consumerId
-          )
+          if (consumer.kind === 'video') {
+            self.remoteVideoStreams.delete(consumerId)
+          } else {
+            self.remoteAudioStreams.delete(consumerId)
+          }
+
           consumer.close()
-          this.consumers.delete(consumerId)
+          self.consumers.delete(consumerId)
 
           break
         }
 
         case 'consumerPaused': {
           const { consumerId } = data.data
-          const consumer = this.consumers.get(consumerId)
+          const consumer = self.consumers.get(consumerId)
 
           if (!consumer) break
 
@@ -843,7 +858,7 @@ export default {
 
         case 'consumerResumed': {
           const { consumerId } = data.data
-          const consumer = this.consumers.get(consumerId)
+          const consumer = self.consumers.get(consumerId)
 
           if (!consumer) break
 
@@ -853,7 +868,7 @@ export default {
         case 'consumerLayersChanged': {
           // eslint-disable-next-line no-unused-vars
           const { consumerId, spatialLayer, temporalLayer } = data.data
-          const consumer = this.consumers.get(consumerId)
+          const consumer = self.consumers.get(consumerId)
 
           if (!consumer) break
 
@@ -862,7 +877,7 @@ export default {
 
         case 'consumerScore': {
           const { consumerId } = data.data
-          const consumer = this.consumers.get(consumerId)
+          const consumer = self.consumers.get(consumerId)
 
           if (!consumer) break
 
@@ -871,14 +886,14 @@ export default {
 
         case 'producerClosed': {
           const { producerId } = data.data
-          const producer = this.producers.get(producerId)
+          const producer = self.producers.get(producerId)
 
           if (!producer) break
 
           if (producer.source === 'video:cam') {
-            this.camClosed()
+            self.camClosed()
           } else if (producer.source === 'audio:mic') {
-            this.micClosed()
+            self.micClosed()
           }
 
           break
@@ -886,9 +901,9 @@ export default {
 
         case 'peerLeave': {
           const { peerId } = data.data
-          for (let i = this.peersForm.peers.length - 1; i > 0; i--) {
-            if (this.peersForm.peers[i].peerId === peerId) {
-              this.peersForm.peers.splice(i, 1)
+          for (let i = self.peersForm.peers.length - 1; i > 0; i--) {
+            if (self.peersForm.peers[i].peerId === peerId) {
+              self.peersForm.peers.splice(i, 1)
               break
             }
           }
@@ -909,12 +924,13 @@ export default {
       }
     },
     async enableDataProducer() {
+      var self = this
       logger.debug('enableChatDataProducer()')
 
-      if (!this.form.useDataChannel) return
+      if (!self.form.useDataChannel) return
 
       try {
-        this.dataProducer = await this.sendTransport.produceData({
+        self.dataProducer = await self.sendTransport.produceData({
           ordered: false,
           maxRetransmits: 1,
           label: 'chat',
@@ -922,25 +938,25 @@ export default {
           appData: { info: '' }
         })
 
-        this.dataProducer.on('transportclose', () => {
-          this.dataProducer = null
+        self.dataProducer.on('transportclose', () => {
+          self.dataProducer = null
         })
 
-        this.dataProducer.on('open', () => {
+        self.dataProducer.on('open', () => {
           logger.debug('DataProducer "open" event')
         })
 
-        this.dataProducer.on('close', () => {
+        self.dataProducer.on('close', () => {
           logger.error('DataProducer "close" event')
 
-          this.dataProducer = null
+          self.dataProducer = null
         })
 
-        this.dataProducer.on('error', (error) => {
+        self.dataProducer.on('error', (error) => {
           logger.error('chat DataProducer "error" event:%o', error)
         })
 
-        this.dataProducer.on('bufferedamountlow', () => {
+        self.dataProducer.on('bufferedamountlow', () => {
           logger.debug('chat DataProducer "bufferedamountlow" event')
         })
       } catch (error) {
@@ -950,10 +966,11 @@ export default {
       }
     },
     async enableMic() {
+      var self = this
       logger.debug('enableMic()')
 
-      if (this.micProducer) return
-      if (this.mediasoupDevice && !this.mediasoupDevice.canProduce('audio')) {
+      if (self.micProducer) return
+      if (self.mediasoupDevice && !self.mediasoupDevice.canProduce('audio')) {
         logger.error('enableMic() | cannot produce audio')
         return
       }
@@ -961,9 +978,9 @@ export default {
       let track
 
       try {
-        const deviceId = await this._getAudioDeviceId()
+        const deviceId = await self._getAudioDeviceId()
 
-        const device = this.audioDevices[deviceId]
+        const device = self.audioDevices[deviceId]
 
         if (!device) throw new Error('no audio devices')
 
@@ -976,11 +993,11 @@ export default {
             deviceId: { ideal: deviceId }
           }
         })
-        this.localAudioStream = stream
+        self.localAudioStream = stream
 
         track = stream.getAudioTracks()[0]
 
-        this.micProducer = await this.sendTransport.produce({
+        self.micProducer = await self.sendTransport.produce({
           track,
           codecOptions: {
             opusStereo: 1,
@@ -989,12 +1006,12 @@ export default {
           appData: { source: 'audio:mic' }
         })
 
-        this.micProducer.on('transportclose', () => {
-          this.micProducer = null
+        self.micProducer.on('transportclose', () => {
+          self.micProducer = null
         })
 
-        this.micProducer.on('trackended', () => {
-          this.disableMic().catch(() => {})
+        self.micProducer.on('trackended', () => {
+          self.disableMic().catch(() => {})
         })
       } catch (error) {
         console.log('enableMic() failed: %o', error)
@@ -1004,29 +1021,30 @@ export default {
     },
     async disableMic() {
       logger.debug('disableMic()')
-      if (!this.micProducer) return
+      if (!self.micProducer) return
 
-      const micProducerId = this.micProducer.id
-      this.micClosed()
+      const micProducerId = self.micProducer.id
+      self.micClosed()
 
       try {
-        await this.connection.invoke('CloseProducer', micProducerId)
+        await self.connection.invoke('CloseProducer', micProducerId)
       } catch (error) {
         logger.error('disableMic() [error:"%o"]', error)
       }
     },
     micClosed() {
-      if (this.micProducer) {
-        this.micProducer.close()
-        this.micProducer = null
+      if (self.micProducer) {
+        self.micProducer.close()
+        self.micProducer = null
       }
-      this.localAudioStream = null
+      self.localAudioStream = null
     },
     async enableCam() {
+      var self = this
       logger.debug('enableCam()')
 
-      if (this.camProducer) return
-      if (this.mediasoupDevice && !this.mediasoupDevice.canProduce('video')) {
+      if (self.camProducer) return
+      if (self.mediasoupDevice && !self.mediasoupDevice.canProduce('video')) {
         logger.error('enableCam() | cannot produce video')
         return
       }
@@ -1034,13 +1052,13 @@ export default {
       let track
 
       try {
-        const deviceId = await this._getCamDeviceId()
+        const deviceId = await self._getCamDeviceId()
 
         logger.debug(`enableCam() | cam: ${deviceId}`)
 
-        const device = this.cams.get(deviceId)
+        const device = self.cams.get(deviceId)
 
-        if (!device) throw new Error(`no cam devices: ${JSON.stringify(this.cams)}`)
+        if (!device) throw new Error(`no cam devices: ${JSON.stringify(self.cams)}`)
 
         logger.debug('enableCam() | new selected cam [device:%o]', device)
 
@@ -1055,7 +1073,7 @@ export default {
           }
         })
         //*/
-        this.localVideoStream = stream
+        self.localVideoStream = stream
 
         track = stream.getVideoTracks()[0]
 
@@ -1065,16 +1083,16 @@ export default {
           videoGoogleStartBitrate: 1000
         }
 
-        if (this.forceH264) {
-          codec = this.mediasoupDevice.rtpCapabilities.codecs.find(
+        if (self.forceH264) {
+          codec = self.mediasoupDevice.rtpCapabilities.codecs.find(
             (c) => c.mimeType.toLowerCase() === 'video/h264'
           )
 
           if (!codec) {
             throw new Error('desired H264 codec+configuration is not supported')
           }
-        } else if (this.forceVP9) {
-          codec = this.mediasoupDevice.rtpCapabilities.codecs.find(
+        } else if (self.forceVP9) {
+          codec = self.mediasoupDevice.rtpCapabilities.codecs.find(
             (c) => c.mimeType.toLowerCase() === 'video/vp9'
           )
 
@@ -1083,9 +1101,9 @@ export default {
           }
         }
 
-        if (this.useSimulcast) {
+        if (self.useSimulcast) {
           // If VP9 is the only available video codec then use SVC.
-          const firstVideoCodec = this.mediasoupDevice.rtpCapabilities.codecs.find(
+          const firstVideoCodec = self.mediasoupDevice.rtpCapabilities.codecs.find(
             (c) => c.kind === 'video'
           )
 
@@ -1094,7 +1112,7 @@ export default {
           else encodings = WEBCAM_SIMULCAST_ENCODINGS
         }
 
-        this.camProducer = await this.sendTransport.produce({
+        self.camProducer = await self.sendTransport.produce({
           track,
           encodings,
           codecOptions,
@@ -1102,12 +1120,12 @@ export default {
           appData: { source: 'video:cam' }
         })
 
-        this.camProducer.on('transportclose', () => {
-          this.camProducer = null
+        self.camProducer.on('transportclose', () => {
+          self.camProducer = null
         })
 
-        this.camProducer.on('trackended', () => {
-          this.disableCam().catch(() => {})
+        self.camProducer.on('trackended', () => {
+          self.disableCam().catch(() => {})
         })
         logger.debug('enableCam() succeeded')
       } catch (error) {
@@ -1117,31 +1135,34 @@ export default {
       }
     },
     async disableCam() {
+      var self = this
       logger.debug('disableCam()')
 
-      if (!this.camProducer) return
+      if (!self.camProducer) return
 
-      const camProducerId = this.camProducer.id
-      this.camClosed()
+      const camProducerId = self.camProducer.id
+      self.camClosed()
 
       try {
-        await this.connection.invoke('CloseProducer', camProducerId)
+        await self.connection.invoke('CloseProducer', camProducerId)
       } catch (error) {
         logger.error('disableCam() [error:"%o"]', error)
       }
     },
     camClosed() {
-      if (this.camProducer) {
-        this.camProducer.close()
-        this.camProducer = null
+      var self = this
+      if (self.camProducer) {
+        self.camProducer.close()
+        self.camProducer = null
       }
-      this.localVideoStream = null
+      self.localVideoStream = null
     },
     async _updateAudioDevices() {
+      var self = this
       logger.debug('_updateAudioDevices()')
 
       // Reset the list.
-      this.audioDevices = {}
+      self.audioDevices = {}
 
       try {
         logger.debug('_updateAudioDevices() | calling enumerateDevices()')
@@ -1151,17 +1172,18 @@ export default {
         for (const device of devices) {
           if (device.kind !== 'audioinput') continue
 
-          this.audioDevices[device.deviceId] = device
+          self.audioDevices[device.deviceId] = device
         }
       } catch (error) {
         logger.error('_updateAudioDevices() failed: %o', error)
       }
     },
     async _updateCams() {
+      var self = this
       logger.debug('_updateCams()')
 
       // Reset the list.
-      this.cams = new Map()
+      self.cams = new Map()
 
       try {
         logger.debug('_updateCams() | calling enumerateDevices()')
@@ -1172,35 +1194,37 @@ export default {
         for (const device of devices) {
           if (device.kind !== 'videoinput') continue
           logger.debug('_updateCams() | %o', device)
-          this.cams.set(device.deviceId, device)
+          self.cams.set(device.deviceId, device)
         }
       } catch (error) {
         logger.error('_updateCams() failed: %o', error)
       }
     },
     async _getAudioDeviceId() {
+      var self = this
       logger.debug('_getAudioDeviceId()')
 
       try {
         logger.debug('_getAudioDeviceId() | calling _updateAudioDeviceId()')
 
-        await this._updateAudioDevices()
+        await self._updateAudioDevices()
 
-        const audioDevices = Object.values(this.audioDevices)
+        const audioDevices = Object.values(self.audioDevices)
         return audioDevices[0] ? audioDevices[0].deviceId : null
       } catch (error) {
         logger.error('_getAudioDeviceId() failed: %o', error)
       }
     },
     async _getCamDeviceId() {
+      var self = this
       logger.debug('_getCamDeviceId()')
 
       try {
         logger.debug('_getCamDeviceId() | calling _updateCams()')
 
-        await this._updateCams()
+        await self._updateCams()
 
-        const cams = Array.from(this.cams.values())
+        const cams = Array.from(self.cams.values())
         return cams[0] ? cams[0].deviceId : null
       } catch (error) {
         logger.error('_getCamDeviceId() failed: %o', error)

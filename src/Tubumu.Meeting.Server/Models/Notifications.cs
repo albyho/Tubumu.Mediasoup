@@ -240,7 +240,6 @@ namespace Tubumu.Meeting.Server
     /// </summary>
     public class ProducerClosedNotification : ProducerNotificationBase
     {
-
     }
 
     #endregion

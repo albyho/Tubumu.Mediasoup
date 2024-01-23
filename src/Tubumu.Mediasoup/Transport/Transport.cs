@@ -750,10 +750,11 @@ namespace Tubumu.Mediasoup
 
             if(consumerOptions.RtpCapabilities == null)
             {
-                throw new ArgumentNullException($"{nameof(consumerOptions)}.RtpCapabilities can't be null or white space.");
+                throw new ArgumentNullException($"{nameof(consumerOptions.RtpCapabilities)} can't be null or white space.");
             }
 
-            if(consumerOptions.Mid.IsNullOrWhiteSpace())
+            // Don't use `consumerOptions.Mid?.Length == 0`
+            if(consumerOptions.Mid != null && consumerOptions.Mid!.Length == 0)
             {
                 throw new ArgumentException($"{nameof(consumerOptions.Mid)} can't be null or white space.");
             }

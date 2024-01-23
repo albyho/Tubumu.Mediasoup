@@ -46,7 +46,7 @@ namespace FBS.Request
         [EnumMember(Value = "router.createActiveSpeakerObserver")]
         ROUTER_CREATE_ACTIVESPEAKEROBSERVER = 16,
         [EnumMember(Value = "router.createAudioLevelObserver")]
-        ROUTER_CREATE_AUDIOLEVELOBSERVER = 1,
+        ROUTER_CREATE_AUDIOLEVELOBSERVER = 17,
         [EnumMember(Value = "router.closeRtpObserver")]
         ROUTER_CLOSE_RTPOBSERVER = 18,
         [EnumMember(Value = "transport.dump")]

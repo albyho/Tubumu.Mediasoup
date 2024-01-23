@@ -210,7 +210,7 @@ namespace Tubumu.Mediasoup
                         break;
                     default:
                         {
-                            _logger.LogWarning("ProcessMessage() | worker[WorkerId/Pid:{WorkerId}] unexpected", _workerId);
+                            _logger.LogWarning("ProcessMessage() | Worker[{WorkerId}] unexpected", _workerId);
                         }
                         break;
                 }
@@ -248,7 +248,7 @@ namespace Tubumu.Mediasoup
             {
                 // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
                 _logger.LogWarning(
-                    "ProcessResponse() | Worker[{WorkerId}] Request failed [method:{Method}, id:{Id}, reason:{Reson}]",
+                    "ProcessResponse() | Worker[{WorkerId}] Request failed [method:{Method}, id:{Id}, reason:\"{Reson}\"]",
                     _workerId,
                     sent.RequestMessage.Method,
                     response.Reason,
@@ -257,7 +257,7 @@ namespace Tubumu.Mediasoup
 
                 sent.Reject(
                     new Exception(
-                        $"Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}, reason:{response.Reason}]"
+                        $"Request failed [method:{sent.RequestMessage.Method}, id:{sent.RequestMessage.Id}, reason:\"{response.Reason}\"]"
                     )
                 );
             }
@@ -292,7 +292,7 @@ namespace Tubumu.Mediasoup
                 // 'D' (a debug log).
                 case 'D':
                     {
-                        _logger.LogDebug("[WorkerId/Pid:{WorkerId}] {Flag}", _workerId, logData[1..]);
+                        _logger.LogDebug("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
 
                         break;
                     }
@@ -300,7 +300,7 @@ namespace Tubumu.Mediasoup
                 // 'W' (a warn log).
                 case 'W':
                     {
-                        _logger.LogWarning("[WorkerId/Pid:{WorkerId}] {Flag}", _workerId, logData[1..]);
+                        _logger.LogWarning("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
 
                         break;
                     }
@@ -308,7 +308,7 @@ namespace Tubumu.Mediasoup
                 // 'E' (a error log).
                 case 'E':
                     {
-                        _logger.LogError("[WorkerId/Pid:{WorkerId}] {Flag}", _workerId, logData[1..]);
+                        _logger.LogError("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
 
                         break;
                     }
@@ -317,7 +317,7 @@ namespace Tubumu.Mediasoup
                 case 'X':
                     {
                         // eslint-disable-next-line no-console
-                        _logger.LogTrace("[WorkerId/Pid:{WorkerId}] {Flag}", _workerId, logData[1..]);
+                        _logger.LogTrace("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
 
                         break;
                     }

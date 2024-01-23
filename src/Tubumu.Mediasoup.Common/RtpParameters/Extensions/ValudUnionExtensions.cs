@@ -150,7 +150,7 @@ namespace Tubumu.Mediasoup
                 result.Type = Value.Integer32;
                 result.Value_ = new Integer32T
                 {
-                    Value = (int)value,
+                    Value = Convert.ToInt32(value),
                 };
                 return result;
             }

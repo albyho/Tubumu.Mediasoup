@@ -245,7 +245,7 @@ namespace Tubumu.Mediasoup
             if(!_spawnDone && @event == Event.WORKER_RUNNING)
             {
                 _spawnDone = true;
-                _logger.LogDebug("Worker process running [WorkerId/Pid:{ProcessId}]", ProcessId);
+                _logger.LogDebug("Worker[{ProcessId}] process running", ProcessId);
                 Emit("@success");
                 _channel.OnNotification -= OnNotificationHandle;
             }
