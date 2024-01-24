@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -78,12 +77,6 @@ namespace FBS.RtpParameters
 
     public class Integer32ArrayT
     {
-        [JsonPropertyName("value")]
         public List<int> Value { get; set; }
-
-        public Integer32ArrayT()
-        {
-            this.Value = null;
-        }
     }
 }

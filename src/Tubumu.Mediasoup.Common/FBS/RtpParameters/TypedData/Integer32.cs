@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -56,12 +55,6 @@ namespace FBS.RtpParameters
 
     public class Integer32T
     {
-        [JsonPropertyName("value")]
         public int Value { get; set; }
-
-        public Integer32T()
-        {
-            this.Value = 0;
-        }
     }
 }

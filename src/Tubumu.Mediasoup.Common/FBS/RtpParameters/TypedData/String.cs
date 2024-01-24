@@ -4,7 +4,6 @@
 
 using System;
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -65,12 +64,6 @@ namespace FBS.RtpParameters
 
     public class StringT
     {
-        [JsonPropertyName("value")]
         public string Value { get; set; }
-
-        public StringT()
-        {
-            this.Value = null;
-        }
     }
 }

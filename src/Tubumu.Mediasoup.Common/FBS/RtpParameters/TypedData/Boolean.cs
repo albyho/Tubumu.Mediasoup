@@ -3,7 +3,6 @@
 // </auto-generated>
 
 using Google.FlatBuffers;
-using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
@@ -56,12 +55,6 @@ namespace FBS.RtpParameters
 
     public class BooleanT
     {
-        [JsonPropertyName("value")]
         public byte Value { get; set; }
-
-        public BooleanT()
-        {
-            this.Value = 0;
-        }
     }
 }
