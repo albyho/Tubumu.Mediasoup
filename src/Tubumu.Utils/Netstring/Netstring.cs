@@ -56,7 +56,7 @@ namespace Tubumu.Utils
 
         public bool MoveNext()
         {
-            if (_offset > _buffer.Count - 3)
+            if(_offset > _buffer.Count - 3)
             {
                 return false;
             }
@@ -98,21 +98,21 @@ namespace Tubumu.Utils
         {
             var len = 0;
             int i;
-            for (i = offset; i < buffer.Count; i++)
+            for(i = offset; i < buffer.Count; i++)
             {
                 var cc = buffer.Array![buffer.Offset + i];
 
-                if (cc == ':'/*0x3a*/)
+                if(cc == ':'/*0x3a*/)
                 {
                     return i != offset ? len : throw new Exception("Invalid netstring with leading ':'");
                 }
 
-                if (cc is < (byte)'0'/*0x30*/ or > (byte)'9'/*0x39*/)
+                if(cc is < (byte)'0'/*0x30*/ or > (byte)'9'/*0x39*/)
                 {
                     throw new Exception($"Unexpected character {cc} found at offset");
                 }
 
-                if (len == 0 && i > offset)
+                if(len == 0 && i > offset)
                 {
                     throw new Exception("Invalid netstring with leading 0");
                 }
@@ -127,7 +127,7 @@ namespace Tubumu.Utils
         private static int ComputeNetstringLength(int payloadLength)
         {
             // Negative values are special (see nsPayloadLength()); just return it
-            if (payloadLength < 0)
+            if(payloadLength < 0)
             {
                 return payloadLength;
             }
@@ -136,7 +136,7 @@ namespace Tubumu.Utils
             // any value < 10 and just add 1 later (this catches the case where
             // '0' requires a digit.
             var nslen = payloadLength;
-            while (payloadLength >= 10)
+            while(payloadLength >= 10)
             {
                 nslen += 1;
                 payloadLength /= 10;
@@ -149,7 +149,7 @@ namespace Tubumu.Utils
         private Payload ExtractPayload()
         {
             var payloadLength = ExtractPayloadLength(_buffer, _offset);
-            if (payloadLength < 0)
+            if(payloadLength < 0)
             {
                 throw new InvalidDataException("Illegal size field");
             }
@@ -157,7 +157,7 @@ namespace Tubumu.Utils
             var netstringLength = ComputeNetstringLength(payloadLength);
 
             // We don't have the entire buffer yet
-            if (_buffer.Count - _offset - netstringLength < 0)
+            if(_buffer.Count - _offset - netstringLength < 0)
             {
                 throw new InvalidDataException("Don't have the entire buffer yet");
             }

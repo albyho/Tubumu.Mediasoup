@@ -25,10 +25,7 @@ namespace Tubumu.Libuv
 
         public override void Dispose(bool disposing)
         {
-            if(pin != null)
-            {
-                pin.Dispose();
-            }
+            pin?.Dispose();
             pin = null;
         }
 

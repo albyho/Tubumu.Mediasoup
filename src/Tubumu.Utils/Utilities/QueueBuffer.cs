@@ -5,7 +5,7 @@ namespace Tubumu.Utils.Utilities
 {
     public class QueueBuffer
     {
-        private Queue<ArraySegment<byte>> Segments { get; set; }
+        private Queue<ArraySegment<byte>> Segments { get; }
 
         public int Length { get; private set; }
 
@@ -17,7 +17,7 @@ namespace Tubumu.Utils.Utilities
 
         public ArraySegment<byte> Dequeue()
         {
-            if (Segments.TryDequeue(out var item))
+            if(Segments.TryDequeue(out var item))
             {
                 Length -= item.Count;
             }
