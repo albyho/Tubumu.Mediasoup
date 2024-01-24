@@ -10,7 +10,7 @@ namespace Tubumu.Libuv
 
             void end(Exception? exception)
             {
-                if (timer != null)
+                if(timer != null)
                 {
                     timer.Close();
                     timer = null;

@@ -52,13 +52,13 @@ namespace Tubumu.Libuv
         {
             get
             {
-                if (currentLoop != null)
+                if(currentLoop != null)
                 {
                     return currentLoop;
                 }
 
                 var current = SynchronizationContext.Current;
-                if (current is LoopSynchronizationContext context)
+                if(current is LoopSynchronizationContext context)
                 {
                     return context.Loop;
                 }

@@ -11,7 +11,7 @@ namespace Tubumu.Libuv
 
         internal uv_buf_t(IntPtr pointer, int length)
         {
-            if (UV.isUnix)
+            if(UV.isUnix)
             {
                 field0 = pointer;
                 field1 = (IntPtr)length;

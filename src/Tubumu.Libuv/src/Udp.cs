@@ -85,7 +85,7 @@ namespace Tubumu.Libuv
             int r;
             uv_buf_t[] buf = new uv_buf_t[] { new uv_buf_t(ptr, data.Count) };
 
-            if (ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            if(ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 sockaddr_in address = UV.ToStruct(ipEndPoint.Address.ToString(), ipEndPoint.Port);
                 r = uv_udp_send(cpr.Handle, NativeHandle, buf, 1, ref address, CallbackPermaRequest.CallbackDelegate);
@@ -113,12 +113,12 @@ namespace Tubumu.Libuv
         {
             var n = (int)nread;
 
-            if (n == 0)
+            if(n == 0)
             {
                 return;
             }
 
-            if (Message != null)
+            if(Message != null)
             {
                 var ep = UV.GetIPEndPoint(sockaddr, true);
 
@@ -208,13 +208,13 @@ namespace Tubumu.Libuv
             var data = message.Payload;
             var ipEndPoint = message.EndPoint;
 
-            fixed (byte* bytePtr = data.Array)
+            fixed(byte* bytePtr = data.Array)
             {
                 var ptr = (IntPtr)(bytePtr + message.Payload.Offset);
                 int r;
                 var buf = new uv_buf_t[] { new uv_buf_t(ptr, data.Count) };
 
-                if (ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                if(ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 {
                     sockaddr_in address = UV.ToStruct(ipEndPoint.Address.ToString(), ipEndPoint.Port);
                     r = uv_udp_try_send(NativeHandle, buf, 1, ref address);

@@ -38,7 +38,7 @@ namespace Tubumu.Libuv
 
             return (Exception? exception, T? value) =>
             {
-                if (finished)
+                if(finished)
                 {
                     return;
                 }
@@ -47,7 +47,7 @@ namespace Tubumu.Libuv
 
                 callback?.Invoke();
 
-                if (exception != null)
+                if(exception != null)
                 {
                     tcs.SetException(exception);
                 }
@@ -62,7 +62,7 @@ namespace Tubumu.Libuv
         {
             return (Exception? exception) =>
             {
-                if (exception != null)
+                if(exception != null)
                 {
                     tcs.SetException(exception);
                 }
@@ -77,7 +77,7 @@ namespace Tubumu.Libuv
         {
             return (Exception? exception, TResult? result) =>
             {
-                if (exception != null)
+                if(exception != null)
                 {
                     tcs.SetException(exception);
                 }
@@ -98,7 +98,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -115,7 +115,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -132,7 +132,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -149,7 +149,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -166,7 +166,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -183,7 +183,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -200,7 +200,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -215,7 +215,7 @@ namespace Tubumu.Libuv
                 var res = default(TResult);
                 res = func(arg1, (ex) =>
                 {
-                    if (ex == null)
+                    if(ex == null)
                     {
                         tcs.SetResult(res);
                     }
@@ -228,7 +228,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -243,7 +243,7 @@ namespace Tubumu.Libuv
                 var res = default(TResult);
                 res = func(arg1, arg2, (ex) =>
                 {
-                    if (ex == null)
+                    if(ex == null)
                     {
                         tcs.SetResult(res);
                     }
@@ -256,7 +256,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -271,7 +271,7 @@ namespace Tubumu.Libuv
                 var res = default(TResult);
                 res = func(arg1, arg2, arg3, (ex) =>
                 {
-                    if (ex == null)
+                    if(ex == null)
                     {
                         tcs.SetResult(res);
                     }
@@ -284,7 +284,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -301,7 +301,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -318,7 +318,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -335,7 +335,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -352,7 +352,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -369,7 +369,7 @@ namespace Tubumu.Libuv
 				SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }

@@ -25,7 +25,7 @@ namespace Tubumu.Libuv
 
         protected void Dispose(bool disposing)
         {
-            if (GCHandle.IsAllocated)
+            if(GCHandle.IsAllocated)
             {
                 GCHandle.Free();
             }

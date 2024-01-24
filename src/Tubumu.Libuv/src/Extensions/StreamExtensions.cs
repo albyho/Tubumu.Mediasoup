@@ -23,7 +23,7 @@ namespace Tubumu.Libuv.Extensions
 
         public static async Task<string?> ReadStringAsync(this IUVStream<ArraySegment<byte>> stream, Encoding encoding)
         {
-            if (encoding == null)
+            if(encoding == null)
             {
                 throw new ArgumentNullException(nameof(encoding));
             }
@@ -41,7 +41,7 @@ namespace Tubumu.Libuv.Extensions
 
         public static string? GetString(this Encoding encoding, ArraySegment<byte>? segment)
         {
-            if (!segment.HasValue)
+            if(!segment.HasValue)
             {
                 return null;
             }

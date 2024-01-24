@@ -45,7 +45,7 @@ namespace Tubumu.Libuv.Threading.Tasks
                 stream.Data += data;
                 stream.Resume();
             }
-            catch (Exception e)
+            catch(Exception e)
             {
                 finish(e, null);
             }

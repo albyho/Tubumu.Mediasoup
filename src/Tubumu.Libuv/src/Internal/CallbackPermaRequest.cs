@@ -27,7 +27,7 @@ namespace Tubumu.Libuv
         public static void StaticEnd(IntPtr ptr, int status)
         {
             var obj = GetObject<CallbackPermaRequest>(ptr);
-            if (obj == null)
+            if(obj == null)
             {
                 throw new Exception("Target is null");
             }

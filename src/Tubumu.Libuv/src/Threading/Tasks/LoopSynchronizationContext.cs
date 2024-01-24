@@ -23,7 +23,7 @@ namespace Tubumu.Libuv.Threading.Tasks
 
         public override void Post(SendOrPostCallback d, object? state)
         {
-            if (Thread == Thread.CurrentThread)
+            if(Thread == Thread.CurrentThread)
             {
                 d(state);
             }

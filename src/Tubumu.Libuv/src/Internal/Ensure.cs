@@ -9,14 +9,14 @@ namespace Tubumu.Libuv
         internal static Exception? Map(int systemErrorCode, string? name = null)
         {
             // no error, just return null
-            if (!(systemErrorCode < 0))
+            if(!(systemErrorCode < 0))
             {
                 return null;
             }
 
             // map some error codes
             var errorCode = UVException.Map(systemErrorCode);
-            switch (errorCode)
+            switch(errorCode)
             {
                 case UVErrorCode.EINVAL:
                     return new ArgumentException(UVException.StringError(systemErrorCode));
@@ -38,10 +38,10 @@ namespace Tubumu.Libuv
 
         public static void Success(int errorCode)
         {
-            if (errorCode < 0)
+            if(errorCode < 0)
             {
                 var e = Map(errorCode);
-                if (e != null)
+                if(e != null)
                 {
                     throw e;
                 }
@@ -60,7 +60,7 @@ namespace Tubumu.Libuv
 
         public static void ArgumentNotNull(object argumentValue, string argumentName)
         {
-            if (argumentValue == null)
+            if(argumentValue == null)
             {
                 throw new ArgumentNullException(argumentName);
             }
@@ -68,7 +68,7 @@ namespace Tubumu.Libuv
 
         public static void AddressFamily(IPAddress ipAddress)
         {
-            if (ipAddress.AddressFamily is not System.Net.Sockets.AddressFamily.InterNetwork and
+            if(ipAddress.AddressFamily is not System.Net.Sockets.AddressFamily.InterNetwork and
                 not System.Net.Sockets.AddressFamily.InterNetworkV6)
             {
                 throw new ArgumentException("ipAddress has to be of AddressFamily InterNetwork or InterNetworkV6");

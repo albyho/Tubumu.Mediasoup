@@ -16,15 +16,15 @@ namespace Tubumu.Libuv.Threading.Tasks
             {
                 tcs.SetResult(listener.Accept());
             }
-            catch (UVException ex)
+            catch(UVException ex)
             {
-                if (ex.ErrorCode != UVErrorCode.EAGAIN)
+                if(ex.ErrorCode != UVErrorCode.EAGAIN)
                 {
                     tcs.SetException(ex);
                 }
             }
 
-            if (tcs.Task.IsCompleted)
+            if(tcs.Task.IsCompleted)
             {
                 return tcs.Task;
             }
@@ -37,7 +37,7 @@ namespace Tubumu.Libuv.Threading.Tasks
                 {
                     finish?.Invoke(null, listener.Accept());
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     finish?.Invoke(ex, default);
                 }

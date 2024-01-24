@@ -20,13 +20,13 @@ namespace Tubumu.Libuv.Threading.Tasks
                     {
                         action();
                     }
-                    catch (Exception e)
+                    catch(Exception e)
                     {
                         exception = e;
                     }
                 }, () =>
                 {
-                    if (exception == null)
+                    if(exception == null)
                     {
                         tcs.SetResult(null);
                     }
@@ -36,7 +36,7 @@ namespace Tubumu.Libuv.Threading.Tasks
                     }
                 });
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -59,13 +59,13 @@ namespace Tubumu.Libuv.Threading.Tasks
                     {
                         res = action();
                     }
-                    catch (Exception e)
+                    catch(Exception e)
                     {
                         exception = e;
                     }
                 }, () =>
                 {
-                    if (exception == null)
+                    if(exception == null)
                     {
                         tcs.SetResult(res);
                     }
@@ -75,7 +75,7 @@ namespace Tubumu.Libuv.Threading.Tasks
                     }
                 });
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 tcs.SetException(ex);
             }

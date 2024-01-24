@@ -48,16 +48,16 @@ namespace Tubumu.Libuv
 
         public virtual void Dispose(bool disposing)
         {
-            if (Data != IntPtr.Zero)
+            if(Data != IntPtr.Zero)
             {
-                if (GCHandle.IsAllocated)
+                if(GCHandle.IsAllocated)
                 {
                     GCHandle.Free();
                 }
                 Data = IntPtr.Zero;
             }
 
-            if (Handle != IntPtr.Zero)
+            if(Handle != IntPtr.Zero)
             {
                 UV.Free(Handle);
                 Handle = IntPtr.Zero;

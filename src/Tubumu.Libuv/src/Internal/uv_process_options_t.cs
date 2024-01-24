@@ -66,23 +66,23 @@ namespace Tubumu.Libuv
             uid = 0;
             gid = 0;
 
-            if (options.Detached)
+            if(options.Detached)
             {
                 flags |= (uint)uv_process_flags.UV_PROCESS_DETACHED;
             }
 
-            if (options.WindowsVerbatimArguments)
+            if(options.WindowsVerbatimArguments)
             {
                 flags |= (uint)uv_process_flags.UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS;
             }
 
-            if (options.UID.HasValue)
+            if(options.UID.HasValue)
             {
                 flags |= (uint)uv_process_flags.UV_PROCESS_SETUID;
                 uid = options.GID;
             }
 
-            if (options.GID.HasValue)
+            if(options.GID.HasValue)
             {
                 flags |= (uint)uv_process_flags.UV_PROCESS_SETGID;
                 gid = options.GID;
@@ -91,7 +91,7 @@ namespace Tubumu.Libuv
             exit_cb = Marshal.GetFunctionPointerForDelegate(cb);
 
             stdio_count = options.Streams is null and not UVStream[]? 0 : options.Streams.Count;
-            if (stdio_count == 0)
+            if(stdio_count == 0)
             {
                 stdio = null;
                 return;
@@ -100,22 +100,22 @@ namespace Tubumu.Libuv
             stdio = (uv_stdio_container_stream_t*)Marshal.AllocHGlobal(stdio_count * sizeof(uv_stdio_container_stream_t));
 
             int i = 0;
-            if (options.Streams != null)
+            if(options.Streams != null)
             {
-                foreach (var stream in options.Streams)
+                foreach(var stream in options.Streams)
                 {
                     stdio[i].flags = 0;
-                    if (stream != null)
+                    if(stream != null)
                     {
                         stdio[i].stream = stream.NativeHandle;
-                        if ((stream.readable || stream.writeable) && stream is Pipe)
+                        if((stream.readable || stream.writeable) && stream is Pipe)
                         {
                             stdio[i].flags |= uv_stdio_flags.UV_CREATE_PIPE;
-                            if (stream.readable)
+                            if(stream.readable)
                             {
                                 stdio[i].flags |= uv_stdio_flags.UV_READABLE_PIPE;
                             }
-                            if (stream.writeable)
+                            if(stream.writeable)
                             {
                                 stdio[i].flags |= uv_stdio_flags.UV_WRITABLE_PIPE;
                             }
@@ -140,7 +140,7 @@ namespace Tubumu.Libuv
 
         public void Dispose()
         {
-            if (file != IntPtr.Zero)
+            if(file != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(file);
                 file = IntPtr.Zero;
@@ -149,13 +149,13 @@ namespace Tubumu.Libuv
             free(ref args);
             free(ref env);
 
-            if (stdio != null)
+            if(stdio != null)
             {
                 Marshal.FreeHGlobal((IntPtr)stdio);
                 stdio = null;
             }
 
-            if (cwd != IntPtr.Zero)
+            if(cwd != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(file);
                 cwd = IntPtr.Zero;
@@ -164,13 +164,13 @@ namespace Tubumu.Libuv
 
         private static IntPtr alloc(string[] args)
         {
-            if (args == null)
+            if(args == null)
             {
                 return IntPtr.Zero;
             }
 
             var arr = Marshal.AllocHGlobal((args.Length + 1) * sizeof(IntPtr));
-            for (int i = 0; i < args.Length; i++)
+            for(int i = 0; i < args.Length; i++)
             {
                 Marshal.WriteIntPtr(arr, i * sizeof(IntPtr), Marshal.StringToHGlobalAnsi(args[i]));
             }
@@ -180,14 +180,14 @@ namespace Tubumu.Libuv
 
         private static void free(ref IntPtr ptr)
         {
-            if (ptr == IntPtr.Zero)
+            if(ptr == IntPtr.Zero)
             {
                 return;
             }
 
             int i = 0;
             IntPtr p = Marshal.ReadIntPtr(ptr);
-            while (p != IntPtr.Zero)
+            while(p != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(p);
                 i++;

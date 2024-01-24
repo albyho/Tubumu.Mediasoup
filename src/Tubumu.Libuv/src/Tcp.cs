@@ -101,7 +101,7 @@ namespace Tubumu.Libuv
             };
 
             int r;
-            if (ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            if(ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 sockaddr_in address = UV.ToStruct(ipEndPoint.Address.ToString(), ipEndPoint.Port);
                 r = uv_tcp_connect(cpr.Handle, NativeHandle, ref address, CallbackPermaRequest.CallbackDelegate);

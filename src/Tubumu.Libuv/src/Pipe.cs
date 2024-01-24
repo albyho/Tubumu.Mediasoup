@@ -155,11 +155,11 @@ namespace Tubumu.Libuv
         protected override void OnData(ArraySegment<byte> data)
         {
             var count = uv_pipe_pending_count(NativeHandle);
-            if (count-- > 0)
+            if(count-- > 0)
             {
                 var type = uv_pipe_pending_type(NativeHandle);
                 Handle? handle = null;
-                switch (type)
+                switch(type)
                 {
                     case HandleType.UV_UDP:
                         handle = new Udp(Loop);
@@ -173,7 +173,7 @@ namespace Tubumu.Libuv
                         handle = new Pipe(Loop);
                         break;
                 }
-                if (handle != null)
+                if(handle != null)
                 {
                     Invoke(NativeMethods.uv_accept, handle.NativeHandle);
                     OnHandleData(handle, data);
