@@ -82,21 +82,21 @@
             id="localVideo"
             ref="localVideo"
             v-if="!!camProducer"
-            :srcObject.prop="localVideoStream"
+            :srcObject="localVideoStream"
             autoplay
             playsinline
           />
           <video
             v-for="(value, key) in remoteVideoStreams"
             :key="key"
-            :srcObject.prop="value"
+            :srcObject="value"
             autoplay
             playsinline
           />
           <audio
             v-for="(value, key) in remoteAudioStreams"
             :key="key"
-            :srcObject.prop="value"
+            :srcObject="value"
             autoplay
           />
         </el-main>
