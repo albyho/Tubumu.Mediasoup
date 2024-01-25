@@ -120,7 +120,8 @@ namespace Tubumu.Mediasoup
             {
                 if(_closed)
                 {
-                    throw new InvalidStateException("PayloadChannel closed");
+                    BufferPool.Return(bufferBuilder);
+                    throw new InvalidStateException("Channel closed");
                 }
 
                 var notificationRequestMessage = CreateNotificationRequestMessage(bufferBuilder, @event, bodyType, bodyOffset, handlerId);
@@ -138,6 +139,7 @@ namespace Tubumu.Mediasoup
             {
                 if(_closed)
                 {
+                    BufferPool.Return(bufferBuilder);
                     throw new InvalidStateException("Channel closed");
                 }
 
