@@ -173,7 +173,7 @@ namespace Tubumu.Mediasoup
                 _channel.OnNotification -= OnNotificationHandle;
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var requestOffset = FBS.Transport.CloseConsumerRequest.Pack(bufferBuilder, new FBS.Transport.CloseConsumerRequestT
                 {
@@ -237,7 +237,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
                 var response = await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_DUMP, null, null, _internal.ConsumerId);
                 var data = response.Value.BodyAsConsumer_DumpResponse().UnPack();
                 return data;
@@ -258,7 +258,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
                 var response = await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_GET_STATS, null, null, _internal.ConsumerId);
                 var stats = response.Value.BodyAsConsumer_GetStatsResponse().UnPack().Stats;
                 return stats;
@@ -284,7 +284,7 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused || ProducerPaused;
 
-                    var bufferBuilder = new FlatBufferBuilder(1024);
+                    var bufferBuilder = _channel.BufferPool.Get();
 
                     // Fire and forget
                     _channel.RequestAsync(bufferBuilder, Method.CONSUMER_PAUSE, null, null, _internal.ConsumerId)
@@ -328,7 +328,7 @@ namespace Tubumu.Mediasoup
                 {
                     var wasPaused = _paused || ProducerPaused;
 
-                    var bufferBuilder = new FlatBufferBuilder(1024);
+                    var bufferBuilder = _channel.BufferPool.Get();
 
                     // Fire and forget
                     _channel.RequestAsync(bufferBuilder, Method.CONSUMER_RESUME, null, null, _internal.ConsumerId)
@@ -368,7 +368,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var setPreferredLayersRequestOffset = SetPreferredLayersRequest.Pack(bufferBuilder, setPreferredLayersRequest);
 
@@ -398,7 +398,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Consumer closed");
                 }
 
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var setPriorityRequestOffset = SetPriorityRequest.Pack(bufferBuilder, setPriorityRequest);
 
@@ -443,7 +443,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_REQUEST_KEY_FRAME,
                     null,
@@ -467,7 +467,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var request = new EnableTraceEventRequestT
                 {

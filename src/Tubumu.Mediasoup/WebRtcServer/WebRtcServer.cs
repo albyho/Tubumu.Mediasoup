@@ -97,7 +97,7 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var closeWebRtcServerRequest = new FBS.Worker.CloseWebRtcServerRequestT
                 {
@@ -178,7 +178,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.WEBRTCSERVER_DUMP,
                     null,

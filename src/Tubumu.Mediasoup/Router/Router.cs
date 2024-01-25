@@ -139,7 +139,7 @@ namespace Tubumu.Mediasoup
                 _closed = true;
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var closeRouterRequest = new FBS.Worker.CloseRouterRequestT
                 {
@@ -203,7 +203,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.ROUTER_DUMP, null, null, _internal.RouterId);
                 var data = response.Value.BodyAsRouter_DumpResponse().UnPack();
@@ -312,7 +312,7 @@ namespace Tubumu.Mediasoup
                 var transportId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var createWebRtcTransportRequest = new CreateWebRtcTransportRequestT
                 {
@@ -410,7 +410,7 @@ namespace Tubumu.Mediasoup
                 var transportId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var createPlainTransportRequest = new CreatePlainTransportRequestT
                 {
@@ -502,7 +502,7 @@ namespace Tubumu.Mediasoup
                 var transportId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var createPipeTransportRequest = new CreatePipeTransportRequestT
                 {
@@ -584,7 +584,7 @@ namespace Tubumu.Mediasoup
                 var transportId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var createDirectTransportRequest = new CreateDirectTransportRequestT
                 {
@@ -984,7 +984,7 @@ namespace Tubumu.Mediasoup
                 var rtpObserverId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var createActiveSpeakerObserverRequest = new CreateActiveSpeakerObserverRequestT
                 {
@@ -1039,7 +1039,7 @@ namespace Tubumu.Mediasoup
                 var rtpObserverId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var createAudioLevelObserverRequest = new CreateAudioLevelObserverRequestT
                 {

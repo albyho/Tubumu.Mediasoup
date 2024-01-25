@@ -136,7 +136,7 @@ namespace Tubumu.Mediasoup
                 _channel.OnNotification -= OnNotificationHandle;
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var closeDataConsumerRequest = new FBS.Transport.CloseDataConsumerRequestT
                 {
@@ -202,7 +202,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_DUMP,
                     null,
@@ -230,7 +230,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_GET_STATS,
                     null,
@@ -259,7 +259,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 /* Ignore Response. */
                 _ = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE,
@@ -294,7 +294,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE,
                     null,
@@ -330,7 +330,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var setBufferedAmountLowThresholdRequest = new SetBufferedAmountLowThresholdRequestT
                 {
@@ -418,7 +418,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var sendRequest = new SendRequestT
                 {
@@ -453,7 +453,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_GET_BUFFERED_AMOUNT,
                     null,
@@ -481,7 +481,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var setSubchannelsRequest = new SetSubchannelsRequestT
                 {
@@ -517,7 +517,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var addSubchannelsRequest = new AddSubchannelRequestT
                 {
@@ -553,7 +553,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var removeSubchannelsRequest = new RemoveSubchannelRequestT
                 {

@@ -110,7 +110,7 @@ namespace Tubumu.Mediasoup
                 Channel.OnNotification -= OnNotificationHandle;
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var closeRtpObserverRequest = new FBS.Router.CloseRtpObserverRequestT
                 {
@@ -179,7 +179,7 @@ namespace Tubumu.Mediasoup
                     var wasPaused = _paused;
 
                     // Build Request
-                    var bufferBuilder = new FlatBufferBuilder(1024);
+                    var bufferBuilder = Channel.BufferPool.Get();
 
                     // Fire and forget
                     Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_PAUSE,
@@ -227,7 +227,7 @@ namespace Tubumu.Mediasoup
                     var wasPaused = _paused;
 
                     // Build Request
-                    var bufferBuilder = new FlatBufferBuilder(1024);
+                    var bufferBuilder = Channel.BufferPool.Get();
 
                     // Fire and forget
                     Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_RESUME,
@@ -276,7 +276,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var addProducerRequest = new FBS.RtpObserver.AddProducerRequestT
                 {
@@ -318,7 +318,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var removeProducerRequest = new FBS.RtpObserver.RemoveProducerRequestT
                 {

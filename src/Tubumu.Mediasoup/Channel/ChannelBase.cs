@@ -10,6 +10,7 @@ using FBS.Request;
 using FBS.Response;
 using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ObjectPool;
 using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
@@ -58,6 +59,14 @@ namespace Tubumu.Mediasoup
 
         #endregion Protected Fields
 
+        #region ObjectPool
+
+        private ObjectPoolProvider _objectPoolProvider = new DefaultObjectPoolProvider();
+
+        public ObjectPool<FlatBufferBuilder> BufferPool { get; }
+
+        #endregion
+
         #region Events
 
         public event Action<string, Event, Notification>? OnNotification;
@@ -68,6 +77,9 @@ namespace Tubumu.Mediasoup
         {
             _logger = logger;
             _workerId = workerId;
+
+            var policy = new FlatBufferBuilderPooledObjectPolicy(1024);
+            BufferPool = _objectPoolProvider.Create(policy);
         }
 
         public async Task CloseAsync()
@@ -361,15 +373,13 @@ namespace Tubumu.Mediasoup
             // Finalizes the buffer and adds a 4 byte prefix with the size of the buffer.
             bufferBuilder.FinishSizePrefixed(messageOffset.Value);
 
-            // Create a new buffer with this data so multiple contiguous flatbuffers
-            // do not point to the builder buffer overriding others info.
-            //var buffer = bufferBuilder.DataBuffer.ToSizedArray();
-
             // Zero copy.
             var buffer = bufferBuilder.DataBuffer.ToArraySegment(bufferBuilder.DataBuffer.Position, bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position);
 
             // Clear the buffer builder so it's reused for the next request.
-            //bufferBuilder.Clear();
+            bufferBuilder.Clear();
+
+            BufferPool.Return(bufferBuilder);
 
             if(buffer.Count > MessageMaxLen)
             {
@@ -386,7 +396,7 @@ namespace Tubumu.Mediasoup
             return requestMessage;
         }
 
-        private static RequestMessage CreateNotificationRequestMessage(
+        private RequestMessage CreateNotificationRequestMessage(
             FlatBufferBuilder bufferBuilder,
             Event @event,
             FBS.Notification.Body? bodyType,
@@ -424,15 +434,13 @@ namespace Tubumu.Mediasoup
             // Finalizes the buffer and adds a 4 byte prefix with the size of the buffer.
             bufferBuilder.FinishSizePrefixed(messageOffset.Value);
 
-            // Create a new buffer with this data so multiple contiguous flatbuffers
-            // do not point to the builder buffer overriding others info.
-            //var buffer = bufferBuilder.DataBuffer.ToSizedArray();
-
             // Zero copy.
             var buffer = bufferBuilder.DataBuffer.ToArraySegment(bufferBuilder.DataBuffer.Position, bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position);
 
             // Clear the buffer builder so it's reused for the next request.
-            //BufferBuilder.Clear();
+            bufferBuilder.Clear();
+
+            BufferPool.Return(bufferBuilder);
 
             if(buffer.Count > MessageMaxLen)
             {

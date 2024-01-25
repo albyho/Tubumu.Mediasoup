@@ -5,12 +5,15 @@ using FBS.Notification;
 using FBS.Request;
 using FBS.Response;
 using Google.FlatBuffers;
+using Microsoft.Extensions.ObjectPool;
 
 namespace Tubumu.Mediasoup
 {
     public interface IChannel
     {
         event Action<string, Event, Notification>? OnNotification;
+
+        ObjectPool<FlatBufferBuilder> BufferPool { get; }
 
         Task CloseAsync();
 

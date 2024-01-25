@@ -114,7 +114,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.WORKER_DUMP);
                 var data = response.Value.BodyAsWorker_DumpResponse().UnPack();
@@ -137,7 +137,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.WORKER_GET_RESOURCE_USAGE);
                 var data = response.Value.BodyAsWorker_ResourceUsageResponse().UnPack();
@@ -166,7 +166,7 @@ namespace Tubumu.Mediasoup
                 var logTagStrings = logTags.Select(m => m.GetEnumMemberValue()).ToList();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var updateSettingsRequestT = new UpdateSettingsRequestT
                 {
@@ -214,7 +214,7 @@ namespace Tubumu.Mediasoup
                 var webRtcServerId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var createWebRtcServerRequestT = new CreateWebRtcServerRequestT
                 {
@@ -282,7 +282,7 @@ namespace Tubumu.Mediasoup
                 var routerId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var createRouterRequestT = new CreateRouterRequestT
                 {

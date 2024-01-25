@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="6.0.26" />
     <PackageReference Include="Google.FlatBuffers" Version="23.5.26" />
     <ProjectReference Include="..\Tubumu.Utils\Tubumu.Utils.csproj" />
   </ItemGroup>

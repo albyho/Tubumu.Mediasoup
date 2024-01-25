@@ -170,7 +170,7 @@ namespace Tubumu.Mediasoup
             _channel.OnNotification -= OnNotificationHandle;
 
             // Build Request
-            var bufferBuilder = new FlatBufferBuilder(1024);
+            var bufferBuilder = _channel.BufferPool.Get();
 
             var requestOffset = FBS.Transport.CloseProducerRequest.Pack(bufferBuilder, new FBS.Transport.CloseProducerRequestT
             {
@@ -237,7 +237,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_DUMP, null, null, _internal.ProducerId);
                 var data = response.Value.BodyAsProducer_DumpResponse().UnPack();
@@ -261,7 +261,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_GET_STATS, null, null, _internal.ProducerId);
                 var stats = response.Value.BodyAsProducer_GetStatsResponse().UnPack().Stats;
@@ -290,7 +290,7 @@ namespace Tubumu.Mediasoup
                     var wasPaused = Paused;
 
                     // Build Request
-                    var bufferBuilder = new FlatBufferBuilder(1024);
+                    var bufferBuilder = _channel.BufferPool.Get();
 
                     await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_PAUSE, null, null, _internal.ProducerId);
 
@@ -333,7 +333,7 @@ namespace Tubumu.Mediasoup
                     var wasPaused = Paused;
 
                     // Build Request
-                    var bufferBuilder = new FlatBufferBuilder(1024);
+                    var bufferBuilder = _channel.BufferPool.Get();
 
                     await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_RESUME, null, null, _internal.ProducerId);
 
@@ -371,7 +371,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var requestOffset = EnableTraceEventRequest.Pack(bufferBuilder, new EnableTraceEventRequestT
                 {

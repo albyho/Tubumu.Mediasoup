@@ -107,7 +107,7 @@ namespace Tubumu.Mediasoup
         protected override async Task<object> OnDumpAsync()
         {
             // Build Request
-            var bufferBuilder = new FlatBufferBuilder(1024);
+            var bufferBuilder = Channel.BufferPool.Get();
 
             var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
             var data = response.Value.BodyAsWebRtcTransport_DumpResponse().UnPack();
@@ -121,7 +121,7 @@ namespace Tubumu.Mediasoup
         protected override async Task<object[]> OnGetStatsAsync()
         {
             // Build Request
-            var bufferBuilder = new FlatBufferBuilder(1024);
+            var bufferBuilder = Channel.BufferPool.Get();
 
             var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
             var data = response.Value.BodyAsWebRtcTransport_GetStatsResponse().UnPack();
@@ -142,7 +142,7 @@ namespace Tubumu.Mediasoup
             }
 
             // Build Request
-            var bufferBuilder = new FlatBufferBuilder(1024);
+            var bufferBuilder = Channel.BufferPool.Get();
 
             var connectRequestOffset = ConnectRequest.Pack(bufferBuilder, connectRequestT);
 
@@ -173,7 +173,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_RESTART_ICE,
                      null,

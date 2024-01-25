@@ -113,7 +113,7 @@ namespace Tubumu.Mediasoup
                 //_channel.OnNotification -= OnNotificationHandle;
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var closeDataProducerRequest = new FBS.Transport.CloseDataProducerRequestT
                 {
@@ -177,7 +177,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.DATAPRODUCER_DUMP,
                     null,
@@ -205,7 +205,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.DATAPRODUCER_GET_STATS,
                     null,
@@ -233,7 +233,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE,
                      null,
@@ -267,7 +267,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_RESUME,
                     null,
@@ -348,7 +348,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = _channel.BufferPool.Get();
 
                 var sendNotification = new SendNotificationT
                 {

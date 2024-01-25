@@ -219,7 +219,7 @@ namespace Tubumu.Mediasoup
                 //_channel.OnNotification -= OnNotificationHandle;
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var requestOffset = FBS.Router.CloseTransportRequest.Pack(bufferBuilder, new FBS.Router.CloseTransportRequestT
                 {
@@ -488,7 +488,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var setMaxIncomingBitrateRequest = new SetMaxIncomingBitrateRequestT
                 {
@@ -523,7 +523,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var setMaxOutgoingBitrateRequest = new SetMaxOutgoingBitrateRequestT
                 {
@@ -558,7 +558,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var setMinOutgoingBitrateRequest = new SetMinOutgoingBitrateRequestT
                 {
@@ -652,7 +652,7 @@ namespace Tubumu.Mediasoup
                 var producerId = producerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString());
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var produceRequest = new ProduceRequestT
                 {
@@ -804,7 +804,7 @@ namespace Tubumu.Mediasoup
                 var consumerId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var consumeRequest = new ConsumeRequestT
                 {
@@ -962,7 +962,7 @@ namespace Tubumu.Mediasoup
                 var dataProducerId = dataProducerOptions.Id.NullOrWhiteSpaceReplace(Guid.NewGuid().ToString());
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var dataProduceRequest = new ProduceDataRequestT
                 {
@@ -1115,7 +1115,7 @@ namespace Tubumu.Mediasoup
                 var dataConsumerId = Guid.NewGuid().ToString();
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var consumeDataRequest = new ConsumeDataRequestT
                 {
@@ -1251,7 +1251,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 // Build Request
-                var bufferBuilder = new FlatBufferBuilder(1024);
+                var bufferBuilder = Channel.BufferPool.Get();
 
                 var enableTraceEventRequest = new EnableTraceEventRequestT
                 {
