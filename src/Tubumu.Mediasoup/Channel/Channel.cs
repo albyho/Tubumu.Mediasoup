@@ -27,6 +27,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         private readonly UVStream _consumerSocket;
 
+        // TODO: CircularBuffer
         /// <summary>
         /// Buffer for reading messages from the worker.
         /// </summary>
