@@ -51,7 +51,7 @@ namespace Tubumu.Utils
                 var segment = _segments[segmentIndex];
                 if(segmentIndex == 0)
                 {
-                    // 如果第一段已经有足够的数据来适应 offset
+                    // 如果第一段已经有足够的数据来适应 offset。
                     if(segment.Count > offset)
                     {
                         readSegmentIndex = segmentIndex;
@@ -69,7 +69,7 @@ namespace Tubumu.Utils
                 }
                 else
                 {
-                    // 如果非第一段已经有足够的数据来适应 offset
+                    // 如果非第一段已经有足够的数据来适应 offset。
                     if(peekBytes + segment.Count > offset)
                     {
                         readSegmentIndex = segmentIndex;
@@ -95,7 +95,7 @@ namespace Tubumu.Utils
             do
             {
                 var segment = _segments[readSegmentIndex];
-                // 如果读取以一段，则 readSegmentOffset 可能导致偏移
+                // 如果读取第一段，则 readSegmentOffset 可能导致偏移。
                 int segmentBytesToRead = Math.Min(segment.Count - readSegmentOffset, bytesToRead);
 
                 Array.Copy(segment.Array!, segment.Offset + readSegmentOffset, data, dataWriteOffset, segmentBytesToRead);
@@ -119,7 +119,7 @@ namespace Tubumu.Utils
                 }
 
                 readSegmentIndex++;
-                // 只有第一段可能导致偏移
+                // 只有第一段可能导致偏移。
                 readSegmentOffset = 0;
             } while(bytesToRead > 0);
 
