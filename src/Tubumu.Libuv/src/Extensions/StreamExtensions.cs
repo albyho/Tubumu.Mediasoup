@@ -11,7 +11,7 @@ namespace Tubumu.Libuv.Extensions
 {
     public static class Default
     {
-        public static IPEndPoint IPEndPoint = new(IPAddress.Parse("127.0.0.1"), 7000);
+        public static IPEndPoint IPEndPoint { get; } = new(IPAddress.Parse("127.0.0.1"), 7000);
     }
 
     public static class AsyncExtensions
@@ -27,6 +27,7 @@ namespace Tubumu.Libuv.Extensions
             {
                 throw new ArgumentNullException(nameof(encoding));
             }
+
             var buffer = await stream.ReadStructAsync();
             return buffer.HasValue ? encoding.GetString(buffer.Value) : null;
         }
@@ -65,12 +66,12 @@ namespace Tubumu.Libuv.Extensions
     {
         public static string ToHex(this byte[] bytes)
         {
-            return string.Join(string.Empty, Array.ConvertAll(bytes, x => x.ToString("x2")));
+            return string.Concat(Array.ConvertAll(bytes, x => x.ToString("x2")));
         }
 
         public static string ToHex(this ArraySegment<byte> segment)
         {
-            return string.Join(string.Empty, segment.Select((x) => x.ToString("x2")));
+            return string.Concat(segment.Select((x) => x.ToString("x2")));
         }
     }
 
