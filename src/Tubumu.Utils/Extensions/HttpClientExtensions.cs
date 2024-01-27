@@ -58,7 +58,7 @@ namespace System.Net.Http
             content ??= new StringContent(string.Empty);
             var message = await client.PostAsync(requestUri, content, cancellationToken);
             message.EnsureSuccessStatusCode();
-            var json = await message.Content.ReadAsStringAsync();
+            var json = await message.Content.ReadAsStringAsync(cancellationToken);
 
             return JsonSerializer.Deserialize<T>(json, ObjectExtensions.DefaultJsonSerializerOptions);
         }
@@ -120,7 +120,7 @@ namespace System.Net.Http
         public static Task<T?> PostAsJsonFromJsonAsync<K, T>(this HttpClient client, Uri requestUri, K? obj, CancellationToken cancellationToken)
         {
             StringContent? content = null;
-            if (obj != null)
+            if(obj != null)
             {
                 var json = obj.ToJson();
                 content = new StringContent(json);
@@ -195,7 +195,7 @@ namespace System.Net.Http
             content ??= new StringContent(string.Empty);
             var message = await client.PutAsync(requestUri, content, cancellationToken);
             message.EnsureSuccessStatusCode();
-            var json = await message.Content.ReadAsStringAsync();
+            var json = await message.Content.ReadAsStringAsync(cancellationToken);
 
             return JsonSerializer.Deserialize<T>(json, ObjectExtensions.DefaultJsonSerializerOptions);
         }
@@ -257,7 +257,7 @@ namespace System.Net.Http
         public static Task<T?> PutAsJsonFromJsonAsync<K, T>(this HttpClient client, Uri requestUri, K? obj, CancellationToken cancellationToken)
         {
             StringContent? content = null;
-            if (obj != null)
+            if(obj != null)
             {
                 var json = obj.ToJson();
                 content = new StringContent(json);

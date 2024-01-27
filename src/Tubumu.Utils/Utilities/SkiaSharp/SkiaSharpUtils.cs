@@ -7,9 +7,10 @@ namespace System.IO
     /// SkiaSharp 扩展方法
     /// <see cref="https://github.com/dresdf/PicturesASP/blob/ecd168dace09e5185446107e95f51da08fcefb84/PicturesASP/Utils/ImageProcessor.cs"/>
     /// </summary>
-    public static class SkiaSharpExtensions
+    public static class SkiaSharpUtils
     {
         private const int Quality = 75;
+
         private const int WidthMax = 800;
 
         /// <summary>
@@ -18,7 +19,7 @@ namespace System.IO
         /// <param name="imageStream"></param>
         /// <param name="outputFilePath"></param>
         /// <param name="outputWidth"></param>
-        public static void SaveImage(this Stream imageStream, string outputFilePath, int? outputWidth = null)
+        public static void SaveImage(Stream imageStream, string outputFilePath, int? outputWidth = null)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath)!);
             var format = GetFormat(outputFilePath);
@@ -55,12 +56,12 @@ namespace System.IO
             var format = GetFormat(fileName);
 
             var result = new List<string>();
-            using (var inputStream = new SKManagedStream(imageStream))
-            using (var codec = SKCodec.Create(inputStream))
-            using (var original = SKBitmap.Decode(codec))
-            using (var image = HandleOrientation(original, codec.EncodedOrigin))
+            using(var inputStream = new SKManagedStream(imageStream))
+            using(var codec = SKCodec.Create(inputStream))
+            using(var original = SKBitmap.Decode(codec))
+            using(var image = HandleOrientation(original, codec.EncodedOrigin))
             {
-                foreach (var width in widths)
+                foreach(var width in widths)
                 {
                     var height = (int)Math.Round(width * ((float)image.Height / image.Width));
 
@@ -76,17 +77,18 @@ namespace System.IO
                          .SaveTo(fs);
                 }
             }
+
             return result.ToArray();
         }
 
         private static SKBitmap HandleOrientation(SKBitmap bitmap, SKEncodedOrigin orientation)
         {
             SKBitmap rotated;
-            switch (orientation)
+            switch(orientation)
             {
                 case SKEncodedOrigin.BottomRight:
 
-                    using (var surface = new SKCanvas(bitmap))
+                    using(var surface = new SKCanvas(bitmap))
                     {
                         surface.RotateDegrees(180, bitmap.Width / 2, bitmap.Height / 2);
                         surface.DrawBitmap(bitmap.Copy(), 0, 0);
@@ -97,7 +99,7 @@ namespace System.IO
                 case SKEncodedOrigin.RightTop:
                     rotated = new SKBitmap(bitmap.Height, bitmap.Width);
 
-                    using (var surface = new SKCanvas(rotated))
+                    using(var surface = new SKCanvas(rotated))
                     {
                         surface.Translate(rotated.Width, 0);
                         surface.RotateDegrees(90);
@@ -109,7 +111,7 @@ namespace System.IO
                 case SKEncodedOrigin.LeftBottom:
                     rotated = new SKBitmap(bitmap.Height, bitmap.Width);
 
-                    using (var surface = new SKCanvas(rotated))
+                    using(var surface = new SKCanvas(rotated))
                     {
                         surface.Translate(0, rotated.Height);
                         surface.RotateDegrees(270);
@@ -136,7 +138,7 @@ namespace System.IO
         {
             string ext = Path.GetExtension(fileName.ToLowerInvariant());
 
-            switch (ext)
+            switch(ext)
             {
                 case ".gif":
                     return SKEncodedImageFormat.Gif;

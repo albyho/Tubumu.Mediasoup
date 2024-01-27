@@ -23,11 +23,12 @@ namespace System.Net
             var x = 3;
             var v = 0;
             var bytes = ip.GetAddressBytes();
-            for (int i = 0; i < bytes.Length; i++)
+            for(int i = 0; i < bytes.Length; i++)
             {
                 var f = bytes[i];
                 v += f << (8 * x--);
             }
+
             return v;
         }
 
@@ -41,11 +42,12 @@ namespace System.Net
             var x = 3;
             var v = 0L;
             var bytes = ip.GetAddressBytes();
-            for (var i = 0; i < bytes.Length; i++)
+            for(var i = 0; i < bytes.Length; i++)
             {
                 var f = bytes[i];
                 v += (long)f << (8 * x--);
             }
+
             return v;
         }
 
@@ -57,10 +59,11 @@ namespace System.Net
         public static IPAddress ToIPAddress(this int ip)
         {
             var bytes = new byte[4];
-            for (var i = 0; i < 4; i++)
+            for(var i = 0; i < 4; i++)
             {
                 bytes[3 - i] = (byte)((ip >> (8 * i)) & 255);
             }
+
             return new IPAddress(bytes);
         }
 
@@ -72,10 +75,11 @@ namespace System.Net
         public static IPAddress ToIPAddress(this long ip)
         {
             var bytes = new byte[4];
-            for (var i = 0; i < 4; i++)
+            for(var i = 0; i < 4; i++)
             {
                 bytes[3 - i] = (byte)((ip >> (8 * i)) & 255);
             }
+
             return new IPAddress(bytes);
         }
 
@@ -104,7 +108,6 @@ namespace System.Net
         /// <summary>
         /// 获取一个本机的 IPv4 地址
         /// </summary>
-        /// <param name="addressFamily"></param>
         /// <returns></returns>
         public static IPAddress? GetLocalIPv4IPAddress()
         {

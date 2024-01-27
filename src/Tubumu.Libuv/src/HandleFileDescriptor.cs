@@ -43,7 +43,7 @@ namespace Tubumu.Libuv
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern int uv_pipe_open(IntPtr handle, int fd);
 
-        public int Open(Func<IntPtr, int, int> unix, Func<IntPtr, IntPtr, int> windows, IntPtr handle, IntPtr fileDescriptor)
+        public static int Open(Func<IntPtr, int, int> unix, Func<IntPtr, IntPtr, int> windows, IntPtr handle, IntPtr fileDescriptor)
         {
             return UV.IsUnix ? unix(handle, fileDescriptor.ToInt32()) : windows(handle, fileDescriptor);
         }

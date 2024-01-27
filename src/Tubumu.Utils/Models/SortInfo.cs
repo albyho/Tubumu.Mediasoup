@@ -41,7 +41,7 @@ namespace Tubumu.Utils.Models
         /// <returns></returns>
         public static bool IsValid(this IEnumerable<SortInfo> sortInfos)
         {
-            return sortInfos != null && sortInfos.All(m => m.IsValid());
+            return sortInfos?.All(m => m.IsValid()) == true;
         }
     }
 

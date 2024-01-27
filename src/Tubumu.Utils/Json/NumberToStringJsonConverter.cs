@@ -3,27 +3,26 @@ using System.Buffers.Text;
 
 namespace System.Text.Json.Serialization
 {
+    /// <summary>
+    /// 处理整数和 JSON 数据类型不匹配的问题
+    /// </summary>
     public class NumberToStringJsonConverter : JsonConverter<string>
     {
-        public NumberToStringJsonConverter() { }
-
         public override string Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
         {
-            if (reader.TokenType != JsonTokenType.Number && type == typeof(string))
+            if(reader.TokenType != JsonTokenType.Number && type == typeof(string))
             {
-#pragma warning disable CS8603 // Possible null reference return.
-                return reader.GetString();
-#pragma warning restore CS8603 // Possible null reference return.
+                return reader.GetString()!;
             }
 
             var span = reader.HasValueSequence ? reader.ValueSequence.ToArray() : reader.ValueSpan;
 
-            if (Utf8Parser.TryParse(span, out long longNumber, out var longBytesConsumed) && span.Length == longBytesConsumed)
+            if(Utf8Parser.TryParse(span, out long longNumber, out var longBytesConsumed) && span.Length == longBytesConsumed)
             {
                 return longNumber.ToString();
             }
 
-            if (Utf8Parser.TryParse(span, out ulong ulongNumber, out var ulongBytesConsumed) && span.Length == ulongBytesConsumed)
+            if(Utf8Parser.TryParse(span, out ulong ulongNumber, out var ulongBytesConsumed) && span.Length == ulongBytesConsumed)
             {
                 return ulongNumber.ToString();
             }
@@ -38,7 +37,7 @@ namespace System.Text.Json.Serialization
 
         public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value.ToString());
+            writer.WriteStringValue(value);
         }
     }
 }

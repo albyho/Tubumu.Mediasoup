@@ -3,6 +3,7 @@
     public static class FileSizeExtensions
     {
         private const double FileSizeMod = 1024.0;
+
         private static readonly string[] FileSizeUnits = new[] { "", "K", "M", "G", "T", "P" };
 
         public static string ToFloatFileSize(this int size)
@@ -14,7 +15,7 @@
         {
             double fSize = size;
             var i = 0;
-            while (fSize >= FileSizeMod)
+            while(fSize >= FileSizeMod)
             {
                 fSize /= FileSizeMod;
                 i++;
@@ -32,7 +33,7 @@
         {
             double fSize = size;
             var i = 0;
-            while (fSize >= FileSizeMod)
+            while(fSize >= FileSizeMod)
             {
                 fSize /= FileSizeMod;
                 i++;

@@ -16,11 +16,12 @@ namespace System.Collections.Generic
         /// <param name="action">要对枚举器的每个元素执行的委托</param>
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
-            if (source == null || action == null)
+            if(source == null || action == null)
             {
                 return;
             }
-            foreach (var item in source)
+
+            foreach(var item in source)
             {
                 action(item);
             }
@@ -34,7 +35,7 @@ namespace System.Collections.Generic
         /// <returns>true:枚举器是null或者没有任何元素 false:枚举器不为null并且包含至少一个元素</returns>
         public static bool IsNullOrEmpty<T>(this IEnumerable<T>? source)
         {
-            return source == null || !source.Any();
+            return source?.Any() != true;
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace System.Collections.Generic
         /// <param name="oldValue">查找字符串</param>
         /// <param name="newValue">替换字符串</param>
         /// <returns>新的String型序列</returns>
-        public static IEnumerable<string> Replace(IEnumerable<string> source, string oldValue, string newValue)
+        public static IEnumerable<string> Replace(this IEnumerable<string> source, string oldValue, string newValue)
         {
             return source.Select(format => format.Replace(oldValue, newValue));
         }

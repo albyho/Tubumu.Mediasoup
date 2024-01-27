@@ -59,6 +59,7 @@ namespace System.Threading.Tasks
                 {
                     throw new TimeoutException();
                 }
+
                 cancelled();
             }
 
@@ -151,7 +152,7 @@ namespace System.Threading.Tasks
             return TrySetFromTask(resultSetter, (Task)task);
         }
 
-        public static Task<T> FromResult<T>(T value)
+        public static Task<T> FromResult<T>(this T value)
         {
             var tcs = new TaskCompletionSource<T>();
             tcs.SetResult(value);
@@ -166,7 +167,7 @@ namespace System.Threading.Tasks
         public static TaskCompletionSource<TResult> WithTimeout<TResult>(this TaskCompletionSource<TResult> taskCompletionSource, TimeSpan timeout, Action? cancelled)
         {
             Timer? timer = null;
-            timer = new Timer(state =>
+            timer = new Timer(_ =>
             {
                 timer?.Dispose();
                 if(taskCompletionSource.Task.Status != TaskStatus.RanToCompletion)
@@ -186,7 +187,7 @@ namespace System.Threading.Tasks
         /// <typeparam name="TResult">Generic param</typeparam>
         /// <param name="taskCompletionSource">tcs</param>
         /// <param name="result">result</param>
-        public static void TrySetResultAsync<TResult>(this TaskCompletionSource<TResult> taskCompletionSource, TResult result)
+        public static void TrySetResult<TResult>(this TaskCompletionSource<TResult> taskCompletionSource, TResult result)
         {
             Task.Factory.StartNew(() => taskCompletionSource.TrySetResult(result), CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
         }

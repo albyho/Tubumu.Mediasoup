@@ -13,10 +13,10 @@ namespace Tubumu.Utils.Utilities.Security
         /// Constructor
         /// </summary>
         /// <param name="codeLength"></param>
-        /// <param name="validateCode"></param>
+        /// <param name="validationCode"></param>
         public ValidationCodeCreater(int codeLength, out string? validationCode)
         {
-            if (codeLength < 1)
+            if(codeLength < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(codeLength));
             }
@@ -29,13 +29,13 @@ namespace Tubumu.Utils.Utilities.Security
         /// </summary>
         /// <param name="codeLength"></param>
         /// <returns></returns>
-        public string? CreateValidationCode(int codeLength)
+        public static string? CreateValidationCode(int codeLength)
         {
-            var chars = "1234567890qwertyuipasdfghjklzxcvbnm";
+            const string chars = "1234567890qwertyuipasdfghjklzxcvbnm";
             var rand = new Random(Guid.NewGuid().GetHashCode());
 
             string? result = null;
-            for (int i = 0; i < codeLength; i++)
+            for(int i = 0; i < codeLength; i++)
             {
                 var r = rand.Next(chars.Length);
 
@@ -48,24 +48,25 @@ namespace Tubumu.Utils.Utilities.Security
         /// <summary>
         /// 创建验证码的图片
         /// </summary>
-        public byte[] CreateValidationCodeGraphic(string validationCode)
+        public static byte[] CreateValidationCodeGraphic(string validationCode)
         {
-            if (validationCode.IsNullOrWhiteSpace())
+            if(validationCode.IsNullOrWhiteSpace())
             {
                 throw new Exception($"验证码参数 {nameof(validationCode)} 为空。");
             }
+
             var rand = new Random(Guid.NewGuid().GetHashCode());
 
-            var randAngle = 40;
+            const int randAngle = 40;
             var mapWidth = validationCode.Length * 18;
-            var mapHeight = 28;
+            const int mapHeight = 28;
 
             using var bitmap = new SKBitmap(mapWidth, mapHeight);
             using var canvas = new SKCanvas(bitmap);
             canvas.Clear(SKColors.AliceBlue);
 
             var paint = new SKPaint() { Color = SKColors.LightGray, };
-            for (int i = 0; i < 50; i++)
+            for(int i = 0; i < 50; i++)
             {
                 int x = rand.Next(0, bitmap.Width);
                 int y = rand.Next(0, bitmap.Height);
@@ -85,7 +86,7 @@ namespace Tubumu.Utils.Utilities.Security
 
             canvas.Translate(-4, 0);
 
-            for (var i = 0; i < chars.Length; i++)
+            for(var i = 0; i < chars.Length; i++)
             {
                 var colorIndex = rand.Next(colors.Length);
                 var fontIndex = rand.Next(fonts.Length);

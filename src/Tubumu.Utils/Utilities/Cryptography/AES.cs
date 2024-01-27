@@ -12,6 +12,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
     public static class AES
     {
         private const string DefaultKey = "$uqn.atko@5!7%8*"; // 16 Bytes
+
         private static readonly byte[] DefaultIV = { 0x96, 0x47, 0x22, 0x18, 0x69, 0xCB, 0xDA, 0xFE, 0xAC, 0xBE, 0x85, 0x71, 0x23, 0x18, 0x39, 0x67 };
 
         #region 加密
@@ -38,14 +39,11 @@ namespace Tubumu.Utils.Utilities.Cryptography
             aes.Key = EnsureKey(key);
             aes.IV = DefaultIV;
 
-            byte[] cipherBytes;
             using var ms = new MemoryStream();
             using var cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(inputByteArray, 0, inputByteArray.Length);
             cs.FlushFinalBlock();
-            cipherBytes = ms.ToArray();
-
-            return cipherBytes;
+            return ms.ToArray();
         }
 
         /// <summary>
@@ -74,7 +72,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
             cs.FlushFinalBlock();
 
             return ms.ToArray();
-
         }
 
         /// <summary>
@@ -214,6 +211,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             {
                 return Array.Empty<byte>();
             }
+
             var buffer = new byte[hexString.Length / 2];
             for(int i = 0; i < buffer.Length; i++)
             {

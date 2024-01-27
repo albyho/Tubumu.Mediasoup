@@ -77,7 +77,7 @@ namespace Tubumu.Mediasoup
                     }
                 default:
                     {
-                        _logger.LogError($"OnNotificationHandle() | Ignoring unknown event{@event}");
+                        _logger.LogError("OnNotificationHandle() | Ignoring unknown event: {Event}", @event);
                         break;
                     }
             }

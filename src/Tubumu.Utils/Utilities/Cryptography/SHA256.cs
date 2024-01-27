@@ -16,11 +16,12 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <returns></returns>
         public static string Encrypt(string rawString, string salt)
         {
-            if (rawString == null)
+            if(rawString == null)
             {
                 throw new ArgumentNullException(nameof(rawString));
             }
-            if (salt == null)
+
+            if(salt == null)
             {
                 throw new ArgumentNullException(nameof(salt));
             }
@@ -36,14 +37,16 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <returns></returns>
         public static byte[] EncryptToByteArray(string rawString, string salt)
         {
-            if (rawString == null)
+            if(rawString == null)
             {
                 throw new ArgumentNullException(nameof(rawString));
             }
-            if (salt == null)
+
+            if(salt == null)
             {
                 throw new ArgumentNullException(nameof(salt));
             }
+
             var salted = Encoding.UTF8.GetBytes(string.Concat(rawString, salt));
             var hasher = System.Security.Cryptography.SHA256.Create();
             var hashed = hasher.ComputeHash(salted);

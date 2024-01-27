@@ -60,46 +60,20 @@
         /// <returns></returns>
         public static long DateDiff(this DateTime endDate, DateInterval interval, DateTime startDate)
         {
-            long lngDateDiffValue;
             var timeSpan = new TimeSpan(endDate.Ticks - startDate.Ticks);
-            switch (interval)
+
+            return interval switch
             {
-                case DateInterval.Second:
-                    lngDateDiffValue = (long)timeSpan.TotalSeconds;
-                    break;
-
-                case DateInterval.Minute:
-                    lngDateDiffValue = (long)timeSpan.TotalMinutes;
-                    break;
-
-                case DateInterval.Hour:
-                    lngDateDiffValue = (long)timeSpan.TotalHours;
-                    break;
-
-                case DateInterval.Day:
-                    lngDateDiffValue = (long)timeSpan.Days;
-                    break;
-
-                case DateInterval.Week:
-                    lngDateDiffValue = (long)(timeSpan.Days / 7);
-                    break;
-
-                case DateInterval.Month:
-                    lngDateDiffValue = (long)(timeSpan.Days / 30);
-                    break;
-
-                case DateInterval.Quarter:
-                    lngDateDiffValue = (long)(timeSpan.Days / 30 / 3);
-                    break;
-
-                case DateInterval.Year:
-                    lngDateDiffValue = (long)(timeSpan.Days / 365);
-                    break;
-
-                default:
-                    throw new NotImplementedException(interval.ToString());
-            }
-            return lngDateDiffValue;
+                DateInterval.Second => (long)timeSpan.TotalSeconds,
+                DateInterval.Minute => (long)timeSpan.TotalMinutes,
+                DateInterval.Hour => (long)timeSpan.TotalHours,
+                DateInterval.Day => (long)timeSpan.Days,
+                DateInterval.Week => (long)(timeSpan.Days / 7),
+                DateInterval.Month => (long)(timeSpan.Days / 30),
+                DateInterval.Quarter => (long)(timeSpan.Days / 30 / 3),
+                DateInterval.Year => (long)(timeSpan.Days / 365),
+                _ => throw new NotImplementedException(interval.ToString()),
+            };
         }
 
         /// <summary>

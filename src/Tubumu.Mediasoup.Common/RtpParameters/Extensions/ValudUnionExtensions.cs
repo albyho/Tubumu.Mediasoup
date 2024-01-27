@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using FBS.RtpParameters;
-using SixLabors.ImageSharp.Metadata.Profiles.Iptc;
 
 namespace Tubumu.Mediasoup
 {
@@ -49,6 +48,7 @@ namespace Tubumu.Mediasoup
                                 };
                                 return result;
                             }
+
                             if(element.TryGetDouble(out double doubleValue))
                             {
                                 result.Type = Value.Double;
@@ -58,6 +58,7 @@ namespace Tubumu.Mediasoup
                                 };
                                 return result;
                             }
+
                             if(element.TryGetSingle(out float floatValue))
                             {
                                 result.Type = Value.Double;
@@ -158,7 +159,7 @@ namespace Tubumu.Mediasoup
             if(value is IEnumerable<int> intEnumerableValue)
             {
                 result.Type = Value.Integer32Array;
-                result.Value_ = intEnumerableValue.Select(m=> new Integer32T
+                result.Value_ = intEnumerableValue.Select(m => new Integer32T
                 {
                     Value = (int)value,
                 }).ToArray();

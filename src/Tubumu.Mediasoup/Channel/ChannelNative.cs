@@ -70,7 +70,7 @@ namespace Tubumu.Mediasoup
                 throw new Exception("Channel request failed. Invalid length.");
             }
 
-            var messageBytesHandle = GCHandle.Alloc(requestMessage!.Payload.Array!, GCHandleType.Pinned);
+            var messageBytesHandle = GCHandle.Alloc(requestMessage!.Payload.Array, GCHandleType.Pinned);
             //var messagePtr = (IntPtr)(messageBytesHandle.AddrOfPinnedObject().ToInt64() + requestMessage!.Payload.Offset);
             //var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(requestMessage!.Payload.Array!, 0);
 

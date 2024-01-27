@@ -23,25 +23,26 @@ namespace System
         public static T GetValueByDescription<T>(this string description) where T : Enum
         {
             var type = typeof(T);
-            foreach (var field in type.GetFields())
+            foreach(var field in type.GetFields())
             {
                 var curDesc = field.GetDescriptAttributes();
-                if (curDesc != null && curDesc.Length > 0)
+                if(curDesc?.Length > 0)
                 {
-                    if (curDesc[0].Description == description)
+                    if(curDesc[0].Description == description)
                     {
                         return (T)field.GetValue(null)!;
                     }
                 }
                 else
                 {
-                    if (field.Name == description)
+                    if(field.Name == description)
                     {
                         return (T)field.GetValue(null)!;
                     }
                 }
             }
-            throw new ArgumentException($"{description} 未能找到对应的枚举.", "Description");
+
+            throw new ArgumentException("未能找到对应的枚举.", nameof(description));
         }
 
         /// <summary>
@@ -62,17 +63,13 @@ namespace System
         public static string GetDescription(this Enum enumValue)
         {
             var type = enumValue.GetType();
-            var enumName = Enum.GetName(type, enumValue);
-            if (enumName == null)
-            {
-                throw new NotSupportedException();
-            }
+            var enumName = Enum.GetName(type, enumValue) ?? throw new NotSupportedException();
 
             var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault();
-            if (attribute != null)
+            if(attribute != null)
             {
                 var displayName = ((DisplayAttribute)attribute).Name;
-                if (displayName != null)
+                if(displayName != null)
                 {
                     return displayName;
                 }
@@ -115,17 +112,13 @@ namespace System
         public static string GetDisplayName(this Enum enumValue)
         {
             var type = enumValue.GetType();
-            var enumName = Enum.GetName(type, enumValue);
-            if (enumName == null)
-            {
-                throw new NotSupportedException();
-            }
+            var enumName = Enum.GetName(type, enumValue) ?? throw new NotSupportedException();
 
             var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault();
-            if (attribute != null)
+            if(attribute != null)
             {
                 var displayName = ((DisplayAttribute)attribute).Name;
-                if (displayName != null)
+                if(displayName != null)
                 {
                     return displayName;
                 }
@@ -168,17 +161,13 @@ namespace System
         public static string GetEnumMemberValue(this Enum enumValue)
         {
             var type = enumValue.GetType();
-            var enumName = Enum.GetName(type, enumValue);
-            if (enumName == null)
-            {
-                throw new NotSupportedException();
-            }
+            var enumName = Enum.GetName(type, enumValue) ?? throw new NotSupportedException();
 
             var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(EnumMemberAttribute), false).FirstOrDefault();
-            if (attribute != null)
+            if(attribute != null)
             {
                 var value = ((EnumMemberAttribute)attribute).Value;
-                if (value != null)
+                if(value != null)
                 {
                     return value;
                 }

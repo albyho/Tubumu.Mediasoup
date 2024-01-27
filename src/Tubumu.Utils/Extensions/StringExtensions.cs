@@ -122,17 +122,18 @@ namespace System
         /// <returns></returns>
         public static string Repeat(this string source, int times)
         {
-            if (string.IsNullOrEmpty(source) || times <= 0)
+            if(string.IsNullOrEmpty(source) || times <= 0)
             {
                 return source;
             }
 
             var sb = new StringBuilder();
-            while (times > 0)
+            while(times > 0)
             {
                 sb.Append(source);
                 times--;
             }
+
             return sb.ToString();
         }
 

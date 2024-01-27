@@ -7,7 +7,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
-using Tubumu.Utils.FastReflection;
 
 namespace System
 {
@@ -48,73 +47,6 @@ namespace System
             return string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, DefaultJsonSerializerOptions);
         }
 
-        /// <summary>
-        /// 创建一个新的类型的对象，并将现有对象的属性值赋给新对象相同名称的属性
-        /// </summary>
-        /// <typeparam name="T">新对象的类型</typeparam>
-        /// <param name="source">现有对象</param>
-        /// <returns>新的对象</returns>
-        public static T? ToModel<T>(this object source) where T : new()
-        {
-            if (source == null)
-            {
-                return default;
-            }
-
-            var target = new T();
-
-            return UpdateFrom(target, source);
-        }
-
-        /// <summary>
-        /// 将目标对象的属性值赋给源对象相同名称的属性
-        /// </summary>
-        /// <typeparam name="T">泛型类型参数</typeparam>
-        /// <param name="source">源对象</param>
-        /// <param name="target">目标对象</param>
-        /// <returns>源对象</returns>
-        public static T? UpdateFrom<T>(this T source, object target)
-        {
-            if (source == null)
-            {
-                return default;
-            }
-
-            if (target == null)
-            {
-                return source;
-            }
-
-            Type type = typeof(T);
-
-            foreach (PropertyDescriptor targetPropertyDescriptor in TypeDescriptor.GetProperties(target))
-            {
-                var sourcePropertyInfo = type.GetProperty(targetPropertyDescriptor.Name, BindingFlags.Instance | BindingFlags.Public);
-                if (sourcePropertyInfo != null && sourcePropertyInfo.CanWrite)
-                {
-                    var targetPropertyAccessor = new PropertyAccessor(sourcePropertyInfo);
-                    var value = targetPropertyDescriptor.GetValue(target);
-                    if (value != null)
-                    {
-                        if (sourcePropertyInfo.PropertyType.IsEnum)
-                        {
-                            targetPropertyAccessor.SetValue(source, Enum.ToObject(sourcePropertyInfo.PropertyType, value));
-                        }
-                        else
-                        {
-                            targetPropertyAccessor.SetValue(source, value);
-                        }
-                    }
-                    else
-                    {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-                        targetPropertyAccessor.SetValue(source, null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-                    }
-                }
-            }
-            return source;
-        }
 
         /// <summary>
         /// XML 反序列化

@@ -9,6 +9,7 @@ namespace System.Text.Json.Serialization
     public class JsonStringEnumMemberConverter : JsonConverterFactory
     {
         private readonly JsonNamingPolicy? _namingPolicy;
+
         private readonly bool _allowIntegerValues;
 
         /// <summary>

@@ -61,7 +61,7 @@ namespace Tubumu.Mediasoup
 
         #region ObjectPool
 
-        private ObjectPoolProvider _objectPoolProvider = new DefaultObjectPoolProvider();
+        private readonly ObjectPoolProvider _objectPoolProvider = new DefaultObjectPoolProvider();
 
         public ObjectPool<FlatBufferBuilder> BufferPool { get; }
 
@@ -348,7 +348,7 @@ namespace Tubumu.Mediasoup
             string? handlerId
         )
         {
-            var id = InterlockedExtensions.Increment(ref _nextId);
+            var id = _nextId.Increment();
 
             var handlerIdOffset = bufferBuilder.CreateString(handlerId ?? "");
 

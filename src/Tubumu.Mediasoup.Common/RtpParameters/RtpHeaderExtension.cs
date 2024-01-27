@@ -4,14 +4,17 @@ using FBS.RtpParameters;
 namespace Tubumu.Mediasoup
 {
     /// <summary>
+    /// <para>
     /// Provides information relating to supported header extensions. The list of
     /// RTP header extensions supported by mediasoup is defined in the
     /// supportedRtpCapabilities.ts file.
-    ///
+    /// </para>
+    /// <para>
     /// mediasoup does not currently support encrypted RTP header extensions. The
     /// direction field is just present in mediasoup RTP capabilities (retrieved via
     /// router.rtpCapabilities or mediasoup.getSupportedRtpCapabilities()). It's
     /// ignored if present in endpoints' RTP capabilities.
+    /// </para>
     /// </summary>
     [Serializable]
     public class RtpHeaderExtension

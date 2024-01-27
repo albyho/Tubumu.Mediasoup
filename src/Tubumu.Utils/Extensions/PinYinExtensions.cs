@@ -6,7 +6,7 @@ namespace System
     /// 拼音扩展方法
     /// </summary>
     public static class PinYinExtensions
-	{
+    {
         /// <summary>
         /// 获取全拼
         /// </summary>
@@ -15,9 +15,9 @@ namespace System
         public static string ConvertToPinYin(this string source)
         {
             var pinYin = "";
-            foreach (var item in source)
+            foreach(var item in source)
             {
-                if (ChineseChar.IsValidChar(item))
+                if(ChineseChar.IsValidChar(item))
                 {
                     var cc = new ChineseChar(item);
                     //PYstr += string.Join("", cc.Pinyins.ToArray());
@@ -29,6 +29,7 @@ namespace System
                     pinYin += item.ToString();
                 }
             }
+
             return pinYin;
         }
 
@@ -41,9 +42,9 @@ namespace System
         {
             var pinYin = "";
             var py = "";
-            foreach (char item in source)
+            foreach(char item in source)
             {
-                if (ChineseChar.IsValidChar(item))
+                if(ChineseChar.IsValidChar(item))
                 {
                     var cc = new ChineseChar(item);
                     var pinYinString = cc.Pinyins[0][0..^1].ToLowerInvariant();
@@ -57,6 +58,7 @@ namespace System
                     py += charString;
                 }
             }
+
             return (pinYin, py);
         }
 
@@ -68,9 +70,9 @@ namespace System
         public static string ConvertToPY(this string source)
         {
             string py = "";
-            foreach (char item in source)
+            foreach(char item in source)
             {
-                if (ChineseChar.IsValidChar(item))
+                if(ChineseChar.IsValidChar(item))
                 {
                     var cc = new ChineseChar(item);
                     py += cc.Pinyins[0][..1].ToLowerInvariant();
@@ -81,8 +83,8 @@ namespace System
                     py += charString;
                 }
             }
+
             return py;
         }
     }
 }
-

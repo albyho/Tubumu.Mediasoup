@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Force.DeepCloner;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Tubumu.Libuv;
 using Tubumu.Mediasoup;
-using Force.DeepCloner;
-using System.Collections.Generic;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -35,7 +35,7 @@ namespace Microsoft.AspNetCore.Builder
                             worker.On("@success", async (_, _) =>
                             {
                                 mediasoupServer.AddWorker(worker);
-                                logger.LogInformation($"Worker[{threadId}] create success.");
+                                logger.LogInformation("Worker[{ThreadId}] create success.", threadId);
                                 if(mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
                                 {
                                     await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
@@ -62,7 +62,7 @@ namespace Microsoft.AspNetCore.Builder
                             worker.On("@success", async (_, _) =>
                             {
                                 mediasoupServer.AddWorker(worker);
-                                logger.LogInformation($"Worker[{worker.ProcessId}] create success.");
+                                logger.LogInformation("Worker[{ProcessId}] create success.", worker.ProcessId);
                                 if(mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
                                 {
                                     await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
