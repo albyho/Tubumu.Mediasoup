@@ -161,7 +161,7 @@ namespace Tubumu.Mediasoup
                 result.Type = Value.Integer32Array;
                 result.Value_ = intEnumerableValue.Select(m => new Integer32T
                 {
-                    Value = (int)value,
+                    Value = m,
                 }).ToArray();
                 return result;
             }
