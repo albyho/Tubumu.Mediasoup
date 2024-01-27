@@ -78,6 +78,7 @@ namespace Tubumu.Mediasoup
             {
                 result = Parameters.DeepGetHashCode() ^ result;
             }
+
             return result;
         }
     }

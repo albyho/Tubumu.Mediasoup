@@ -1073,10 +1073,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// key 要么都存在于 a 和 b，要么都不存在于 a 和 b。
         /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         private static bool CheckDirectoryValueEquals(IDictionary<string, object> a, IDictionary<string, object> b, string key)
         {
             if(a != null && b != null)

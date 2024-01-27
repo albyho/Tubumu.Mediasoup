@@ -161,14 +161,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newdataproducer - (dataProducer: DataProducer)</para>
         /// <para>@emits newdataconsumer - (dataProducer: DataProducer)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="getRouterRtpCapabilities"></param>
-        /// <param name="getProducerById"></param>
-        /// <param name="getDataProducerById"></param>
         protected Transport(
             ILoggerFactory loggerFactory,
             TransportInternal internal_,
@@ -379,7 +371,6 @@ namespace Tubumu.Mediasoup
         /// Listen server was closed (this just happens in WebRtcTransports when their
         /// associated WebRtcServer is closed).
         /// </summary>
-        /// <returns></returns>
         public async Task ListenServerClosedAsync()
         {
             using(await CloseLock.WriteLockAsync())
@@ -452,8 +443,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Provide the Transport remote parameters.
         /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         public async Task ConnectAsync(object parameters)
         {
             _logger.LogDebug("ConnectAsync() | TransportId:{TransportId}", TransportId);
@@ -474,8 +463,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set maximum incoming bitrate for receiving media.
         /// </summary>
-        /// <param name="bitrate"></param>
-        /// <returns></returns>
         public virtual async Task SetMaxIncomingBitrateAsync(uint bitrate)
         {
             _logger.LogDebug("SetMaxIncomingBitrateAsync() | TransportId:{TransportId} Bitrate:{Bitrate}", TransportId, bitrate);
@@ -509,8 +496,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set maximum outgoing bitrate for sending media.
         /// </summary>
-        /// <param name="bitrate"></param>
-        /// <returns></returns>
         public virtual async Task SetMaxOutgoingBitrateAsync(uint bitrate)
         {
             _logger.LogDebug("SetMaxOutgoingBitrateAsync() | TransportId:{TransportId} Bitrate:{Bitrate}", TransportId, bitrate);
@@ -544,8 +529,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set minimum outgoing bitrate for sending media.
         /// </summary>
-        /// <param name="bitrate"></param>
-        /// <returns></returns>
         public virtual async Task SetMinOutgoingBitrateAsync(uint bitrate)
         {
             _logger.LogDebug("SetMinOutgoingBitrateAsync() | TransportId:{TransportId} Bitrate:{bitrate}", TransportId, bitrate);
@@ -737,8 +720,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a Consumer.
         /// </summary>
-        /// <param name="consumerOptions"></param>
-        /// <returns></returns>
         public virtual async Task<Consumer> ConsumeAsync(ConsumerOptions consumerOptions)
         {
             _logger.LogDebug("ConsumeAsync() | TransportId:{TransportId}", TransportId);
@@ -750,7 +731,7 @@ namespace Tubumu.Mediasoup
 
             if(consumerOptions.RtpCapabilities == null)
             {
-                throw new ArgumentNullException($"{nameof(consumerOptions.RtpCapabilities)} can't be null or white space.");
+                throw new ArgumentException($"{nameof(consumerOptions.RtpCapabilities)} can't be null or white space.");
             }
 
             // Don't use `consumerOptions.Mid?.Length == 0`
@@ -911,7 +892,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a DataProducer.
         /// </summary>
-        /// <returns></returns>
         public async Task<DataProducer> ProduceDataAsync(DataProducerOptions dataProducerOptions)
         {
             _logger.LogDebug("ProduceDataAsync() | TransportId:{TransportId}", TransportId);
@@ -1048,8 +1028,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a DataConsumer.
         /// </summary>
-        /// <param name="dataConsumerOptions"></param>
-        /// <returns></returns>
         public async Task<DataConsumer> ConsumeDataAsync(DataConsumerOptions dataConsumerOptions)
         {
             _logger.LogDebug("ConsumeDataAsync() | TransportId:{TransportId}", TransportId);
@@ -1237,8 +1215,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Enable 'trace' event.
         /// </summary>
-        /// <param name="types"></param>
-        /// <returns></returns>
         public async Task EnableTraceEventAsync(List<TraceEventType> types)
         {
             _logger.LogDebug("EnableTraceEventAsync() | Transport:{TransportId}", TransportId);

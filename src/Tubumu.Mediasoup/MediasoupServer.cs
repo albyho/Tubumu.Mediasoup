@@ -22,7 +22,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Get a cloned copy of the mediasoup supported RTP capabilities.
         /// </summary>
-        /// <returns></returns>
         public static RtpCapabilities GetSupportedRtpCapabilities()
         {
             return RtpCapabilities.SupportedRtpCapabilities.DeepClone();
@@ -31,7 +30,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Get next mediasoup Worker.
         /// </summary>
-        /// <returns></returns>
         public IWorker GetWorker()
         {
             _workersLock.EnterReadLock();
@@ -63,7 +61,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Add worker.
         /// </summary>
-        /// <param name="worker"></param>
         public void AddWorker(IWorker worker)
         {
             if(worker == null)

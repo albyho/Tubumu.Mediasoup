@@ -16,10 +16,6 @@ namespace NPOI
         /// <summary>
         /// 从某个单元格中复制数字
         /// </summary>
-        /// <param name="row"></param>
-        /// <param name="cellName"></param>
-        /// <param name="sourceRow"></param>
-        /// <param name="sourceCellName"></param>
         public static void NumericValueCopy(this IRow row, string cellName, IRow sourceRow, string sourceCellName)
         {
             var numericValue = sourceRow.GetCellByName(sourceCellName).NumericCellValue;
@@ -29,10 +25,6 @@ namespace NPOI
         /// <summary>
         /// 从某个单元格中复制字符串
         /// </summary>
-        /// <param name="row"></param>
-        /// <param name="cellName"></param>
-        /// <param name="sourceRow"></param>
-        /// <param name="sourceCellName"></param>
         public static void StringValueCopy(this IRow row, string cellName, IRow sourceRow, string sourceCellName)
         {
             var stringValue = sourceRow.GetCellByName(sourceCellName).StringCellValue;
@@ -42,17 +34,13 @@ namespace NPOI
         /// <summary>
         /// 从某个单元格中复制值
         /// </summary>
-        /// <param name="row"></param>
-        /// <param name="cellName"></param>
-        /// <param name="sourceRow"></param>
-        /// <param name="sourceCellName"></param>
         public static void ValueCopy(this IRow row, string cellName, IRow sourceRow, string sourceCellName)
         {
             // 注意：1、只支持基于数字的公式 2、公式计算出数字值 3、空白当做数字读取
             var sourceCell = sourceRow.GetCellByName(sourceCellName);
             var targetCell = row.GetCellByName(cellName);
 
-            switch (sourceCell.CellType)
+            switch(sourceCell.CellType)
             {
                 case CellType.Numeric:
                     targetCell.SetCellValue(sourceCell.NumericCellValue);
@@ -80,7 +68,6 @@ namespace NPOI
         /// </summary>
         /// <param name="row">行</param>
         /// <param name="name">列名</param>
-        /// <returns></returns>
         public static ICell GetCellByName(this IRow row, string name)
         {
             return row.GetCell(FromNumberSystem26(name) - 1);
@@ -94,10 +81,10 @@ namespace NPOI
         public static string ToNumberSystem26(int n)
         {
             var s = string.Empty;
-            while (n > 0)
+            while(n > 0)
             {
                 int m = n % 26;
-                if (m == 0)
+                if(m == 0)
                 {
                     m = 26;
                 }
@@ -105,6 +92,7 @@ namespace NPOI
                 s = (char)(m + 64) + s;
                 n = (n - m) / 26;
             }
+
             return s;
         }
 
@@ -115,75 +103,68 @@ namespace NPOI
         /// <returns>自然数。</returns>
         public static int FromNumberSystem26(string s)
         {
-            if (string.IsNullOrEmpty(s))
+            if(string.IsNullOrEmpty(s))
             {
                 return 0;
             }
 
             var n = 0;
-            for (int i = s.Length - 1, j = 1; i >= 0; i--, j *= 26)
+            for(int i = s.Length - 1, j = 1; i >= 0; i--, j *= 26)
             {
                 var c = char.ToUpper(s[i]);
-                if (c is < 'A' or > 'Z')
+                if(c is < 'A' or > 'Z')
                 {
                     return 0;
                 }
 
                 n += (c - 64) * j;
             }
+
             return n;
         }
 
         /// <summary>
         /// 获取严格的单元格范围
         /// </summary>
-        /// <param name="sheet"></param>
-        /// <param name="rowNum"></param>
-        /// <param name="colNum"></param>
-        /// <returns></returns>
         public static CellRangeAddress? GetStrictCellRangeAddress(this ISheet sheet, int rowNum, int colNum)
         {
             var regionsCount = sheet.NumMergedRegions;
-            for (var i = 0; i < regionsCount; i++)
+            for(var i = 0; i < regionsCount; i++)
             {
                 CellRangeAddress range = sheet.GetMergedRegion(i);
                 //sheet.IsMergedRegion(range);
-                if (range.FirstRow == rowNum && range.FirstColumn == colNum)
+                if(range.FirstRow == rowNum && range.FirstColumn == colNum)
                 {
                     //int rowSpan = range.LastRow - range.FirstRow + 1;
                     //int colSpan = range.LastColumn - range.FirstColumn + 1;
                     return range;
                 }
             }
+
             return null;
         }
 
         /// <summary>
         /// 获取单元格范围
         /// </summary>
-        /// <param name="sheet"></param>
-        /// <param name="rowNum"></param>
-        /// <param name="colNum"></param>
-        /// <returns></returns>
         public static CellRangeAddress? GetCellRangeAddress(this ISheet sheet, int rowNum, int colNum)
         {
             var regionsCount = sheet.NumMergedRegions;
-            for (var i = 0; i < regionsCount; i++)
+            for(var i = 0; i < regionsCount; i++)
             {
                 CellRangeAddress range = sheet.GetMergedRegion(i);
-                if (range.FirstRow >= rowNum && range.FirstColumn <= colNum)
+                if(range.FirstRow >= rowNum && range.FirstColumn <= colNum)
                 {
                     return range;
                 }
             }
+
             return null;
         }
 
         /// <summary>
         /// 单位文件
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
         public static IWorkbook OpenExcelFile(string path)
         {
             IWorkbook book;
@@ -191,20 +172,19 @@ namespace NPOI
             {
                 book = new XSSFWorkbook(path);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Debug.WriteLine($"OpenExecelFile failure | {ex.Message}");
                 var file = new FileStream(path, FileMode.Open, FileAccess.Read);
                 book = new HSSFWorkbook(file);
             }
+
             return book;
         }
 
         /// <summary>
         /// 保存文件
         /// </summary>
-        /// <param name="wb"></param>
-        /// <param name="outPath"></param>
         public static void SaveExcelFile(this IWorkbook wb, string outPath)
         {
             using var fs = new FileStream(outPath, FileMode.Create, FileAccess.Write);

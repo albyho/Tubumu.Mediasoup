@@ -101,11 +101,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newtransport - (transport: Transport)</para>
         /// <para>@emits newrtpobserver - (rtpObserver: RtpObserver)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
         public Router(ILoggerFactory loggerFactory,
             RouterInternal internal_,
             RouterData data,
@@ -236,7 +231,6 @@ namespace Tubumu.Mediasoup
             // and enableTcp. Otherwise set them if unset.
             if(webRtcServer != null)
             {
-
                 webRtcTransportOptions.EnableUdp ??= true;
                 webRtcTransportOptions.EnableTcp ??= true;
             }
@@ -550,8 +544,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a DirectTransport.
         /// </summary>
-        /// <param name="directTransportOptions"></param>
-        /// <returns></returns>
         public async Task<DirectTransport> CreateDirectTransportAsync(DirectTransportOptions directTransportOptions)
         {
             _logger.LogDebug("CreateDirectTransportAsync()");
@@ -697,7 +689,7 @@ namespace Tubumu.Mediasoup
         /// Pipes the given Producer or DataProducer into another Router in same host.
         /// </summary>
         /// <param name="pipeToRouterOptions">ListenIp 传入 127.0.0.1, EnableSrtp 传入 true 。</param>
-        /// <returns></returns>
+        ///
         public async Task<PipeToRouterResult> PipeToRouteAsync(PipeToRouterOptions pipeToRouterOptions)
         {
             using(await _closeLock.ReadLockAsync())

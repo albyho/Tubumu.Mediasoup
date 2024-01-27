@@ -40,12 +40,15 @@ namespace Tubumu.Mediasoup
         public string? DtlsPrivateKeyFile { get; set; }
 
         /// <summary>
+        /// <para>
         /// Field trials for libwebrtc.
         /// @private
-        ///
+        /// </para>
+        /// <para>
         /// NOTE: For advanced users only. An invalid value will make the worker crash.
         /// Default value is
         /// "WebRTC-Bwe-AlrLimitedBackoff/Enabled/".
+        /// </para>
         /// </summary>
         public string? LibwebrtcFieldTrials { get; set; }
 

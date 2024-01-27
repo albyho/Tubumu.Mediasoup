@@ -28,14 +28,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newdataconsumer - (dataProducer: DataProducer)</para>
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="getRouterRtpCapabilities"></param>
-        /// <param name="getProducerById"></param>
-        /// <param name="getDataProducerById"></param>
         public DirectTransport(
             ILoggerFactory loggerFactory,
             TransportInternal internal_,
@@ -65,7 +57,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Close the DirectTransport.
         /// </summary>
-        /// <returns></returns>
         protected override Task OnCloseAsync()
         {
             // Do nothing
@@ -111,8 +102,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// NO-OP method in DirectTransport.
         /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         protected override Task OnConnectAsync(object parameters)
         {
             return Task.CompletedTask;
@@ -121,8 +110,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set maximum incoming bitrate for receiving media.
         /// </summary>
-        /// <param name="bitrate"></param>
-        /// <returns></returns>
         public override Task<string> SetMaxIncomingBitrateAsync(uint bitrate)
         {
             _logger.LogError("SetMaxIncomingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}", TransportId, TransportId);
@@ -132,8 +119,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set maximum outgoing bitrate for sending media.
         /// </summary>
-        /// <param name="bitrate"></param>
-        /// <returns></returns>
         public override Task<string> SetMaxOutgoingBitrateAsync(uint bitrate)
         {
             _logger.LogError("SetMaxOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}", TransportId, TransportId);
@@ -143,8 +128,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set minimum outgoing bitrate for sending media.
         /// </summary>
-        /// <param name="bitrate"></param>
-        /// <returns></returns>
         public override Task<string> SetMinOutgoingBitrateAsync(uint bitrate)
         {
             _logger.LogError("SetMinOutgoingBitrateAsync() | DiectTransport:{TransportId} Bitrate:{bitrate}", TransportId, TransportId);
@@ -163,8 +146,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Create a Consumer.
         /// </summary>
-        /// <param name="consumerOptions"></param>
-        /// <returns></returns>
         public override Task<Consumer> ConsumeAsync(ConsumerOptions consumerOptions)
         {
             _logger.LogError("ConsumeAsync() | DiectTransport:{TransportId}", TransportId);

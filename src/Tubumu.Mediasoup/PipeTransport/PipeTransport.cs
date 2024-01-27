@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
 using FBS.Notification;
 using FBS.PipeTransport;
 using FBS.Request;
 using FBS.Transport;
-using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 
 namespace Tubumu.Mediasoup
@@ -41,14 +39,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits sctpstatechange - (sctpState: SctpState)</para>
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="getRouterRtpCapabilities"></param>
-        /// <param name="getProducerById"></param>
-        /// <param name="getDataProducerById"></param>
         public PipeTransport(
             ILoggerFactory loggerFactory,
             TransportInternal internal_,
@@ -130,8 +120,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Provide the PipeTransport remote parameters.
         /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
         protected override async Task OnConnectAsync(object parameters)
         {
             _logger.LogDebug("OnConnectAsync() | PipeTransport:{TransportId}", TransportId);
@@ -162,7 +150,6 @@ namespace Tubumu.Mediasoup
         /// Create a Consumer.
         /// </summary>
         /// <param name="consumerOptions">注意：由于强类型的原因，这里使用的是 ConsumerOptions 类而不是 PipConsumerOptions 类</param>
-        /// <returns></returns>
         public override async Task<Consumer> ConsumeAsync(ConsumerOptions consumerOptions)
         {
             _logger.LogDebug("ConsumeAsync()");

@@ -66,11 +66,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits addproducer - (producer: Producer)</para>
         /// <para>@emits removeproducer - (producer: Producer)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="getProducerById"></param>
         protected RtpObserver(
             ILoggerFactory loggerFactory,
             RtpObserverInternal internal_,

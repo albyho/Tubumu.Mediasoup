@@ -12,8 +12,6 @@ namespace Tubumu.Utils.Utilities.Security
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="codeLength"></param>
-        /// <param name="validationCode"></param>
         public ValidationCodeCreater(int codeLength, out string? validationCode)
         {
             if(codeLength < 1)
@@ -27,8 +25,6 @@ namespace Tubumu.Utils.Utilities.Security
         /// <summary>
         /// CreateValidationCode
         /// </summary>
-        /// <param name="codeLength"></param>
-        /// <returns></returns>
         public static string? CreateValidationCode(int codeLength)
         {
             const string chars = "1234567890qwertyuipasdfghjklzxcvbnm";

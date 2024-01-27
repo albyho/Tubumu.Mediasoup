@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FBS.DataProducer;
 using FBS.Notification;
 using FBS.Request;
-using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -67,12 +66,6 @@ namespace Tubumu.Mediasoup
         /// <para>Observer events:</para>
         /// <para>@emits close</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="paused"></param>
-        /// <param name="appData"></param>
         public DataProducer(
             ILoggerFactory loggerFactory,
             DataProducerInternal internal_,

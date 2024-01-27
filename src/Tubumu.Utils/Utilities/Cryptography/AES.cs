@@ -20,11 +20,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// 字节数组 - 字节数组
         /// </summary>
-        /// <param name="inputByteArray"></param>
-        /// <param name="padding"></param>
-        /// <param name="mode"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static byte[] EncryptFromByteArrayToByteArray(byte[] inputByteArray, PaddingMode padding, CipherMode mode, string? key = null)
         {
             if(inputByteArray == null)
@@ -49,9 +44,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// 字节数组 - 字节数组
         /// </summary>
-        /// <param name="inputByteArray"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static byte[] EncryptFromByteArrayToByteArray(byte[] inputByteArray, string? key = null)
         {
             if(inputByteArray == null)
@@ -77,9 +69,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// 字符串 - 字节数组
         /// </summary>
-        /// <param name="encryptString"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static byte[] EncryptFromStringToByteArray(string encryptString, string? key = null)
         {
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
@@ -90,9 +79,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// 字符串 - 16进制
         /// </summary>
-        /// <param name="encryptString"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static string EncryptFromStringToHex(string encryptString, string? key = null, bool lower = false)
         {
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
@@ -109,9 +95,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// 字符串 - Base64
         /// </summary>
-        /// <param name="encryptString"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static string EncryptFromStringToBase64(string encryptString, string? key = null)
         {
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
@@ -127,9 +110,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// 字节数组 - 字节数组
         /// </summary>
-        /// <param name="inputByteArray"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static byte[] DecryptFromByteArrayToByteArray(byte[] inputByteArray, string? key = null)
         {
             if(inputByteArray == null)
@@ -154,9 +134,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// 字符串 - 字节数组
         /// </summary>
-        /// <param name="decryptString"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static byte[] DecryptFromHexToByteArray(string decryptString, string? key = null)
         {
             if(decryptString == null)
@@ -172,9 +149,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// 字符串 - 字符串
         /// </summary>
-        /// <param name="decryptString"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static string DecryptFromHexToString(string decryptString, string? key = null)
         {
             var buffer = ByteArrayFromHexString(decryptString);
@@ -186,9 +160,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// Base64字符串 - 字节数组
         /// </summary>
-        /// <param name="decryptString"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static byte[] DecryptFromBase64ToByteArray(string decryptString, string? key = null)
         {
             if(decryptString == null)

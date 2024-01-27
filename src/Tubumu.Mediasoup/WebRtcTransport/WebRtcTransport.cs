@@ -40,18 +40,10 @@ namespace Tubumu.Mediasoup
         /// <para>@emits sctpstatechange - (sctpState: SctpState)</para>
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="getRouterRtpCapabilities"></param>
-        /// <param name="getProducerById"></param>
-        /// <param name="getDataProducerById"></param>
         public WebRtcTransport(
             ILoggerFactory loggerFactory,
             TransportInternal internal_,
-            FBS.WebRtcTransport.DumpResponseT data,
+            DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<RtpCapabilities> getRouterRtpCapabilities,

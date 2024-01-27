@@ -42,8 +42,6 @@ namespace System.Collections.Generic
         /// 判断指定的集合是否为 null 或没有任何元素
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static bool IsNullOrEmpty<T>(this ICollection<T>? source)
         {
             return source == null || source.Count == 0;
@@ -53,8 +51,6 @@ namespace System.Collections.Generic
         /// 判断指定的数组是否为 null 或没有任何元素
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static bool IsNullOrEmpty<T>(this T[]? source)
         {
             return source == null || source.Length == 0;
@@ -77,7 +73,7 @@ namespace System.Collections.Generic
         /// </summary>
         /// <typeparam name="T">类型参数</typeparam>
         /// <param name="source">源序列</param>
-        /// <returns></returns>
+        ///
         public static IList<T> ToReadOnlyCollection<T>(this IEnumerable<T> source)
         {
             return new ReadOnlyCollection<T>(source.ToList());

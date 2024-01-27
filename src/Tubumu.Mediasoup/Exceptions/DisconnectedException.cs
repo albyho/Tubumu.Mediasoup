@@ -9,5 +9,9 @@
         public DisconnectedException(string message, Exception innerException) : base(message, innerException)
         {
         }
+
+        public DisconnectedException()
+        {
+        }
     }
 }

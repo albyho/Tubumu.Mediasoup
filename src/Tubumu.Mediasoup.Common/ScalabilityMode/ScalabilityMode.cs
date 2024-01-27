@@ -29,8 +29,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Parses the given scalabilityMode string according to the rules in webrtc-svc.
         /// </summary>
-        /// <param name="scalabilityMode"></param>
-        /// <returns></returns>
         public static ScalabilityMode Parse(string scalabilityMode)
         {
             var match = ScalabilityModeRegex.Match(scalabilityMode);

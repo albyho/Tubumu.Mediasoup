@@ -16,8 +16,6 @@ namespace System.Net
         /// IPAddress 转 Int32
         /// <para>NOTE: 可能产生负数</para>
         /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
         public static int ToInt32(this IPAddress ip)
         {
             var x = 3;
@@ -35,8 +33,6 @@ namespace System.Net
         /// <summary>
         /// IPAddress 转 Int64
         /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
         public static long ToInt64(this IPAddress ip)
         {
             var x = 3;
@@ -54,8 +50,6 @@ namespace System.Net
         /// <summary>
         /// Int32 转 IPAddress
         /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
         public static IPAddress ToIPAddress(this int ip)
         {
             var bytes = new byte[4];
@@ -70,8 +64,6 @@ namespace System.Net
         /// <summary>
         /// Int64 转 IPAddress
         /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
         public static IPAddress ToIPAddress(this long ip)
         {
             var bytes = new byte[4];
@@ -86,8 +78,6 @@ namespace System.Net
         /// <summary>
         /// 是否 IPv4 格式
         /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
         public static bool IsIPv4(this string ip)
         {
             return !ip.IsNullOrWhiteSpace() && ip.Length >= 7 && ip.Length <= 15 && IpV4Regex.IsMatch(ip);
@@ -96,8 +86,6 @@ namespace System.Net
         /// <summary>
         /// 获取本机 IP 地址
         /// </summary>
-        /// <param name="addressFamily"></param>
-        /// <returns></returns>
         public static IEnumerable<IPAddress> GetLocalIPAddresses(AddressFamily? addressFamily = null)
         {
             var ips = new List<IPAddress>();
@@ -108,7 +96,6 @@ namespace System.Net
         /// <summary>
         /// 获取一个本机的 IPv4 地址
         /// </summary>
-        /// <returns></returns>
         public static IPAddress? GetLocalIPv4IPAddress()
         {
             return GetLocalIPAddresses(AddressFamily.InterNetwork).FirstOrDefault(m => !IPAddress.IsLoopback(m));

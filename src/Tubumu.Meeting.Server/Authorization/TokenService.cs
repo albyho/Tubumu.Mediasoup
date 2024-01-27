@@ -16,17 +16,18 @@ namespace Tubumu.Meeting.Server.Authorization
     public class TokenService : ITokenService
     {
         private readonly JwtSecurityTokenHandler _tokenHandler = new();
+
         private readonly TokenValidationSettings _tokenValidationSettings;
+
         private readonly IDistributedCache _cache;
+
         private readonly ILogger<TokenService> _logger;
+
         private const string CacheKeyFormat = "RefreshToken:{0}";
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="tokenValidationSettings"></param>
-        /// <param name="cache"></param>
-        /// <param name="logger"></param>
         public TokenService(
             TokenValidationSettings tokenValidationSettings,
             IDistributedCache cache,
@@ -41,8 +42,6 @@ namespace Tubumu.Meeting.Server.Authorization
         /// <summary>
         /// 生成 Access Token
         /// </summary>
-        /// <param name="claims"></param>
-        /// <returns></returns>
         public string GenerateAccessToken(IEnumerable<Claim> claims)
         {
             var utcNow = DateTime.UtcNow;
@@ -61,7 +60,7 @@ namespace Tubumu.Meeting.Server.Authorization
         /// <summary>
         /// 生成 Refresh Token
         /// </summary>
-        /// <returns></returns>
+        ///
         public Task<string> GenerateRefreshTokenAsync(int userId)
         {
             var randomNumber = new byte[32];
@@ -79,8 +78,6 @@ namespace Tubumu.Meeting.Server.Authorization
         /// <summary>
         /// 获取 Refresh Token
         /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
         public Task<string> GetRefreshTokenAsync(int userId)
         {
             var cacheKey = CacheKeyFormat.FormatWith(userId);
@@ -90,8 +87,6 @@ namespace Tubumu.Meeting.Server.Authorization
         /// <summary>
         /// 废弃 Refresh Token
         /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
         public Task RevokeRefreshTokenAsync(int userId)
         {
             var cacheKey = CacheKeyFormat.FormatWith(userId);
@@ -101,8 +96,6 @@ namespace Tubumu.Meeting.Server.Authorization
         /// <summary>
         /// 通过过期 Token 获取 ClaimsPrincipal
         /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters

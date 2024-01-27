@@ -98,12 +98,6 @@ namespace System.Linq
         /// <summary>
         /// WhereOrContains
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <typeparam name="String"></typeparam>
-        /// <param name="query"></param>
-        /// <param name="selector"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
         public static IQueryable<TEntity> WhereOrStringContains<TEntity, String>
             (
             this IQueryable<TEntity> query,
@@ -183,12 +177,6 @@ namespace System.Linq
         /// <summary>
         /// WhereIn
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="query"></param>
-        /// <param name="selector"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
         public static IQueryable<TEntity> WhereIn<TEntity, TValue>
           (
             this IQueryable<TEntity> query,
@@ -229,12 +217,6 @@ namespace System.Linq
         /// <summary>
         /// WhereIn
         /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="query"></param>
-        /// <param name="selector"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
         public static IQueryable<TEntity> WhereIn<TEntity, TValue>
           (
             this IQueryable<TEntity> query,
@@ -248,16 +230,6 @@ namespace System.Linq
         /// <summary>
         /// LeftJoin
         /// </summary>
-        /// <typeparam name="TOuter"></typeparam>
-        /// <typeparam name="TInner"></typeparam>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="outer"></param>
-        /// <param name="inner"></param>
-        /// <param name="outerKeySelector"></param>
-        /// <param name="innerKeySelector"></param>
-        /// <param name="resultSelector"></param>
-        /// <returns></returns>
         public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
             this IQueryable<TOuter> outer,
             IQueryable<TInner> inner,
@@ -322,12 +294,6 @@ namespace System.Linq
         /// <summary>
         /// Order
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="propertyName"></param>
-        /// <param name="descending"></param>
-        /// <param name="anotherLevel"></param>
-        /// <returns></returns>
         public static IOrderedQueryable<T> Order<T>(this IQueryable<T> source, string propertyName, bool descending, bool anotherLevel = false)
         {
             var type = typeof(T);
@@ -349,11 +315,6 @@ namespace System.Linq
         /// <summary>
         /// Order
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="sortInfo"></param>
-        /// <param name="anotherLevel"></param>
-        /// <returns></returns>
         public static IOrderedQueryable<T> Order<T>(this IQueryable<T> source, SortInfo sortInfo, bool anotherLevel = false)
         {
             return sortInfo.Sort.IsNullOrWhiteSpace()
@@ -364,10 +325,6 @@ namespace System.Linq
         /// <summary>
         /// Order
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="sortInfos"></param>
-        /// <returns></returns>
         public static IOrderedQueryable<T>? Order<T>(this IQueryable<T> source, ICollection<SortInfo> sortInfos)
         {
             IOrderedQueryable<T>? result = null;
@@ -384,10 +341,6 @@ namespace System.Linq
         /// <summary>
         /// OrderBy
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="propertyName"></param>
-        /// <returns></returns>
         public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, string propertyName)
         {
             return Order(source, propertyName, false, false);
@@ -396,10 +349,6 @@ namespace System.Linq
         /// <summary>
         /// OrderByDescending
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="propertyName"></param>
-        /// <returns></returns>
         public static IOrderedQueryable<T> OrderByDescending<T>(this IQueryable<T> source, string propertyName)
         {
             return Order(source, propertyName, true, false);
@@ -408,10 +357,6 @@ namespace System.Linq
         /// <summary>
         /// ThenBy
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="propertyName"></param>
-        /// <returns></returns>
         public static IOrderedQueryable<T> ThenBy<T>(this IOrderedQueryable<T> source, string propertyName)
         {
             return Order(source, propertyName, false, true);
@@ -420,10 +365,6 @@ namespace System.Linq
         /// <summary>
         /// ThenByDescending
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="propertyName"></param>
-        /// <returns></returns>
         public static IOrderedQueryable<T> ThenByDescending<T>(this IOrderedQueryable<T> source, string propertyName)
         {
             return Order(source, propertyName, true, true);

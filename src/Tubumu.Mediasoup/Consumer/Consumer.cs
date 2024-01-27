@@ -117,15 +117,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits rtp - (packet: Buffer)</para>
         /// <para>@emits trace - (trace: ConsumerTraceEventData)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="paused"></param>
-        /// <param name="producerPaused"></param>
-        /// <param name="score"></param>
-        /// <param name="preferredLayers"></param>
         public Consumer(
             ILoggerFactory loggerFactory,
             ConsumerInternal internal_,

@@ -27,11 +27,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits volumes - (volumes: AudioLevelObserverVolume[])</para>
         /// <para>@emits silence</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="getProducerById"></param>
         public ActiveSpeakerObserver(
             ILoggerFactory loggerFactory,
             RtpObserverInternal internal_,

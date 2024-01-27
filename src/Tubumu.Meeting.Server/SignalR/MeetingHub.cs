@@ -24,7 +24,6 @@ namespace Tubumu.Meeting.Server
 
         private readonly MeetingServerOptions _meetingServerOptions;
 
-
         private string UserId => Context.UserIdentifier!;
 
         private string ConnectionId => Context.ConnectionId;
@@ -97,7 +96,7 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Get RTP capabilities of router.
         /// </summary>
-        /// <returns></returns>
+        ///
         public MeetingMessage<RtpCapabilities> GetRouterRtpCapabilities()
         {
             var rtpCapabilities = _scheduler.DefaultRtpCapabilities;
@@ -107,8 +106,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Join meeting.
         /// </summary>
-        /// <param name="joinRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> Join(JoinRequest joinRequest)
         {
             try
@@ -132,8 +129,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Join room.
         /// </summary>
-        /// <param name="joinRoomRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage<JoinRoomResponse>> JoinRoom(JoinRoomRequest joinRoomRequest)
         {
             try
@@ -171,7 +166,7 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Leave room.
         /// </summary>
-        /// <returns></returns>
+        ///
         public async Task<MeetingMessage> LeaveRoom()
         {
             try
@@ -206,8 +201,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Create send WebRTC transport.
         /// </summary>
-        /// <param name="createWebRtcTransportRequest"></param>
-        /// <returns></returns>
         public Task<MeetingMessage<CreateWebRtcTransportResult>> CreateSendWebRtcTransport(CreateWebRtcTransportRequest createWebRtcTransportRequest)
         {
             return CreateWebRtcTransportAsync(createWebRtcTransportRequest, true);
@@ -216,8 +209,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Create recv WebRTC transport.
         /// </summary>
-        /// <param name="createWebRtcTransportRequest"></param>
-        /// <returns></returns>
         public Task<MeetingMessage<CreateWebRtcTransportResult>> CreateRecvWebRtcTransport(CreateWebRtcTransportRequest createWebRtcTransportRequest)
         {
             return CreateWebRtcTransportAsync(createWebRtcTransportRequest, false);
@@ -226,8 +217,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Create WebRTC transport.
         /// </summary>
-        /// <param name="createWebRtcTransportRequest"></param>
-        /// <returns></returns>
         private async Task<MeetingMessage<CreateWebRtcTransportResult>> CreateWebRtcTransportAsync(CreateWebRtcTransportRequest createWebRtcTransportRequest, bool isSend)
         {
             try
@@ -299,8 +288,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Connect WebRTC transport.
         /// </summary>
-        /// <param name="connectWebRtcTransportRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> ConnectWebRtcTransport(ConnectWebRtcTransportRequest connectWebRtcTransportRequest)
         {
             try
@@ -363,8 +350,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Pull medias.
         /// </summary>
-        /// <param name="pullRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> Pull(PullRequest pullRequest)
         {
             if(_meetingServerOptions.ServeMode != ServeMode.Pull)
@@ -414,8 +399,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Invite medias.
         /// </summary>
-        /// <param name="inviteRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> Invite(InviteRequest inviteRequest)
         {
             if(_meetingServerOptions.ServeMode != ServeMode.Invite)
@@ -452,7 +435,7 @@ namespace Tubumu.Meeting.Server
                 foreach(var source in inviteRequest.Sources)
                 {
                     setPeerInternalDataRequest.InternalData[$"Invite:{source}"] = true;
-                };
+                }
 
                 await _scheduler.SetPeerInternalDataAsync(setPeerInternalDataRequest);
 
@@ -503,7 +486,6 @@ namespace Tubumu.Meeting.Server
 
                 if(deinviteRequest.Sources.IsNullOrEmpty() || deinviteRequest.Sources.Any(m => m.IsNullOrWhiteSpace()))
                 {
-
                     return MeetingMessage.Failure("Sources 参数缺失或非法。");
                 }
 
@@ -513,11 +495,13 @@ namespace Tubumu.Meeting.Server
                 {
                     PeerId = deinviteRequest.PeerId,
                 };
+
                 var keys = new List<string>();
                 foreach(var source in deinviteRequest.Sources)
                 {
                     keys.Add($"Invite:{source}");
-                };
+                }
+
                 unSetPeerInternalDataRequest.Keys = keys.ToArray();
 
                 await _scheduler.UnsetPeerInternalDataAsync(unSetPeerInternalDataRequest);
@@ -547,8 +531,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Request produce medias.
         /// </summary>
-        /// <param name="requestProduceRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> RequestProduce(RequestProduceRequest requestProduceRequest)
         {
             if(_meetingServerOptions.ServeMode != ServeMode.Invite)
@@ -601,8 +583,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Produce media.
         /// </summary>
-        /// <param name="produceRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage<ProduceRespose>> Produce(ProduceRequest produceRequest)
         {
             // HACK: (alby) Android 传入 RtpParameters 有误的临时处理方案。See: https://mediasoup.discourse.group/t/audio-codec-channel-not-supported/1877
@@ -631,6 +611,7 @@ namespace Tubumu.Meeting.Server
                         Keys = new[] { inviteKey }
                     });
                 }
+
                 var produceResult = await _scheduler.ProduceAsync(peerId, ConnectionId, produceRequest);
 
                 var producerPeer = produceResult.ProducerPeer;
@@ -716,8 +697,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Close producer.
         /// </summary>
-        /// <param name="producerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> CloseProducer(string producerId)
         {
             try
@@ -742,8 +721,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Pause producer.
         /// </summary>
-        /// <param name="producerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> PauseProducer(string producerId)
         {
             try
@@ -768,8 +745,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Resume producer.
         /// </summary>
-        /// <param name="producerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> ResumeProducer(string producerId)
         {
             try
@@ -798,8 +773,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Close consumer.
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> CloseConsumer(string consumerId)
         {
             try
@@ -824,8 +797,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Pause consumer.
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> PauseConsumer(string consumerId)
         {
             try
@@ -850,8 +821,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Resume consumer.
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> ResumeConsumer(string consumerId)
         {
             try
@@ -884,8 +853,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Set consumer's preferedLayers.
         /// </summary>
-        /// <param name="setConsumerPreferedLayersRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> SetConsumerPreferedLayers(SetConsumerPreferedLayersRequest setConsumerPreferedLayersRequest)
         {
             try
@@ -910,8 +877,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Set consumer's priority.
         /// </summary>
-        /// <param name="setConsumerPriorityRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> SetConsumerPriority(SetConsumerPriorityRequest setConsumerPriorityRequest)
         {
             try
@@ -936,8 +901,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Request key-frame.
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> RequestConsumerKeyFrame(string consumerId)
         {
             try
@@ -966,8 +929,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Get transport's state.
         /// </summary>
-        /// <param name="transportId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage<object[]>> GetWebRtcTransportStats(string transportId)
         {
             try
@@ -992,8 +953,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Get producer's state.
         /// </summary>
-        /// <param name="producerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage<object[]>> GetProducerStats(string producerId)
         {
             try
@@ -1018,8 +977,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Get consumer's state.
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage<object[]>> GetConsumerStats(string consumerId)
         {
             try
@@ -1044,8 +1001,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Restart ICE.
         /// </summary>
-        /// <param name="transportId"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage<IceParametersT>> RestartIce(string transportId)
         {
             try
@@ -1072,8 +1027,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Send message to other peers in rooms.
         /// </summary>
-        /// <param name="sendMessageRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> SendMessage(SendMessageRequest sendMessageRequest)
         {
             try
@@ -1107,8 +1060,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Set peer's appData. Then notify other peer, if in a room.
         /// </summary>
-        /// <param name="setPeerAppDataRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> SetPeerAppData(SetPeerAppDataRequest setPeerAppDataRequest)
         {
             try
@@ -1139,8 +1090,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Unset peer'ss appData. Then notify other peer, if in a room.
         /// </summary>
-        /// <param name="unsetPeerAppDataRequest"></param>
-        /// <returns></returns>
         public async Task<MeetingMessage> UnsetPeerAppData(UnsetPeerAppDataRequest unsetPeerAppDataRequest)
         {
             try
@@ -1171,7 +1120,7 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Clear peer's appData. Then notify other peer, if in a room.
         /// </summary>
-        /// <returns></returns>
+        ///
         public async Task<MeetingMessage> ClearPeerAppData()
         {
             try
@@ -1189,7 +1138,7 @@ namespace Tubumu.Meeting.Server
             }
             catch(MeetingException ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError("ClearPeerAppData 调用失败: {Message}", ex.Message);
             }
             catch(Exception ex)
             {

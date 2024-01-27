@@ -11,8 +11,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// Encrypt
         /// </summary>
-        /// <param name="rawString"></param>
-        /// <returns></returns>
         public static string Encrypt(string rawString)
         {
             return rawString == null
@@ -23,11 +21,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptToByteArray
         /// </summary>
-        /// <param name="rawString"></param>
-        /// <returns></returns>
         public static byte[] EncryptToByteArray(string rawString)
         {
-            if (rawString == null)
+            if(rawString == null)
             {
                 throw new ArgumentNullException(nameof(rawString));
             }

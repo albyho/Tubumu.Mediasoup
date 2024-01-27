@@ -150,8 +150,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 创建 WebRtcTransport
         /// </summary>
-        /// <param name="createWebRtcTransportRequest"></param>
-        /// <returns></returns>
         public async Task<WebRtcTransport> CreateWebRtcTransportAsync(CreateWebRtcTransportRequest createWebRtcTransportRequest, bool isSend)
         {
             var webRtcTransportOptions = new Mediasoup.WebRtcTransportOptions
@@ -229,8 +227,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 连接 WebRtcTransport
         /// </summary>
-        /// <param name="connectWebRtcTransportRequest"></param>
-        /// <returns></returns>
         public async Task<bool> ConnectWebRtcTransportAsync(ConnectWebRtcTransportRequest connectWebRtcTransportRequest)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -258,8 +254,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 创建 PlainTransport
         /// </summary>
-        /// <param name="createPlainTransportRequest"></param>
-        /// <returns></returns>
         public async Task<PlainTransport> CreatePlainTransportAsync(CreatePlainTransportRequest createPlainTransportRequest)
         {
             var plainTransportOptions = new PlainTransportOptions
@@ -421,8 +415,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 生产
         /// </summary>
-        /// <param name="produceRequest"></param>
-        /// <returns></returns>
         public async Task<PeerProduceResult> ProduceAsync(ProduceRequest produceRequest)
         {
             if(produceRequest.Source.IsNullOrWhiteSpace())
@@ -609,8 +601,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 停止生产
         /// </summary>
-        /// <param name="producerId"></param>
-        /// <returns></returns>
         public async Task<bool> CloseProducerAsync(string producerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -639,7 +629,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 停止生产全部
         /// </summary>
-        /// <returns></returns>
         public async Task<bool> CloseAllProducersAsync()
         {
             using(await _joinedLock.ReadLockAsync())
@@ -668,7 +657,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 停止生产指定 Source
         /// </summary>
-        /// <returns></returns>
         public async Task<bool> CloseProducerWithSourcesAsync(IEnumerable<string> sources)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -697,8 +685,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 暂停生产
         /// </summary>
-        /// <param name="producerId"></param>
-        /// <returns></returns>
         public async Task<bool> PauseProducerAsync(string producerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -726,8 +712,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 恢复生产
         /// </summary>
-        /// <param name="producerId"></param>
-        /// <returns></returns>
         public async Task<bool> ResumeProducerAsync(string producerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -755,8 +739,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 停止消费
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<bool> CloseConsumerAsync(string consumerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -785,8 +767,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 暂停消费
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<bool> PauseConsumerAsync(string consumerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -814,8 +794,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 恢复消费
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<Consumer> ResumeConsumerAsync(string consumerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -843,8 +821,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 设置消费建议 Layers
         /// </summary>
-        /// <param name="setConsumerPreferedLayersRequest"></param>
-        /// <returns></returns>
         public async Task<bool> SetConsumerPreferedLayersAsync(SetConsumerPreferedLayersRequest setConsumerPreferedLayersRequest)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -872,8 +848,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 设置消费 Priority
         /// </summary>
-        /// <param name="setConsumerPriorityRequest"></param>
-        /// <returns></returns>
         public async Task<bool> SetConsumerPriorityAsync(SetConsumerPriorityRequest setConsumerPriorityRequest)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -901,8 +875,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 请求关键帧
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<bool> RequestConsumerKeyFrameAsync(string consumerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -930,8 +902,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 获取 WebRtcTransport 状态
         /// </summary>
-        /// <param name="transportId"></param>
-        /// <returns></returns>
         public async Task<object[]> GetWebRtcTransportStatsAsync(string transportId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -959,8 +929,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 获取生产者状态
         /// </summary>
-        /// <param name="producerId"></param>
-        /// <returns></returns>
         public async Task<object[]> GetProducerStatsAsync(string producerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -989,8 +957,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 获取消费者状态
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <returns></returns>
         public async Task<object[]> GetConsumerStatsAsync(string consumerId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -1019,8 +985,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 重置 Ice
         /// </summary>
-        /// <param name="transportId"></param>
-        /// <returns></returns>
         public async Task<IceParametersT> RestartIceAsync(string transportId)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -1053,8 +1017,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 进入房间
         /// </summary>
-        /// <param name="room"></param>
-        /// <returns></returns>
         public async Task<JoinRoomResult> JoinRoomAsync(Room room)
         {
             using(await _joinedLock.ReadLockAsync())
@@ -1159,8 +1121,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 设置 AppData
         /// </summary>
-        /// <param name="setPeerAppDataRequest"></param>
-        /// <returns></returns>
         public async Task<PeerAppDataResult> SetPeerAppDataAsync(SetPeerAppDataRequest setPeerAppDataRequest)
         {
             var peerAppDataResult = new PeerAppDataResult
@@ -1192,8 +1152,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 移除 AppData
         /// </summary>
-        /// <param name="unsetPeerAppDataRequest"></param>
-        /// <returns></returns>
         public async Task<PeerAppDataResult> UnsetPeerAppDataAsync(UnsetPeerAppDataRequest unsetPeerAppDataRequest)
         {
             var peerAppDataResult = new PeerAppDataResult
@@ -1225,7 +1183,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 清空 AppData
         /// </summary>
-        /// <returns></returns>
         public async Task<PeerAppDataResult> ClearPeerAppDataAsync()
         {
             var peerAppDataResult = new PeerAppDataResult
@@ -1253,8 +1210,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 设置 InternalData
         /// </summary>
-        /// <param name="setPeerInternalDataRequest"></param>
-        /// <returns></returns>
         public async Task<PeerInternalDataResult> SetPeerInternalDataAsync(SetPeerInternalDataRequest setPeerInternalDataRequest)
         {
             var peerInternalDataResult = new PeerInternalDataResult();

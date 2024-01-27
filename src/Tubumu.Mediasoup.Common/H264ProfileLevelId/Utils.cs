@@ -117,10 +117,6 @@ namespace Tubumu.H264ProfileLevelId
         /// <summary>
         /// Returns canonical string representation as three hex bytes of the profile
         /// level id, or returns nothing for invalid profile level ids.
-        ///
-        /// @param {ProfileLevelId} profile_level_id
-        ///
-        /// @returns {String}
         /// </summary>
         public static string? ProfileLevelIdToString(ProfileLevelId profileLevelId)
         {
@@ -207,8 +203,6 @@ namespace Tubumu.H264ProfileLevelId
         /// <summary>
         /// Returns a human friendly name for the given profile.
         /// </summary>
-        /// <param name="profile"></param>
-        /// <returns></returns>
         public static string ProfileToString(this Profile profile)
         {
             return profile.ToString();
@@ -234,11 +228,9 @@ namespace Tubumu.H264ProfileLevelId
         /// <summary>
         /// Parse profile level id that is represented as a string of 3 hex bytes
         /// contained in an SDP key-value map. A default profile level id will be
-        /// </summary>
-        /// returned if the profile-level-id key is missing. Nothing will be returned<param name=""></param>
+        /// returned if the profile-level-id key is missing. Nothing will be returned
         /// if the key is present but the string is invalid.
-        /// <param name="parameters"></param>
-        /// <returns>ProfileLevelId</returns>
+        /// </summary>
         public static ProfileLevelId? ParseSdpProfileLevelId(IDictionary<string, object> parameters)
         {
             return parameters.TryGetValue("profile-level-id", out var profile_level_id)
@@ -250,8 +242,6 @@ namespace Tubumu.H264ProfileLevelId
         /// Returns true if the parameters have the same H264 profile, i.e. the same
         /// H264 profile (Baseline, High, etc).
         /// </summary>
-        /// <param name="params1"></param>
-        /// <param name="params2"></param>
         public static bool IsSameProfile(IDictionary<string, object> params1, IDictionary<string, object> params2)
         {
             var profile_level_id_1 = ParseSdpProfileLevelId(params1);

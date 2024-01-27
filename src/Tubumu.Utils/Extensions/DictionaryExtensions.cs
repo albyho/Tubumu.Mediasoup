@@ -54,12 +54,6 @@
         /// <summary>
         /// 将目标字典的按指定 Key 移除
         /// </summary>
-        /// <typeparam name="TDictionary">源字典类型</typeparam>
-        /// <typeparam name="TKey">键类型</typeparam>
-        /// <typeparam name="TValue">值类型</typeparam>
-        /// <param name="source">源字典</param>
-        /// <param name="keys"></param>
-        /// <returns>移除了元素的源字典</returns>
         public static TDictionary RemoveKeys<TDictionary, TKey, TValue>(
             this TDictionary source,
             IEnumerable<TKey> keys)
@@ -96,11 +90,6 @@
         /// <summary>
         /// 合并两个字典，返回新的字典
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        /// <returns></returns>
         public static Dictionary<TKey, TValue> Merge<TKey, TValue>(
             this IDictionary<TKey, TValue> first,
             IDictionary<TKey, TValue> second)
@@ -123,11 +112,6 @@
         /// <summary>
         /// 比较两个字典是否相同
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
-        /// <returns></returns>
         public static bool DeepEquals<TKey, TValue>(this IDictionary<TKey, TValue> first, IDictionary<TKey, TValue> second) where TKey : notnull
         {
             var comparer = new DictionaryComparer<TKey, TValue>();
@@ -137,10 +121,6 @@
         /// <summary>
         /// 获取字典的 HashCode
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="dic"></param>
-        /// <returns></returns>
         public static int DeepGetHashCode<TKey, TValue>(this IDictionary<TKey, TValue> dic) where TKey : notnull
         {
             var comparer = new DictionaryComparer<TKey, TValue>();

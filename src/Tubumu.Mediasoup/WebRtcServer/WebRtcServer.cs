@@ -64,10 +64,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits webrtctransporthandled - (webRtcTransport: WebRtcTransport)</para>
         /// <para>@emits webrtctransportunhandled - (webRtcTransport: WebRtcTransport)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
         public WebRtcServer(ILoggerFactory loggerFactory,
                         WebRtcServerInternal internal_,
                         IChannel channel,

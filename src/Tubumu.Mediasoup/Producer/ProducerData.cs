@@ -25,4 +25,3 @@ namespace Tubumu.Mediasoup
         public RtpParameters ConsumableRtpParameters { get; init; }
     }
 }
-

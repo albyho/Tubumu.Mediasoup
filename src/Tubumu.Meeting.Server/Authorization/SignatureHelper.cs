@@ -11,8 +11,6 @@ namespace Tubumu.Meeting.Server.Authorization
         /// <summary>
         /// 生成签名凭据
         /// </summary>
-        /// <param name="secretKey"></param>
-        /// <returns></returns>
         public static SigningCredentials GenerateSigningCredentials(string secretKey)
         {
             var signingKey = GenerateSymmetricSecurityKey(secretKey);
@@ -24,8 +22,6 @@ namespace Tubumu.Meeting.Server.Authorization
         /// <summary>
         /// 生成签名 Key
         /// </summary>
-        /// <param name="secretKey"></param>
-        /// <returns></returns>
         public static SymmetricSecurityKey GenerateSymmetricSecurityKey(string secretKey)
         {
             var keyByteArray = Encoding.UTF8.GetBytes(secretKey);

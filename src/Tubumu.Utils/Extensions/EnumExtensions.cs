@@ -205,8 +205,6 @@ namespace System
         /// <summary>
         /// 获取枚举的 Int32 数字值。
         /// </summary>
-        /// <param name="enumValue"></param>
-        /// <returns></returns>
         public static int GetInt32(this Enum enumValue)
         {
             var type = enumValue.GetType();

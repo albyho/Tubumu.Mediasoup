@@ -57,7 +57,7 @@
         /// <param name="endDate">结束时间</param>
         /// <param name="interval">时间间隔类型</param>
         /// <param name="startDate">起始时间</param>
-        /// <returns></returns>
+        ///
         public static long DateDiff(this DateTime endDate, DateInterval interval, DateTime startDate)
         {
             var timeSpan = new TimeSpan(endDate.Ticks - startDate.Ticks);
@@ -83,7 +83,7 @@
         /// <param name="interval">时间间隔类型</param>
         /// <param name="startDate">起始时间</param>
         /// <param name="endDate">结束时间</param>
-        /// <returns></returns>
+        ///
         public static long DateDiff(DateInterval interval, DateTime startDate, DateTime endDate)
         {
             return endDate.DateDiff(interval, startDate);

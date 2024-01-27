@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FBS.DataConsumer;
 using FBS.Notification;
 using FBS.Request;
-using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 
@@ -84,14 +83,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits pause</para>
         /// <para>@emits resume</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="paused"></param>
-        /// <param name="dataProducerPaused"></param>
-        /// <param name="subchannels"></param>
-        /// <param name="appData"></param>
         public DataConsumer(
             ILoggerFactory loggerFactory,
             DataConsumerInternal internal_,
@@ -316,8 +307,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Set buffered amount low threshold.
         /// </summary>
-        /// <param name="threshold"></param>
-        /// <returns></returns>
         public async Task SetBufferedAmountLowThresholdAsync(uint threshold)
         {
             _logger.LogDebug("SetBufferedAmountLowThreshold() | Threshold:{threshold}", threshold);
@@ -353,9 +342,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Send data (just valid for DataProducers created on a DirectTransport).
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ppid"></param>
-        /// <returns></returns>
         public async Task SendAsync(string message, uint? ppid)
         {
             _logger.LogDebug("SendAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
@@ -390,9 +376,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Send data (just valid for DataProducers created on a DirectTransport).
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ppid"></param>
-        /// <returns></returns>
         public async Task SendAsync(byte[] message, uint? ppid)
         {
             _logger.LogDebug("SendAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
@@ -440,7 +423,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Get buffered amount size.
         /// </summary>
-        /// <returns></returns>
         public async Task<uint> GetBufferedAmountAsync()
         {
             _logger.LogDebug("GetBufferedAmountAsync()");

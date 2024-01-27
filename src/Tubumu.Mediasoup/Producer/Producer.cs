@@ -105,12 +105,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits videoorientationchange - (videoOrientation: ProducerVideoOrientation)</para>
         /// <para>@emits trace - (trace: ProducerTraceEventData)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="paused"></param>
         public Producer(
             ILoggerFactory loggerFactory,
             ProducerInternal internal_,
@@ -390,7 +384,6 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Send RTP packet (just valid for Producers created on a DirectTransport).
         /// </summary>
-        /// <param name="rtpPacket"></param>
         public async Task SendAsync(byte[] rtpPacket)
         {
             using(await _closeLock.ReadLockAsync())

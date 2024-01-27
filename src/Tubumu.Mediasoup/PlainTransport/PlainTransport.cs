@@ -39,14 +39,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits sctpstatechange - (sctpState: SctpState)</para>
         /// <para>@emits trace - (trace: TransportTraceEventData)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="internal_"></param>
-        /// <param name="data"></param>
-        /// <param name="channel"></param>
-        /// <param name="appData"></param>
-        /// <param name="getRouterRtpCapabilities"></param>
-        /// <param name="getProducerById"></param>
-        /// <param name="getDataProducerById"></param>
         public PlainTransport(
             ILoggerFactory loggerFactory,
             TransportInternal internal_,

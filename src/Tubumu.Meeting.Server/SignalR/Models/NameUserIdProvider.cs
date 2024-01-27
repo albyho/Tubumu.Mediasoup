@@ -11,8 +11,6 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// GetUserId
         /// </summary>
-        /// <param name="connection"></param>
-        /// <returns></returns>
         public string? GetUserId(HubConnectionContext connection)
         {
             var userId = connection.User?.FindFirst("id")?.Value ??

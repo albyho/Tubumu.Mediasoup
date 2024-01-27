@@ -16,9 +16,6 @@ namespace System.IO
         /// <summary>
         /// 保存图片
         /// </summary>
-        /// <param name="imageStream"></param>
-        /// <param name="outputFilePath"></param>
-        /// <param name="outputWidth"></param>
         public static void SaveImage(Stream imageStream, string outputFilePath, int? outputWidth = null)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath)!);
@@ -43,11 +40,6 @@ namespace System.IO
         /// <summary>
         /// 创建系列缩略图
         /// </summary>
-        /// <param name="imageStream"></param>
-        /// <param name="folder"></param>
-        /// <param name="fileName"></param>
-        /// <param name="widths"></param>
-        /// <returns></returns>
         public static string[] CreateThumbnails(Stream imageStream, string folder, string fileName, IEnumerable<int> widths)
         {
             Directory.CreateDirectory(folder);

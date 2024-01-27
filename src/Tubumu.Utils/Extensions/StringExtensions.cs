@@ -12,8 +12,6 @@ namespace System
         /// <summary>
         /// IsNullOrEmpty
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static bool IsNullOrEmpty(this string? source)
         {
             return string.IsNullOrEmpty(source);
@@ -22,8 +20,6 @@ namespace System
         /// <summary>
         /// IsNullOrWhiteSpace
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static bool IsNullOrWhiteSpace(this string? source)
         {
             return string.IsNullOrWhiteSpace(source);
@@ -32,8 +28,6 @@ namespace System
         /// <summary>
         /// NullOrWhiteSpaceReplace
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static string NullOrWhiteSpaceReplace(this string? source, string newValue)
         {
             return !string.IsNullOrWhiteSpace(source) ? source : newValue;
@@ -42,8 +36,6 @@ namespace System
         /// <summary>
         /// NullOrEmptyReplace
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static string NullOrEmptyReplace(this string? source, string newValue)
         {
             return !string.IsNullOrEmpty(source) ? source : newValue;
@@ -56,9 +48,6 @@ namespace System
         /// <summary>
         /// FormatWith
         /// </summary>
-        /// <param name="format"></param>
-        /// <param name="arg0"></param>
-        /// <returns></returns>
         public static string FormatWith(this string format, object arg0)
         {
             return string.Format(format, arg0);
@@ -67,10 +56,6 @@ namespace System
         /// <summary>
         /// FormatWith
         /// </summary>
-        /// <param name="format"></param>
-        /// <param name="arg0"></param>
-        /// <param name="arg1"></param>
-        /// <returns></returns>
         public static string FormatWith(this string format, object arg0, object arg1)
         {
             return string.Format(format, arg0, arg1);
@@ -79,11 +64,6 @@ namespace System
         /// <summary>
         /// FormatWith
         /// </summary>
-        /// <param name="format"></param>
-        /// <param name="arg0"></param>
-        /// <param name="arg1"></param>
-        /// <param name="arg2"></param>
-        /// <returns></returns>
         public static string FormatWith(this string format, object arg0, object arg1, object arg2)
         {
             return string.Format(format, arg0, arg1, arg2);
@@ -92,9 +72,6 @@ namespace System
         /// <summary>
         /// FormatWith
         /// </summary>
-        /// <param name="format"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string FormatWith(this string format, params object[] args)
         {
             return string.Format(format, args);
@@ -103,10 +80,6 @@ namespace System
         /// <summary>
         /// FormatWith
         /// </summary>
-        /// <param name="format"></param>
-        /// <param name="provider"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public static string FormatWith(this string format, IFormatProvider provider, params object[] args)
         {
             return string.Format(provider, format, args);
@@ -119,7 +92,6 @@ namespace System
         /// </summary>
         /// <param name="source">源字符串</param>
         /// <param name="times">重复次数</param>
-        /// <returns></returns>
         public static string Repeat(this string source, int times)
         {
             if(string.IsNullOrEmpty(source) || times <= 0)
@@ -150,9 +122,6 @@ namespace System
         /// <summary>
         /// 如果源对象为 null ，则返回 string.Empty ，否则返回其 ToString 方法返回值
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static string ToEmptyableString<T>(this T? source) where T : class
         {
             return source != null ? source.ToString()! : string.Empty;

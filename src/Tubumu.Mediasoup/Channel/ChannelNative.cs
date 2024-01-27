@@ -96,7 +96,7 @@ namespace Tubumu.Mediasoup
         internal static readonly LibMediasoupWorkerNative.ChannelReadFreeFn OnChannelReadFree = (
             _, // message
             _, // messageLen
-             messageCtx
+            messageCtx
         ) =>
         {
             var messageBytesHandle = GCHandle.FromIntPtr(messageCtx);

@@ -83,8 +83,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits newwebrtcserver - (webRtcServer: WebRtcServer)</para>
         /// <para>@emits newrouter - (router: Router)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="mediasoupOptions"></param>
         protected WorkerBase(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
         {
             _loggerFactory = loggerFactory;

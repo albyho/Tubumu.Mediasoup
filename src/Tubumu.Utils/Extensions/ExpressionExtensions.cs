@@ -12,8 +12,6 @@ namespace System.Linq.Expressions
         /// 获取表达式树种类型属性的字符串表示
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="expression"></param>
-        /// <returns></returns>
         public static string PropertyName<T>(this Expression<Func<T, object>> expression)
         {
             return expression.Body.NodeType switch

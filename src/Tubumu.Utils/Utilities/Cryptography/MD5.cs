@@ -12,8 +12,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptFromByteArrayToByteArray
         /// </summary>
-        /// <param name="inputByteArray"></param>
-        /// <returns></returns>
         public static byte[] EncryptFromByteArrayToByteArray(byte[] inputByteArray)
         {
             var md5 = System.Security.Cryptography.MD5.Create();
@@ -24,11 +22,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptFromStringToByteArray
         /// </summary>
-        /// <param name="encryptString"></param>
-        /// <returns></returns>
         public static byte[]? EncryptFromStringToByteArray(string encryptString)
         {
-            if (encryptString.IsNullOrWhiteSpace())
+            if(encryptString.IsNullOrWhiteSpace())
             {
                 return null;
             }
@@ -41,8 +37,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptFromByteArrayToBase64
         /// </summary>
-        /// <param name="inputByteArray"></param>
-        /// <returns></returns>
         public static string EncryptFromByteArrayToBase64(byte[] inputByteArray)
         {
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
@@ -53,11 +47,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptFromStringToBase64
         /// </summary>
-        /// <param name="encryptString"></param>
-        /// <returns></returns>
         public static string? EncryptFromStringToBase64(string encryptString)
         {
-            if (encryptString.IsNullOrWhiteSpace())
+            if(encryptString.IsNullOrWhiteSpace())
             {
                 return null;
             }
@@ -71,8 +63,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptFromByteArrayToHex
         /// </summary>
-        /// <param name="inputByteArray"></param>
-        /// <returns></returns>
         public static string EncryptFromByteArrayToHex(byte[] inputByteArray, bool lower = false)
         {
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
@@ -83,8 +73,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptFromStringToHex
         /// </summary>
-        /// <param name="encryptString"></param>
-        /// <returns></returns>
         public static string EncryptFromStringToHex(string encryptString, bool lower = false)
         {
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
@@ -96,7 +84,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         private static string ByteArrayToHex(IEnumerable<byte> inputByteArray, bool lower)
         {
             var sb = new StringBuilder();
-            foreach (var item in inputByteArray)
+            foreach(var item in inputByteArray)
             {
                 sb.AppendFormat(lower ? "{0:x2}" : "{0:X2}", item);
             }

@@ -12,8 +12,6 @@ namespace System
         /// <summary>
         /// IsNullOrEmpty
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static bool IsNullOrEmpty(this Guid? source)
         {
             return source == null || source.Value == Guid.Empty;
@@ -22,8 +20,6 @@ namespace System
         /// <summary>
         /// 校验字符串是否是 Guid 格式
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static bool IsGuid(this string source)
         {
             return !source.IsNullOrWhiteSpace() && GuidRegex.IsMatch(source);
@@ -32,12 +28,9 @@ namespace System
         /// <summary>
         /// 字符串转换为Guid
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
         public static bool GuidTryParse(this string source, out Guid result)
         {
-            if (source.IsNullOrWhiteSpace())
+            if(source.IsNullOrWhiteSpace())
             {
                 result = Guid.Empty;
                 return false;
@@ -48,12 +41,12 @@ namespace System
                 result = new Guid(source);
                 return true;
             }
-            catch (FormatException)
+            catch(FormatException)
             {
                 result = Guid.Empty;
                 return false;
             }
-            catch (OverflowException)
+            catch(OverflowException)
             {
                 result = Guid.Empty;
                 return false;

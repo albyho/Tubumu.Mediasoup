@@ -11,9 +11,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// Encrypt
         /// </summary>
-        /// <param name="rawString"></param>
-        /// <param name="salt"></param>
-        /// <returns></returns>
         public static string Encrypt(string rawString, string salt)
         {
             if(rawString == null)
@@ -32,9 +29,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptToByteArray
         /// </summary>
-        /// <param name="rawString"></param>
-        /// <param name="salt"></param>
-        /// <returns></returns>
         public static byte[] EncryptToByteArray(string rawString, string salt)
         {
             if(rawString == null)

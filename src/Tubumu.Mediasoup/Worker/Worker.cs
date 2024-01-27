@@ -54,8 +54,6 @@ namespace Tubumu.Mediasoup
         /// <para>@emits close</para>
         /// <para>@emits newrouter - (router: Router)</para>
         /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="mediasoupOptions"></param>
         public Worker(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
             : base(loggerFactory, mediasoupOptions)
         {

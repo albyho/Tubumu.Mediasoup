@@ -9,5 +9,9 @@
         public InvalidStateException(string message, Exception innerException) : base(message, innerException)
         {
         }
+
+        public InvalidStateException()
+        {
+        }
     }
 }

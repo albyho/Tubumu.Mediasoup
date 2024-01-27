@@ -10,8 +10,6 @@ namespace System
         /// <summary>
         /// 获取全拼
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static string ConvertToPinYin(this string source)
         {
             var pinYin = "";
@@ -36,8 +34,6 @@ namespace System
         /// <summary>
         /// 获取全拼和首字母
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static (string pinYin, string py) ConvertToPinYinPY(this string source)
         {
             var pinYin = "";
@@ -65,8 +61,6 @@ namespace System
         /// <summary>
         /// 获取首字母
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
         public static string ConvertToPY(this string source)
         {
             string py = "";

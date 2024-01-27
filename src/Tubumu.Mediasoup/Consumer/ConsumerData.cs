@@ -23,6 +23,5 @@ namespace Tubumu.Mediasoup
         /// Consumer type.
         /// </summary>
         public Type Type { get; set; }
-
     }
 }
