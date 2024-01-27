@@ -130,27 +130,15 @@ namespace System.IO
         {
             string ext = Path.GetExtension(fileName.ToLowerInvariant());
 
-            switch(ext)
+            return ext switch
             {
-                case ".gif":
-                    return SKEncodedImageFormat.Gif;
-
-                case ".png":
-                    return SKEncodedImageFormat.Png;
-
-                case ".webp":
-                    return SKEncodedImageFormat.Webp;
-
-                case ".bmp":
-                    return SKEncodedImageFormat.Bmp;
-
-                case ".jpeg":
-                    return SKEncodedImageFormat.Jpeg;
-                default:
-                    break;
-            }
-
-            return SKEncodedImageFormat.Jpeg;
+                ".gif" => SKEncodedImageFormat.Gif,
+                ".png" => SKEncodedImageFormat.Png,
+                ".webp" => SKEncodedImageFormat.Webp,
+                ".bmp" => SKEncodedImageFormat.Bmp,
+                ".jpeg" => SKEncodedImageFormat.Jpeg,
+                _ => throw new NotImplementedException(),
+            };
         }
     }
 }
