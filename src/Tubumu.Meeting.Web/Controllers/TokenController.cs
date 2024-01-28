@@ -18,7 +18,7 @@ namespace Tubumu.Meeting.Web.Controllers
         [HttpPost("createToken")]
         public string CreateToken(string userIdOrUsername)
         {
-            var token =  _tokenService.GenerateAccessToken(new[] { new Claim(ClaimTypes.Name, userIdOrUsername) });
+            var token = _tokenService.GenerateAccessToken(new[] { new Claim(ClaimTypes.Name, userIdOrUsername) });
             return token;
         }
     }

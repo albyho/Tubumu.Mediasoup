@@ -28,7 +28,7 @@ namespace Tubumu.Meeting.Web
                 Log.Information("Starting web host");
                 CreateHostBuilder(args).Build().Run();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Log.Fatal(ex, "Host terminated unexpectedly");
             }

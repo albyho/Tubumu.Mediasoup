@@ -6,7 +6,6 @@ using FBS.RtpParameters;
 using FBS.SctpParameters;
 using FBS.Transport;
 using Force.DeepCloner;
-using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 

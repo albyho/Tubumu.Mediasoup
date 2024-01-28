@@ -70,14 +70,14 @@ namespace Tubumu.Libuv
 
         private static bool IsMapping(byte[] data)
         {
-            if (data.Length != 16)
+            if(data.Length != 16)
             {
                 return false;
             }
 
-            for (int i = 0; i < 10; i++)
+            for(int i = 0; i < 10; i++)
             {
-                if (data[i] != 0)
+                if(data[i] != 0)
                 {
                     return false;
                 }
@@ -89,7 +89,7 @@ namespace Tubumu.Libuv
         private static IPAddress GetMapping(byte[] data)
         {
             var ip = new byte[4];
-            for (int i = 0; i < 4; i++)
+            for(int i = 0; i < 4; i++)
             {
                 ip[i] = data[12 + i];
             }
@@ -106,7 +106,7 @@ namespace Tubumu.Libuv
             IPAddress ip = IPAddress.Parse(System.Text.Encoding.ASCII.GetString(addr, 0, strlen(addr)));
 
             var bytes = ip.GetAddressBytes();
-            if (map && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 && IsMapping(bytes))
+            if(map && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 && IsMapping(bytes))
             {
                 ip = GetMapping(bytes);
             }
@@ -117,7 +117,7 @@ namespace Tubumu.Libuv
         private static int strlen(byte[] bytes)
         {
             int i = 0;
-            while (i < bytes.Length && bytes[i] != 0)
+            while(i < bytes.Length && bytes[i] != 0)
             {
                 i++;
             }
@@ -158,7 +158,7 @@ namespace Tubumu.Libuv
         internal static void Free(IntPtr ptr)
         {
 #if DEBUG
-            if (pointers.Contains(ptr))
+            if(pointers.Contains(ptr))
             {
                 pointers.Remove(ptr);
                 Marshal.FreeHGlobal(ptr);
@@ -180,10 +180,10 @@ namespace Tubumu.Libuv
         {
             var e = pointers.GetEnumerator();
             Console.Write("[");
-            if (e.MoveNext())
+            if(e.MoveNext())
             {
                 Console.Write(e.Current);
-                while (e.MoveNext())
+                while(e.MoveNext())
                 {
                     Console.Write(", ");
                     Console.Write(e.Current);
@@ -242,7 +242,7 @@ namespace Tubumu.Libuv
             Ensure.AddressFamily(ipAddress);
 
             int r;
-            if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            if(ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 sockaddr_in address = ToStruct(ipAddress.ToString(), port);
                 r = bind(handle.NativeHandle, ref address, 0);
@@ -270,7 +270,7 @@ namespace Tubumu.Libuv
             }
             finally
             {
-                if (ptr != IntPtr.Zero)
+                if(ptr != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(ptr);
                 }
@@ -289,7 +289,7 @@ namespace Tubumu.Libuv
             }
             finally
             {
-                if (ptr != IntPtr.Zero)
+                if(ptr != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(ptr);
                 }

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace System.Text.Json.Serialization
@@ -40,10 +40,7 @@ namespace System.Text.Json.Serialization
         public override bool CanConvert(Type typeToConvert)
         {
             // Don't perform a typeToConvert == null check for performance. Trust our callers will be nice.
-#pragma warning disable CA1062 // Validate arguments of public methods
-            return typeToConvert.IsEnum
-                || (typeToConvert.IsGenericType && TestNullableEnum(typeToConvert).IsNullableEnum);
-#pragma warning restore CA1062 // Validate arguments of public methods
+            return typeToConvert.IsEnum || (typeToConvert.IsGenericType && TestNullableEnum(typeToConvert).IsNullableEnum);
         }
 
         /// <inheritdoc/>

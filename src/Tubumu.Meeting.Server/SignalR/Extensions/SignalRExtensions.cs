@@ -20,7 +20,7 @@ namespace Tubumu.Meeting.Server
         public static Dictionary<string, object> ToDictionary(this IQueryCollection httpQuery)
         {
             var dictionary = new Dictionary<string, object>();
-            foreach (var item in httpQuery)
+            foreach(var item in httpQuery)
             {
                 dictionary.Add(item.Key, item.Value);
             }
@@ -29,7 +29,7 @@ namespace Tubumu.Meeting.Server
 
         public static void FillToDictionary(this IQueryCollection httpQuery, Dictionary<string, object> dictionary)
         {
-            foreach (var item in httpQuery)
+            foreach(var item in httpQuery)
             {
                 dictionary.Add(item.Key, item.Value);
             }

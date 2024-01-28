@@ -81,7 +81,7 @@ namespace Tubumu.Libuv
             {
                 // every comment prefixed with WSA is not in the reference source
                 // every comment prefixed with SocktError is not defined in uv.h
-                switch (ErrorCode)
+                switch(ErrorCode)
                 {
                     case UVErrorCode.EINTR:
                         return SocketError.Interrupted;

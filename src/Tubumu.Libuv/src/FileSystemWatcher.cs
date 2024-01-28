@@ -58,7 +58,7 @@ namespace Tubumu.Libuv
         private static void fs_event(IntPtr handlePointer, string filename, int events, int status)
         {
             var handle = FromIntPtr<FileSystemWatcher>(handlePointer);
-            if (status != 0)
+            if(status != 0)
             {
                 handle.Close();
             }

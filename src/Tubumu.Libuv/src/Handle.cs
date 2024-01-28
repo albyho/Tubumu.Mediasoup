@@ -113,7 +113,7 @@ namespace Tubumu.Libuv
         public void Cleanup(IntPtr nativeHandle, Action? callback)
         {
             // Remove handle
-            if (NativeHandle != IntPtr.Zero)
+            if(NativeHandle != IntPtr.Zero)
             {
                 Loop.handles.Remove(nativeHandle);
 
@@ -125,7 +125,7 @@ namespace Tubumu.Libuv
 
                 callback?.Invoke();
 
-                if (GCHandle.IsAllocated)
+                if(GCHandle.IsAllocated)
                 {
                     GCHandle.Free();
                 }
@@ -134,7 +134,7 @@ namespace Tubumu.Libuv
 
         public void Close(Action? callback)
         {
-            if (!IsClosing && !IsClosed)
+            if(!IsClosing && !IsClosed)
             {
                 closeCallback = callback;
                 uv_close(NativeHandle, close_cb);
@@ -187,7 +187,7 @@ namespace Tubumu.Libuv
 
         public void Ref()
         {
-            if (IsClosed)
+            if(IsClosed)
             {
                 return;
             }
@@ -196,7 +196,7 @@ namespace Tubumu.Libuv
 
         public void Unref()
         {
-            if (IsClosed)
+            if(IsClosed)
             {
                 return;
             }
@@ -223,7 +223,7 @@ namespace Tubumu.Libuv
 
         protected void CheckDisposed()
         {
-            if (NativeHandle == IntPtr.Zero)
+            if(NativeHandle == IntPtr.Zero)
             {
                 throw new ObjectDisposedException(GetType().ToString(), "handle was closed");
             }

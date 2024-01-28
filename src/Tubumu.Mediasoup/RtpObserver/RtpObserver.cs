@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FBS.Notification;
 using FBS.Request;
-using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Threading;
 

@@ -50,7 +50,7 @@ namespace Tubumu.Libuv
             {
                 Invoke(NativeMethods.uv_accept, stream.NativeHandle);
             }
-            catch (Exception)
+            catch(Exception)
             {
                 stream.Dispose();
 

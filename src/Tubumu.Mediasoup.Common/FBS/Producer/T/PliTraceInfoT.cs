@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace FBS.Producer
 {
     public class PliTraceInfoT

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Globalization;
 
 namespace System.Text.Json.Serialization
 {

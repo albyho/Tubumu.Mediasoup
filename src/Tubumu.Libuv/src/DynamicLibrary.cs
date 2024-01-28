@@ -55,7 +55,7 @@ namespace Tubumu.Libuv
 
         private void Check(int ret)
         {
-            if (ret < 0)
+            if(ret < 0)
             {
                 throw new Exception(Marshal.PtrToStringAnsi(uv_dlerror(handle)));
             }
@@ -77,7 +77,7 @@ namespace Tubumu.Libuv
 
         public override void Close()
         {
-            if (!Closed)
+            if(!Closed)
             {
                 uv_dlclose(handle);
                 handle = IntPtr.Zero;
@@ -101,7 +101,7 @@ namespace Tubumu.Libuv
 
         public void Check(IntPtr ptr)
         {
-            if (ptr == IntPtr.Zero)
+            if(ptr == IntPtr.Zero)
             {
                 throw new Exception();
             }
@@ -125,7 +125,7 @@ namespace Tubumu.Libuv
 
         public override void Close()
         {
-            if (!Closed)
+            if(!Closed)
             {
                 FreeLibrary(handle);
                 handle = IntPtr.Zero;

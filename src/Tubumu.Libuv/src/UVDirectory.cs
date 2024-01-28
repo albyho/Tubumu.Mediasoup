@@ -121,14 +121,14 @@ namespace Tubumu.Libuv
             var fsr = new FileSystemRequest();
             fsr.Callback = (ex) =>
             {
-                if (ex != null)
+                if(ex != null)
                 {
                     callback(ex, null);
                     return;
                 }
 
                 var list = new List<UVDirectoryEntity>();
-                while (UVException.Map(uv_fs_scandir_next(fsr.Handle, out var entity)) != UVErrorCode.EOF)
+                while(UVException.Map(uv_fs_scandir_next(fsr.Handle, out var entity)) != UVErrorCode.EOF)
                 {
                     list.Add(new UVDirectoryEntity(entity));
                 }

@@ -40,7 +40,7 @@ namespace Tubumu.Libuv
             fsr.Callback = (ex) =>
             {
                 UVFile? file = null;
-                if (fsr.Result != IntPtr.Zero)
+                if(fsr.Result != IntPtr.Zero)
                 {
                     file = new UVFile(loop, fsr.Result.ToInt32());
                 }
@@ -465,7 +465,7 @@ namespace Tubumu.Libuv
             var fsr = new FileSystemRequest();
             fsr.Callback = (ex) =>
             {
-                if (callback != null)
+                if(callback != null)
                 {
                     Ensure.Success(ex, callback, new UVFileStat(fsr.stat));
                 }
@@ -487,7 +487,7 @@ namespace Tubumu.Libuv
             var fsr = new FileSystemRequest();
             fsr.Callback = (ex) =>
             {
-                if (callback != null)
+                if(callback != null)
                 {
                     Ensure.Success(ex, callback, new UVFileStat(fsr.stat));
                 }
@@ -785,7 +785,7 @@ namespace Tubumu.Libuv
             fsr.Callback = (ex) =>
             {
                 string? res = null;
-                if (ex == null)
+                if(ex == null)
                 {
                     res = Marshal.PtrToStringAuto(fsr.Pointer);
                 }

@@ -55,7 +55,7 @@ namespace Tubumu.Libuv
         {
             Ensure.ArgumentNotNull(path, "path");
 
-            switch (access)
+            switch(access)
             {
                 case UVFileAccess.Read:
                     Readable = true;
@@ -103,18 +103,18 @@ namespace Tubumu.Libuv
 
         private void HandleRead(Exception? ex, int? size)
         {
-            if (!reading)
+            if(!reading)
             {
                 return;
             }
 
-            if (ex != null)
+            if(ex != null)
             {
                 OnError(ex);
                 return;
             }
 
-            if ((size.HasValue && size == 0) || !size.HasValue)
+            if((size.HasValue && size == 0) || !size.HasValue)
             {
                 uvfile?.Close((ex2) =>
                 {
@@ -126,7 +126,7 @@ namespace Tubumu.Libuv
             readposition += size.Value;
             OnData(new ArraySegment<byte>(buffer, 0, size.Value));
 
-            if (reading)
+            if(reading)
             {
                 WorkRead();
             }
@@ -166,7 +166,7 @@ namespace Tubumu.Libuv
 
             tuple.Item2?.Invoke(ex);
 
-            if (size.HasValue && size.Value > 0)
+            if(size.HasValue && size.Value > 0)
             {
                 writeoffset += size.Value;
             }
@@ -175,9 +175,9 @@ namespace Tubumu.Libuv
 
         private void WorkWrite()
         {
-            if (queue.Count == 0)
+            if(queue.Count == 0)
             {
-                if (shutdown)
+                if(shutdown)
                 {
                     uvfile?.Truncate(writeoffset, Finish);
                     //uvfile.Close(shutdownCallback);
@@ -217,7 +217,7 @@ namespace Tubumu.Libuv
         {
             queue.Enqueue(Tuple.Create(data, callback));
             WriteQueueSize += data.Count;
-            if (queue.Count == 1)
+            if(queue.Count == 1)
             {
                 WorkWrite();
             }
@@ -230,7 +230,7 @@ namespace Tubumu.Libuv
         {
             shutdown = true;
             shutdownCallback = callback;
-            if (queue.Count == 0)
+            if(queue.Count == 0)
             {
                 uvfile?.Truncate(writeoffset, Finish);
             }
@@ -238,7 +238,7 @@ namespace Tubumu.Libuv
 
         private void Close(Action<Exception?>? callback)
         {
-            if (!IsClosed && !IsClosing)
+            if(!IsClosed && !IsClosing)
             {
                 IsClosing = true;
                 uvfile?.Close(callback);

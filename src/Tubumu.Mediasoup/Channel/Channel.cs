@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using FBS.Message;
 using Google.FlatBuffers;
 using Microsoft.Extensions.Logging;

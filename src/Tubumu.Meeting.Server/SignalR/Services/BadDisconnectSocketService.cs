@@ -19,9 +19,9 @@ namespace Tubumu.Meeting.Server
 
         public void DisconnectClient(string connectionId)
         {
-            lock (_cacheLock)
+            lock(_cacheLock)
             {
-                if (_cache.TryGetValue(connectionId, out var context))
+                if(_cache.TryGetValue(connectionId, out var context))
                 {
                     // 也许连接已关闭，但也再操作一次。
                     context.Abort();
@@ -32,7 +32,7 @@ namespace Tubumu.Meeting.Server
 
         public void CacheContext(HubCallerContext context)
         {
-            lock (_cacheLock)
+            lock(_cacheLock)
             {
                 _cache[context.ConnectionId] = context;
             }

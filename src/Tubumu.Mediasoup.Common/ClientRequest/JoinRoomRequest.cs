@@ -10,7 +10,7 @@ namespace Tubumu.Mediasoup
         public UserRole Role { get; set; }
     }
 
-    [JsonConverter( typeof( JsonStringEnumMemberConverter ) )]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum UserRole
     {
         [EnumMember(Value = "normal")]

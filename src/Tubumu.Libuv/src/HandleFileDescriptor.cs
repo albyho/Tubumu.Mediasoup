@@ -15,7 +15,7 @@ namespace Tubumu.Libuv
         {
             get
             {
-                if (UV.IsUnix)
+                if(UV.IsUnix)
                 {
                     uv_fileno_unix(NativeHandle, out var value);
                     return (IntPtr)value;
@@ -51,7 +51,7 @@ namespace Tubumu.Libuv
         public void Open(IntPtr fileDescriptor)
         {
             int r;
-            switch (HandleType)
+            switch(HandleType)
             {
                 case HandleType.UV_TCP:
                     r = Open(uv_tcp_open_unix, uv_tcp_open_windows, NativeHandle, fileDescriptor);

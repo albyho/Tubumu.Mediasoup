@@ -22,7 +22,7 @@ namespace Tubumu.Libuv.Utilities
 
             call = (ex) =>
             {
-                if (done)
+                if(done)
                 {
                     return;
                 }
@@ -37,7 +37,7 @@ namespace Tubumu.Libuv.Utilities
             readStream.Data += (data) =>
             {
                 writeStream.Write(data, null);
-                if (writeStream.WriteQueueSize > 0)
+                if(writeStream.WriteQueueSize > 0)
                 {
                     pending = true;
                     readStream.Pause();
@@ -46,7 +46,7 @@ namespace Tubumu.Libuv.Utilities
 
             writeStream.Drain += () =>
             {
-                if (pending)
+                if(pending)
                 {
                     pending = false;
                     readStream.Resume();
