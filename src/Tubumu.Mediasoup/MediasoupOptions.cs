@@ -106,14 +106,14 @@ namespace Tubumu.Mediasoup
                         {
                             Protocol = Protocol.UDP,
                             Ip = "0.0.0.0",
-                            AnnouncedIp = null,
+                            AnnouncedAddress = null,
                             Port = 44444,
                         },
                         new ListenInfoT
                         {
                             Protocol = Protocol.TCP,
                             Ip = "0.0.0.0",
-                            AnnouncedIp = null,
+                            AnnouncedAddress = null,
                             Port = 44444,
                         }
                     }
@@ -122,7 +122,7 @@ namespace Tubumu.Mediasoup
                 {
                     ListenInfos = new[]
                     {
-                        new ListenInfoT { Ip = "0.0.0.0",  AnnouncedIp = null }
+                        new ListenInfoT { Ip = "0.0.0.0",  AnnouncedAddress = null }
                     },
                     InitialAvailableOutgoingBitrate = 1_000_000,
                     MinimumAvailableOutgoingBitrate = 600_000,
@@ -131,7 +131,7 @@ namespace Tubumu.Mediasoup
                 },
                 PlainTransportSettings = new PlainTransportSettings
                 {
-                    ListenInfo = new ListenInfoT { Ip = "0.0.0.0", AnnouncedIp = null },
+                    ListenInfo = new ListenInfoT { Ip = "0.0.0.0", AnnouncedAddress = null },
                     MaxSctpMessageSize = 256 * 1024,
                 }
             }

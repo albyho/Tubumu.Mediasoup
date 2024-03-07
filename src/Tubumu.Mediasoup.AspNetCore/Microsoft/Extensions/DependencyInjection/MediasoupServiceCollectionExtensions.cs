@@ -105,7 +105,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                            {
                                                Protocol = Protocol.TCP,
                                                Ip = ipString,
-                                               AnnouncedIp = ipString,
+                                               AnnouncedAddress = ipString,
                                                Port = 44444,
                                            }).ToList();
 
@@ -113,7 +113,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         Protocol = Protocol.UDP,
                         Ip = m.Ip,
-                        AnnouncedIp = m.AnnouncedIp,
+                        AnnouncedAddress = m.AnnouncedAddress,
                         Port = m.Port,
                     }));
                     mediasoupOptions.MediasoupSettings.WebRtcServerSettings.ListenInfos = listenInfosTemp.ToArray();
@@ -124,11 +124,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     foreach(var listenIp in listenInfos)
                     {
-                        if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
+                        if(listenIp.AnnouncedAddress.IsNullOrWhiteSpace())
                         {
-                            // 如果没有设置 AnnouncedIp：
+                            // 如果没有设置 AnnouncedAddress：
                             // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
-                            listenIp.AnnouncedIp = listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddress.ToString() : listenIp.Ip;
+                            listenIp.AnnouncedAddress = listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddress.ToString() : listenIp.Ip;
                         }
                     }
                 }
@@ -157,7 +157,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                  select new ListenInfoT
                                  {
                                      Ip = ipString,
-                                     AnnouncedIp = ipString
+                                     AnnouncedAddress = ipString
                                  }).ToArray();
                     mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenInfos = listenIps;
                 }
@@ -167,11 +167,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     foreach(var listenIp in listenIps)
                     {
-                        if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
+                        if(listenIp.AnnouncedAddress.IsNullOrWhiteSpace())
                         {
-                            // 如果没有设置 AnnouncedIp：
+                            // 如果没有设置 AnnouncedAddress：
                             // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
-                            listenIp.AnnouncedIp = listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddress.ToString() : listenIp.Ip;
+                            listenIp.AnnouncedAddress = listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddress.ToString() : listenIp.Ip;
                         }
                     }
                 }
@@ -191,15 +191,15 @@ namespace Microsoft.Extensions.DependencyInjection
                     listenIp = new ListenInfoT
                     {
                         Ip = localIPv4IPAddress.ToString(),
-                        AnnouncedIp = localIPv4IPAddress.ToString(),
+                        AnnouncedAddress = localIPv4IPAddress.ToString(),
                     };
                     mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo = listenIp;
                 }
-                else if(listenIp.AnnouncedIp.IsNullOrWhiteSpace())
+                else if(listenIp.AnnouncedAddress.IsNullOrWhiteSpace())
                 {
-                    // 如果没有设置 AnnouncedIp：
+                    // 如果没有设置 AnnouncedAddress：
                     // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
-                    listenIp.AnnouncedIp = listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddress.ToString() : listenIp.Ip;
+                    listenIp.AnnouncedAddress = listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddress.ToString() : listenIp.Ip;
                 }
             }
         }

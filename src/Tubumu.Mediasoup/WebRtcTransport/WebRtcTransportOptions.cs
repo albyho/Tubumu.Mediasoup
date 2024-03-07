@@ -12,9 +12,9 @@ namespace Tubumu.Mediasoup
         public bool? EnableUdp { get; set; } = true;
 
         /// <summary>
-        /// Listen in TCP. Default false.
+        /// Listen in TCP. Default true if webrtcServer is given, false otherwise.
         /// </summary>
-        public bool? EnableTcp { get; set; }
+        public bool? EnableTcp { get; set; } = true;
 
         /// <summary>
         /// Prefer UDP. Default false.
@@ -25,6 +25,11 @@ namespace Tubumu.Mediasoup
         /// Prefer TCP. Default false.
         /// </summary>
         public bool PreferTcp { get; set; }
+
+        /// <summary>
+        /// ICE consent timeout (in seconds). If 0 it is disabled. Default 30.
+        /// </summary>
+	    public byte IceConsentTimeout { get; set; } = 30;
 
         /// <summary>
         /// Initial available outgoing bitrate (in bps). Default 600000.

@@ -26,7 +26,7 @@ namespace FBS.WebRtcTransport
 #endif
         public byte[] GetFoundationArray() { return __p.__vector_as_array<byte>(4); }
         public uint Priority { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-        public string Ip { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+        public string Address { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
 #if ENABLE_SPAN_T
   public Span<byte> GetIpBytes() { return __p.__vector_as_span<byte>(8, 1); }
 #else
@@ -83,7 +83,7 @@ namespace FBS.WebRtcTransport
         {
             _o.Foundation = this.Foundation;
             _o.Priority = this.Priority;
-            _o.Ip = this.Ip;
+            _o.Address = this.Address;
             _o.Protocol = this.Protocol;
             _o.Port = this.Port;
             _o.Type = this.Type;
@@ -94,12 +94,12 @@ namespace FBS.WebRtcTransport
             if(_o == null)
                 return default(Offset<FBS.WebRtcTransport.IceCandidate>);
             var _foundation = _o.Foundation == null ? default(StringOffset) : builder.CreateString(_o.Foundation);
-            var _ip = _o.Ip == null ? default(StringOffset) : builder.CreateString(_o.Ip);
+            var _address = _o.Address == null ? default(StringOffset) : builder.CreateString(_o.Address);
             return CreateIceCandidate(
               builder,
               _foundation,
               _o.Priority,
-              _ip,
+              _address,
               _o.Protocol,
               _o.Port,
               _o.Type,

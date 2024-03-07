@@ -18,7 +18,7 @@
 
 1. 请打开 `mediasoupsettings.json` 进行两处修改：
 
-- 在配置文件中搜索将 `AnnouncedIp` ，将其值改为本机的局域网或外网的 IP。如果其值为 `null` 则取本机的其中一个 IPv4 的地址。
+- 在配置文件中搜索将 `AnnouncedAddress` ，将其值改为本机的局域网 IP 或外网的 IP/域名。如果其值为 `null` 则取本机的其中一个 IPv4 的地址。
 - 在 `MediasoupStartupSettings.WorkerPath` 节点设置 `mediasoup-worker` 可执行程序的物理路径。 如果引用了 `Tubumu.Mediasoup.Executable` 项目则可将该节点注释掉，该项目包含了编译好的 macOS 和 Windows 版的 mediasoup-worker 。
 
 2. 在 `Tubumu.Meeting.Web` 目录执行 `dotnet run` 或者在 `Vistual Sudio` 打开解决方案启动 `Tubumu.Meeting.Web` 项目。

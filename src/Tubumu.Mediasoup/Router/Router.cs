@@ -261,7 +261,7 @@ namespace Tubumu.Mediasoup
                     {
                         Protocol = m.Protocol,
                         Ip = m.Ip,
-                        AnnouncedIp = m.AnnouncedIp,
+                        AnnouncedAddress = m.AnnouncedAddress,
                         Port = m.Port,
                         Flags = m.Flags,
                         SendBufferSize = m.SendBufferSize,
@@ -294,6 +294,7 @@ namespace Tubumu.Mediasoup
                     EnableTcp = webRtcTransportOptions.EnableTcp!.Value,
                     PreferUdp = webRtcTransportOptions.PreferUdp,
                     PreferTcp = webRtcTransportOptions.PreferTcp,
+                    IceConsentTimeout = webRtcTransportOptions.IceConsentTimeout,
                     Listen = new FBS.WebRtcTransport.ListenUnion
                     {
                         Type = webRtcServer != null ? FBS.WebRtcTransport.Listen.ListenServer : FBS.WebRtcTransport.Listen.ListenIndividual,
@@ -791,13 +792,13 @@ namespace Tubumu.Mediasoup
 
                             await Task.WhenAll(localPipeTransport.ConnectAsync(new FBS.PipeTransport.ConnectRequestT
                             {
-                                Ip = remotePipeTransport.Data.Tuple.LocalIp,
+                                Ip = remotePipeTransport.Data.Tuple.LocalAddress,
                                 Port = remotePipeTransport.Data.Tuple.LocalPort,
                                 SrtpParameters = remotePipeTransport.Data.SrtpParameters,
                             }),
                             remotePipeTransport.ConnectAsync(new FBS.PipeTransport.ConnectRequestT
                             {
-                                Ip = localPipeTransport.Data.Tuple.LocalIp,
+                                Ip = localPipeTransport.Data.Tuple.LocalAddress,
                                 Port = localPipeTransport.Data.Tuple.LocalPort,
                                 SrtpParameters = localPipeTransport.Data.SrtpParameters,
                             })

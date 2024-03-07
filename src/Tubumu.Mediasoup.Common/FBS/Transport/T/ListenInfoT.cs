@@ -9,7 +9,7 @@ namespace FBS.Transport
         [Required]
         public string Ip { get; set; }
 
-        public string? AnnouncedIp { get; set; }
+        public string? AnnouncedAddress { get; set; }
 
         public ushort Port { get; set; }
 

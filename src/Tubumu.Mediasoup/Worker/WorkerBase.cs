@@ -200,7 +200,7 @@ namespace Tubumu.Mediasoup
                 {
                     Protocol = m.Protocol,
                     Ip = m.Ip,
-                    AnnouncedIp = m.AnnouncedIp,
+                    AnnouncedAddress = m.AnnouncedAddress,
                     Port = m.Port,
                     Flags = m.Flags,
                     SendBufferSize = m.SendBufferSize,

@@ -6,7 +6,7 @@ namespace FBS.WebRtcTransport
 
         public uint Priority { get; set; }
 
-        public string Ip { get; set; }
+        public string Address { get; set; }
 
         public FBS.Transport.Protocol Protocol { get; set; }
 

@@ -18,13 +18,13 @@ namespace FBS.Transport
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
         public Tuple __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-        public string LocalIp { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+        public string LocalAddress { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
 #if ENABLE_SPAN_T
-  public Span<byte> GetLocalIpBytes() { return __p.__vector_as_span<byte>(4, 1); }
+  public Span<byte> GetLocalAddressBytes() { return __p.__vector_as_span<byte>(4, 1); }
 #else
-        public ArraySegment<byte>? GetLocalIpBytes() { return __p.__vector_as_arraysegment(4); }
+        public ArraySegment<byte>? GetLocalAddressBytes() { return __p.__vector_as_arraysegment(4); }
 #endif
-        public byte[] GetLocalIpArray() { return __p.__vector_as_array<byte>(4); }
+        public byte[] GetLocalAddressArray() { return __p.__vector_as_array<byte>(4); }
         public ushort LocalPort { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetUshort(o + __p.bb_pos) : (ushort)0; } }
         public string RemoteIp { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
 #if ENABLE_SPAN_T
@@ -45,7 +45,7 @@ namespace FBS.Transport
         {
             builder.StartTable(5);
             Tuple.AddRemoteIp(builder, remote_ipOffset);
-            Tuple.AddLocalIp(builder, local_ipOffset);
+            Tuple.AddLocalAddress(builder, local_ipOffset);
             Tuple.AddRemotePort(builder, remote_port);
             Tuple.AddLocalPort(builder, local_port);
             Tuple.AddProtocol(builder, protocol);
@@ -53,7 +53,7 @@ namespace FBS.Transport
         }
 
         public static void StartTuple(FlatBufferBuilder builder) { builder.StartTable(5); }
-        public static void AddLocalIp(FlatBufferBuilder builder, StringOffset localIpOffset) { builder.AddOffset(0, localIpOffset.Value, 0); }
+        public static void AddLocalAddress(FlatBufferBuilder builder, StringOffset localAddressOffset) { builder.AddOffset(0, localAddressOffset.Value, 0); }
         public static void AddLocalPort(FlatBufferBuilder builder, ushort localPort) { builder.AddUshort(1, localPort, 0); }
         public static void AddRemoteIp(FlatBufferBuilder builder, StringOffset remoteIpOffset) { builder.AddOffset(2, remoteIpOffset.Value, 0); }
         public static void AddRemotePort(FlatBufferBuilder builder, ushort remotePort) { builder.AddUshort(3, remotePort, 0); }
@@ -72,7 +72,7 @@ namespace FBS.Transport
         }
         public void UnPackTo(TupleT _o)
         {
-            _o.LocalIp = this.LocalIp;
+            _o.LocalAddress = this.LocalAddress;
             _o.LocalPort = this.LocalPort;
             _o.RemoteIp = this.RemoteIp;
             _o.RemotePort = this.RemotePort;
@@ -82,7 +82,7 @@ namespace FBS.Transport
         {
             if(_o == null)
                 return default(Offset<FBS.Transport.Tuple>);
-            var _local_ip = _o.LocalIp == null ? default(StringOffset) : builder.CreateString(_o.LocalIp);
+            var _local_ip = _o.LocalAddress == null ? default(StringOffset) : builder.CreateString(_o.LocalAddress);
             var _remote_ip = _o.RemoteIp == null ? default(StringOffset) : builder.CreateString(_o.RemoteIp);
             return CreateTuple(
               builder,

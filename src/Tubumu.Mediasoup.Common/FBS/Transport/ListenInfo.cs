@@ -26,13 +26,13 @@ namespace FBS.Transport
         public ArraySegment<byte>? GetIpBytes() { return __p.__vector_as_arraysegment(6); }
 #endif
         public byte[] GetIpArray() { return __p.__vector_as_array<byte>(6); }
-        public string AnnouncedIp { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+        public string AnnouncedAddress { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
 #if ENABLE_SPAN_T
-  public Span<byte> GetAnnouncedIpBytes() { return __p.__vector_as_span<byte>(8, 1); }
+  public Span<byte> GetAnnouncedAddressBytes() { return __p.__vector_as_span<byte>(8, 1); }
 #else
-        public ArraySegment<byte>? GetAnnouncedIpBytes() { return __p.__vector_as_arraysegment(8); }
+        public ArraySegment<byte>? GetAnnouncedAddressBytes() { return __p.__vector_as_arraysegment(8); }
 #endif
-        public byte[] GetAnnouncedIpArray() { return __p.__vector_as_array<byte>(8); }
+        public byte[] GetAnnouncedAddressArray() { return __p.__vector_as_array<byte>(8); }
         public ushort Port { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetUshort(o + __p.bb_pos) : (ushort)0; } }
         public FBS.Transport.SocketFlags? Flags { get { int o = __p.__offset(12); return o != 0 ? (FBS.Transport.SocketFlags?)(new FBS.Transport.SocketFlags()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
         public uint SendBufferSize { get { int o = __p.__offset(14); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
@@ -51,7 +51,7 @@ namespace FBS.Transport
             ListenInfo.AddRecvBufferSize(builder, recv_buffer_size);
             ListenInfo.AddSendBufferSize(builder, send_buffer_size);
             ListenInfo.AddFlags(builder, flagsOffset);
-            ListenInfo.AddAnnouncedIp(builder, announced_ipOffset);
+            ListenInfo.AddAnnouncedAddress(builder, announced_ipOffset);
             ListenInfo.AddIp(builder, ipOffset);
             ListenInfo.AddPort(builder, port);
             ListenInfo.AddProtocol(builder, protocol);
@@ -61,7 +61,7 @@ namespace FBS.Transport
         public static void StartListenInfo(FlatBufferBuilder builder) { builder.StartTable(7); }
         public static void AddProtocol(FlatBufferBuilder builder, FBS.Transport.Protocol protocol) { builder.AddByte(0, (byte)protocol, 1); }
         public static void AddIp(FlatBufferBuilder builder, StringOffset ipOffset) { builder.AddOffset(1, ipOffset.Value, 0); }
-        public static void AddAnnouncedIp(FlatBufferBuilder builder, StringOffset announcedIpOffset) { builder.AddOffset(2, announcedIpOffset.Value, 0); }
+        public static void AddAnnouncedAddress(FlatBufferBuilder builder, StringOffset announcedAddressOffset) { builder.AddOffset(2, announcedAddressOffset.Value, 0); }
         public static void AddPort(FlatBufferBuilder builder, ushort port) { builder.AddUshort(3, port, 0); }
         public static void AddFlags(FlatBufferBuilder builder, Offset<FBS.Transport.SocketFlags> flagsOffset) { builder.AddOffset(4, flagsOffset.Value, 0); }
         public static void AddSendBufferSize(FlatBufferBuilder builder, uint sendBufferSize) { builder.AddUint(5, sendBufferSize, 0); }
@@ -83,7 +83,7 @@ namespace FBS.Transport
         {
             _o.Protocol = this.Protocol;
             _o.Ip = this.Ip;
-            _o.AnnouncedIp = this.AnnouncedIp;
+            _o.AnnouncedAddress = this.AnnouncedAddress;
             _o.Port = this.Port;
             _o.Flags = this.Flags.HasValue ? this.Flags.Value.UnPack() : null;
             _o.SendBufferSize = this.SendBufferSize;
@@ -94,7 +94,7 @@ namespace FBS.Transport
             if(_o == null)
                 return default(Offset<FBS.Transport.ListenInfo>);
             var _ip = _o.Ip == null ? default(StringOffset) : builder.CreateString(_o.Ip);
-            var _announced_ip = _o.AnnouncedIp == null ? default(StringOffset) : builder.CreateString(_o.AnnouncedIp);
+            var _announced_ip = _o.AnnouncedAddress == null ? default(StringOffset) : builder.CreateString(_o.AnnouncedAddress);
             var _flags = _o.Flags == null ? default(Offset<FBS.Transport.SocketFlags>) : FBS.Transport.SocketFlags.Pack(builder, _o.Flags);
             return CreateListenInfo(
               builder,

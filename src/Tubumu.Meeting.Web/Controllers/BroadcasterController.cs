@@ -129,7 +129,7 @@ namespace Tubumu.Meeting.Web.Controllers
             var result = new CreatePlainTransportResult
             {
                 TransportId = transport.TransportId,
-                Ip = transport.Data.Tuple.LocalIp,
+                Address = transport.Data.Tuple.LocalAddress,
                 Port = transport.Data.Tuple.LocalPort,
             };
             return new ApiResult<CreatePlainTransportResult>

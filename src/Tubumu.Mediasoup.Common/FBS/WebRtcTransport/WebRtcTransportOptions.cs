@@ -25,6 +25,7 @@ namespace FBS.WebRtcTransport
         public bool EnableTcp { get { int o = __p.__offset(12); return o != 0 ? 0 != __p.bb.Get(o + __p.bb_pos) : (bool)true; } }
         public bool PreferUdp { get { int o = __p.__offset(14); return o != 0 ? 0 != __p.bb.Get(o + __p.bb_pos) : (bool)false; } }
         public bool PreferTcp { get { int o = __p.__offset(16); return o != 0 ? 0 != __p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+        public byte IceConsentTimeout { get { int o = __p.__offset(18); return o != 0 ? __p.bb.Get(o + __p.bb_pos) : (byte)30; } }
 
         public static Offset<FBS.WebRtcTransport.WebRtcTransportOptions> CreateWebRtcTransportOptions(FlatBufferBuilder builder,
             Offset<FBS.Transport.Options> @baseOffset = default(Offset<FBS.Transport.Options>),
@@ -33,11 +34,13 @@ namespace FBS.WebRtcTransport
             bool enable_udp = true,
             bool enable_tcp = true,
             bool prefer_udp = false,
-            bool prefer_tcp = false)
+            bool prefer_tcp = false,
+            byte ice_consent_timeout = 30)
         {
-            builder.StartTable(7);
+            builder.StartTable(8);
             WebRtcTransportOptions.AddListen(builder, listenOffset);
             WebRtcTransportOptions.AddBase(builder, @baseOffset);
+            WebRtcTransportOptions.AddIceConsentTimeout(builder, ice_consent_timeout);
             WebRtcTransportOptions.AddPreferTcp(builder, prefer_tcp);
             WebRtcTransportOptions.AddPreferUdp(builder, prefer_udp);
             WebRtcTransportOptions.AddEnableTcp(builder, enable_tcp);
@@ -46,7 +49,7 @@ namespace FBS.WebRtcTransport
             return WebRtcTransportOptions.EndWebRtcTransportOptions(builder);
         }
 
-        public static void StartWebRtcTransportOptions(FlatBufferBuilder builder) { builder.StartTable(7); }
+        public static void StartWebRtcTransportOptions(FlatBufferBuilder builder) { builder.StartTable(8); }
         public static void AddBase(FlatBufferBuilder builder, Offset<FBS.Transport.Options> baseOffset) { builder.AddOffset(0, baseOffset.Value, 0); }
         public static void AddListenType(FlatBufferBuilder builder, FBS.WebRtcTransport.Listen listenType) { builder.AddByte(1, (byte)listenType, 0); }
         public static void AddListen(FlatBufferBuilder builder, int listenOffset) { builder.AddOffset(2, listenOffset, 0); }
@@ -54,6 +57,7 @@ namespace FBS.WebRtcTransport
         public static void AddEnableTcp(FlatBufferBuilder builder, bool enableTcp) { builder.AddBool(4, enableTcp, true); }
         public static void AddPreferUdp(FlatBufferBuilder builder, bool preferUdp) { builder.AddBool(5, preferUdp, false); }
         public static void AddPreferTcp(FlatBufferBuilder builder, bool preferTcp) { builder.AddBool(6, preferTcp, false); }
+        public static void AddIceConsentTimeout(FlatBufferBuilder builder, byte iceConsentTimeout) { builder.AddByte(7, iceConsentTimeout, 30); }
         public static Offset<FBS.WebRtcTransport.WebRtcTransportOptions> EndWebRtcTransportOptions(FlatBufferBuilder builder)
         {
             int o = builder.EndTable();
@@ -87,6 +91,7 @@ namespace FBS.WebRtcTransport
             _o.EnableTcp = this.EnableTcp;
             _o.PreferUdp = this.PreferUdp;
             _o.PreferTcp = this.PreferTcp;
+            _o.IceConsentTimeout = this.IceConsentTimeout;
         }
         public static Offset<FBS.WebRtcTransport.WebRtcTransportOptions> Pack(FlatBufferBuilder builder, WebRtcTransportOptionsT _o)
         {
@@ -103,7 +108,8 @@ namespace FBS.WebRtcTransport
               _o.EnableUdp,
               _o.EnableTcp,
               _o.PreferUdp,
-              _o.PreferTcp);
+              _o.PreferTcp,
+              _o.IceConsentTimeout);
         }
     }
 }

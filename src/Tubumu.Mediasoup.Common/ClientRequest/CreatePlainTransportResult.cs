@@ -4,7 +4,7 @@
     {
         public string TransportId { get; set; }
 
-        public string Ip { get; set; }
+        public string Address { get; set; }
 
         public int Port { get; set; }
     }

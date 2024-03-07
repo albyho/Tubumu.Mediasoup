@@ -10,7 +10,7 @@ namespace FBS.Transport
 {
     public class TupleT
     {
-        public string LocalIp { get; set; }
+        public string LocalAddress { get; set; }
 
         public ushort LocalPort { get; set; }
 
