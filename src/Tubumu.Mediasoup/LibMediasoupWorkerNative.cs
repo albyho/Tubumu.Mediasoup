@@ -61,8 +61,6 @@ namespace Tubumu.Mediasoup
         /// <param name="version">Medisaoup version</param>
         /// <param name="consumerChannelFd">Consumer channel fd, Zero.</param>
         /// <param name="producerChannelFd">Consumer channel fd, Zero.</param>
-        /// <param name="_payloadConsumeChannelFd">Not used, Zero.</param>
-        /// <param name="_payloadProduceChannelFd">Not used, Zero.</param>
         /// <param name="channelReadFn">Channel read function</param>
         /// <param name="channelReadCtx">Channel read function context</param>
         /// <param name="channelWriteFn">Channel write function</param>
@@ -74,8 +72,6 @@ namespace Tubumu.Mediasoup
             string version,
             int consumerChannelFd,
             int producerChannelFd,
-            int _payloadConsumeChannelFd,
-            int _payloadProduceChannelFd,
             ChannelReadFn channelReadFn,
             ChannelReadCtx channelReadCtx,
             ChannelWriteFn channelWriteFn,

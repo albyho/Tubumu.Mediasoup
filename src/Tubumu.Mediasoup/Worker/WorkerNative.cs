@@ -80,8 +80,6 @@ namespace Tubumu.Mediasoup
                 _version,
                 0,
                 0,
-                0,
-                0,
                 ChannelNative.OnChannelRead,
                 _channlPtr,
                 ChannelNative.OnChannelWrite,
