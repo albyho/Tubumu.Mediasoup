@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class UVTimerExtensions
+    internal static class UVTimerExtensions
     {
         public static Task StartAsync(this UVTimer timer, ulong timeout)
         {

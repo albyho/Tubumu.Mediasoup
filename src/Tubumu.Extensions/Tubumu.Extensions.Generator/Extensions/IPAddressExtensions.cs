@@ -8,6 +8,7 @@ namespace System.Net
     /// <summary>
     /// IPAddress 扩展方法
     /// </summary>
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(IPAddressExtensions)}")]
     public static class IPAddressExtensions
     {
         private static readonly Regex IpV4Regex = new(@"^\d{1,3}[\.]\d{1,3}[\.]\d{1,3}[\.]\d{1,3}$", RegexOptions.Compiled);
@@ -18,16 +19,10 @@ namespace System.Net
         /// </summary>
         public static int ToInt32(this IPAddress ip)
         {
-            var x = 3;
-            var v = 0;
+            var x     = 3;
             var bytes = ip.GetAddressBytes();
-            for(int i = 0; i < bytes.Length; i++)
-            {
-                var f = bytes[i];
-                v += f << (8 * x--);
-            }
 
-            return v;
+            return bytes.Sum(f => f << (8 * x--));
         }
 
         /// <summary>
@@ -35,16 +30,10 @@ namespace System.Net
         /// </summary>
         public static long ToInt64(this IPAddress ip)
         {
-            var x = 3;
-            var v = 0L;
+            var x     = 3;
             var bytes = ip.GetAddressBytes();
-            for(var i = 0; i < bytes.Length; i++)
-            {
-                var f = bytes[i];
-                v += (long)f << (8 * x--);
-            }
 
-            return v;
+            return bytes.Sum(f => (long)f << (8 * x--));
         }
 
         /// <summary>

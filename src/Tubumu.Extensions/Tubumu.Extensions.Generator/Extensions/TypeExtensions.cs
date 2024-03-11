@@ -5,7 +5,8 @@ namespace System
     /// <summary>
     /// Type 扩展方法
     /// </summary>
-    public static class TypeExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(TypeExtensions)}")]
+    internal static class TypeExtensions
     {
         /// <summary>
         /// 判断类型是否是复合类型

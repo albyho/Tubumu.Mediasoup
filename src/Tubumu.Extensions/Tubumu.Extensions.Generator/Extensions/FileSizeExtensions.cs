@@ -1,6 +1,7 @@
 ﻿namespace System
 {
-    public static class FileSizeExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(FileSizeExtensions)}")]
+    internal static class FileSizeExtensions
     {
         private const double FileSizeMod = 1024.0;
 

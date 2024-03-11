@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Tubumu.Libuv
 {
-    public static class IUVStreamExtensions
+    internal static class IUVStreamExtensions
     {
         public static void Read(this IUVStream<ArraySegment<byte>> stream, Encoding enc, Action<string> callback)
         {

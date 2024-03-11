@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class IConnectableTimeoutExtensions
+    internal static class IConnectableTimeoutExtensions
     {
         public static Task ConnectAsync<TType, TEndPoint>(this IConnectable<TType, TEndPoint> client, TEndPoint endPoint, TimeSpan timeout)
         {

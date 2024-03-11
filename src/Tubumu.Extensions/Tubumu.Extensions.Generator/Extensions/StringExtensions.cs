@@ -5,7 +5,8 @@ namespace System
     /// <summary>
     /// String 扩展方法
     /// </summary>
-    public static class StringExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(StringExtensions)}")]
+    internal static class StringExtensions
     {
         #region 字符串空 / null 校验
 

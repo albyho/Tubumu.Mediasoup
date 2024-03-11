@@ -2,7 +2,7 @@
 
 namespace Tubumu.Libuv
 {
-    public static class IBindableExtensions
+    internal static class IBindableExtensions
     {
         public static void Bind<T>(this IBindable<T, IPEndPoint> bindable, IPAddress ipAddress, int port)
         {

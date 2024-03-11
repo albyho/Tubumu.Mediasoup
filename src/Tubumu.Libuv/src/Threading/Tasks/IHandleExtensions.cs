@@ -2,7 +2,7 @@
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class IHandleExtensions
+    internal static class IHandleExtensions
     {
         public static Task CloseAsync(this IHandle handle)
         {

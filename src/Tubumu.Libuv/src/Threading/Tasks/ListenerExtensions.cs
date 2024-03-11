@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class ListenerExtensions
+    internal static class ListenerExtensions
     {
         public static Task<TClient?> AcceptAsync<TClient>(this IListener<TClient> listener)
         {

@@ -10,7 +10,8 @@ namespace System
     /// <summary>
     /// 枚举扩展方法
     /// </summary>
-    public static class EnumExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(EnumExtensions)}")]
+    internal static class EnumExtensions
     {
         #region DescriptionAttribute
 

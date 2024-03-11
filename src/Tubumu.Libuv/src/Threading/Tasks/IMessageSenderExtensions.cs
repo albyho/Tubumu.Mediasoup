@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class IMessageSenderExtensions
+    internal static class IMessageSenderExtensions
     {
         public static Task SendAsync<TMessage>(this IMessageSender<TMessage> sender, TMessage message)
         {

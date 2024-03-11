@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Tubumu.Libuv
 {
-    public static class IPCPipeExtensions
+    internal static class IPCPipeExtensions
     {
         #region Write
 

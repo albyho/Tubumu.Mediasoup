@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class StreamExtensions
+    internal static class StreamExtensions
     {
         public static Task<TData?> ReadStructAsync<TData>(this IUVStream<TData> stream) where TData : struct
         {

@@ -33,6 +33,15 @@
 
   <ItemGroup>
       <None Include="README.md" Pack="true" PackagePath="\" />
+      <InternalsVisibleTo Include="Tubumu.Mediasoup"/>
+      <InternalsVisibleTo Include="Tubumu.Mediasoup.AspNetCore"/>
+      <InternalsVisibleTo Include="Tubumu.Mediasoup.Common"/>
+      <InternalsVisibleTo Include="Tubumu.Meeting.Server"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference ReferenceOutputAssembly="false" OutputItemType="Analyzer" Include="..\Tubumu.Extensions\Tubumu.Extensions.Generator\Tubumu.Extensions.Generator.csproj" />
+    <ProjectReference Include="..\Tubumu.Extensions\Tubumu.Extensions\Tubumu.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

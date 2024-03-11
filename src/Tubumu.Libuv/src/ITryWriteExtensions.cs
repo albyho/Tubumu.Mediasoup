@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Tubumu.Libuv
 {
-    public static class ITryWriteExtensions
+    internal static class ITryWriteExtensions
     {
         public static int TryWrite(this ITryWrite<ArraySegment<byte>> handle, byte[] data, int index, int count)
         {

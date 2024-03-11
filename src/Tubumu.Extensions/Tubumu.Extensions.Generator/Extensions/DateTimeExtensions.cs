@@ -1,6 +1,7 @@
 ﻿namespace System
 {
-    public static class DateTimeExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(DateTimeExtensions)}")]
+    internal static class DateTimeExtensions
     {
         public static DateTime SpecifyKindLocal(this DateTime dateTime)
         {

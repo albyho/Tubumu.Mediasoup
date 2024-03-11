@@ -5,7 +5,8 @@ namespace System
     /// <summary>
     /// Path 扩展方法
     /// </summary>
-    public static class PathExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(PathExtensions)}")]
+    internal static class PathExtensions
     {
         /// <summary>
         /// 替换文件后缀。支持文件名或路径。

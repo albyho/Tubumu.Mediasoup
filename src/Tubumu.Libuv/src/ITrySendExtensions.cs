@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Tubumu.Libuv
 {
-    public static class ITrySendExtensions
+    internal static class ITrySendExtensions
     {
         #region IPAddress string
 

@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Tubumu.Libuv
 {
-    public static class IConnectableExtensions
+    internal static class IConnectableExtensions
     {
         #region IP Extensions
 

@@ -5,6 +5,7 @@ namespace System.Threading
     /// <summary>
     /// Interlocked 扩展方法
     /// </summary>
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(InterlockedExtensions)}")]
     public static class InterlockedExtensions
     {
         /// <summary>
@@ -12,7 +13,7 @@ namespace System.Threading
         /// </summary>
         public static uint Increment(this ref uint location)
         {
-            int incrementedSigned = Interlocked.Increment(ref Unsafe.As<uint, int>(ref location));
+            var incrementedSigned = Interlocked.Increment(ref Unsafe.As<uint, int>(ref location));
             return Unsafe.As<int, uint>(ref incrementedSigned);
         }
 
