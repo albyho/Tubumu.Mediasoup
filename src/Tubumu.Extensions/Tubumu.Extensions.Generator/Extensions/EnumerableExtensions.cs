@@ -6,7 +6,8 @@ namespace System.Collections.Generic
     /// <summary>
     /// 枚举器扩展方法
     /// </summary>
-    public static class EnumerableExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(EnumerableExtensions)}")]
+    internal static class EnumerableExtensions
     {
         /// <summary>
         /// 对枚举器的每个元素执行指定的操作
@@ -14,7 +15,7 @@ namespace System.Collections.Generic
         /// <typeparam name="T">枚举器类型参数</typeparam>
         /// <param name="source">枚举器</param>
         /// <param name="action">要对枚举器的每个元素执行的委托</param>
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        public static void ForEach<T>(this IEnumerable<T>? source, Action<T>? action)
         {
             if(source == null || action == null)
             {

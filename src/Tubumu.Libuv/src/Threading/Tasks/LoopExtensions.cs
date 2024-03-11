@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class LoopExtensions
+    internal static class LoopExtensions
     {
         public static Task QueueUserWorkItemAsync(this Loop loop, Action action)
         {

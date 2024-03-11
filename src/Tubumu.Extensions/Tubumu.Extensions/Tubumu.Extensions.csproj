@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>preview</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference OutputItemType="Analyzer" ReferenceOutputAssembly="false" Include="..\Tubumu.Extensions.Generator\Tubumu.Extensions.Generator.csproj" />
+
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
+        <PackageReference Include="MessagePack" Version="2.5.140" />
+        <PackageReference Include="MessagePackAnalyzer" Version="2.5.140">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="PinYinConverterCore" Version="1.0.2" />
+        <PackageReference Include="SkiaSharp" Version="2.88.7" />
+        <PackageReference Include="NPOI" Version="2.6.2" />
+    </ItemGroup>
+
+    <Import Project="..\Tubumu.Extensions.Shared\Tubumu.Extensions.Shared.projitems" Label="Shared" />
+
+</Project>

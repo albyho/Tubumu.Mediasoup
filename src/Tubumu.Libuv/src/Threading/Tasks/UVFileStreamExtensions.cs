@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv
 {
-    public static class UVFileStreamExtensions
+    internal static class UVFileStreamExtensions
     {
         public static Task OpenAsync(this UVFileStream filestream, string path, UVFileAccess access)
         {

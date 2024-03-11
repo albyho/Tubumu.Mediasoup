@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class IPCPipeExtensions
+    internal static class IPCPipeExtensions
     {
         public static Task WriteAsync(this IPCPipe pipe, Handle handle, ArraySegment<byte> data)
         {

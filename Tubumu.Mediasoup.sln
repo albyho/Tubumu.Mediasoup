@@ -23,6 +23,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tubumu.Meeting.Server", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tubumu.Meeting.Web", "src\Tubumu.Meeting.Web\Tubumu.Meeting.Web.csproj", "{09DB027B-F4C8-48A5-BE59-E22AC8DCB3D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tubumu.Extensions.Generator", "src\Tubumu.Extensions\Tubumu.Extensions.Generator\Tubumu.Extensions.Generator.csproj", "{4062BC49-3AC7-48E4-B638-95B615CB5E09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tubumu.Extensions", "src\Tubumu.Extensions\Tubumu.Extensions\Tubumu.Extensions.csproj", "{D5727953-EFB0-42E6-9815-7AE8B0BB8C95}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tubumu.Extensions", "Tubumu.Extensions", "{7DEF6846-7A35-4436-B190-40FC0E8037EE}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Tubumu.Extensions.Shared", "src\Tubumu.Extensions\Tubumu.Extensions.Shared\Tubumu.Extensions.Shared.shproj", "{5FDBE994-9455-4951-A1A6-98B670CF85B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +65,14 @@ Global
 		{09DB027B-F4C8-48A5-BE59-E22AC8DCB3D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09DB027B-F4C8-48A5-BE59-E22AC8DCB3D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09DB027B-F4C8-48A5-BE59-E22AC8DCB3D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4062BC49-3AC7-48E4-B638-95B615CB5E09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4062BC49-3AC7-48E4-B638-95B615CB5E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4062BC49-3AC7-48E4-B638-95B615CB5E09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4062BC49-3AC7-48E4-B638-95B615CB5E09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5727953-EFB0-42E6-9815-7AE8B0BB8C95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5727953-EFB0-42E6-9815-7AE8B0BB8C95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5727953-EFB0-42E6-9815-7AE8B0BB8C95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5727953-EFB0-42E6-9815-7AE8B0BB8C95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,5 +88,9 @@ Global
 		{AC281D6D-1522-45C2-B4E9-E1F0B1E5D26F} = {055CF81D-6689-4606-ACE2-4153B31D67A7}
 		{5981D188-8042-4757-8211-6800D4A8881D} = {3022B5C8-029D-4820-A750-50C26012C147}
 		{09DB027B-F4C8-48A5-BE59-E22AC8DCB3D9} = {3022B5C8-029D-4820-A750-50C26012C147}
+		{7DEF6846-7A35-4436-B190-40FC0E8037EE} = {68AF934F-EB71-4678-9DAE-47771CD714F1}
+		{D5727953-EFB0-42E6-9815-7AE8B0BB8C95} = {7DEF6846-7A35-4436-B190-40FC0E8037EE}
+		{4062BC49-3AC7-48E4-B638-95B615CB5E09} = {7DEF6846-7A35-4436-B190-40FC0E8037EE}
+		{5FDBE994-9455-4951-A1A6-98B670CF85B4} = {7DEF6846-7A35-4436-B190-40FC0E8037EE}
 	EndGlobalSection
 EndGlobal

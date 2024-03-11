@@ -3,7 +3,8 @@
     /// <summary>
     /// 字典扩展方法
     /// </summary>
-    public static class DictionaryExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(DictionaryExtensions)}")]
+    internal static class DictionaryExtensions
     {
         /// <summary>
         /// 将目标字典的全部元素复制入源字典中
@@ -133,6 +134,7 @@
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(DictionaryComparer<TKey,TValue>)}")]
     public class DictionaryComparer<TKey, TValue> : IEqualityComparer<IDictionary<TKey, TValue>> where TKey : notnull
     {
         public bool Equals(IDictionary<TKey, TValue>? x, IDictionary<TKey, TValue>? y)

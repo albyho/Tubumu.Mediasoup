@@ -4,8 +4,9 @@ namespace System
 {
     /// <summary>
     /// Guid 扩展方法
-    /// </summary>
-    public static class GuidExtensions
+    /// </summary
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(GuidExtensions)}")]
+    internal static class GuidExtensions
     {
         private static readonly Regex GuidRegex = new(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", RegexOptions.Compiled | RegexOptions.Singleline);
 

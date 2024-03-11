@@ -3,6 +3,7 @@
     /// <summary>
     /// Expression 扩展方法
     /// </summary>
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(ExpressionExtensions)}")]
     public static class ExpressionExtensions
     {
         /// <summary>

@@ -2,7 +2,7 @@ using System;
 
 namespace Tubumu.Libuv
 {
-    public static class IFileDescriptorExtensions
+    internal static class IFileDescriptorExtensions
     {
         public static void Open(this IFileDescriptor fileDescriptor, int fd)
         {

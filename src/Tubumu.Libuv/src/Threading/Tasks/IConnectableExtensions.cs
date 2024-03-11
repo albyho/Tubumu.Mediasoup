@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Tubumu.Libuv.Threading.Tasks
 {
-    public static class IConnectableExtensions
+    internal static class IConnectableExtensions
     {
         public static Task ConnectAsync<TType, TEndPoint>(this IConnectable<TType, TEndPoint> client, TEndPoint endPoint)
         {

@@ -3,6 +3,7 @@
     /// <summary>
     /// 时间间隔类型
     /// </summary>
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(DateInterval)}")]
     public enum DateInterval
     {
         /// <summary>
@@ -49,7 +50,8 @@
     /// <summary>
     /// DateTimeManger
     /// </summary>
-    public static class DateTimeManger
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(DateTimeManger)}")]
+    internal static class DateTimeManger
     {
         /// <summary>
         /// 计算结束时间与开始时间的间隔

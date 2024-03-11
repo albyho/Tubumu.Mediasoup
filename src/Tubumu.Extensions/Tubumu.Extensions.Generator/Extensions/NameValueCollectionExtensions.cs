@@ -6,7 +6,8 @@ namespace System.Collections.Specialized
     /// <summary>
     /// NameValueCollectionExtensions
     /// </summary>
-    public static class NameValueCollectionExtensions
+    [Literal($"{nameof(Tubumu)}.{nameof(Tubumu.Templates)}.{nameof(NameValueCollectionExtensions)}")]
+    internal static class NameValueCollectionExtensions
     {
         /// <summary>
         /// IsTrue

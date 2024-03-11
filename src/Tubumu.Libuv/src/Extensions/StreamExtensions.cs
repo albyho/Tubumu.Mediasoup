@@ -9,12 +9,12 @@ using Tubumu.Libuv.Threading.Tasks;
 
 namespace Tubumu.Libuv.Extensions
 {
-    public static class Default
+    internal static class Default
     {
         public static IPEndPoint IPEndPoint { get; } = new(IPAddress.Parse("127.0.0.1"), 7000);
     }
 
-    public static class AsyncExtensions
+    internal static class AsyncExtensions
     {
         public static Task<string?> ReadStringAsync(this IUVStream<ArraySegment<byte>> stream)
         {
@@ -33,7 +33,7 @@ namespace Tubumu.Libuv.Extensions
         }
     }
 
-    public static class EncodingExtensions
+    internal static class EncodingExtensions
     {
         public static string GetString(this Encoding encoding, ArraySegment<byte> segment)
         {
@@ -62,7 +62,7 @@ namespace Tubumu.Libuv.Extensions
         }
     }
 
-    public static class HexExtensions
+    internal static class HexExtensions
     {
         public static string ToHex(this byte[] bytes)
         {
@@ -75,7 +75,7 @@ namespace Tubumu.Libuv.Extensions
         }
     }
 
-    public static class HashAlgorithmExtensions
+    internal static class HashAlgorithmExtensions
     {
         public static void TransformBlock(this HashAlgorithm hashAlgorithm, byte[] input, byte[] outputBuffer, int outputOffset)
         {

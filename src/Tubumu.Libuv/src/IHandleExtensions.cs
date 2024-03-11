@@ -1,6 +1,6 @@
 ﻿namespace Tubumu.Libuv
 {
-    public static class IHandleExtensions
+    internal static class IHandleExtensions
     {
         public static void Close(this IHandle handle)
         {
