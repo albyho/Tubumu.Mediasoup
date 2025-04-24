@@ -41,7 +41,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Pipes.
         /// </summary>
-        private readonly Pipe[] _pipes;
+        private readonly Pipe?[] _pipes;
 
         #endregion Private Fields
 
@@ -108,7 +108,7 @@ namespace Tubumu.Mediasoup
 
             _logger.LogDebug("Worker() | Spawning worker process: {Arguments}", argv.JoinAsString(" "));
 
-            _pipes = new Pipe[StdioCount];
+            _pipes = new Pipe?[StdioCount];
 
             // fd 0 (stdin)   : Just ignore it. (忽略标准输入)
             // fd 1 (stdout)  : Pipe it for 3rd libraries that log their own stuff.
@@ -159,10 +159,10 @@ namespace Tubumu.Mediasoup
                 }
             }
 
-            _channel = new Channel(_loggerFactory.CreateLogger<Channel>(), _pipes[3], _pipes[4], ProcessId);
+            _channel = new Channel(_loggerFactory.CreateLogger<Channel>(), _pipes[3]!, _pipes[4]!, ProcessId);
             _channel.OnNotification += OnNotificationHandle;
 
-            _pipes.ForEach(m => m.Resume());
+            _pipes.ForEach(m => m?.Resume());
         }
 
         public override async Task CloseAsync()
@@ -226,7 +226,7 @@ namespace Tubumu.Mediasoup
         protected override void DestroyManaged()
         {
             _child?.Dispose();
-            _pipes.ForEach(m => m.Dispose());
+            _pipes.ForEach(m => m?.Dispose());
         }
 
         #region Event handles

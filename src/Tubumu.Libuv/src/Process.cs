@@ -55,7 +55,7 @@ namespace Tubumu.Libuv
         public int? UID { get; set; }
         public int? GID { get; set; }
 
-        public ICollection<UVStream> Streams { get; set; }
+        public ICollection<UVStream?> Streams { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     }
 
