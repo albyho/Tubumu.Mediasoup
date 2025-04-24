@@ -32,7 +32,7 @@ namespace Tubumu.Meeting.Server.Authorization
             TokenValidationSettings tokenValidationSettings,
             IDistributedCache cache,
             ILogger<TokenService> logger
-            )
+        )
         {
             _tokenValidationSettings = tokenValidationSettings;
             _cache = cache;
@@ -68,17 +68,27 @@ namespace Tubumu.Meeting.Server.Authorization
             rng.GetBytes(randomNumber);
             var refreshToken = Convert.ToBase64String(randomNumber);
             var cacheKey = CacheKeyFormat.FormatWith(userId);
-            _cache.SetStringAsync(cacheKey, refreshToken, new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_tokenValidationSettings.ExpiresSeconds + _tokenValidationSettings.ClockSkewSeconds + _tokenValidationSettings.RefreshTokenExpiresSeconds)
-            }).ContinueWithOnFaultedHandleLog(_logger);
+            _cache
+                .SetStringAsync(
+                    cacheKey,
+                    refreshToken,
+                    new DistributedCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(
+                            _tokenValidationSettings.ExpiresSeconds
+                                + _tokenValidationSettings.ClockSkewSeconds
+                                + _tokenValidationSettings.RefreshTokenExpiresSeconds
+                        ),
+                    }
+                )
+                .ContinueWithOnFaultedHandleLog(_logger);
             return Task.FromResult(refreshToken);
         }
 
         /// <summary>
         /// 获取 Refresh Token
         /// </summary>
-        public Task<string> GetRefreshTokenAsync(int userId)
+        public Task<string?> GetRefreshTokenAsync(int userId)
         {
             var cacheKey = CacheKeyFormat.FormatWith(userId);
             return _cache.GetStringAsync(cacheKey);
@@ -104,12 +114,16 @@ namespace Tubumu.Meeting.Server.Authorization
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = SignatureHelper.GenerateSymmetricSecurityKey(_tokenValidationSettings.IssuerSigningKey),
-                ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
+                ValidateLifetime = false, //here we are saying that we don't care about the token's expiration date
             };
 
             var principal = _tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-            return securityToken is not JwtSecurityToken jwtSecurityToken ||
-                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase)
+            return
+                securityToken is not JwtSecurityToken jwtSecurityToken
+                || !jwtSecurityToken.Header.Alg.Equals(
+                    SecurityAlgorithms.HmacSha256,
+                    StringComparison.InvariantCultureIgnoreCase
+                )
                 ? throw new SecurityTokenException("Invalid token")
                 : principal;
         }

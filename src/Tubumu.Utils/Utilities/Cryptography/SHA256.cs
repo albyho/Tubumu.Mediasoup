@@ -13,12 +13,12 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static string Encrypt(string rawString, string salt)
         {
-            if(rawString == null)
+            if (rawString == null)
             {
                 throw new ArgumentNullException(nameof(rawString));
             }
 
-            if(salt == null)
+            if (salt == null)
             {
                 throw new ArgumentNullException(nameof(salt));
             }
@@ -31,12 +31,12 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] EncryptToByteArray(string rawString, string salt)
         {
-            if(rawString == null)
+            if (rawString == null)
             {
                 throw new ArgumentNullException(nameof(rawString));
             }
 
-            if(salt == null)
+            if (salt == null)
             {
                 throw new ArgumentNullException(nameof(salt));
             }

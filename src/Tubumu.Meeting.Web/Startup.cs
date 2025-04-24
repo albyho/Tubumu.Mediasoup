@@ -31,7 +31,8 @@ namespace Tubumu.Meeting.Web
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
+            services
+                .AddMvc()
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumMemberConverter());
@@ -48,15 +49,19 @@ namespace Tubumu.Meeting.Web
 
             // Cors
             var corsSettings = Configuration.GetSection("CorsSettings").Get<CorsSettings>();
-            services.AddCors(options => options.AddPolicy("DefaultPolicy",
-                builder => builder.WithOrigins(corsSettings.Origins).AllowAnyMethod().AllowAnyHeader().AllowCredentials())
+            services.AddCors(options =>
+                options.AddPolicy(
+                    "DefaultPolicy",
+                    builder => builder.WithOrigins(corsSettings!.Origins).AllowAnyMethod().AllowAnyHeader().AllowCredentials()
+                )
             );
 
             // Authentication
             services.AddSingleton<ITokenService, TokenService>();
-            var tokenValidationSettings = Configuration.GetSection("TokenValidationSettings").Get<TokenValidationSettings>();
+            var tokenValidationSettings = Configuration.GetSection("TokenValidationSettings").Get<TokenValidationSettings>()!;
             services.AddSingleton(tokenValidationSettings);
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -67,7 +72,9 @@ namespace Tubumu.Meeting.Web
                         ValidAudience = tokenValidationSettings.ValidAudience,
                         ValidateAudience = true,
 
-                        IssuerSigningKey = SignatureHelper.GenerateSymmetricSecurityKey(tokenValidationSettings.IssuerSigningKey),
+                        IssuerSigningKey = SignatureHelper.GenerateSymmetricSecurityKey(
+                            tokenValidationSettings.IssuerSigningKey
+                        ),
                         ValidateIssuerSigningKey = true,
 
                         ValidateLifetime = tokenValidationSettings.ValidateLifetime,
@@ -86,7 +93,7 @@ namespace Tubumu.Meeting.Web
 
                             // If the request is for our hub...
                             var path = context.HttpContext.Request.Path;
-                            if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
                             {
                                 // Read the token out of the query string
                                 context.Token = accessToken;
@@ -97,9 +104,9 @@ namespace Tubumu.Meeting.Web
                         OnAuthenticationFailed = context =>
                         {
                             //_logger.LogError($"Authentication Failed(OnAuthenticationFailed): {context.Request.Path} Error: {context.Exception}");
-                            if(context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                             {
-                                context.Response.Headers.Add("Token-Expired", "true");
+                                context.Response.Headers.Append("Token-Expired", "true");
                             }
 
                             return Task.CompletedTask;
@@ -112,7 +119,7 @@ namespace Tubumu.Meeting.Web
                             context.Response.ContentType = "application/json";
                             await context.Response.Body.WriteAsync(body);
                             context.HandleResponse();
-                        }
+                        },
                     };
                 });
 
@@ -125,18 +132,19 @@ namespace Tubumu.Meeting.Web
             // Swagger
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "Meeting API",
-                    Version = "v1"
-                });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Meeting API", Version = "v1" });
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime, ILogger<Startup> logger)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IHostApplicationLifetime lifetime,
+            ILogger<Startup> logger
+        )
         {
-            if(env.IsDevelopment())
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -176,7 +184,9 @@ namespace Tubumu.Meeting.Web
 
             #endregion
 
-            app.UseEndpoints(endpoints => endpoints.MapGet("/api/Health", async context => await context.Response.WriteAsync("ok")));
+            app.UseEndpoints(endpoints =>
+                endpoints.MapGet("/api/Health", async context => await context.Response.WriteAsync("ok"))
+            );
         }
     }
 }

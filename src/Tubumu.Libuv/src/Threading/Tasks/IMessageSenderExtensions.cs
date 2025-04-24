@@ -19,7 +19,14 @@ namespace Tubumu.Libuv.Threading.Tasks
             return HelperFunctions.Wrap(ipAddress, port, data, sender.Send<TMessage>);
         }
 
-        public static Task SendAsync<TMessage>(this IMessageSender<TMessage> sender, string ipAddress, int port, byte[] data, int index, int count)
+        public static Task SendAsync<TMessage>(
+            this IMessageSender<TMessage> sender,
+            string ipAddress,
+            int port,
+            byte[] data,
+            int index,
+            int count
+        )
             where TMessage : IMessage<IPEndPoint, ArraySegment<byte>>, new()
         {
             return HelperFunctions.Wrap(ipAddress, port, data, index, count, sender.Send<TMessage>);
@@ -35,7 +42,14 @@ namespace Tubumu.Libuv.Threading.Tasks
             return HelperFunctions.Wrap(ipAddress, port, data, sender.Send<TMessage>);
         }
 
-        public static Task SendAsync<TMessage>(this IMessageSender<TMessage> sender, IPAddress ipAddress, int port, byte[] data, int index, int count)
+        public static Task SendAsync<TMessage>(
+            this IMessageSender<TMessage> sender,
+            IPAddress ipAddress,
+            int port,
+            byte[] data,
+            int index,
+            int count
+        )
             where TMessage : IMessage<IPEndPoint, ArraySegment<byte>>, new()
         {
             return HelperFunctions.Wrap(ipAddress, port, data, index, count, sender.Send<TMessage>);
@@ -51,7 +65,13 @@ namespace Tubumu.Libuv.Threading.Tasks
             return HelperFunctions.Wrap(endPoint, data, sender.Send);
         }
 
-        public static Task SendAsync<TMessage, TEndPoint>(this IMessageSender<TMessage> sender, TEndPoint endPoint, byte[] data, int index, int count)
+        public static Task SendAsync<TMessage, TEndPoint>(
+            this IMessageSender<TMessage> sender,
+            TEndPoint endPoint,
+            byte[] data,
+            int index,
+            int count
+        )
             where TMessage : IMessage<TEndPoint, ArraySegment<byte>>, new()
         {
             return HelperFunctions.Wrap(endPoint, data, index, count, sender.Send);
@@ -61,13 +81,23 @@ namespace Tubumu.Libuv.Threading.Tasks
 
         #region TMessage
 
-        public static Task SendAsync<TMessage, TPayload>(this IMessageSender<TMessage> sender, string ipAddress, int port, TPayload payload)
+        public static Task SendAsync<TMessage, TPayload>(
+            this IMessageSender<TMessage> sender,
+            string ipAddress,
+            int port,
+            TPayload payload
+        )
             where TMessage : IMessage<IPEndPoint, TPayload>, new()
         {
             return HelperFunctions.Wrap(ipAddress, port, payload, sender.Send);
         }
 
-        public static Task SendAsync<TMessage, TPayload>(this IMessageSender<TMessage> sender, IPAddress ipAddress, int port, TPayload payload)
+        public static Task SendAsync<TMessage, TPayload>(
+            this IMessageSender<TMessage> sender,
+            IPAddress ipAddress,
+            int port,
+            TPayload payload
+        )
             where TMessage : IMessage<IPEndPoint, TPayload>, new()
         {
             return HelperFunctions.Wrap(ipAddress, port, payload, sender.Send);
@@ -75,7 +105,11 @@ namespace Tubumu.Libuv.Threading.Tasks
 
         #endregion TMessage
 
-        public static Task SendAsync<TMessage, TEndPoint, TPayload>(this IMessageSender<TMessage> sender, TEndPoint endPoint, TPayload payload)
+        public static Task SendAsync<TMessage, TEndPoint, TPayload>(
+            this IMessageSender<TMessage> sender,
+            TEndPoint endPoint,
+            TPayload payload
+        )
             where TMessage : IMessage<TEndPoint, TPayload>, new()
         {
             return HelperFunctions.Wrap(endPoint, payload, sender.Send);

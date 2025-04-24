@@ -71,7 +71,7 @@ namespace Tubumu.Mediasoup
             {
                 _producerSocket.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "CloseAsync() | Worker[{WorkerId}] _producerSocket.Close()", _workerId);
             }
@@ -80,7 +80,7 @@ namespace Tubumu.Mediasoup
             {
                 _consumerSocket.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "CloseAsync() | Worker[{WorkerId}] _consumerSocket.Close()", _workerId);
             }
@@ -97,7 +97,7 @@ namespace Tubumu.Mediasoup
                         sent.RequestMessage.Payload,
                         ex =>
                         {
-                            if(ex != null)
+                            if (ex != null)
                             {
                                 _logger.LogError(ex, "_producerSocket.Write() | Worker[{WorkerId}] Error", _workerId);
                                 sent.Reject(ex);
@@ -105,7 +105,7 @@ namespace Tubumu.Mediasoup
                         }
                     );
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "_producerSocket.Write() | Worker[{WorkerId}] Error", _workerId);
                     sent.Reject(ex);
@@ -124,14 +124,14 @@ namespace Tubumu.Mediasoup
                         requestMessage.Payload,
                         ex =>
                         {
-                            if(ex != null)
+                            if (ex != null)
                             {
                                 _logger.LogError(ex, "_producerSocket.Write() | Worker[{WorkerId}] Error", _workerId);
                             }
                         }
                     );
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "_producerSocket.Write() | Worker[{WorkerId}] Error", _workerId);
                 }
@@ -143,7 +143,7 @@ namespace Tubumu.Mediasoup
         private void ConsumerSocketOnData(ArraySegment<byte> data)
         {
             // 数据回调通过单一线程进入，所以 _recvBuffer 是 Thread-safe 的。
-            if(_recvBufferCount + data.Count > RecvBufferMaxLen)
+            if (_recvBufferCount + data.Count > RecvBufferMaxLen)
             {
                 _logger.LogError(
                     "ConsumerSocketOnData() | Worker[{WorkerId}] Receiving buffer is full, discarding all data into it",
@@ -159,11 +159,11 @@ namespace Tubumu.Mediasoup
             try
             {
                 var readCount = 0;
-                while(readCount < _recvBufferCount - sizeof(int) - 1)
+                while (readCount < _recvBufferCount - sizeof(int) - 1)
                 {
                     var msgLen = BitConverter.ToInt32(_recvBuffer, readCount);
                     readCount += sizeof(int);
-                    if(readCount >= _recvBufferCount)
+                    if (readCount >= _recvBufferCount)
                     {
                         // Incomplete data.
                         break;
@@ -179,7 +179,7 @@ namespace Tubumu.Mediasoup
                 }
 
                 var remainingLength = _recvBufferCount - readCount;
-                if(remainingLength == 0)
+                if (remainingLength == 0)
                 {
                     _recvBufferCount = 0;
                 }
@@ -190,16 +190,22 @@ namespace Tubumu.Mediasoup
                     Array.Copy(temp, 0, _recvBuffer, 0, remainingLength);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "ConsumerSocketOnData() | Worker[{WorkerId}] Invalid data received from the worker process.", _workerId);
-                return;
+                _logger.LogError(
+                    ex,
+                    "ConsumerSocketOnData() | Worker[{WorkerId}] Invalid data received from the worker process.",
+                    _workerId
+                );
             }
         }
 
         private void ConsumerSocketOnClosed()
         {
-            _logger.LogDebug("ConsumerSocketOnClosed() | Worker[{WorkerId}] Consumer Channel ended by the worker process", _workerId);
+            _logger.LogDebug(
+                "ConsumerSocketOnClosed() | Worker[{WorkerId}] Consumer Channel ended by the worker process",
+                _workerId
+            );
         }
 
         private void ConsumerSocketOnError(Exception? exception)
@@ -209,7 +215,10 @@ namespace Tubumu.Mediasoup
 
         private void ProducerSocketOnClosed()
         {
-            _logger.LogDebug("ProducerSocketOnClosed() | Worker[{WorkerId}] Producer Channel ended by the worker process", _workerId);
+            _logger.LogDebug(
+                "ProducerSocketOnClosed() | Worker[{WorkerId}] Producer Channel ended by the worker process",
+                _workerId
+            );
         }
 
         private void ProducerSocketOnError(Exception? exception)

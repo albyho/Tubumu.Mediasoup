@@ -43,7 +43,7 @@
         /// <summary>
         /// Year
         /// </summary>
-        Year
+        Year,
     }
 
     /// <summary>

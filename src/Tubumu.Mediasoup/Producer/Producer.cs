@@ -121,7 +121,7 @@ namespace Tubumu.Mediasoup
             Paused = paused;
             _pauseLock.Set();
 
-            if(_isCheckConsumer)
+            if (_isCheckConsumer)
             {
                 _checkConsumersTimer = new Timer(
                     CheckConsumers,
@@ -141,7 +141,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CloseAsync() | Producer:{ProducerId}", ProducerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
                 CloseInternal();
             }
@@ -149,7 +149,7 @@ namespace Tubumu.Mediasoup
 
         private void CloseInternal()
         {
-            if(Closed)
+            if (Closed)
             {
                 return;
             }
@@ -164,16 +164,19 @@ namespace Tubumu.Mediasoup
             // Build Request
             var bufferBuilder = _channel.BufferPool.Get();
 
-            var requestOffset = FBS.Transport.CloseProducerRequest.Pack(bufferBuilder, new FBS.Transport.CloseProducerRequestT
-            {
-                ProducerId = _internal.ProducerId
-            });
+            var requestOffset = FBS.Transport.CloseProducerRequest.Pack(
+                bufferBuilder,
+                new FBS.Transport.CloseProducerRequestT { ProducerId = _internal.ProducerId }
+            );
 
             // Fire and forget
-            _channel.RequestAsync(bufferBuilder, Method.TRANSPORT_CLOSE_CONSUMER,
-                FBS.Request.Body.Transport_CloseConsumerRequest,
-                requestOffset.Value,
-                _internal.TransportId
+            _channel
+                .RequestAsync(
+                    bufferBuilder,
+                    Method.TRANSPORT_CLOSE_CONSUMER,
+                    FBS.Request.Body.Transport_CloseConsumerRequest,
+                    requestOffset.Value,
+                    _internal.TransportId
                 )
                 .ContinueWithOnFaultedHandleLog(_logger);
 
@@ -190,16 +193,16 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("TransportClosedAsync() | Producer:{ProducerId}", ProducerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     return;
                 }
 
                 Closed = true;
 
-                if(_checkConsumersTimer != null)
+                if (_checkConsumersTimer != null)
                 {
                     await _checkConsumersTimer.DisposeAsync();
                 }
@@ -221,9 +224,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("DumpAsync() | Producer:{ProducerId}", ProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -231,7 +234,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_DUMP, null, null, _internal.ProducerId);
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.PRODUCER_DUMP,
+                    null,
+                    null,
+                    _internal.ProducerId
+                );
                 var data = response.Value.BodyAsProducer_DumpResponse().UnPack();
 
                 return data;
@@ -245,9 +254,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetStatsAsync() | Producer:{ProducerId}", ProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -255,7 +264,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.PRODUCER_GET_STATS, null, null, _internal.ProducerId);
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.PRODUCER_GET_STATS,
+                    null,
+                    null,
+                    _internal.ProducerId
+                );
                 var stats = response.Value.BodyAsProducer_GetStatsResponse().UnPack().Stats;
 
                 return stats;
@@ -269,9 +284,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("PauseAsync() | Producer:{ProducerId}", ProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -289,12 +304,12 @@ namespace Tubumu.Mediasoup
                     Paused = true;
 
                     // Emit observer event.
-                    if(!wasPaused)
+                    if (!wasPaused)
                     {
                         Observer.Emit("pause");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "PauseAsync()");
                 }
@@ -312,9 +327,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ResumeAsync() | Producer:{ProducerId}", ProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -332,12 +347,12 @@ namespace Tubumu.Mediasoup
                     Paused = false;
 
                     // Emit observer event.
-                    if(wasPaused)
+                    if (wasPaused)
                     {
                         Observer.Emit("resume");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "ResumeAsync()");
                 }
@@ -355,9 +370,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("EnableTraceEventAsync() | Producer:{ProducerId}", ProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -365,16 +380,20 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var requestOffset = EnableTraceEventRequest.Pack(bufferBuilder, new EnableTraceEventRequestT
-                {
-                    Events = types ?? new List<TraceEventType>(0)
-                });
+                var requestOffset = EnableTraceEventRequest.Pack(
+                    bufferBuilder,
+                    new EnableTraceEventRequestT { Events = types ?? new List<TraceEventType>(0) }
+                );
 
                 // Fire and forget
-                _channel.RequestAsync(bufferBuilder, Method.CONSUMER_ENABLE_TRACE_EVENT,
-                    FBS.Request.Body.Consumer_EnableTraceEventRequest,
-                    requestOffset.Value,
-                     _internal.ProducerId)
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.CONSUMER_ENABLE_TRACE_EVENT,
+                        FBS.Request.Body.Consumer_EnableTraceEventRequest,
+                        requestOffset.Value,
+                        _internal.ProducerId
+                    )
                     .ContinueWithOnFaultedHandleLog(_logger);
             }
         }
@@ -384,9 +403,9 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task SendAsync(byte[] rtpPacket)
         {
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -394,27 +413,28 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = new FlatBufferBuilder(1024 + rtpPacket.Length);
 
-                var dataOffset = SendNotification.CreateDataVectorBlock(
-                    bufferBuilder,
-                    rtpPacket
-                );
+                var dataOffset = SendNotification.CreateDataVectorBlock(bufferBuilder, rtpPacket);
 
                 var notificationOffset = SendNotification.CreateSendNotification(bufferBuilder, dataOffset);
 
                 // Fire and forget
-                _channel.NotifyAsync(bufferBuilder, Event.PRODUCER_SEND,
-                    FBS.Notification.Body.Producer_SendNotification,
-                    notificationOffset.Value,
-                    _internal.ProducerId
-                ).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .NotifyAsync(
+                        bufferBuilder,
+                        Event.PRODUCER_SEND,
+                        FBS.Notification.Body.Producer_SendNotification,
+                        notificationOffset.Value,
+                        _internal.ProducerId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
         public async Task AddConsumerAsync(Consumer consumer)
         {
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Producer closed");
                 }
@@ -427,7 +447,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("RemoveConsumer() | Producer:{ProducerId} ConsumerId:{ConsumerId}", ProducerId, consumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
                 // 关闭后也允许移除
                 _consumers.Remove(consumerId);
@@ -443,55 +463,55 @@ namespace Tubumu.Mediasoup
 
         private void OnNotificationHandle(string handlerId, Event @event, Notification notification)
         {
-            if(handlerId != ProducerId)
+            if (handlerId != ProducerId)
             {
                 return;
             }
 
-            switch(@event)
+            switch (@event)
             {
                 case Event.PRODUCER_SCORE:
-                    {
-                        var scoreNotification = notification.BodyAsProducer_ScoreNotification();
-                        var score = scoreNotification.UnPack().Scores;
-                        Score = score;
+                {
+                    var scoreNotification = notification.BodyAsProducer_ScoreNotification();
+                    var score = scoreNotification.UnPack().Scores;
+                    Score = score;
 
-                        Emit("score", score);
+                    Emit("score", score);
 
-                        // Emit observer event.
-                        Observer.Emit("score", score);
+                    // Emit observer event.
+                    Observer.Emit("score", score);
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.PRODUCER_VIDEO_ORIENTATION_CHANGE:
-                    {
-                        var videoOrientationChangeNotification = notification.BodyAsProducer_VideoOrientationChangeNotification();
-                        var videoOrientation = videoOrientationChangeNotification.UnPack();
+                {
+                    var videoOrientationChangeNotification = notification.BodyAsProducer_VideoOrientationChangeNotification();
+                    var videoOrientation = videoOrientationChangeNotification.UnPack();
 
-                        Emit("videoorientationchange", videoOrientation);
+                    Emit("videoorientationchange", videoOrientation);
 
-                        // Emit observer event.
-                        Observer.Emit("videoorientationchange", videoOrientation);
+                    // Emit observer event.
+                    Observer.Emit("videoorientationchange", videoOrientation);
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.PRODUCER_TRACE:
-                    {
-                        var traceNotification = notification.BodyAsProducer_TraceNotification();
-                        var trace = traceNotification.UnPack();
+                {
+                    var traceNotification = notification.BodyAsProducer_TraceNotification();
+                    var trace = traceNotification.UnPack();
 
-                        Emit("trace", trace);
+                    Emit("trace", trace);
 
-                        // Emit observer event.
-                        Observer.Emit("trace", trace);
+                    // Emit observer event.
+                    Observer.Emit("trace", trace);
 
-                        break;
-                    }
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError("OnNotificationHandle() | Ignoring unknown event: {@event}", @event);
-                        break;
-                    }
+                {
+                    _logger.LogError("OnNotificationHandle() | Ignoring unknown event: {@event}", @event);
+                    break;
+                }
             }
         }
 
@@ -503,18 +523,22 @@ namespace Tubumu.Mediasoup
         private async void CheckConsumers(object? state)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            _logger.LogDebug("CheckConsumer() | Producer:{ProducerId} ConsumerCount:{Count}", _internal.ProducerId, _consumers.Count);
+            _logger.LogDebug(
+                "CheckConsumer() | Producer:{ProducerId} ConsumerCount:{Count}",
+                _internal.ProducerId,
+                _consumers.Count
+            );
 
             // NOTE: 使用写锁
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     _checkConsumersTimer?.Dispose();
                     return;
                 }
 
-                if(_consumers.Count == 0)
+                if (_consumers.Count == 0)
                 {
                     CloseInternal();
                     _checkConsumersTimer?.Dispose();

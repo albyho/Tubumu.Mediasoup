@@ -11,14 +11,10 @@ namespace Tubumu.Libuv
         protected static uv_handle_cb uv_callback = uv_handle;
 
         public CallbackHandle(Loop loop, HandleType handleType)
-            : base(loop, handleType)
-        {
-        }
+            : base(loop, handleType) { }
 
         public CallbackHandle(Loop loop, HandleType handleType, Func<IntPtr, IntPtr, int> constructor)
-            : base(loop, handleType, constructor)
-        {
-        }
+            : base(loop, handleType, constructor) { }
 
         private static void uv_handle(IntPtr handle)
         {
@@ -36,9 +32,7 @@ namespace Tubumu.Libuv
     public abstract class StartableCallbackHandle : CallbackHandle
     {
         public StartableCallbackHandle(Loop loop, HandleType handleType, Func<IntPtr, IntPtr, int> constructor)
-            : base(loop, handleType, constructor)
-        {
-        }
+            : base(loop, handleType, constructor) { }
 
         public abstract void Start();
 

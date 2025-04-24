@@ -6,10 +6,16 @@ namespace Tubumu.Libuv
     public abstract unsafe class Handle : IHandle, IDisposable
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+        // ReSharper disable once InconsistentNaming
         internal delegate void callback(IntPtr req, int status);
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+        // ReSharper disable once InconsistentNaming
         internal delegate void alloc_callback(IntPtr data, int size, out uv_buf_t buf);
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
         public Loop Loop { get; protected set; }
 
@@ -53,14 +59,10 @@ namespace Tubumu.Libuv
         }
 
         internal Handle(Loop loop, int size)
-            : this(loop, UV.Alloc(size))
-        {
-        }
+            : this(loop, UV.Alloc(size)) { }
 
         internal Handle(Loop loop, HandleType handleType)
-            : this(loop, Size(handleType))
-        {
-        }
+            : this(loop, Size(handleType)) { }
 
         internal Handle(Loop loop, HandleType handleType, Func<IntPtr, IntPtr, int> constructor)
             : this(loop, handleType)
@@ -113,7 +115,7 @@ namespace Tubumu.Libuv
         public void Cleanup(IntPtr nativeHandle, Action? callback)
         {
             // Remove handle
-            if(NativeHandle != IntPtr.Zero)
+            if (NativeHandle != IntPtr.Zero)
             {
                 Loop.handles.Remove(nativeHandle);
 
@@ -125,7 +127,7 @@ namespace Tubumu.Libuv
 
                 callback?.Invoke();
 
-                if(GCHandle.IsAllocated)
+                if (GCHandle.IsAllocated)
                 {
                     GCHandle.Free();
                 }
@@ -134,7 +136,7 @@ namespace Tubumu.Libuv
 
         public void Close(Action? callback)
         {
-            if(!IsClosing && !IsClosed)
+            if (!IsClosing && !IsClosed)
             {
                 closeCallback = callback;
                 uv_close(NativeHandle, close_cb);
@@ -187,7 +189,7 @@ namespace Tubumu.Libuv
 
         public void Ref()
         {
-            if(IsClosed)
+            if (IsClosed)
             {
                 return;
             }
@@ -196,7 +198,7 @@ namespace Tubumu.Libuv
 
         public void Unref()
         {
-            if(IsClosed)
+            if (IsClosed)
             {
                 return;
             }
@@ -223,7 +225,7 @@ namespace Tubumu.Libuv
 
         protected void CheckDisposed()
         {
-            if(NativeHandle == IntPtr.Zero)
+            if (NativeHandle == IntPtr.Zero)
             {
                 throw new ObjectDisposedException(GetType().ToString(), "handle was closed");
             }

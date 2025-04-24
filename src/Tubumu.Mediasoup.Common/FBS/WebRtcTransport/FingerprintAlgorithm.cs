@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum FingerprintAlgorithm : byte
     {
@@ -25,4 +26,5 @@ namespace FBS.WebRtcTransport
         [EnumMember(Value = "sha-512")]
         SHA512 = 4,
     }
+
 }

@@ -11,10 +11,7 @@ namespace Tubumu.Libuv
 
         public static void Create(Loop loop, string path, int mode, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_mkdir(loop.NativeHandle, fsr.Handle, path, mode, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -59,10 +56,7 @@ namespace Tubumu.Libuv
 
         public static void Delete(Loop loop, string path, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_rmdir(loop.NativeHandle, fsr.Handle, path, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -83,14 +77,17 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_rename(IntPtr loop, IntPtr req, string path, string newPath, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_rename(
+            IntPtr loop,
+            IntPtr req,
+            string path,
+            string newPath,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public static void Rename(Loop loop, string path, string newPath, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_rename(loop.NativeHandle, fsr.Handle, path, newPath, fsr.End);
             Ensure.Success(r);
         }
@@ -114,21 +111,27 @@ namespace Tubumu.Libuv
         private static extern int uv_fs_scandir_next(IntPtr req, out uv_dirent_t ent);
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_scandir(IntPtr loop, IntPtr req, string path, int flags, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_scandir(
+            IntPtr loop,
+            IntPtr req,
+            string path,
+            int flags,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public static void Read(Loop loop, string path, Action<Exception?, UVDirectoryEntity[]?> callback)
         {
             var fsr = new FileSystemRequest();
             fsr.Callback = (ex) =>
             {
-                if(ex != null)
+                if (ex != null)
                 {
                     callback(ex, null);
                     return;
                 }
 
                 var list = new List<UVDirectoryEntity>();
-                while(UVException.Map(uv_fs_scandir_next(fsr.Handle, out var entity)) != UVErrorCode.EOF)
+                while (UVException.Map(uv_fs_scandir_next(fsr.Handle, out var entity)) != UVErrorCode.EOF)
                 {
                     list.Add(new UVDirectoryEntity(entity));
                 }

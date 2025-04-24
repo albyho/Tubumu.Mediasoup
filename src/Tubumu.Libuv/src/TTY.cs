@@ -6,7 +6,7 @@ namespace Tubumu.Libuv
     public enum TTYMode : int
     {
         Normal = 0,
-        Raw
+        Raw,
     }
 
     public class TTY : UVStream
@@ -15,24 +15,16 @@ namespace Tubumu.Libuv
         private static extern int uv_tty_init(IntPtr loop, IntPtr tty, int fd, int readable);
 
         public TTY(int fd)
-            : this(Loop.Constructor, fd)
-        {
-        }
+            : this(Loop.Constructor, fd) { }
 
         public TTY(Loop loop, int fd)
-            : this(loop, fd, true)
-        {
-        }
+            : this(loop, fd, true) { }
 
         public TTY(int fd, bool readable)
-            : this(Loop.Constructor, fd, readable)
-        {
-        }
+            : this(Loop.Constructor, fd, readable) { }
 
         public TTY(Loop loop, int fd, bool readable)
-            : base(loop, HandleType.UV_TTY, uv_tty_init, fd, readable ? 1 : 0)
-        {
-        }
+            : base(loop, HandleType.UV_TTY, uv_tty_init, fd, readable ? 1 : 0) { }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern int uv_tty_set_mode(IntPtr tty, int mode);

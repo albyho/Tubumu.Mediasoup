@@ -93,9 +93,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CloseAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -113,14 +113,21 @@ namespace Tubumu.Mediasoup
                     DataProducerId = _internal.DataProducerId,
                 };
 
-                var closeDataProducerRequestOffset = FBS.Transport.CloseDataProducerRequest.Pack(bufferBuilder, closeDataProducerRequest);
+                var closeDataProducerRequestOffset = FBS.Transport.CloseDataProducerRequest.Pack(
+                    bufferBuilder,
+                    closeDataProducerRequest
+                );
 
                 // Fire and forget
-                _channel.RequestAsync(bufferBuilder, Method.TRANSPORT_CLOSE_DATAPRODUCER,
-                    FBS.Request.Body.Transport_CloseDataProducerRequest,
-                    closeDataProducerRequestOffset.Value,
-                    _internal.TransportId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.TRANSPORT_CLOSE_DATAPRODUCER,
+                        FBS.Request.Body.Transport_CloseDataProducerRequest,
+                        closeDataProducerRequestOffset.Value,
+                        _internal.TransportId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("close");
 
@@ -136,9 +143,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("TransportClosedAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -162,9 +169,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("DumpAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataProducer closed");
                 }
@@ -172,10 +179,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.DATAPRODUCER_DUMP,
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.DATAPRODUCER_DUMP,
                     null,
                     null,
-                    _internal.DataProducerId);
+                    _internal.DataProducerId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsDataProducer_DumpResponse().UnPack();
@@ -190,9 +200,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetStatsAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataProducer closed");
                 }
@@ -200,10 +210,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.DATAPRODUCER_GET_STATS,
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.DATAPRODUCER_GET_STATS,
                     null,
                     null,
-                    _internal.DataProducerId);
+                    _internal.DataProducerId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsDataProducer_GetStatsResponse().UnPack();
@@ -218,9 +231,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("PauseAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataProducer closed");
                 }
@@ -228,17 +241,14 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE,
-                     null,
-                     null,
-                     _internal.DataProducerId);
+                await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE, null, null, _internal.DataProducerId);
 
                 var wasPaused = _paused;
 
                 _paused = true;
 
                 // Emit observer event.
-                if(!wasPaused)
+                if (!wasPaused)
                 {
                     Observer.Emit("pause");
                 }
@@ -252,9 +262,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ResumeAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -262,17 +272,14 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_RESUME,
-                    null,
-                    null,
-                    _internal.DataProducerId);
+                await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_RESUME, null, null, _internal.DataProducerId);
 
                 var wasPaused = _paused;
 
                 _paused = false;
 
                 // Emit observer event.
-                if(wasPaused)
+                if (wasPaused)
                 {
                     Observer.Emit("resume");
                 }
@@ -282,7 +289,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Send data (just valid for DataProducers created on a DirectTransport).
         /// </summary>
-        public async Task SendAsync(string message, uint? ppid, List<ushort>? subchannels, ushort? requiredSubchannel)
+        public async Task SendAsync(string message, uint? ppid, ushort[]? subchannels, ushort? requiredSubchannel)
         {
             _logger.LogDebug("SendAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
@@ -305,7 +312,7 @@ namespace Tubumu.Mediasoup
             ppid ??= !message.IsNullOrEmpty() ? 51u : 56u;
 
             // Ensure we honor PPIDs.
-            if(ppid == 56)
+            if (ppid == 56)
             {
                 message = " ";
             }
@@ -316,14 +323,14 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Send data (just valid for DataProducers created on a DirectTransport).
         /// </summary>
-        public async Task SendAsync(byte[] message, uint? ppid, List<ushort>? subchannels, ushort? requiredSubchannel)
+        public async Task SendAsync(byte[] message, uint? ppid, ushort[]? subchannels, ushort? requiredSubchannel)
         {
             _logger.LogDebug("SendAsync() | DataProducer:{DataProducerId}", DataProducerId);
 
             ppid ??= !message.IsNullOrEmpty() ? 53u : 57u;
 
             // Ensure we honor PPIDs.
-            if(ppid == 57)
+            if (ppid == 57)
             {
                 message = new byte[1];
             }
@@ -331,11 +338,11 @@ namespace Tubumu.Mediasoup
             await SendInternalAsync(message, ppid.Value, subchannels, requiredSubchannel);
         }
 
-        private async Task SendInternalAsync(byte[] data, uint ppid, List<ushort>? subchannels, ushort? requiredSubchannel)
+        private async Task SendInternalAsync(byte[] data, uint ppid, ushort[]? subchannels, ushort? requiredSubchannel)
         {
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataProducer closed");
                 }
@@ -347,18 +354,22 @@ namespace Tubumu.Mediasoup
                 {
                     Ppid = ppid,
                     Data = data,
-                    Subchannels = subchannels ?? new List<ushort>(0),
+                    Subchannels = subchannels ?? Array.Empty<ushort>(),
                     RequiredSubchannel = requiredSubchannel,
                 };
 
                 var sendNotificationOffset = SendNotification.Pack(bufferBuilder, sendNotification);
 
                 // Fire and forget
-                _channel.NotifyAsync(bufferBuilder, Event.PRODUCER_SEND,
-                    FBS.Notification.Body.DataProducer_SendNotification,
-                    sendNotificationOffset.Value,
-                    _internal.DataProducerId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .NotifyAsync(
+                        bufferBuilder,
+                        Event.PRODUCER_SEND,
+                        FBS.Notification.Body.DataProducer_SendNotification,
+                        sendNotificationOffset.Value,
+                        _internal.DataProducerId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 

@@ -29,7 +29,7 @@ namespace Tubumu.Meeting.Server
 
         public bool Equals(Peer? other)
         {
-            if(other is null)
+            if (other is null)
             {
                 return false;
             }
@@ -86,7 +86,7 @@ namespace Tubumu.Meeting.Server
 
         public async Task<Dictionary<string, Producer>> GetProducersASync()
         {
-            using(await _producersLock.ReadLockAsync())
+            await using (await _producersLock.ReadLockAsync())
             {
                 return _producers;
             }
@@ -118,7 +118,8 @@ namespace Tubumu.Meeting.Server
         [JsonIgnore]
         public IHubClient? HubClient { get; }
 
-        public Peer(ILoggerFactory loggerFactory,
+        public Peer(
+            ILoggerFactory loggerFactory,
             WebRtcTransportSettings webRtcTransportSettings,
             PlainTransportSettings plainTransportSettings,
             RtpCapabilities rtpCapabilities,
@@ -128,7 +129,8 @@ namespace Tubumu.Meeting.Server
             IHubClient hubClient,
             string displayName,
             string[]? sources,
-            Dictionary<string, object>? appData)
+            Dictionary<string, object>? appData
+        )
         {
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Peer>();
@@ -150,7 +152,10 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 创建 WebRtcTransport
         /// </summary>
-        public async Task<WebRtcTransport> CreateWebRtcTransportAsync(CreateWebRtcTransportRequest createWebRtcTransportRequest, bool isSend)
+        public async Task<WebRtcTransport> CreateWebRtcTransportAsync(
+            CreateWebRtcTransportRequest createWebRtcTransportRequest,
+            bool isSend
+        )
         {
             var webRtcTransportOptions = new Mediasoup.WebRtcTransportOptions
             {
@@ -160,36 +165,32 @@ namespace Tubumu.Meeting.Server
                 EnableSctp = createWebRtcTransportRequest.SctpCapabilities != null,
                 NumSctpStreams = createWebRtcTransportRequest.SctpCapabilities?.NumStreams,
                 WebRtcServer = null, // TODO: Support WebRtcServer
-                AppData = new Dictionary<string, object>
-                    {
-                        { "Consuming", !isSend },
-                        { "Producing", isSend },
-                    },
+                AppData = new Dictionary<string, object> { { "Consuming", !isSend }, { "Producing", isSend } },
             };
 
-            if(createWebRtcTransportRequest.ForceTcp)
+            if (createWebRtcTransportRequest.ForceTcp)
             {
                 webRtcTransportOptions.EnableUdp = false;
                 webRtcTransportOptions.EnableTcp = true;
             }
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("CreateWebRtcTransportAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("CreateWebRtcTransportAsync()");
 
                     var transport = await _room!.Router.CreateWebRtcTransportAsync(webRtcTransportOptions);
-                    using(await _transportsLock.WriteLockAsync())
+                    await using (await _transportsLock.WriteLockAsync())
                     {
-                        if(!isSend && HasConsumingTransport())
+                        if (!isSend && HasConsumingTransport())
                         {
                             throw new Exception("CreateWebRtcTransportAsync() | Consuming transport exists");
                         }
 
-                        if(isSend && HasProducingTransport())
+                        if (isSend && HasProducingTransport())
                         {
                             throw new Exception("CreateWebRtcTransportAsync() | Producing transport exists");
                         }
@@ -198,25 +199,33 @@ namespace Tubumu.Meeting.Server
                         _transports[transport.TransportId] = transport;
                     }
 
-                    transport.On("@close", (_, _) =>
-                    {
-                        // 因为调用 transport.Close() 之前已经使用 _transportsLock 写锁，所以触发该事件的调用从 _transports 移除无需再次加锁。
-                        _transports.Remove(transport.TransportId);
-                        return Task.CompletedTask;
-                    });
-                    transport.On("routerclose", async (_, _) =>
-                    {
-                        using(await _transportsLock.WriteLockAsync())
+                    transport.On(
+                        "@close",
+                        (_, _) =>
                         {
+                            // 因为调用 transport.Close() 之前已经使用 _transportsLock 写锁，所以触发该事件的调用从 _transports 移除无需再次加锁。
                             _transports.Remove(transport.TransportId);
+                            return Task.CompletedTask;
                         }
-                    });
+                    );
+                    transport.On(
+                        "routerclose",
+                        async (_, _) =>
+                        {
+                            await using (await _transportsLock.WriteLockAsync())
+                            {
+                                _transports.Remove(transport.TransportId);
+                            }
+                        }
+                    );
 
                     // If set, apply max incoming bitrate limit.
-                    if(_webRtcTransportSettings.MaximumIncomingBitrate > 0)
+                    if (_webRtcTransportSettings.MaximumIncomingBitrate > 0)
                     {
                         // Fire and forget
-                        transport.SetMaxIncomingBitrateAsync(_webRtcTransportSettings.MaximumIncomingBitrate.Value).ContinueWithOnFaultedHandleLog(_logger);
+                        transport
+                            .SetMaxIncomingBitrateAsync(_webRtcTransportSettings.MaximumIncomingBitrate.Value)
+                            .ContinueWithOnFaultedHandleLog(_logger);
                     }
 
                     return transport;
@@ -229,19 +238,21 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> ConnectWebRtcTransportAsync(ConnectWebRtcTransportRequest connectWebRtcTransportRequest)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("ConnectWebRtcTransportAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("ConnectWebRtcTransportAsync()");
 
-                    using(await _transportsLock.ReadLockAsync())
+                    await using (await _transportsLock.ReadLockAsync())
                     {
-                        if(!_transports.TryGetValue(connectWebRtcTransportRequest.TransportId, out var transport))
+                        if (!_transports.TryGetValue(connectWebRtcTransportRequest.TransportId, out var transport))
                         {
-                            throw new Exception($"ConnectWebRtcTransportAsync() | Transport:{connectWebRtcTransportRequest.TransportId} is not exists");
+                            throw new Exception(
+                                $"ConnectWebRtcTransportAsync() | Transport:{connectWebRtcTransportRequest.TransportId} is not exists"
+                            );
                         }
 
                         await transport.ConnectAsync(connectWebRtcTransportRequest);
@@ -263,41 +274,49 @@ namespace Tubumu.Meeting.Server
                 RtcpMux = createPlainTransportRequest.RtcpMux, // 一般为 false
                 Comedia = createPlainTransportRequest.Comedia, // 一般为 true
                 AppData = new Dictionary<string, object>
-                    {
-                        { "Consuming", createPlainTransportRequest.Consuming },
-                        { "Producing", createPlainTransportRequest.Producing },
-                    },
+                {
+                    { "Consuming", createPlainTransportRequest.Consuming },
+                    { "Producing", createPlainTransportRequest.Producing },
+                },
             };
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("CreatePlainTransportAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("CreatePlainTransportAsync()");
 
-                    var transport = await _room!.Router.CreatePlainTransportAsync(plainTransportOptions) ?? throw new Exception("CreatePlainTransportAsync() | Router.CreatePlainTransport faild");
+                    var transport =
+                        await _room!.Router.CreatePlainTransportAsync(plainTransportOptions)
+                        ?? throw new Exception("CreatePlainTransportAsync() | Router.CreatePlainTransport faild");
 
-                    using(await _transportsLock.WriteLockAsync())
+                    await using (await _transportsLock.WriteLockAsync())
                     {
                         // Store the PlainTransport into the Peer data Object.
                         _transports[transport.TransportId] = transport;
                     }
 
-                    transport.On("@close", (_, _) =>
-                    {
-                        // 因为调用 transport.CloseAsync() 之前已经使用 _transportsLock 写锁，所以触发该事件的调用从 _transports 移除无需再次加锁。
-                        _transports.Remove(transport.TransportId);
-                        return Task.CompletedTask;
-                    });
-                    transport.On("routerclose", async (_, _) =>
-                    {
-                        using(await _transportsLock.WriteLockAsync())
+                    transport.On(
+                        "@close",
+                        (_, _) =>
                         {
+                            // 因为调用 transport.CloseAsync() 之前已经使用 _transportsLock 写锁，所以触发该事件的调用从 _transports 移除无需再次加锁。
                             _transports.Remove(transport.TransportId);
+                            return Task.CompletedTask;
                         }
-                    });
+                    );
+                    transport.On(
+                        "routerclose",
+                        async (_, _) =>
+                        {
+                            await using (await _transportsLock.WriteLockAsync())
+                            {
+                                _transports.Remove(transport.TransportId);
+                            }
+                        }
+                    );
 
                     return transport;
                 }
@@ -309,43 +328,47 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<PeerPullResult> PullAsync(Peer producerPeer, IEnumerable<string> sources)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("PullAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("PullAsync()");
 
                     var consumerRoom = _room!;
 
-                    using(await _consumersLock.ReadLockAsync())
+                    await using (await _consumersLock.ReadLockAsync())
                     {
                         // producerPeer 也有可能是本 Peer
-                        if(producerPeer.PeerId == PeerId)
+                        if (producerPeer.PeerId == PeerId)
                         {
                             return await PullInternalAsync(producerPeer, sources);
                         }
                         else
                         {
-                            using(await producerPeer._joinedLock.ReadLockAsync())
+                            await using (await producerPeer._joinedLock.ReadLockAsync())
                             {
                                 producerPeer.CheckJoined("PullAsync()");
 
-                                using(await producerPeer._roomLock.ReadLockAsync())
+                                await using (await producerPeer._roomLock.ReadLockAsync())
                                 {
                                     producerPeer.CheckRoom("PullAsync()");
 
                                     var producerRoom = producerPeer._room!;
 
-                                    if(producerRoom.RoomId != consumerRoom.RoomId)
+                                    if (producerRoom.RoomId != consumerRoom.RoomId)
                                     {
-                                        throw new Exception($"PullAsync() | Peer:{producerPeer.PeerId} and Peer:{PeerId} are not in the same room.");
+                                        throw new Exception(
+                                            $"PullAsync() | Peer:{producerPeer.PeerId} and Peer:{PeerId} are not in the same room."
+                                        );
                                     }
 
-                                    if(sources.Except(producerPeer.Sources).Any())
+                                    if (sources.Except(producerPeer.Sources).Any())
                                     {
-                                        throw new Exception($"PullAsync() | Peer:{producerPeer.PeerId} can't produce some sources.");
+                                        throw new Exception(
+                                            $"PullAsync() | Peer:{producerPeer.PeerId} can't produce some sources."
+                                        );
                                     }
 
                                     return await PullInternalAsync(producerPeer, sources);
@@ -364,18 +387,18 @@ namespace Tubumu.Meeting.Server
 
             var roomId = consumerActiveRoom.RoomId;
 
-            using(await producerPeer._producersLock.ReadLockAsync())
+            await using (await producerPeer._producersLock.ReadLockAsync())
             {
                 var producerProducers = producerPeer._producers.Values.Where(m => sources.Contains(m.Source)).ToArray();
 
                 var existsProducers = new HashSet<Producer>();
                 var produceSources = new HashSet<string>();
-                foreach(var source in sources)
+                foreach (var source in sources)
                 {
-                    foreach(var existsProducer in producerProducers)
+                    foreach (var existsProducer in producerProducers)
                     {
                         // 忽略重复消费
-                        if(_consumers.Values.Any(m => m.ProducerId == existsProducer.ProducerId))
+                        if (_consumers.Values.Any(m => m.ProducerId == existsProducer.ProducerId))
                         {
                             continue;
                         }
@@ -386,29 +409,31 @@ namespace Tubumu.Meeting.Server
 
                     await producerPeer._pullPaddingsLock.WaitAsync();
                     // 如果 Source 没有对应的 Producer，通知 otherPeer 生产；生产成功后又要通知本 Peer 去对应的 Room 消费。
-                    if(!producerPeer._pullPaddings.Any(m => m.Source == source))
+                    if (!producerPeer._pullPaddings.Any(m => m.Source == source))
                     {
                         produceSources.Add(source);
                     }
 
-                    if(!producerPeer._pullPaddings.Any(m => m.Source == source && m.RoomId == roomId && m.ConsumerPeerId == PeerId))
+                    if (
+                        !producerPeer._pullPaddings.Any(m =>
+                            m.Source == source && m.RoomId == roomId && m.ConsumerPeerId == PeerId
+                        )
+                    )
                     {
-                        producerPeer._pullPaddings.Add(new PullPadding
-                        {
-                            RoomId = roomId,
-                            ConsumerPeerId = PeerId,
-                            Source = source,
-                        });
+                        producerPeer._pullPaddings.Add(
+                            new PullPadding
+                            {
+                                RoomId = roomId,
+                                ConsumerPeerId = PeerId,
+                                Source = source,
+                            }
+                        );
                     }
 
                     producerPeer._pullPaddingsLock.Set();
                 }
 
-                return new PeerPullResult
-                {
-                    ExistsProducers = existsProducers.ToArray(),
-                    ProduceSources = produceSources,
-                };
+                return new PeerPullResult { ExistsProducers = existsProducers.ToArray(), ProduceSources = produceSources };
             }
         }
 
@@ -417,12 +442,12 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<PeerProduceResult> ProduceAsync(ProduceRequest produceRequest)
         {
-            if(produceRequest.Source.IsNullOrWhiteSpace())
+            if (produceRequest.Source.IsNullOrWhiteSpace())
             {
                 throw new Exception($"ProduceAsync() | Peer:{PeerId} AppData[\"source\"] is null or white space.");
             }
 
-            if(!Sources.Contains(produceRequest.Source))
+            if (!Sources.Contains(produceRequest.Source))
             {
                 throw new Exception($"ProduceAsync() | Source:\"{produceRequest.Source}\" cannot be produce.");
             }
@@ -432,66 +457,72 @@ namespace Tubumu.Meeting.Server
             produceRequest.AppData ??= new Dictionary<string, object>();
             produceRequest.AppData["peerId"] = PeerId;
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("ProduceAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("ProduceAsync()");
 
-                    using(await _transportsLock.ReadLockAsync())
+                    await using (await _transportsLock.ReadLockAsync())
                     {
-                        var transport = GetProducingTransport() ?? throw new Exception("ProduceAsync() | Transport:Producing is not exists.");
+                        var transport =
+                            GetProducingTransport()
+                            ?? throw new Exception("ProduceAsync() | Transport:Producing is not exists.");
 
-                        using(await _producersLock.WriteLockAsync())
+                        await using (await _producersLock.WriteLockAsync())
                         {
                             var producer = _producers.Values.FirstOrDefault(m => m.Source == produceRequest.Source);
-                            if(producer != null)
+                            if (producer != null)
                             {
                                 //throw new Exception($"ProduceAsync() | Source:\"{ produceRequest.Source }\" is exists.");
                                 _logger.LogWarning("ProduceAsync() | Source:\"{Source}\" is exists.", produceRequest.Source);
-                                return new PeerProduceResult
-                                {
-                                    Producer = producer,
-                                    PullPaddings = Array.Empty<PullPadding>(),
-                                };
+                                return new PeerProduceResult { Producer = producer, PullPaddings = Array.Empty<PullPadding>() };
                             }
 
-                            producer = await transport.ProduceAsync(new ProducerOptions
-                            {
-                                Kind = produceRequest.Kind,
-                                RtpParameters = produceRequest.RtpParameters,
-                                AppData = produceRequest.AppData,
-                            });
+                            producer = await transport.ProduceAsync(
+                                new ProducerOptions
+                                {
+                                    Kind = produceRequest.Kind,
+                                    RtpParameters = produceRequest.RtpParameters,
+                                    AppData = produceRequest.AppData,
+                                }
+                            );
 
                             // Store producer source
                             producer.Source = produceRequest.Source;
 
-                            producer.On("@close", async (_, _) =>
-                            {
-                                // 因为调用 producer.Close() 之前已经使用 _producersLock 写锁，所以触发该事件的调用从 _producers 移除无需再次加锁。
-                                _producers.Remove(producer.ProducerId);
-
-                                await _pullPaddingsLock.WaitAsync();
-                                _pullPaddings.Clear();
-                                _pullPaddingsLock.Set();
-                            });
-                            producer.On("transportclose", async (_, _) =>
-                            {
-                                using(await _producersLock.WriteLockAsync())
+                            producer.On(
+                                "@close",
+                                async (_, _) =>
                                 {
+                                    // 因为调用 producer.Close() 之前已经使用 _producersLock 写锁，所以触发该事件的调用从 _producers 移除无需再次加锁。
                                     _producers.Remove(producer.ProducerId);
-                                }
 
-                                await _pullPaddingsLock.WaitAsync();
-                                _pullPaddings.Clear();
-                                _pullPaddingsLock.Set();
-                            });
+                                    await _pullPaddingsLock.WaitAsync();
+                                    _pullPaddings.Clear();
+                                    _pullPaddingsLock.Set();
+                                }
+                            );
+                            producer.On(
+                                "transportclose",
+                                async (_, _) =>
+                                {
+                                    await using (await _producersLock.WriteLockAsync())
+                                    {
+                                        _producers.Remove(producer.ProducerId);
+                                    }
+
+                                    await _pullPaddingsLock.WaitAsync();
+                                    _pullPaddings.Clear();
+                                    _pullPaddingsLock.Set();
+                                }
+                            );
 
                             await _pullPaddingsLock.WaitAsync();
                             var matchedPullPaddings = _pullPaddings.Where(m => m.Source == producer.Source).ToArray();
-                            foreach(var item in matchedPullPaddings)
+                            foreach (var item in matchedPullPaddings)
                             {
                                 _pullPaddings.Remove(item);
                             }
@@ -502,20 +533,17 @@ namespace Tubumu.Meeting.Server
                             _producers[producer.ProducerId] = producer;
 
                             // Add into the audioLevelObserver.
-                            if(producer.Data.Kind == MediaKind.AUDIO)
+                            if (producer.Data.Kind == MediaKind.AUDIO)
                             {
                                 // Fire and forget
-                                _room!.AudioLevelObserver.AddProducerAsync(new RtpObserverAddRemoveProducerOptions
-                                {
-                                    ProducerId = producer.ProducerId,
-                                }).ContinueWithOnFaultedHandleLog(_logger);
+                                _room!
+                                    .AudioLevelObserver.AddProducerAsync(
+                                        new RtpObserverAddRemoveProducerOptions { ProducerId = producer.ProducerId }
+                                    )
+                                    .ContinueWithOnFaultedHandleLog(_logger);
                             }
 
-                            return new PeerProduceResult
-                            {
-                                Producer = producer,
-                                PullPaddings = matchedPullPaddings,
-                            };
+                            return new PeerProduceResult { Producer = producer, PullPaddings = matchedPullPaddings };
                         }
                     }
                 }
@@ -527,63 +555,78 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<Consumer?> ConsumeAsync(Peer producerPeer, string producerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("ConsumeAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("ConsumeAsync()");
 
-                    using(await _transportsLock.ReadLockAsync())
+                    await using (await _transportsLock.ReadLockAsync())
                     {
-                        var transport = GetConsumingTransport() ?? throw new Exception($"ConsumeAsync() | Peer:{PeerId} Transport for consuming not found.");
+                        var transport =
+                            GetConsumingTransport()
+                            ?? throw new Exception($"ConsumeAsync() | Peer:{PeerId} Transport for consuming not found.");
 
-                        using(await _consumersLock.WriteLockAsync())
+                        await using (await _consumersLock.WriteLockAsync())
                         {
                             // 已经在消费
-                            if(_consumers.Any(m => m.Value.ProducerId == producerId))
+                            if (_consumers.Any(m => m.Value.ProducerId == producerId))
                             {
                                 return null;
                             }
 
-                            using(await producerPeer._producersLock.ReadLockAsync())
+                            await using (await producerPeer._producersLock.ReadLockAsync())
                             {
-                                if(!producerPeer._producers.TryGetValue(producerId, out var producer))
+                                if (!producerPeer._producers.TryGetValue(producerId, out var producer))
                                 {
-                                    throw new Exception($"ConsumeAsync() | Peer:{PeerId} - ProducerPeer:{producerPeer.PeerId} has no Producer:{producerId}");
+                                    throw new Exception(
+                                        $"ConsumeAsync() | Peer:{PeerId} - ProducerPeer:{producerPeer.PeerId} has no Producer:{producerId}"
+                                    );
                                 }
 
-                                if(_rtpCapabilities == null || !await _room!.Router.CanConsumeAsync(producer.ProducerId, _rtpCapabilities))
+                                if (
+                                    _rtpCapabilities == null
+                                    || !await _room!.Router.CanConsumeAsync(producer.ProducerId, _rtpCapabilities)
+                                )
                                 {
                                     throw new Exception($"ConsumeAsync() | Peer:{PeerId} Can not consume.");
                                 }
 
                                 // Create the Consumer in paused mode.
-                                var consumer = await transport.ConsumeAsync(new ConsumerOptions
-                                {
-                                    ProducerId = producer.ProducerId,
-                                    RtpCapabilities = _rtpCapabilities,
-                                    Paused = true // Or: producer.Kind == MediaKind.Video
-                                });
+                                var consumer = await transport.ConsumeAsync(
+                                    new ConsumerOptions
+                                    {
+                                        ProducerId = producer.ProducerId,
+                                        RtpCapabilities = _rtpCapabilities,
+                                        Paused = true, // Or: producer.Kind == MediaKind.Video
+                                    }
+                                );
 
                                 consumer.Source = producer.Source;
 
-                                consumer.On("@close", async (_, _) =>
-                                {
-                                    // 因为调用 consumer.CloseAsync() 之前已经使用 _consumersLock 写锁，所以触发该事件的调用从 _consumers 移除无需再次加锁。
-                                    _consumers.Remove(consumer.ConsumerId);
-                                    await producer.RemoveConsumerAsync(consumer.ConsumerId);
-                                });
-                                consumer.On("producerclose,transportclose", async (_, _) =>
-                                {
-                                    using(await _consumersLock.WriteLockAsync())
+                                consumer.On(
+                                    "@close",
+                                    async (_, _) =>
                                     {
+                                        // 因为调用 consumer.CloseAsync() 之前已经使用 _consumersLock 写锁，所以触发该事件的调用从 _consumers 移除无需再次加锁。
                                         _consumers.Remove(consumer.ConsumerId);
+                                        await producer.RemoveConsumerAsync(consumer.ConsumerId);
                                     }
+                                );
+                                consumer.On(
+                                    "producerclose,transportclose",
+                                    async (_, _) =>
+                                    {
+                                        await using (await _consumersLock.WriteLockAsync())
+                                        {
+                                            _consumers.Remove(consumer.ConsumerId);
+                                        }
 
-                                    await producer.RemoveConsumerAsync(consumer.ConsumerId);
-                                });
+                                        await producer.RemoveConsumerAsync(consumer.ConsumerId);
+                                    }
+                                );
 
                                 await producer.AddConsumerAsync(consumer);
 
@@ -603,18 +646,18 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> CloseProducerAsync(string producerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("CloseProducerAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("CloseProducerAsync()");
 
                     // NOTE: 因为 Close 会触发 Emit("@close")，而 @close 的事件处理需要写锁。故使用写锁。
-                    using(await _producersLock.WriteLockAsync())
+                    await using (await _producersLock.WriteLockAsync())
                     {
-                        if(!_producers.TryGetValue(producerId, out var producer))
+                        if (!_producers.TryGetValue(producerId, out var producer))
                         {
                             throw new Exception($"CloseProducerAsync() | Peer:{PeerId} has no Producer:{producerId}.");
                         }
@@ -631,19 +674,19 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> CloseAllProducersAsync()
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("CloseAllProducersAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("CloseAllProducersAsync()");
 
                     // NOTE: 因为 Close 会触发 Emit("@close")，而 @close 的事件处理需要写锁。故使用写锁。
-                    using(await _producersLock.WriteLockAsync())
+                    await using (await _producersLock.WriteLockAsync())
                     {
                         var producers = _producers.Values.ToArray();
-                        foreach(var producer in producers)
+                        foreach (var producer in producers)
                         {
                             await producer.CloseAsync();
                         }
@@ -659,19 +702,19 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> CloseProducerWithSourcesAsync(IEnumerable<string> sources)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("CloseProducerWithSourcesAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("CloseProducerWithSourcesAsync()");
 
                     // NOTE: 因为 Close 会触发 Emit("@close")，而 @close 的事件处理需要写锁。故使用写锁。
-                    using(await _producersLock.WriteLockAsync())
+                    await using (await _producersLock.WriteLockAsync())
                     {
                         var producers = _producers.Values.Where(m => sources.Contains(m.Source)).ToArray();
-                        foreach(var producer in producers)
+                        foreach (var producer in producers)
                         {
                             await producer.CloseAsync();
                         }
@@ -687,17 +730,17 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> PauseProducerAsync(string producerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("PauseProducerAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("PauseProducerAsync()");
 
-                    using(await _producersLock.ReadLockAsync())
+                    await using (await _producersLock.ReadLockAsync())
                     {
-                        if(!_producers.TryGetValue(producerId, out var producer))
+                        if (!_producers.TryGetValue(producerId, out var producer))
                         {
                             throw new Exception($"PauseProducerAsync() | Peer:{PeerId} has no Producer:{producerId}.");
                         }
@@ -714,17 +757,17 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> ResumeProducerAsync(string producerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("ResumeProducerAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("ResumeProducerAsync()");
 
-                    using(await _producersLock.ReadLockAsync())
+                    await using (await _producersLock.ReadLockAsync())
                     {
-                        if(!_producers.TryGetValue(producerId, out var producer))
+                        if (!_producers.TryGetValue(producerId, out var producer))
                         {
                             throw new Exception($"ResumeProducerAsync() | Peer:{PeerId} has no Producer:{producerId}.");
                         }
@@ -741,18 +784,18 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> CloseConsumerAsync(string consumerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("CloseConsumerAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("CloseConsumerAsync()");
 
                     // NOTE: 因为 Close 会触发 Emit("@close")，而 @close 的事件处理需要写锁。故使用写锁。
-                    using(await _consumersLock.WriteLockAsync())
+                    await using (await _consumersLock.WriteLockAsync())
                     {
-                        if(!_consumers.TryGetValue(consumerId, out var consumer))
+                        if (!_consumers.TryGetValue(consumerId, out var consumer))
                         {
                             throw new Exception($"CloseConsumerAsync() | Peer:{PeerId} has no Cmonsumer:{consumerId}.");
                         }
@@ -769,17 +812,17 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> PauseConsumerAsync(string consumerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("PauseConsumerAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("PauseConsumerAsync()");
 
-                    using(await _consumersLock.ReadLockAsync())
+                    await using (await _consumersLock.ReadLockAsync())
                     {
-                        if(!_consumers.TryGetValue(consumerId, out var consumer))
+                        if (!_consumers.TryGetValue(consumerId, out var consumer))
                         {
                             throw new Exception($"PauseConsumerAsync() | Peer:{PeerId} has no Consumer:{consumerId}.");
                         }
@@ -796,17 +839,17 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<Consumer> ResumeConsumerAsync(string consumerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("ResumeConsumerAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("ResumeConsumerAsync()");
 
-                    using(await _consumersLock.ReadLockAsync())
+                    await using (await _consumersLock.ReadLockAsync())
                     {
-                        if(!_consumers.TryGetValue(consumerId, out var consumer))
+                        if (!_consumers.TryGetValue(consumerId, out var consumer))
                         {
                             throw new Exception($"ResumeConsumerAsync() | Peer:{PeerId} has no Consumer:{consumerId}.");
                         }
@@ -821,21 +864,25 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 设置消费建议 Layers
         /// </summary>
-        public async Task<bool> SetConsumerPreferedLayersAsync(SetConsumerPreferedLayersRequest setConsumerPreferedLayersRequest)
+        public async Task<bool> SetConsumerPreferedLayersAsync(
+            SetConsumerPreferedLayersRequest setConsumerPreferedLayersRequest
+        )
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("SetConsumerPreferedLayersAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("SetConsumerPreferedLayersAsync()");
 
-                    using(await _consumersLock.ReadLockAsync())
+                    await using (await _consumersLock.ReadLockAsync())
                     {
-                        if(!_consumers.TryGetValue(setConsumerPreferedLayersRequest.ConsumerId, out var consumer))
+                        if (!_consumers.TryGetValue(setConsumerPreferedLayersRequest.ConsumerId, out var consumer))
                         {
-                            throw new Exception($"SetConsumerPreferedLayersAsync() | Peer:{PeerId} has no Consumer:{setConsumerPreferedLayersRequest.ConsumerId}.");
+                            throw new Exception(
+                                $"SetConsumerPreferedLayersAsync() | Peer:{PeerId} has no Consumer:{setConsumerPreferedLayersRequest.ConsumerId}."
+                            );
                         }
 
                         await consumer.SetPreferredLayersAsync(setConsumerPreferedLayersRequest);
@@ -850,19 +897,21 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> SetConsumerPriorityAsync(SetConsumerPriorityRequest setConsumerPriorityRequest)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("SetConsumerPriorityAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("SetConsumerPriorityAsync()");
 
-                    using(await _consumersLock.ReadLockAsync())
+                    await using (await _consumersLock.ReadLockAsync())
                     {
-                        if(!_consumers.TryGetValue(setConsumerPriorityRequest.ConsumerId, out var consumer))
+                        if (!_consumers.TryGetValue(setConsumerPriorityRequest.ConsumerId, out var consumer))
                         {
-                            throw new Exception($"SetConsumerPriorityAsync() | Peer:{PeerId} has no Consumer:{setConsumerPriorityRequest.ConsumerId}.");
+                            throw new Exception(
+                                $"SetConsumerPriorityAsync() | Peer:{PeerId} has no Consumer:{setConsumerPriorityRequest.ConsumerId}."
+                            );
                         }
 
                         await consumer.SetPriorityAsync(setConsumerPriorityRequest);
@@ -877,19 +926,21 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<bool> RequestConsumerKeyFrameAsync(string consumerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("RequestConsumerKeyFrameAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("RequestConsumerKeyFrameAsync()");
 
-                    using(await _consumersLock.ReadLockAsync())
+                    await using (await _consumersLock.ReadLockAsync())
                     {
-                        if(!_consumers.TryGetValue(consumerId, out var consumer))
+                        if (!_consumers.TryGetValue(consumerId, out var consumer))
                         {
-                            throw new Exception($"RequestConsumerKeyFrameAsync() | Peer:{PeerId} has no Producer:{consumerId}.");
+                            throw new Exception(
+                                $"RequestConsumerKeyFrameAsync() | Peer:{PeerId} has no Producer:{consumerId}."
+                            );
                         }
 
                         await consumer.RequestKeyFrameAsync();
@@ -904,19 +955,21 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<object[]> GetWebRtcTransportStatsAsync(string transportId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("GetWebRtcTransportStatsAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("GetWebRtcTransportStatsAsync()");
 
-                    using(await _transportsLock.ReadLockAsync())
+                    await using (await _transportsLock.ReadLockAsync())
                     {
-                        if(_transports.TryGetValue(transportId, out var transport))
+                        if (_transports.TryGetValue(transportId, out var transport))
                         {
-                            throw new Exception($"GetWebRtcTransportStatsAsync() | Peer:{PeerId} has no Transport:{transportId}.");
+                            throw new Exception(
+                                $"GetWebRtcTransportStatsAsync() | Peer:{PeerId} has no Transport:{transportId}."
+                            );
                         }
 
                         var stats = await transport!.GetStatsAsync();
@@ -931,17 +984,17 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<object[]> GetProducerStatsAsync(string producerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("GetProducerStatsAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("GetProducerStatsAsync()");
 
-                    using(await _producersLock.ReadLockAsync())
+                    await using (await _producersLock.ReadLockAsync())
                     {
-                        if(!_producers.TryGetValue(producerId, out var producer))
+                        if (!_producers.TryGetValue(producerId, out var producer))
                         {
                             throw new Exception($"GetProducerStatsAsync() | Peer:{PeerId} has no Producer:{producerId}.");
                         }
@@ -959,17 +1012,17 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<object[]> GetConsumerStatsAsync(string consumerId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("GetConsumerStatsAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("GetConsumerStatsAsync()");
 
-                    using(await _consumersLock.ReadLockAsync())
+                    await using (await _consumersLock.ReadLockAsync())
                     {
-                        if(!_consumers.TryGetValue(consumerId, out var consumer))
+                        if (!_consumers.TryGetValue(consumerId, out var consumer))
                         {
                             throw new Exception($"GetConsumerStatsAsync() | Peer:{PeerId} has no Consumer:{consumerId}.");
                         }
@@ -987,24 +1040,26 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<IceParametersT> RestartIceAsync(string transportId)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("RestartIceAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("RestartIceAsync()");
 
-                    using(await _transportsLock.ReadLockAsync())
+                    await using (await _transportsLock.ReadLockAsync())
                     {
-                        if(_transports.TryGetValue(transportId, out var transport))
+                        if (_transports.TryGetValue(transportId, out var transport))
                         {
                             throw new Exception($"RestartIceAsync() | Peer:{PeerId} has no Transport:{transportId}.");
                         }
 
-                        if(transport is not WebRtcTransport webRtcTransport)
+                        if (transport is not WebRtcTransport webRtcTransport)
                         {
-                            throw new Exception($"RestartIceAsync() | Peer:{PeerId} Transport:{transportId} is not WebRtcTransport.");
+                            throw new Exception(
+                                $"RestartIceAsync() | Peer:{PeerId} Transport:{transportId} is not WebRtcTransport."
+                            );
                         }
 
                         var iceParameters = await webRtcTransport.RestartIceAsync();
@@ -1019,13 +1074,13 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<JoinRoomResult> JoinRoomAsync(Room room)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("JoinRoomAsync()");
 
-                using(await _roomLock.WriteLockAsync())
+                await using (await _roomLock.WriteLockAsync())
                 {
-                    if(_room != null)
+                    if (_room != null)
                     {
                         throw new PeerInRoomException("JoinRoomAsync()", PeerId, room.RoomId);
                     }
@@ -1042,20 +1097,20 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<LeaveRoomResult> LeaveRoomAsync()
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("LeaveRoomAsync()");
 
-                using(await _roomLock.WriteLockAsync())
+                await using (await _roomLock.WriteLockAsync())
                 {
                     CheckRoom("LeaveRoomAsync()");
 
                     // NOTE: 因为 Close 会触发 Emit("@close")，而 @close 的事件处理需要写锁。故使用写锁。
-                    using(await _transportsLock.WriteLockAsync())
+                    await using (await _transportsLock.WriteLockAsync())
                     {
                         // Iterate and close all mediasoup Transport associated to this Peer, so all
                         // its Producers and Consumers will also be closed.
-                        foreach(var transport in _transports.Values)
+                        foreach (var transport in _transports.Values)
                         {
                             await transport.CloseAsync();
                         }
@@ -1073,40 +1128,36 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<LeaveResult> LeaveAsync()
         {
-            var leaveResult = new LeaveResult
-            {
-                SelfPeer = this,
-                OtherPeerIds = Array.Empty<string>(),
-            };
+            var leaveResult = new LeaveResult { SelfPeer = this, OtherPeerIds = Array.Empty<string>() };
 
-            if(!_joined)
+            if (!_joined)
             {
                 return leaveResult;
             }
 
-            using(await _joinedLock.WriteLockAsync())
+            await using (await _joinedLock.WriteLockAsync())
             {
-                if(!_joined)
+                if (!_joined)
                 {
                     return leaveResult;
                 }
 
                 _joined = false;
 
-                using(await _roomLock.WriteLockAsync())
+                await using (await _roomLock.WriteLockAsync())
                 {
                     // NOTE: 因为 Close 会触发 Emit("@close")，而 @close 的事件处理需要写锁。故使用写锁。
-                    using(await _transportsLock.WriteLockAsync())
+                    await using (await _transportsLock.WriteLockAsync())
                     {
                         // Iterate and close all mediasoup Transport associated to this Peer, so all
                         // its Producers and Consumers will also be closed.
-                        foreach(var transport in _transports.Values)
+                        foreach (var transport in _transports.Values)
                         {
                             await transport.CloseAsync();
                         }
                     }
 
-                    if(_room != null)
+                    if (_room != null)
                     {
                         var leaveRoomResult = await _room.PeerLeaveAsync(PeerId);
                         leaveResult.OtherPeerIds = leaveRoomResult.OtherPeerIds;
@@ -1123,24 +1174,20 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<PeerAppDataResult> SetPeerAppDataAsync(SetPeerAppDataRequest setPeerAppDataRequest)
         {
-            var peerAppDataResult = new PeerAppDataResult
-            {
-                SelfPeerId = PeerId,
-                OtherPeerIds = Array.Empty<string>(),
-            };
+            var peerAppDataResult = new PeerAppDataResult { SelfPeerId = PeerId, OtherPeerIds = Array.Empty<string>() };
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("SetPeerAppDataAsync()");
 
-                foreach(var item in setPeerAppDataRequest.AppData)
+                foreach (var item in setPeerAppDataRequest.AppData)
                 {
                     AppData.AddOrUpdate(item.Key, item.Value, (oldKey, oldValue) => item.Value);
                 }
 
                 peerAppDataResult.AppData = AppData.ToDictionary(x => x.Key, x => x.Value);
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     var allPeerIds = await GetPeerIdsInteralAsync();
                     peerAppDataResult.OtherPeerIds = allPeerIds.Where(m => m != PeerId).ToArray();
@@ -1154,24 +1201,20 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<PeerAppDataResult> UnsetPeerAppDataAsync(UnsetPeerAppDataRequest unsetPeerAppDataRequest)
         {
-            var peerAppDataResult = new PeerAppDataResult
-            {
-                SelfPeerId = PeerId,
-                OtherPeerIds = Array.Empty<string>(),
-            };
+            var peerAppDataResult = new PeerAppDataResult { SelfPeerId = PeerId, OtherPeerIds = Array.Empty<string>() };
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("UnsetPeerAppDataAsync()");
 
-                foreach(var item in unsetPeerAppDataRequest.Keys)
+                foreach (var item in unsetPeerAppDataRequest.Keys)
                 {
                     AppData.TryRemove(item, out var _);
                 }
 
                 peerAppDataResult.AppData = AppData.ToDictionary(x => x.Key, x => x.Value);
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     var allPeerIds = await GetPeerIdsInteralAsync();
                     peerAppDataResult.OtherPeerIds = allPeerIds.Where(m => m != PeerId).ToArray();
@@ -1192,13 +1235,13 @@ namespace Tubumu.Meeting.Server
                 AppData = new Dictionary<string, object>(),
             };
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("ClearPeerAppDataAsync()");
 
                 AppData.Clear();
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     var allPeerIds = await GetPeerIdsInteralAsync();
                     peerAppDataResult.OtherPeerIds = allPeerIds.Where(m => m != PeerId).ToArray();
@@ -1210,15 +1253,17 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 设置 InternalData
         /// </summary>
-        public async Task<PeerInternalDataResult> SetPeerInternalDataAsync(SetPeerInternalDataRequest setPeerInternalDataRequest)
+        public async Task<PeerInternalDataResult> SetPeerInternalDataAsync(
+            SetPeerInternalDataRequest setPeerInternalDataRequest
+        )
         {
             var peerInternalDataResult = new PeerInternalDataResult();
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("SetPeerInternalDataAsync()");
 
-                foreach(var item in setPeerInternalDataRequest.InternalData)
+                foreach (var item in setPeerInternalDataRequest.InternalData)
                 {
                     InternalData.AddOrUpdate(item.Key, item.Value, (oldKey, oldValue) => item.Value);
                 }
@@ -1235,7 +1280,7 @@ namespace Tubumu.Meeting.Server
         {
             var peerInternalDataResult = new PeerInternalDataResult();
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("GetPeerInternalDataAsync()");
 
@@ -1247,15 +1292,17 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// 移除 InternalData
         /// </summary>
-        public async Task<PeerInternalDataResult> UnsetPeerInternalDataAsync(UnsetPeerInternalDataRequest unsetPeerInternalDataRequest)
+        public async Task<PeerInternalDataResult> UnsetPeerInternalDataAsync(
+            UnsetPeerInternalDataRequest unsetPeerInternalDataRequest
+        )
         {
             var peerInternalDataResult = new PeerInternalDataResult();
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("UnsetPeerInternalDataAsync()");
 
-                foreach(var item in unsetPeerInternalDataRequest.Keys)
+                foreach (var item in unsetPeerInternalDataRequest.Keys)
                 {
                     AppData.TryRemove(item, out var _);
                 }
@@ -1270,12 +1317,9 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<PeerInternalDataResult> ClearPeerInternalDataAsync()
         {
-            var peerInternalDataResult = new PeerInternalDataResult
-            {
-                InternalData = new Dictionary<string, object>()
-            };
+            var peerInternalDataResult = new PeerInternalDataResult { InternalData = new Dictionary<string, object>() };
 
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("ClearPeerInternalDataAsync()");
 
@@ -1299,19 +1343,23 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<Peer[]> GetOtherPeersAsync(UserRole? role = null)
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("GetOtherPeersAsync()");
 
-                using(await _roomLock.ReadLockAsync())
+                await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("GetOtherPeersAsync()");
 
                     var allPeers = await GetPeersInteralAsync();
                     var query = allPeers.Where(m => m.PeerId != PeerId);
-                    if(role.HasValue)
+                    if (role.HasValue)
                     {
-                        query = query.Where(m => m.InternalData.TryGetValue(RoleKey, out var r) && r.GetType() == typeof(UserRole) && (UserRole)r == role.Value);
+                        query = query.Where(m =>
+                            m.InternalData.TryGetValue(RoleKey, out var r)
+                            && r.GetType() == typeof(UserRole)
+                            && (UserRole)r == role.Value
+                        );
                     }
 
                     return query.ToArray();
@@ -1324,11 +1372,13 @@ namespace Tubumu.Meeting.Server
         /// </summary>
         public async Task<UserRole> GetRoleAsync()
         {
-            using(await _joinedLock.ReadLockAsync())
+            await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("GetRoleAsync()");
 
-                return InternalData.TryGetValue(RoleKey, out var role) && role.GetType() == typeof(UserRole) ? (UserRole)role : UserRole.Normal;
+                return InternalData.TryGetValue(RoleKey, out var role) && role.GetType() == typeof(UserRole)
+                    ? (UserRole)role
+                    : UserRole.Normal;
             }
         }
 
@@ -1336,27 +1386,35 @@ namespace Tubumu.Meeting.Server
 
         private Transport? GetProducingTransport()
         {
-            return _transports.Values.FirstOrDefault(m => m.AppData != null && m.AppData.TryGetValue("Producing", out var value) && (bool)value);
+            return _transports.Values.FirstOrDefault(m =>
+                m.AppData != null && m.AppData.TryGetValue("Producing", out var value) && (bool)value
+            );
         }
 
         private Transport? GetConsumingTransport()
         {
-            return _transports.Values.FirstOrDefault(m => m.AppData != null && m.AppData.TryGetValue("Consuming", out var value) && (bool)value);
+            return _transports.Values.FirstOrDefault(m =>
+                m.AppData != null && m.AppData.TryGetValue("Consuming", out var value) && (bool)value
+            );
         }
 
         private bool HasProducingTransport()
         {
-            return _transports.Values.Any(m => m.AppData != null && m.AppData.TryGetValue("Producing", out var value) && (bool)value);
+            return _transports.Values.Any(m =>
+                m.AppData != null && m.AppData.TryGetValue("Producing", out var value) && (bool)value
+            );
         }
 
         private bool HasConsumingTransport()
         {
-            return _transports.Values.Any(m => m.AppData != null && m.AppData.TryGetValue("Consuming", out var value) && (bool)value);
+            return _transports.Values.Any(m =>
+                m.AppData != null && m.AppData.TryGetValue("Consuming", out var value) && (bool)value
+            );
         }
 
         private void CheckJoined(string tag)
         {
-            if(!_joined)
+            if (!_joined)
             {
                 throw new PeerNotJoinedException(tag, PeerId);
             }
@@ -1364,7 +1422,7 @@ namespace Tubumu.Meeting.Server
 
         private void CheckRoom(string tag)
         {
-            if(_room == null)
+            if (_room == null)
             {
                 throw new PeerNotInRoomException(tag, PeerId);
             }

@@ -102,9 +102,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("DumpAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Worker closed");
                 }
@@ -125,9 +125,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetResourceUsageAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Worker closed");
                 }
@@ -149,9 +149,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("UpdateSettingsAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Worker closed");
                 }
@@ -164,19 +164,19 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var updateSettingsRequestT = new UpdateSettingsRequestT
-                {
-                    LogLevel = logLevelString,
-                    LogTags = logTagStrings
-                };
+                var updateSettingsRequestT = new UpdateSettingsRequestT { LogLevel = logLevelString, LogTags = logTagStrings };
 
                 var requestOffset = UpdateSettingsRequest.Pack(bufferBuilder, updateSettingsRequestT);
 
                 // Fire and forget
-                _channel.RequestAsync(bufferBuilder, Method.WORKER_UPDATE_SETTINGS,
-                    Body.Worker_UpdateSettingsRequest,
-                    requestOffset.Value
-                ).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.WORKER_UPDATE_SETTINGS,
+                        Body.Worker_UpdateSettingsRequest,
+                        requestOffset.Value
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -188,24 +188,26 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateWebRtcServerAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Workder closed");
                 }
 
                 // Build the request.
-                var fbsListenInfos = webRtcServerOptions.ListenInfos.Select(m => new ListenInfoT
-                {
-                    Protocol = m.Protocol,
-                    Ip = m.Ip,
-                    AnnouncedAddress = m.AnnouncedAddress,
-                    Port = m.Port,
-                    Flags = m.Flags,
-                    SendBufferSize = m.SendBufferSize,
-                    RecvBufferSize = m.RecvBufferSize
-                }).ToList();
+                var fbsListenInfos = webRtcServerOptions
+                    .ListenInfos.Select(m => new ListenInfoT
+                    {
+                        Protocol = m.Protocol,
+                        Ip = m.Ip,
+                        AnnouncedAddress = m.AnnouncedAddress,
+                        Port = m.Port,
+                        Flags = m.Flags,
+                        SendBufferSize = m.SendBufferSize,
+                        RecvBufferSize = m.RecvBufferSize,
+                    })
+                    .ToList();
 
                 var webRtcServerId = Guid.NewGuid().ToString();
 
@@ -215,12 +217,14 @@ namespace Tubumu.Mediasoup
                 var createWebRtcServerRequestT = new CreateWebRtcServerRequestT
                 {
                     WebRtcServerId = webRtcServerId,
-                    ListenInfos = fbsListenInfos
+                    ListenInfos = fbsListenInfos,
                 };
 
                 var createWebRtcServerRequestOffset = CreateWebRtcServerRequest.Pack(bufferBuilder, createWebRtcServerRequestT);
 
-                await _channel.RequestAsync(bufferBuilder, Method.WORKER_CREATE_WEBRTCSERVER,
+                await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.WORKER_CREATE_WEBRTCSERVER,
                     Body.Worker_CreateWebRtcServerRequest,
                     createWebRtcServerRequestOffset.Value
                 );
@@ -232,7 +236,7 @@ namespace Tubumu.Mediasoup
                     webRtcServerOptions.AppData
                 );
 
-                lock(_webRtcServersLock)
+                lock (_webRtcServersLock)
                 {
                     _webRtcServers.Add(webRtcServer);
                 }
@@ -241,7 +245,7 @@ namespace Tubumu.Mediasoup
                     "@close",
                     (_, _) =>
                     {
-                        lock(_webRtcServersLock)
+                        lock (_webRtcServersLock)
                         {
                             _webRtcServers.Remove(webRtcServer);
                         }
@@ -265,9 +269,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CreateRouterAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Workder closed");
                 }
@@ -280,16 +284,16 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var createRouterRequestT = new CreateRouterRequestT
-                {
-                    RouterId = routerId
-                };
+                var createRouterRequestT = new CreateRouterRequestT { RouterId = routerId };
 
                 var createRouterRequestOffset = CreateRouterRequest.Pack(bufferBuilder, createRouterRequestT);
 
-                await _channel.RequestAsync(bufferBuilder, Method.WORKER_CREATE_ROUTER,
+                await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.WORKER_CREATE_ROUTER,
                     Body.Worker_CreateRouterRequest,
-                    createRouterRequestOffset.Value);
+                    createRouterRequestOffset.Value
+                );
 
                 var router = new Router(
                     _loggerFactory,
@@ -299,7 +303,7 @@ namespace Tubumu.Mediasoup
                     routerOptions.AppData
                 );
 
-                lock(_routersLock)
+                lock (_routersLock)
                 {
                     _routers.Add(router);
                 }
@@ -308,7 +312,7 @@ namespace Tubumu.Mediasoup
                     "@close",
                     (_, _) =>
                     {
-                        lock(_routersLock)
+                        lock (_routersLock)
                         {
                             _routers.Remove(router);
                         }
@@ -330,18 +334,18 @@ namespace Tubumu.Mediasoup
 
         private bool disposedValue = false; // 要检测冗余调用
 
-        protected virtual void DestoryManaged() { }
+        protected virtual void DestroyManaged() { }
 
         protected virtual void DestoryUnmanaged() { }
 
         protected virtual void Dispose(bool disposing)
         {
-            if(!disposedValue)
+            if (!disposedValue)
             {
-                if(disposing)
+                if (disposing)
                 {
                     // TODO: 释放托管状态(托管对象)。
-                    DestoryManaged();
+                    DestroyManaged();
                 }
 
                 // TODO: 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。

@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.Producer
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum TraceEventType : byte
     {
@@ -28,4 +29,5 @@ namespace FBS.Producer
         [EnumMember(Value = "sr")]
         SR = 5,
     }
+
 }

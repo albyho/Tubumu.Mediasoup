@@ -4,6 +4,7 @@
 
 namespace FBS.Notification
 {
+
     public enum Event : byte
     {
         TRANSPORT_SEND_RTCP = 0,
@@ -38,4 +39,6 @@ namespace FBS.Notification
         AUDIOLEVELOBSERVER_SILENCE = 29,
         AUDIOLEVELOBSERVER_VOLUMES = 30,
     };
+
+
 }

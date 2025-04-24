@@ -9,22 +9,22 @@ namespace Tubumu.Libuv.Threading.Tasks
         {
             var tcs = new TaskCompletionSource<TClient?>();
 #if TASK_STATUS
-			HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
+            HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
 #endif
 
             try
             {
                 tcs.SetResult(listener.Accept());
             }
-            catch(UVException ex)
+            catch (UVException ex)
             {
-                if(ex.ErrorCode != UVErrorCode.EAGAIN)
+                if (ex.ErrorCode != UVErrorCode.EAGAIN)
                 {
                     tcs.SetException(ex);
                 }
             }
 
-            if(tcs.Task.IsCompleted)
+            if (tcs.Task.IsCompleted)
             {
                 return tcs.Task;
             }
@@ -37,16 +37,19 @@ namespace Tubumu.Libuv.Threading.Tasks
                 {
                     finish?.Invoke(null, listener.Accept());
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     finish?.Invoke(ex, default);
                 }
             }
 
-            finish = HelperFunctions.Finish(tcs, () =>
-            {
-                listener.Connection -= connectioncb;
-            });
+            finish = HelperFunctions.Finish(
+                tcs,
+                () =>
+                {
+                    listener.Connection -= connectioncb;
+                }
+            );
 
             listener.Connection += connectioncb;
 

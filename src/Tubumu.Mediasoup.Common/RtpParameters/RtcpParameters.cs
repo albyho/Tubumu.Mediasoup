@@ -18,9 +18,8 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// The Canonical Name (CNAME) used by RTCP (e.g. in SDES messages).
         /// </summary>
-        [JsonPropertyName("cname")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? CNAME { get; set; }
+        public string? Cname { get; set; }
 
         /// <summary>
         /// Whether reduced size RTCP RFC 5506 is configured (if true) or compound RTCP

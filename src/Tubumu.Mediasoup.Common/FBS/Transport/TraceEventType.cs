@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.Transport
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum TraceEventType : byte
     {
@@ -16,4 +17,5 @@ namespace FBS.Transport
         [EnumMember(Value = "bwe")]
         BWE = 1,
     }
+
 }

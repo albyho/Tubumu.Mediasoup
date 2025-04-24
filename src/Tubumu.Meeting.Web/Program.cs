@@ -19,16 +19,14 @@ namespace Tubumu.Meeting.Web
                 .AddJsonFile($"serilog.{environment}.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            Log.Logger = new LoggerConfiguration()
-                        .ReadFrom.Configuration(config)
-                        .CreateLogger();
+            Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(config).CreateLogger();
 
             try
             {
                 Log.Information("Starting web host");
                 CreateHostBuilder(args).Build().Run();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Fatal(ex, "Host terminated unexpectedly");
             }
@@ -40,19 +38,18 @@ namespace Tubumu.Meeting.Web
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .UseSerilog(dispose: true)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                var configs = new ConfigurationBuilder()
-                    .AddJsonFile("hosting.json", optional: true)
-                    .AddJsonFile($"hosting.{environment}.json", optional: true)
-                    .AddJsonFile("mediasoupsettings.json", optional: false)
-                    .AddJsonFile($"mediasoupsettings.{environment}.json", optional: true)
-                    .Build();
+                .UseSerilog(dispose: true)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                    var configs = new ConfigurationBuilder()
+                        .AddJsonFile("mediasoupsettings.json", optional: false)
+                        .AddJsonFile($"mediasoupsettings.{environment}.json", optional: true)
+                        .Build();
 
-                webBuilder.UseConfiguration(configs);
-                webBuilder.UseStartup<Startup>();
-            });
+                    webBuilder.UseConfiguration(configs);
+                    webBuilder.UseStartup<Startup>();
+                })
+                ;
     }
 }

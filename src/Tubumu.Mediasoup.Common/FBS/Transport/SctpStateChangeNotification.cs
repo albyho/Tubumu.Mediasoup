@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Transport
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct SctpStateChangeNotification : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static SctpStateChangeNotification GetRootAsSctpStateChangeNotification(ByteBuffer _bb) { return GetRootAsSctpStateChangeNotification(_bb, new SctpStateChangeNotification()); }
         public static SctpStateChangeNotification GetRootAsSctpStateChangeNotification(ByteBuffer _bb, SctpStateChangeNotification obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -56,7 +60,6 @@ namespace FBS.Transport
 
     public class SctpStateChangeNotificationT
     {
-        [JsonPropertyName("sctp_state")]
         public FBS.SctpAssociation.SctpState SctpState { get; set; }
 
         public SctpStateChangeNotificationT()
@@ -64,4 +67,16 @@ namespace FBS.Transport
             this.SctpState = FBS.SctpAssociation.SctpState.NEW;
         }
     }
+
+
+    static public class SctpStateChangeNotificationVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*SctpState*/, 1 /*FBS.SctpAssociation.SctpState*/, 1, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

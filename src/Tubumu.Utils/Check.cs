@@ -11,9 +11,7 @@ namespace Tubumu.Utils
 
         public static T NotNull<T>(T? value, string parameterName, string? message = null)
         {
-            return value != null
-                ? value
-                : throw new ArgumentNullException(parameterName, message);
+            return value != null ? value : throw new ArgumentNullException(parameterName, message);
         }
 
         #endregion

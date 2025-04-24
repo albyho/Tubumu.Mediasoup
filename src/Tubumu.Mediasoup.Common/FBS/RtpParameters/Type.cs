@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum Type : byte
     {
@@ -22,4 +23,5 @@ namespace FBS.RtpParameters
         [EnumMember(Value = "pipe")]
         PIPE = 3,
     }
+
 }

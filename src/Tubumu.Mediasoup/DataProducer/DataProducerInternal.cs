@@ -7,7 +7,8 @@
         /// </summary>
         public string DataProducerId { get; }
 
-        public DataProducerInternal(string routerId, string transportId, string dataProducerId) : base(routerId, transportId)
+        public DataProducerInternal(string routerId, string transportId, string dataProducerId)
+            : base(routerId, transportId)
         {
             DataProducerId = dataProducerId;
         }

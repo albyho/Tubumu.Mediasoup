@@ -14,12 +14,10 @@
         /// <param name="source">源字典</param>
         /// <param name="copy">目标字典</param>
         /// <returns>复制了新元素的源字典</returns>
-        public static TDictionary Concat<TDictionary, TKey, TValue>(
-            this TDictionary source,
-            IDictionary<TKey, TValue> copy)
+        public static TDictionary Concat<TDictionary, TKey, TValue>(this TDictionary source, IDictionary<TKey, TValue> copy)
             where TDictionary : IDictionary<TKey, TValue>
         {
-            foreach(var pair in copy)
+            foreach (var pair in copy)
             {
                 source.Add(pair.Key, pair.Value);
             }
@@ -40,10 +38,11 @@
         public static TDictionary Concat<TDictionary, TKey, TValue>(
             this TDictionary source,
             IDictionary<TKey, TValue> copy,
-            IEnumerable<TKey> keys)
+            IEnumerable<TKey> keys
+        )
             where TDictionary : IDictionary<TKey, TValue>
         {
-            foreach(var key in keys)
+            foreach (var key in keys)
             {
                 source.Add(key, copy[key]);
             }
@@ -54,12 +53,10 @@
         /// <summary>
         /// 将目标字典的按指定 Key 移除
         /// </summary>
-        public static TDictionary RemoveKeys<TDictionary, TKey, TValue>(
-            this TDictionary source,
-            IEnumerable<TKey> keys)
+        public static TDictionary RemoveKeys<TDictionary, TKey, TValue>(this TDictionary source, IEnumerable<TKey> keys)
             where TDictionary : IDictionary<TKey, TValue>
         {
-            foreach(var key in keys)
+            foreach (var key in keys)
             {
                 source.Remove(key);
             }
@@ -77,9 +74,10 @@
         /// <returns>移除了元素的源字典</returns>
         public static IDictionary<TKey, TValue> RemoveKeys<TKey, TValue>(
             this IDictionary<TKey, TValue> source,
-            IEnumerable<TKey> keys)
+            IEnumerable<TKey> keys
+        )
         {
-            foreach(var key in keys)
+            foreach (var key in keys)
             {
                 source.Remove(key);
             }
@@ -92,16 +90,17 @@
         /// </summary>
         public static Dictionary<TKey, TValue> Merge<TKey, TValue>(
             this IDictionary<TKey, TValue> first,
-            IDictionary<TKey, TValue> second)
+            IDictionary<TKey, TValue> second
+        )
             where TKey : notnull
         {
             var result = new Dictionary<TKey, TValue>();
-            foreach(var key in first.Keys)
+            foreach (var key in first.Keys)
             {
                 result[key] = first[key];
             }
 
-            foreach(var key in second.Keys)
+            foreach (var key in second.Keys)
             {
                 result[key] = second[key];
             }
@@ -112,7 +111,8 @@
         /// <summary>
         /// 比较两个字典是否相同
         /// </summary>
-        public static bool DeepEquals<TKey, TValue>(this IDictionary<TKey, TValue> first, IDictionary<TKey, TValue> second) where TKey : notnull
+        public static bool DeepEquals<TKey, TValue>(this IDictionary<TKey, TValue> first, IDictionary<TKey, TValue> second)
+            where TKey : notnull
         {
             var comparer = new DictionaryComparer<TKey, TValue>();
             return comparer.Equals(first, second);
@@ -121,7 +121,8 @@
         /// <summary>
         /// 获取字典的 HashCode
         /// </summary>
-        public static int DeepGetHashCode<TKey, TValue>(this IDictionary<TKey, TValue> dic) where TKey : notnull
+        public static int DeepGetHashCode<TKey, TValue>(this IDictionary<TKey, TValue> dic)
+            where TKey : notnull
         {
             var comparer = new DictionaryComparer<TKey, TValue>();
             return comparer.GetHashCode(dic);
@@ -133,36 +134,38 @@
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
-    public class DictionaryComparer<TKey, TValue> : IEqualityComparer<IDictionary<TKey, TValue>> where TKey : notnull
+    public class DictionaryComparer<TKey, TValue> : IEqualityComparer<IDictionary<TKey, TValue>>
+        where TKey : notnull
     {
         public bool Equals(IDictionary<TKey, TValue>? x, IDictionary<TKey, TValue>? y)
         {
-            if(x is null)
+            if (x is null)
             {
                 throw new ArgumentNullException(nameof(x));
             }
 
-            if(y is null)
+            if (y is null)
             {
                 throw new ArgumentNullException(nameof(y));
             }
 
-            if(x.Count != y.Count)
+            if (x.Count != y.Count)
             {
                 return false;
             }
 
-            foreach(var kvp in x)
+            foreach (var kvp in x)
             {
-                if(!y.TryGetValue(kvp.Key, out var value))
+                if (!y.TryGetValue(kvp.Key, out var value))
                 {
                     return false;
                 }
 
-                if((value == null && kvp.Value != null) ||
-                    (value != null && kvp.Value == null) ||
-                    (value != null && kvp.Value != null && !value.Equals(kvp.Value))
-                    )
+                if (
+                    (value == null && kvp.Value != null)
+                    || (value != null && kvp.Value == null)
+                    || (value != null && kvp.Value != null && !value.Equals(kvp.Value))
+                )
                 {
                     return false;
                 }
@@ -173,16 +176,16 @@
 
         public int GetHashCode(IDictionary<TKey, TValue> obj)
         {
-            if(obj == null)
+            if (obj == null)
             {
                 throw new ArgumentNullException(nameof(obj));
             }
 
             var hash = 0;
-            foreach(var kvp in obj)
+            foreach (var kvp in obj)
             {
                 hash ^= kvp.Key.GetHashCode();
-                if(kvp.Value != null)
+                if (kvp.Value != null)
                 {
                     hash ^= kvp.Value.GetHashCode();
                 }

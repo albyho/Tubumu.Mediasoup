@@ -55,7 +55,7 @@ namespace Tubumu.Libuv
 
         private void Check(int ret)
         {
-            if(ret < 0)
+            if (ret < 0)
             {
                 throw new Exception(Marshal.PtrToStringAnsi(uv_dlerror(handle)));
             }
@@ -77,7 +77,7 @@ namespace Tubumu.Libuv
 
         public override void Close()
         {
-            if(!Closed)
+            if (!Closed)
             {
                 uv_dlclose(handle);
                 handle = IntPtr.Zero;
@@ -91,7 +91,9 @@ namespace Tubumu.Libuv
 
         public override IntPtr GetSymbol(string name)
         {
-            return uv_dlsym(handle, name, out var ptr) < 0 ? throw new Exception(Marshal.PtrToStringAnsi(uv_dlerror(handle))) : ptr;
+            return uv_dlsym(handle, name, out var ptr) < 0
+                ? throw new Exception(Marshal.PtrToStringAnsi(uv_dlerror(handle)))
+                : ptr;
         }
     }
 
@@ -101,7 +103,7 @@ namespace Tubumu.Libuv
 
         public void Check(IntPtr ptr)
         {
-            if(ptr == IntPtr.Zero)
+            if (ptr == IntPtr.Zero)
             {
                 throw new Exception();
             }
@@ -125,7 +127,7 @@ namespace Tubumu.Libuv
 
         public override void Close()
         {
-            if(!Closed)
+            if (!Closed)
             {
                 FreeLibrary(handle);
                 handle = IntPtr.Zero;
@@ -160,15 +162,23 @@ namespace Tubumu.Libuv
         public static extern IntPtr LoadLibraryEx(
             [MarshalAs(UnmanagedType.LPWStr)] string lpFileName,
             IntPtr hFile,
-            [MarshalAs(UnmanagedType.U4)] LoadLibraryFlags dwFlags);
+            [MarshalAs(UnmanagedType.U4)] LoadLibraryFlags dwFlags
+        );
 
         [DllImport("kernel32.dll", EntryPoint = "LoadLibraryExW", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr LoadLibraryEx(
             IntPtr lpFileName,
             IntPtr hFile,
-            [MarshalAs(UnmanagedType.U4)] LoadLibraryFlags dwFlags);
+            [MarshalAs(UnmanagedType.U4)] LoadLibraryFlags dwFlags
+        );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Ansi, EntryPoint = "GetProcAddress", ExactSpelling = true, SetLastError = true)]
+        [DllImport(
+            "kernel32.dll",
+            CharSet = CharSet.Ansi,
+            EntryPoint = "GetProcAddress",
+            ExactSpelling = true,
+            SetLastError = true
+        )]
         public static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
     }
 }

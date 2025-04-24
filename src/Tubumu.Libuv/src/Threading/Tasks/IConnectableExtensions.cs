@@ -20,7 +20,10 @@ namespace Tubumu.Libuv.Threading.Tasks
             return HelperFunctions.Wrap(ipAddress, port, client.Connect);
         }
 
-        public static Task ConnectAsync<TType, TEndPoint>(this IConnectable<TType, TEndPoint> client, ILocalAddress<TEndPoint> localAddress)
+        public static Task ConnectAsync<TType, TEndPoint>(
+            this IConnectable<TType, TEndPoint> client,
+            ILocalAddress<TEndPoint> localAddress
+        )
         {
             return HelperFunctions.Wrap(localAddress, client.Connect);
         }

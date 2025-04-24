@@ -27,9 +27,7 @@ namespace Tubumu.Libuv
             Birth = stat.st_birthtim.ToDateTime();
         }
 
-        public UVFileStat()
-        {
-        }
+        public UVFileStat() { }
 
         public ulong Device { get; set; }
         public ulong Mode { get; set; }

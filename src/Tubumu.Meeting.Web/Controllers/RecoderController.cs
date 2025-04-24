@@ -38,7 +38,7 @@ namespace Tubumu.Meeting.Web.Controllers
                 PeerId = "100001@100001",
                 RoomId = "0",
                 ProducerPeerId = "9",
-                ProducerSources = new string[] { "audio:mic" }
+                ProducerSources = new string[] { "audio:mic" },
             };
 
             // Join
@@ -49,17 +49,13 @@ namespace Tubumu.Meeting.Web.Controllers
                 {
                     Codecs = new List<RtpCodecCapability>
                     {
-                        new() {
+                        new()
+                        {
                             Kind = MediaKind.AUDIO,
                             MimeType = "audio/opus",
                             ClockRate = 48000,
                             Channels = 2,
-                            RtcpFeedback = new List<RtcpFeedbackT>
-                            {
-                                new () {
-                                    Type = "transport-cc",
-                                },
-                            }
+                            RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
                         },
                         //new() {
                         //    Kind = MediaKind.Audio,
@@ -73,33 +69,21 @@ namespace Tubumu.Meeting.Web.Controllers
                         //        },
                         //    }
                         //},
-                        new() {
+                        new()
+                        {
                             Kind = MediaKind.VIDEO,
-                            MimeType ="video/H264",
+                            MimeType = "video/H264",
                             ClockRate = 90000,
-                            Parameters = new Dictionary<string, object> {
-                                { "level-asymmetry-allowed", 1 },
-                            },
+                            Parameters = new Dictionary<string, object> { { "level-asymmetry-allowed", 1 } },
                             RtcpFeedback = new List<RtcpFeedbackT>
                             {
-                                new() {
-                                    Type = "nack",
-                                },
-                                new() {
-                                    Type = "nack", Parameter = "pli",
-                                },
-                                new() {
-                                    Type = "ccm", Parameter = "fir",
-                                },
-                                new() {
-                                    Type = "goog-remb",
-                                },
-                                new() {
-                                    Type = "transport-cc",
-                                },
-                            }
+                                new() { Type = "nack" },
+                                new() { Type = "nack", Parameter = "pli" },
+                                new() { Type = "ccm", Parameter = "fir" },
+                                new() { Type = "goog-remb" },
+                                new() { Type = "transport-cc" },
+                            },
                         },
-
                     },
                 },
                 DisplayName = $"Recorder:{recorderPrepareRequest.PeerId}",
@@ -110,10 +94,7 @@ namespace Tubumu.Meeting.Web.Controllers
             await _scheduler.JoinAsync(recorderPrepareRequest.PeerId, "", null!, joinRequest);
 
             // Join room
-            var joinRoomRequest = new JoinRoomRequest
-            {
-                RoomId = recorderPrepareRequest.RoomId,
-            };
+            var joinRoomRequest = new JoinRoomRequest { RoomId = recorderPrepareRequest.RoomId };
             var joinRoomResult = await _scheduler.JoinRoomAsync(recorderPrepareRequest.PeerId, "", joinRoomRequest);
 
             // Create PlainTransport
@@ -131,8 +112,10 @@ namespace Tubumu.Meeting.Web.Controllers
             await transport.ConnectAsync(plainTransportConnectParameters);
 
             // Create Consumers
-            var producerPeer = joinRoomResult.Peers.Where(m => m.PeerId == recorderPrepareRequest.ProducerPeerId).FirstOrDefault();
-            if(producerPeer == null)
+            var producerPeer = joinRoomResult
+                .Peers.Where(m => m.PeerId == recorderPrepareRequest.ProducerPeerId)
+                .FirstOrDefault();
+            if (producerPeer == null)
             {
                 return new ApiResult { Code = 400, Message = "生产者 Peer 不存在" };
             }
@@ -146,33 +129,39 @@ namespace Tubumu.Meeting.Web.Controllers
             };
 
             var producers = await producerPeer.GetProducersASync();
-            foreach(var source in recorderPrepareRequest.ProducerSources)
+            foreach (var source in recorderPrepareRequest.ProducerSources)
             {
-                if(!producerPeer.Sources.Contains(source))
+                if (!producerPeer.Sources.Contains(source))
                 {
                     return new ApiResult { Code = 400, Message = $"生产者 Sources 不包含请求的 {source}" };
                 }
 
                 var producer = producers.Values.FirstOrDefault(m => m.Source == source);
-                if(producer == null)
+                if (producer == null)
                 {
                     return new ApiResult { Code = 400, Message = $"生产者尚未生产 {source}" };
                 }
-                var consumer = await _scheduler.ConsumeAsync(recorderPrepareRequest.ProducerPeerId, recorderPrepareRequest.PeerId, producer.ProducerId);
-                if(consumer == null)
+                var consumer = await _scheduler.ConsumeAsync(
+                    recorderPrepareRequest.ProducerPeerId,
+                    recorderPrepareRequest.PeerId,
+                    producer.ProducerId
+                );
+                if (consumer == null)
                 {
                     return new ApiResult { Code = 400, Message = $"已经在消费 {source}" };
                 }
 
                 await consumer.ResumeAsync();
 
-                recorderPrepareResult.ConsumerParameters.Add(new ConsumerParameters
-                {
-                    Source = source,
-                    Kind = consumer.Data.Kind,
-                    PayloadType = consumer.Data.RtpParameters.Codecs[0].PayloadType,
-                    Ssrc = consumer.Data.RtpParameters!.Encodings![0].Ssrc!.Value
-                });
+                recorderPrepareResult.ConsumerParameters.Add(
+                    new ConsumerParameters
+                    {
+                        Source = source,
+                        Kind = consumer.Data.Kind,
+                        PayloadType = consumer.Data.RtpParameters.Codecs[0].PayloadType,
+                        Ssrc = consumer.Data.RtpParameters!.Encodings![0].Ssrc!.Value,
+                    }
+                );
             }
 
             return Content(recorderPrepareResult.Sdp(0));

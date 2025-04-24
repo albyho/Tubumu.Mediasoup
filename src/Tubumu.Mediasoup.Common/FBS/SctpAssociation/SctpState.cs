@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.SctpAssociation
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum SctpState : byte
     {
@@ -25,4 +26,7 @@ namespace FBS.SctpAssociation
         [EnumMember(Value = "closed")]
         CLOSED = 4,
     }
+
+
+
 }

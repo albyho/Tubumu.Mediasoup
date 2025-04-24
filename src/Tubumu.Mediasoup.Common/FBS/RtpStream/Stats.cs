@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.RtpStream
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct Stats : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static Stats GetRootAsStats(ByteBuffer _bb) { return GetRootAsStats(_bb, new Stats()); }
         public static Stats GetRootAsStats(ByteBuffer _bb, Stats obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -94,6 +98,25 @@ namespace FBS.RtpStream
                 this.Data.Type = value;
             }
         }
+
         public FBS.RtpStream.StatsDataUnion Data { get; set; }
+
+        public StatsT()
+        {
+            this.Data = null;
+        }
     }
+
+
+    static public class StatsVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*DataType*/, 1 /*FBS.RtpStream.StatsData*/, 1, false)
+              && verifier.VerifyUnion(tablePos, 4, 6 /*Data*/, FBS.RtpStream.StatsDataVerify.Verify, true)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

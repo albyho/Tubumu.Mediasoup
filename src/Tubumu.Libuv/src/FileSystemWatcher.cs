@@ -8,13 +8,13 @@ namespace Tubumu.Libuv
         Default = 0,
         WatchEntry = 1,
         Stat = 2,
-        Recursive = 3
+        Recursive = 3,
     }
 
     public enum FileSystemEvent
     {
         Rename = 1,
-        Change = 2
+        Change = 2,
     }
 
     public class FileSystemWatcher : Handle
@@ -33,14 +33,10 @@ namespace Tubumu.Libuv
         }
 
         public FileSystemWatcher()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public FileSystemWatcher(Loop loop)
-            : base(loop, HandleType.UV_FS_EVENT, uv_fs_event_init)
-        {
-        }
+            : base(loop, HandleType.UV_FS_EVENT, uv_fs_event_init) { }
 
         public void Start(string path)
         {
@@ -58,7 +54,7 @@ namespace Tubumu.Libuv
         private static void fs_event(IntPtr handlePointer, string filename, int events, int status)
         {
             var handle = FromIntPtr<FileSystemWatcher>(handlePointer);
-            if(status != 0)
+            if (status != 0)
             {
                 handle.Close();
             }
@@ -84,7 +80,10 @@ namespace Tubumu.Libuv
             {
                 CheckDisposed();
 
-                return UV.ToString(4096, (IntPtr buffer, ref IntPtr length) => uv_fs_event_getpath(NativeHandle, buffer, ref length));
+                return UV.ToString(
+                    4096,
+                    (IntPtr buffer, ref IntPtr length) => uv_fs_event_getpath(NativeHandle, buffer, ref length)
+                );
             }
         }
 

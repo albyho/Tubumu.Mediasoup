@@ -109,6 +109,7 @@
 import Logger from './lib/Logger'
 import * as mediasoupClient from 'mediasoup-client'
 import * as signalR from '@microsoft/signalr'
+import { ref } from "vue"
 
 // eslint-disable-next-line no-unused-vars
 const VIDEO_CONSTRAINS = {
@@ -171,8 +172,8 @@ export default {
       forceTcp: false,
       localAudioStream: null,
       localVideoStream: null,
-      remoteVideoStreams: new Map(),
-      remoteAudioStreams: new Map(),
+      remoteVideoStreams: ref(new Map()),
+      remoteAudioStreams: ref(new Map()),
       producers: new Map(),
       consumers: new Map(),
       dataProducer: null,
@@ -272,7 +273,7 @@ export default {
       }
 
       try {
-        const host = import.meta.env.DEV ? `https://${window.location.hostname}:9001` : ''
+        const host = import.meta.env.DEV ? `http://${window.location.hostname}:9000` : ''
         self.connection = new signalR.HubConnectionBuilder()
           .withUrl(`${host}/hubs/meetingHub`, {
             accessTokenFactory: () => self.accessTokens[self.connectForm.peerId],
@@ -317,8 +318,8 @@ export default {
       self.disableMic().catch(() => {})
       self.disableCam().catch(() => {})
       self.peersForm.peers = []
-      self.remoteVideoStreams = new Map()
-      self.remoteAudioStreams = new Map()
+      self.remoteVideoStreams = ref(new Map())
+      self.remoteAudioStreams = ref(new Map())
       self.producers = new Map()
       self.dataProducer = null
       self.consumers = new Map()
@@ -635,7 +636,7 @@ export default {
 
       // TODO: FIX "Failed to set the 'srcObject' property on 'HTMLMediaElement': The provided value is not of type '(MediaSourceHandle or MediaStream)'."
       if (kind === 'video') {
-        self.remoteVideoStreams.set(consumerId, stream)
+        self.remoteVideoStreams.value.set(consumerId, stream)
       } else {
         self.remoteAudioStreams.set(consumerId, stream)
       }

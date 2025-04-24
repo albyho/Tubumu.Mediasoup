@@ -13,16 +13,39 @@ namespace Tubumu.Utils.Utilities.Cryptography
     {
         private const string DefaultKey = "$uqn.atko@5!7%8*"; // 16 Bytes
 
-        private static readonly byte[] DefaultIV = { 0x96, 0x47, 0x22, 0x18, 0x69, 0xCB, 0xDA, 0xFE, 0xAC, 0xBE, 0x85, 0x71, 0x23, 0x18, 0x39, 0x67 };
+        private static readonly byte[] DefaultIV =
+        {
+            0x96,
+            0x47,
+            0x22,
+            0x18,
+            0x69,
+            0xCB,
+            0xDA,
+            0xFE,
+            0xAC,
+            0xBE,
+            0x85,
+            0x71,
+            0x23,
+            0x18,
+            0x39,
+            0x67,
+        };
 
         #region 加密
 
         /// <summary>
         /// 字节数组 - 字节数组
         /// </summary>
-        public static byte[] EncryptFromByteArrayToByteArray(byte[] inputByteArray, PaddingMode padding, CipherMode mode, string? key = null)
+        public static byte[] EncryptFromByteArrayToByteArray(
+            byte[] inputByteArray,
+            PaddingMode padding,
+            CipherMode mode,
+            string? key = null
+        )
         {
-            if(inputByteArray == null)
+            if (inputByteArray == null)
             {
                 throw new ArgumentNullException(nameof(inputByteArray));
             }
@@ -46,7 +69,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] EncryptFromByteArrayToByteArray(byte[] inputByteArray, string? key = null)
         {
-            if(inputByteArray == null)
+            if (inputByteArray == null)
             {
                 throw new ArgumentNullException(nameof(inputByteArray));
             }
@@ -84,7 +107,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray, key);
             var sb = new StringBuilder();
-            foreach(var item in encryptBuffer)
+            foreach (var item in encryptBuffer)
             {
                 sb.AppendFormat(lower ? "{0:x2}" : "{0:X2}", item);
             }
@@ -112,7 +135,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] DecryptFromByteArrayToByteArray(byte[] inputByteArray, string? key = null)
         {
-            if(inputByteArray == null)
+            if (inputByteArray == null)
             {
                 throw new ArgumentNullException(nameof(inputByteArray));
             }
@@ -136,7 +159,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] DecryptFromHexToByteArray(string decryptString, string? key = null)
         {
-            if(decryptString == null)
+            if (decryptString == null)
             {
                 throw new ArgumentNullException(nameof(decryptString));
             }
@@ -162,7 +185,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] DecryptFromBase64ToByteArray(string decryptString, string? key = null)
         {
-            if(decryptString == null)
+            if (decryptString == null)
             {
                 throw new ArgumentNullException(nameof(decryptString));
             }
@@ -178,13 +201,13 @@ namespace Tubumu.Utils.Utilities.Cryptography
 
         private static byte[] ByteArrayFromHexString(string hexString)
         {
-            if(hexString.IsNullOrWhiteSpace() || hexString.Length % 2 != 0)
+            if (hexString.IsNullOrWhiteSpace() || hexString.Length % 2 != 0)
             {
                 return Array.Empty<byte>();
             }
 
             var buffer = new byte[hexString.Length / 2];
-            for(int i = 0; i < buffer.Length; i++)
+            for (int i = 0; i < buffer.Length; i++)
             {
                 buffer[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
             }
@@ -194,12 +217,13 @@ namespace Tubumu.Utils.Utilities.Cryptography
 
         private static byte[] EnsureKey(string? key)
         {
-            if(key != null)
+            if (key != null)
             {
                 var keyBytes = Encoding.UTF8.GetBytes(key);
                 return keyBytes.Length < 16
-                    ? throw new ArgumentOutOfRangeException(nameof(key), "key 经过 UTF8 编码后的长度至少需要 16 个字节")
-                    : keyBytes.Length == 16 ? keyBytes : keyBytes[0..16];
+                        ? throw new ArgumentOutOfRangeException(nameof(key), "key 经过 UTF8 编码后的长度至少需要 16 个字节")
+                    : keyBytes.Length == 16 ? keyBytes
+                    : keyBytes[0..16];
             }
 
             return Encoding.UTF8.GetBytes(DefaultKey);

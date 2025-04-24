@@ -4,6 +4,7 @@
 
 namespace FBS.Request
 {
+
     public enum Body : byte
     {
         NONE = 0,
@@ -226,4 +227,140 @@ namespace FBS.Request
             }
         }
     }
+
+
+
+    static public class BodyVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, byte typeId, uint tablePos)
+        {
+            bool result = true;
+            switch((Body)typeId)
+            {
+                case Body.Worker_UpdateSettingsRequest:
+                    result = FBS.Worker.UpdateSettingsRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Worker_CreateWebRtcServerRequest:
+                    result = FBS.Worker.CreateWebRtcServerRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Worker_CloseWebRtcServerRequest:
+                    result = FBS.Worker.CloseWebRtcServerRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Worker_CreateRouterRequest:
+                    result = FBS.Worker.CreateRouterRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Worker_CloseRouterRequest:
+                    result = FBS.Worker.CloseRouterRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_CreateWebRtcTransportRequest:
+                    result = FBS.Router.CreateWebRtcTransportRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_CreatePlainTransportRequest:
+                    result = FBS.Router.CreatePlainTransportRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_CreatePipeTransportRequest:
+                    result = FBS.Router.CreatePipeTransportRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_CreateDirectTransportRequest:
+                    result = FBS.Router.CreateDirectTransportRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_CreateActiveSpeakerObserverRequest:
+                    result = FBS.Router.CreateActiveSpeakerObserverRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_CreateAudioLevelObserverRequest:
+                    result = FBS.Router.CreateAudioLevelObserverRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_CloseTransportRequest:
+                    result = FBS.Router.CloseTransportRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_CloseRtpObserverRequest:
+                    result = FBS.Router.CloseRtpObserverRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_SetMaxIncomingBitrateRequest:
+                    result = FBS.Transport.SetMaxIncomingBitrateRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_SetMaxOutgoingBitrateRequest:
+                    result = FBS.Transport.SetMaxOutgoingBitrateRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_SetMinOutgoingBitrateRequest:
+                    result = FBS.Transport.SetMinOutgoingBitrateRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_ProduceRequest:
+                    result = FBS.Transport.ProduceRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_ConsumeRequest:
+                    result = FBS.Transport.ConsumeRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_ProduceDataRequest:
+                    result = FBS.Transport.ProduceDataRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_ConsumeDataRequest:
+                    result = FBS.Transport.ConsumeDataRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_EnableTraceEventRequest:
+                    result = FBS.Transport.EnableTraceEventRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_CloseProducerRequest:
+                    result = FBS.Transport.CloseProducerRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_CloseConsumerRequest:
+                    result = FBS.Transport.CloseConsumerRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_CloseDataProducerRequest:
+                    result = FBS.Transport.CloseDataProducerRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_CloseDataConsumerRequest:
+                    result = FBS.Transport.CloseDataConsumerRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.PlainTransport_ConnectRequest:
+                    result = FBS.PlainTransport.ConnectRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.PipeTransport_ConnectRequest:
+                    result = FBS.PipeTransport.ConnectRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.WebRtcTransport_ConnectRequest:
+                    result = FBS.WebRtcTransport.ConnectRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Producer_EnableTraceEventRequest:
+                    result = FBS.Producer.EnableTraceEventRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Consumer_SetPreferredLayersRequest:
+                    result = FBS.Consumer.SetPreferredLayersRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Consumer_SetPriorityRequest:
+                    result = FBS.Consumer.SetPriorityRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Consumer_EnableTraceEventRequest:
+                    result = FBS.Consumer.EnableTraceEventRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_SetBufferedAmountLowThresholdRequest:
+                    result = FBS.DataConsumer.SetBufferedAmountLowThresholdRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_SendRequest:
+                    result = FBS.DataConsumer.SendRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_SetSubchannelsRequest:
+                    result = FBS.DataConsumer.SetSubchannelsRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_AddSubchannelRequest:
+                    result = FBS.DataConsumer.AddSubchannelRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_RemoveSubchannelRequest:
+                    result = FBS.DataConsumer.RemoveSubchannelRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.RtpObserver_AddProducerRequest:
+                    result = FBS.RtpObserver.AddProducerRequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.RtpObserver_RemoveProducerRequest:
+                    result = FBS.RtpObserver.RemoveProducerRequestVerify.Verify(verifier, tablePos);
+                    break;
+                default:
+                    result = true;
+                    break;
+            }
+            return result;
+        }
+    }
+
+
 }

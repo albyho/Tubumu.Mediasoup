@@ -98,12 +98,11 @@ namespace System.Linq
         /// <summary>
         /// WhereOrContains
         /// </summary>
-        public static IQueryable<TEntity> WhereOrStringContains<TEntity, String>
-            (
+        public static IQueryable<TEntity> WhereOrStringContains<TEntity, String>(
             this IQueryable<TEntity> query,
             Expression<Func<TEntity, String>> selector,
             IEnumerable<String> values
-            )
+        )
         {
             /*
              * 实现效果：
@@ -111,47 +110,55 @@ namespace System.Linq
              * SELECT * FROM [User] Where Name='Test' AND (Tags LIKE '%A%' Or Tags LIKE  '%B%')
              */
 
-            if(selector == null)
+            if (selector == null)
             {
                 throw new ArgumentNullException(nameof(selector));
             }
 
-            if(values == null)
+            if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
 
-            if(!values.Any())
+            if (!values.Any())
             {
                 return query;
             }
 
             ParameterExpression p = selector.Parameters.Single();
-            var containsExpressions = values.Select(value => (Expression)Expression.Call(selector.Body, typeof(String).GetMethod("Contains", new[] { typeof(String) })!, Expression.Constant(value)));
-            Expression body = containsExpressions.Aggregate((accumulate, containsExpression) => Expression.Or(accumulate, containsExpression));
+            var containsExpressions = values.Select(value =>
+                (Expression)
+                    Expression.Call(
+                        selector.Body,
+                        typeof(String).GetMethod("Contains", new[] { typeof(String) })!,
+                        Expression.Constant(value)
+                    )
+            );
+            Expression body = containsExpressions.Aggregate(
+                (accumulate, containsExpression) => Expression.Or(accumulate, containsExpression)
+            );
 
             return query.Where(Expression.Lambda<Func<TEntity, bool>>(body, p));
         }
 
-        public static IQueryable<TEntity> WhereOrCollectionAnyEqual<TEntity, TValue, TMemberValue>
-            (
+        public static IQueryable<TEntity> WhereOrCollectionAnyEqual<TEntity, TValue, TMemberValue>(
             this IQueryable<TEntity> query,
             Expression<Func<TEntity, IEnumerable<TValue>>> selector,
             Expression<Func<TValue, TMemberValue>> memberSelector,
             IEnumerable<TMemberValue> values
-            )
+        )
         {
-            if(selector == null)
+            if (selector == null)
             {
                 throw new ArgumentNullException(nameof(selector));
             }
 
-            if(values == null)
+            if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
 
-            if(!values.Any())
+            if (!values.Any())
             {
                 return query;
             }
@@ -160,15 +167,17 @@ namespace System.Linq
             ParameterExpression memberParameter = memberSelector.Parameters.Single();
             var methodInfo = GetEnumerableMethod("Any", 2).MakeGenericMethod(typeof(TValue));
             var anyExpressions = values.Select(value =>
-                    (Expression)Expression.Call(null,
-                                                methodInfo,
-                                                selector.Body,
-                                                Expression.Lambda<Func<TValue, bool>>(Expression.Equal(memberSelector.Body,
-                                                                                                       Expression.Constant(value, typeof(TMemberValue))),
-                                                                                                       memberParameter
-                                                                                                       )
-                                                )
-                );
+                (Expression)
+                    Expression.Call(
+                        null,
+                        methodInfo,
+                        selector.Body,
+                        Expression.Lambda<Func<TValue, bool>>(
+                            Expression.Equal(memberSelector.Body, Expression.Constant(value, typeof(TMemberValue))),
+                            memberParameter
+                        )
+                    )
+            );
             Expression body = anyExpressions.Aggregate((accumulate, any) => Expression.Or(accumulate, any));
 
             return query.Where(Expression.Lambda<Func<TEntity, bool>>(body, selectorParameter));
@@ -177,12 +186,11 @@ namespace System.Linq
         /// <summary>
         /// WhereIn
         /// </summary>
-        public static IQueryable<TEntity> WhereIn<TEntity, TValue>
-          (
+        public static IQueryable<TEntity> WhereIn<TEntity, TValue>(
             this IQueryable<TEntity> query,
             Expression<Func<TEntity, TValue>> selector,
             IEnumerable<TValue> values
-          )
+        )
         {
             /*
              * 实现效果：
@@ -192,23 +200,25 @@ namespace System.Linq
              * var query = DbContext.User.Where(m => names.Contains(m.Name));
              */
 
-            if(selector == null)
+            if (selector == null)
             {
                 throw new ArgumentNullException(nameof(selector));
             }
 
-            if(values == null)
+            if (values == null)
             {
                 throw new ArgumentNullException(nameof(values));
             }
 
-            if(!values.Any())
+            if (!values.Any())
             {
                 return query;
             }
 
             ParameterExpression p = selector.Parameters.Single();
-            IEnumerable<Expression> equals = values.Select(value => (Expression)Expression.Equal(selector.Body, Expression.Constant(value, typeof(TValue))));
+            IEnumerable<Expression> equals = values.Select(value =>
+                (Expression)Expression.Equal(selector.Body, Expression.Constant(value, typeof(TValue)))
+            );
             Expression body = equals.Aggregate((accumulate, equal) => Expression.Or(accumulate, equal));
 
             return query.Where(Expression.Lambda<Func<TEntity, bool>>(body, p));
@@ -217,12 +227,11 @@ namespace System.Linq
         /// <summary>
         /// WhereIn
         /// </summary>
-        public static IQueryable<TEntity> WhereIn<TEntity, TValue>
-          (
+        public static IQueryable<TEntity> WhereIn<TEntity, TValue>(
             this IQueryable<TEntity> query,
             Expression<Func<TEntity, TValue>> selector,
             params TValue[] values
-          )
+        )
         {
             return WhereIn(query, selector, (IEnumerable<TValue>)values);
         }
@@ -235,31 +244,61 @@ namespace System.Linq
             IQueryable<TInner> inner,
             Expression<Func<TOuter, TKey>> outerKeySelector,
             Expression<Func<TInner, TKey>> innerKeySelector,
-            Expression<Func<TOuter, TInner, TResult>> resultSelector)
+            Expression<Func<TOuter, TInner, TResult>> resultSelector
+        )
         {
-            MethodInfo groupJoin = typeof(Queryable).GetMethods()
-                                                     .Single(m => m.ToString() == "System.Linq.IQueryable`1[TResult] GroupJoin[TOuter,TInner,TKey,TResult](System.Linq.IQueryable`1[TOuter], System.Collections.Generic.IEnumerable`1[TInner], System.Linq.Expressions.Expression`1[System.Func`2[TOuter,TKey]], System.Linq.Expressions.Expression`1[System.Func`2[TInner,TKey]], System.Linq.Expressions.Expression`1[System.Func`3[TOuter,System.Collections.Generic.IEnumerable`1[TInner],TResult]])")
-                                                     .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TKey), typeof(LeftJoinIntermediate<TOuter, TInner>));
-            MethodInfo selectMany = typeof(Queryable).GetMethods()
-                                                      .Single(m => m.ToString() == "System.Linq.IQueryable`1[TResult] SelectMany[TSource,TCollection,TResult](System.Linq.IQueryable`1[TSource], System.Linq.Expressions.Expression`1[System.Func`2[TSource,System.Collections.Generic.IEnumerable`1[TCollection]]], System.Linq.Expressions.Expression`1[System.Func`3[TSource,TCollection,TResult]])")
-                                                      .MakeGenericMethod(typeof(LeftJoinIntermediate<TOuter, TInner>), typeof(TInner), typeof(TResult));
+            MethodInfo groupJoin = typeof(Queryable)
+                .GetMethods()
+                .Single(m =>
+                    m.ToString()
+                    == "System.Linq.IQueryable`1[TResult] GroupJoin[TOuter,TInner,TKey,TResult](System.Linq.IQueryable`1[TOuter], System.Collections.Generic.IEnumerable`1[TInner], System.Linq.Expressions.Expression`1[System.Func`2[TOuter,TKey]], System.Linq.Expressions.Expression`1[System.Func`2[TInner,TKey]], System.Linq.Expressions.Expression`1[System.Func`3[TOuter,System.Collections.Generic.IEnumerable`1[TInner],TResult]])"
+                )
+                .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TKey), typeof(LeftJoinIntermediate<TOuter, TInner>));
+            MethodInfo selectMany = typeof(Queryable)
+                .GetMethods()
+                .Single(m =>
+                    m.ToString()
+                    == "System.Linq.IQueryable`1[TResult] SelectMany[TSource,TCollection,TResult](System.Linq.IQueryable`1[TSource], System.Linq.Expressions.Expression`1[System.Func`2[TSource,System.Collections.Generic.IEnumerable`1[TCollection]]], System.Linq.Expressions.Expression`1[System.Func`3[TSource,TCollection,TResult]])"
+                )
+                .MakeGenericMethod(typeof(LeftJoinIntermediate<TOuter, TInner>), typeof(TInner), typeof(TResult));
 
-            var groupJoinResultSelector = (Expression<Func<TOuter, IEnumerable<TInner>, LeftJoinIntermediate<TOuter, TInner>>>)
-                                          ((oneOuter, manyInners) => new LeftJoinIntermediate<TOuter, TInner> { OneOuter = oneOuter, ManyInners = manyInners });
+            var groupJoinResultSelector =
+                (Expression<Func<TOuter, IEnumerable<TInner>, LeftJoinIntermediate<TOuter, TInner>>>)(
+                    (oneOuter, manyInners) =>
+                        new LeftJoinIntermediate<TOuter, TInner> { OneOuter = oneOuter, ManyInners = manyInners }
+                );
 
-            MethodCallExpression exprGroupJoin = Expression.Call(groupJoin, outer.Expression, inner.Expression, outerKeySelector, innerKeySelector, groupJoinResultSelector);
+            MethodCallExpression exprGroupJoin = Expression.Call(
+                groupJoin,
+                outer.Expression,
+                inner.Expression,
+                outerKeySelector,
+                innerKeySelector,
+                groupJoinResultSelector
+            );
 
-            var selectManyCollectionSelector = (Expression<Func<LeftJoinIntermediate<TOuter, TInner>, IEnumerable<TInner>>>)
-                                               (t => t.ManyInners.DefaultIfEmpty()!);
+            var selectManyCollectionSelector =
+                (Expression<Func<LeftJoinIntermediate<TOuter, TInner>, IEnumerable<TInner>>>)(
+                    t => t.ManyInners.DefaultIfEmpty()!
+                );
 
             ParameterExpression paramUser = resultSelector.Parameters[0];
 
             ParameterExpression paramNew = Expression.Parameter(typeof(LeftJoinIntermediate<TOuter, TInner>), "t");
             MemberExpression propExpr = Expression.Property(paramNew, "OneOuter");
 
-            LambdaExpression selectManyResultSelector = Expression.Lambda(new Replacer(paramUser, propExpr).Visit(resultSelector.Body) ?? throw new InvalidOperationException(), paramNew, resultSelector.Parameters.Skip(1).First());
+            LambdaExpression selectManyResultSelector = Expression.Lambda(
+                new Replacer(paramUser, propExpr).Visit(resultSelector.Body) ?? throw new InvalidOperationException(),
+                paramNew,
+                resultSelector.Parameters.Skip(1).First()
+            );
 
-            MethodCallExpression exprSelectMany = Expression.Call(selectMany, exprGroupJoin, selectManyCollectionSelector, selectManyResultSelector);
+            MethodCallExpression exprSelectMany = Expression.Call(
+                selectMany,
+                exprGroupJoin,
+                selectManyCollectionSelector,
+                selectManyResultSelector
+            );
 
             return outer.Provider.CreateQuery<TResult>(exprSelectMany);
         }
@@ -294,11 +333,17 @@ namespace System.Linq
         /// <summary>
         /// Order
         /// </summary>
-        public static IOrderedQueryable<T> Order<T>(this IQueryable<T> source, string propertyName, bool descending, bool anotherLevel = false)
+        public static IOrderedQueryable<T> Order<T>(
+            this IQueryable<T> source,
+            string propertyName,
+            bool descending,
+            bool anotherLevel = false
+        )
         {
             var type = typeof(T);
-            var propertyInfo = type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public)
-            ?? throw new ArgumentOutOfRangeException(nameof(propertyName));
+            var propertyInfo =
+                type.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public)
+                ?? throw new ArgumentOutOfRangeException(nameof(propertyName));
 
             ParameterExpression parameter = Expression.Parameter(type, string.Empty); // I don't care about some naming
             MemberExpression property = Expression.Property(parameter, propertyInfo);
@@ -308,7 +353,8 @@ namespace System.Linq
                 (!anotherLevel ? "OrderBy" : "ThenBy") + (descending ? "Descending" : string.Empty),
                 new[] { typeof(T), property.Type },
                 source.Expression,
-                Expression.Quote(sort));
+                Expression.Quote(sort)
+            );
             return (IOrderedQueryable<T>)source.Provider.CreateQuery<T>(call);
         }
 
@@ -329,7 +375,7 @@ namespace System.Linq
         {
             IOrderedQueryable<T>? result = null;
             var isFirst = true;
-            foreach(var sortInfo in sortInfos)
+            foreach (var sortInfo in sortInfos)
             {
                 result = Order(source, sortInfo, !isFirst);
                 isFirst = false;
@@ -380,9 +426,7 @@ namespace System.Linq
         /// <remarks>https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Linq/Extensions/QueryableExtensions.cs</remarks>
         public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, bool condition, Expression<Func<T, bool>> predicate)
         {
-            return condition
-                ? query.Where(predicate)
-                : query;
+            return condition ? query.Where(predicate) : query;
         }
 
         /// <summary>
@@ -393,14 +437,20 @@ namespace System.Linq
         /// <param name="predicate">Predicate to filter the query</param>
         /// <returns>Filtered or not filtered query based on <paramref name="condition"/></returns>
         /// <remarks>https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Linq/Extensions/QueryableExtensions.cs</remarks>
-        public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, bool condition, Expression<Func<T, int, bool>> predicate)
+        public static IQueryable<T> WhereIf<T>(
+            this IQueryable<T> query,
+            bool condition,
+            Expression<Func<T, int, bool>> predicate
+        )
         {
-            return condition
-                ? query.Where(predicate)
-                : query;
+            return condition ? query.Where(predicate) : query;
         }
 
-        private static MethodInfo GetEnumerableMethod(string name, int parameterCount = 0, Func<MethodInfo, bool>? predicate = null)
+        private static MethodInfo GetEnumerableMethod(
+            string name,
+            int parameterCount = 0,
+            Func<MethodInfo, bool>? predicate = null
+        )
         {
             return typeof(Enumerable)
                 .GetTypeInfo()

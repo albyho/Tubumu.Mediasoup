@@ -22,8 +22,6 @@ namespace Tubumu.Libuv.Threading.Tasks
             return false;
         }
 
-        protected override void QueueTask(Task task)
-        {
-        }
+        protected override void QueueTask(Task task) { }
     }
 }

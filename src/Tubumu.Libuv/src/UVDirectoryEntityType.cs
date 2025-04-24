@@ -9,6 +9,6 @@
         FIFO,
         Socket,
         Char,
-        Block
+        Block,
     }
 }

@@ -23,7 +23,7 @@ namespace Tubumu.H264ProfileLevelId
             new ProfilePattern(0x4D, new BitPattern("0x0x0000"), Profile.Main),
             new ProfilePattern(0x64, new BitPattern("00000000"), Profile.High),
             new ProfilePattern(0x64, new BitPattern("00001100"), Profile.ConstrainedHigh),
-            new ProfilePattern(0xF4, new BitPattern("00000000"), Profile.PredictiveHigh444)
+            new ProfilePattern(0xF4, new BitPattern("00000000"), Profile.PredictiveHigh444),
         };
 
         /// <summary>
@@ -40,14 +40,14 @@ namespace Tubumu.H264ProfileLevelId
             const int ConstraintSet3Flag = 0x10;
 
             // The string should consist of 3 bytes in hexadecimal format.
-            if(str == null || str.Length != 6)
+            if (str == null || str.Length != 6)
             {
                 return null;
             }
 
             var profile_level_id_numeric = Convert.ToInt32(str, 16);
 
-            if(profile_level_id_numeric == 0)
+            if (profile_level_id_numeric == 0)
             {
                 return null;
             }
@@ -60,16 +60,14 @@ namespace Tubumu.H264ProfileLevelId
             // Parse level based on level_idc and constraint set 3 flag.
             Level level;
 
-            switch(level_idc)
+            switch (level_idc)
             {
                 case Level.L1_1:
-                    {
-                        level = (profile_iop & ConstraintSet3Flag) != 0
-                            ? Level.L1_b
-                            : Level.L1_1;
+                {
+                    level = (profile_iop & ConstraintSet3Flag) != 0 ? Level.L1_b : Level.L1_1;
 
-                        break;
-                    }
+                    break;
+                }
 
                 case Level.L1:
                 case Level.L1_2:
@@ -86,24 +84,24 @@ namespace Tubumu.H264ProfileLevelId
                 case Level.L5:
                 case Level.L5_1:
                 case Level.L5_2:
-                    {
-                        level = level_idc;
+                {
+                    level = level_idc;
 
-                        break;
-                    }
+                    break;
+                }
                 // Unrecognized level_idc.
                 default:
-                    {
-                        // NOTE: For testing.
-                        //debug("ParseProfileLevelId() | Unrecognized level_idc:%s", level_idc);
-                        return null;
-                    }
+                {
+                    // NOTE: For testing.
+                    //debug("ParseProfileLevelId() | Unrecognized level_idc:%s", level_idc);
+                    return null;
+                }
             }
 
             // Parse profile_idc/profile_iop into a Profile enum.
-            foreach(var pattern in ProfilePatterns)
+            foreach (var pattern in ProfilePatterns)
             {
-                if(profile_idc == pattern.ProfileIdc && pattern.ProfileIop.IsMatch(profile_iop))
+                if (profile_idc == pattern.ProfileIdc && pattern.ProfileIop.IsMatch(profile_iop))
                 {
                     return new ProfileLevelId(pattern.Profile, level);
                 }
@@ -121,78 +119,78 @@ namespace Tubumu.H264ProfileLevelId
         public static string? ProfileLevelIdToString(ProfileLevelId profileLevelId)
         {
             // Handle special case level == 1b.
-            if(profileLevelId.Level == Level.L1_b)
+            if (profileLevelId.Level == Level.L1_b)
             {
-                switch(profileLevelId.Profile)
+                switch (profileLevelId.Profile)
                 {
                     case Profile.ConstrainedBaseline:
-                        {
-                            return "42f00b";
-                        }
+                    {
+                        return "42f00b";
+                    }
                     case Profile.Baseline:
-                        {
-                            return "42100b";
-                        }
+                    {
+                        return "42100b";
+                    }
                     case Profile.Main:
-                        {
-                            return "4d100b";
-                        }
+                    {
+                        return "4d100b";
+                    }
                     // Level 1_b is not allowed for other profiles.
                     default:
-                        {
-                            // NOTE: For testing.
-                            //debug("ProfileLevelIdToString() | Level 1_b not is allowed for profile:%s", profileLevelId.profile);
-                            return null;
-                        }
+                    {
+                        // NOTE: For testing.
+                        //debug("ProfileLevelIdToString() | Level 1_b not is allowed for profile:%s", profileLevelId.profile);
+                        return null;
+                    }
                 }
             }
 
             string profile_idc_iop_string;
 
-            switch(profileLevelId.Profile)
+            switch (profileLevelId.Profile)
             {
                 case Profile.ConstrainedBaseline:
-                    {
-                        profile_idc_iop_string = "42e0";
-                        break;
-                    }
+                {
+                    profile_idc_iop_string = "42e0";
+                    break;
+                }
                 case Profile.Baseline:
-                    {
-                        profile_idc_iop_string = "4200";
-                        break;
-                    }
+                {
+                    profile_idc_iop_string = "4200";
+                    break;
+                }
                 case Profile.Main:
-                    {
-                        profile_idc_iop_string = "4d00";
-                        break;
-                    }
+                {
+                    profile_idc_iop_string = "4d00";
+                    break;
+                }
                 case Profile.ConstrainedHigh:
-                    {
-                        profile_idc_iop_string = "640c";
-                        break;
-                    }
+                {
+                    profile_idc_iop_string = "640c";
+                    break;
+                }
                 case Profile.High:
-                    {
-                        profile_idc_iop_string = "6400";
-                        break;
-                    }
+                {
+                    profile_idc_iop_string = "6400";
+                    break;
+                }
                 case Profile.PredictiveHigh444:
-                    {
-                        profile_idc_iop_string = "f400";
+                {
+                    profile_idc_iop_string = "f400";
 
-                        break;
-                    }
+                    break;
+                }
                 default:
-                    {
-                        // NOTE: For testing.
-                        //debug("ProfileLevelIdToString() | Unrecognized profile:%s", profileLevelId.profile);
-                        return null;
-                    }
+                {
+                    // NOTE: For testing.
+                    //debug("ProfileLevelIdToString() | Unrecognized profile:%s", profileLevelId.profile);
+                    return null;
+                }
             }
 
             var levelStr = Convert.ToString((int)profileLevelId.Level, 16);
 
-            if(levelStr.Length == 1)
+            if (levelStr.Length == 1)
             {
                 levelStr = levelStr.PadLeft(2, '0');
             }
@@ -216,7 +214,7 @@ namespace Tubumu.H264ProfileLevelId
             // Level.L1_b => 1.b
             // Level.L1 => 1
             // Level.L1_1 => 1.1
-            if(level == Level.L1_b)
+            if (level == Level.L1_b)
             {
                 return "1b";
             }
@@ -248,7 +246,9 @@ namespace Tubumu.H264ProfileLevelId
             var profile_level_id_2 = ParseSdpProfileLevelId(params2);
 
             // Compare H264 profiles, but not levels.
-            return profile_level_id_1 != null && profile_level_id_2 != null && profile_level_id_1.Profile == profile_level_id_2.Profile;
+            return profile_level_id_1 != null
+                && profile_level_id_2 != null
+                && profile_level_id_1.Profile == profile_level_id_2.Profile;
         }
 
         /// <summary>
@@ -272,11 +272,17 @@ namespace Tubumu.H264ProfileLevelId
         /// negotiating are the level part of profile-level-id and level-asymmetry-allowed.
         /// </para>
         /// </summary>
-        public static string? GenerateProfileLevelIdForAnswer(IDictionary<string, object> local_supported_params, IDictionary<string, object> remote_offered_params)
+        public static string? GenerateProfileLevelIdForAnswer(
+            IDictionary<string, object> local_supported_params,
+            IDictionary<string, object> remote_offered_params
+        )
         {
             // If both local and remote params do not contain profile-level-id, they are
             // both using the default profile. In this case, don"t return anything.
-            if(!local_supported_params.TryGetValue("profile-level-id", out _) && !remote_offered_params.TryGetValue("profile-level-id", out _))
+            if (
+                !local_supported_params.TryGetValue("profile-level-id", out _)
+                && !remote_offered_params.TryGetValue("profile-level-id", out _)
+            )
             {
                 // NOTE: For testing.
                 //debug("GenerateProfileLevelIdForAnswer() | No profile-level-id in local and remote params");
@@ -288,23 +294,24 @@ namespace Tubumu.H264ProfileLevelId
             var remote_profile_level_id = ParseSdpProfileLevelId(remote_offered_params);
 
             // The local and remote codec must have valid and equal H264 Profiles.
-            if(local_profile_level_id == null)
+            if (local_profile_level_id == null)
             {
                 throw new Exception("invalid local_profile_level_id");
             }
 
-            if(remote_profile_level_id == null)
+            if (remote_profile_level_id == null)
             {
                 throw new Exception("invalid remote_profile_level_id");
             }
 
-            if(local_profile_level_id.Profile != remote_profile_level_id.Profile)
+            if (local_profile_level_id.Profile != remote_profile_level_id.Profile)
             {
                 throw new Exception("H264 Profile mismatch");
             }
 
             // Parse level information.
-            var level_asymmetry_allowed = IsLevelAsymmetryAllowed(local_supported_params) && IsLevelAsymmetryAllowed(remote_offered_params);
+            var level_asymmetry_allowed =
+                IsLevelAsymmetryAllowed(local_supported_params) && IsLevelAsymmetryAllowed(remote_offered_params);
 
             var local_level = local_profile_level_id.Level;
             var remote_level = remote_profile_level_id.Level;
@@ -326,12 +333,12 @@ namespace Tubumu.H264ProfileLevelId
         // Compare H264 levels and handle the level 1b case.
         private static bool IsLessLevel(Level a, Level b)
         {
-            if(a == Level.L1_b)
+            if (a == Level.L1_b)
             {
                 return b != Level.L1 && b != Level.L1_b;
             }
 
-            if(b == Level.L1_b)
+            if (b == Level.L1_b)
             {
                 return a != Level.L1;
             }
@@ -346,7 +353,8 @@ namespace Tubumu.H264ProfileLevelId
 
         private static bool IsLevelAsymmetryAllowed(IDictionary<string, object> parameters)
         {
-            return parameters.TryGetValue("level-asymmetry-allowed", out var level_asymmetry_allowed) && level_asymmetry_allowed.ToString() == "1";
+            return parameters.TryGetValue("level-asymmetry-allowed", out var level_asymmetry_allowed)
+                && level_asymmetry_allowed.ToString() == "1";
         }
 
         #endregion Private Methods

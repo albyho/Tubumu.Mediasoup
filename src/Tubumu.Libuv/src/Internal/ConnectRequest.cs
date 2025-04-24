@@ -8,14 +8,15 @@ namespace Tubumu.Libuv
     {
         public RequestType type;
         public IntPtr data;
+
         /*
-		#if !__MonoCS__
-		NativeOverlapped overlapped;
-		IntPtr queued_bytes;
-		uv_err_t error;
-		IntPtr next_req;
-		#endif
-		*/
+        #if !__MonoCS__
+        NativeOverlapped overlapped;
+        IntPtr queued_bytes;
+        uv_err_t error;
+        IntPtr next_req;
+        #endif
+        */
         public IntPtr cb;
         public IntPtr handle;
     }

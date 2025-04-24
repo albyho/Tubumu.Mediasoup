@@ -16,9 +16,7 @@ namespace System.Text.Json.Serialization
         /// Initializes a new instance of the <see cref="JsonStringEnumMemberConverter"/> class.
         /// </summary>
         public JsonStringEnumMemberConverter()
-            : this(namingPolicy: null, allowIntegerValues: true)
-        {
-        }
+            : this(namingPolicy: null, allowIntegerValues: true) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonStringEnumMemberConverter"/> class.
@@ -49,18 +47,22 @@ namespace System.Text.Json.Serialization
             (bool IsNullableEnum, Type? UnderlyingType) = TestNullableEnum(typeToConvert);
 
             return IsNullableEnum
-                ? (JsonConverter)Activator.CreateInstance(
-                    typeof(NullableEnumMemberConverter<>).MakeGenericType(UnderlyingType!)!,
-                    BindingFlags.Instance | BindingFlags.Public,
-                    binder: null,
-                    args: new object?[] { _namingPolicy, _allowIntegerValues },
-                    culture: null)!
-                : (JsonConverter)Activator.CreateInstance(
-                    typeof(EnumMemberConverter<>).MakeGenericType(typeToConvert)!,
-                    BindingFlags.Instance | BindingFlags.Public,
-                    binder: null,
-                    args: new object?[] { _namingPolicy, _allowIntegerValues },
-                    culture: null)!;
+                ? (JsonConverter)
+                    Activator.CreateInstance(
+                        typeof(NullableEnumMemberConverter<>).MakeGenericType(UnderlyingType!)!,
+                        BindingFlags.Instance | BindingFlags.Public,
+                        binder: null,
+                        args: new object?[] { _namingPolicy, _allowIntegerValues },
+                        culture: null
+                    )!
+                : (JsonConverter)
+                    Activator.CreateInstance(
+                        typeof(EnumMemberConverter<>).MakeGenericType(typeToConvert)!,
+                        BindingFlags.Instance | BindingFlags.Public,
+                        binder: null,
+                        args: new object?[] { _namingPolicy, _allowIntegerValues },
+                        culture: null
+                    )!;
         }
 
         private static (bool IsNullableEnum, Type? UnderlyingType) TestNullableEnum(Type typeToConvert)
@@ -79,7 +81,10 @@ namespace System.Text.Json.Serialization
 
             public EnumMemberConverter(JsonNamingPolicy? namingPolicy, bool allowIntegerValues)
             {
-                _JsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(namingPolicy, allowIntegerValues);
+                _JsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(
+                    namingPolicy,
+                    allowIntegerValues
+                );
             }
 
             public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -102,7 +107,10 @@ namespace System.Text.Json.Serialization
 
             public NullableEnumMemberConverter(JsonNamingPolicy? namingPolicy, bool allowIntegerValues)
             {
-                _JsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(namingPolicy, allowIntegerValues);
+                _JsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(
+                    namingPolicy,
+                    allowIntegerValues
+                );
             }
 
             public override TEnum? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

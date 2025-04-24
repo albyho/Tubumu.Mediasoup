@@ -42,38 +42,40 @@ namespace Tubumu.Mediasoup
         protected override async void OnNotificationHandle(string handlerId, Event @event, Notification notification)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            if(handlerId != Internal.RtpObserverId)
+            if (handlerId != Internal.RtpObserverId)
             {
                 return;
             }
 
-            switch(@event)
+            switch (@event)
             {
                 case Event.ACTIVESPEAKEROBSERVER_DOMINANT_SPEAKER:
-                    {
-                        var dominantSpeakerNotification = notification.BodyAsActiveSpeakerObserver_DominantSpeakerNotification().UnPack();
+                {
+                    var dominantSpeakerNotification = notification
+                        .BodyAsActiveSpeakerObserver_DominantSpeakerNotification()
+                        .UnPack();
 
-                        var producer = GetProducerById(dominantSpeakerNotification.ProducerId);
-                        if(producer != null)
+                    var producer = GetProducerById(dominantSpeakerNotification.ProducerId);
+                    if (producer != null)
+                    {
+                        var dominantSpeaker = new ActiveSpeakerObserverDominantSpeaker
                         {
-                            var dominantSpeaker = new ActiveSpeakerObserverDominantSpeaker
-                            {
-                                Producer = await GetProducerById(dominantSpeakerNotification.ProducerId)
-                            };
+                            Producer = await GetProducerById(dominantSpeakerNotification.ProducerId),
+                        };
 
-                            Emit("dominantspeaker", dominantSpeaker);
+                        Emit("dominantspeaker", dominantSpeaker);
 
-                            // Emit observer event.
-                            Observer.Emit("dominantspeaker", dominantSpeaker);
-                        }
-
-                        break;
+                        // Emit observer event.
+                        Observer.Emit("dominantspeaker", dominantSpeaker);
                     }
+
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError("OnNotificationHandle() | Ignoring unknown event: {Event}", @event);
-                        break;
-                    }
+                {
+                    _logger.LogError("OnNotificationHandle() | Ignoring unknown event: {Event}", @event);
+                    break;
+                }
             }
         }
     }

@@ -1,38 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
-
-    <PackageId>Tubumu.Utils</PackageId>
-    <Version>6.2.0</Version>
-    <Authors>Alby</Authors>
-    <Company>Tubumu</Company>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-
-    <RepositoryUrl>https://github.com/albyho/Tubumu.Utils</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
-    <PackageReference Include="MessagePack" Version="2.5.140" />
-    <PackageReference Include="MessagePackAnalyzer" Version="2.5.140">
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="PinYinConverterCore" Version="1.0.2" />
-    <PackageReference Include="SkiaSharp" Version="2.88.7" />
-    <PackageReference Include="NPOI" Version="2.6.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-      <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <PackageId>Tubumu.Utils</PackageId>
+        <Version>6.2.0</Version>
+        <Authors>Alby</Authors>
+        <Company>Tubumu</Company>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/albyho/Tubumu.Utils</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Google.FlatBuffers" Version="25.2.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.*" />
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.3.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.*" />
+        <PackageReference Include="MessagePack" Version="3.1.3" />
+        <PackageReference Include="MessagePackAnalyzer" Version="3.1.3">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="PinYinConverterCore" Version="1.0.2" />
+        <PackageReference Include="SkiaSharp" Version="3.116.1" />
+        <PackageReference Include="NPOI" Version="2.7.3" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
 </Project>

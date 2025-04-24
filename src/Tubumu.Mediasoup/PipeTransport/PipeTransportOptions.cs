@@ -19,7 +19,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// SCTP streams number.
         /// </summary>
-        public NumSctpStreamsT NumSctpStreams { get; set; } = new NumSctpStreamsT { OS = 1024, MIS = 1024 };
+        public NumSctpStreamsT NumSctpStreams { get; set; } = new NumSctpStreamsT { Os = 1024, Mis = 1024 };
 
         /// <summary>
         /// Maximum allowed size for SCTP messages sent by DataProducers.

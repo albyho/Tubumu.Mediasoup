@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum IceState : byte
     {
@@ -22,4 +23,5 @@ namespace FBS.WebRtcTransport
         [EnumMember(Value = "disconnected")]
         DISCONNECTED = 3,
     }
+
 }

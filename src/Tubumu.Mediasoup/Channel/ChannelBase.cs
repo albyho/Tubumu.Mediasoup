@@ -86,9 +86,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CloseAsync() | Worker[{WorkId}]", _workerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -106,38 +106,56 @@ namespace Tubumu.Mediasoup
             {
                 _sents.Values.ForEach(m => m.Close());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Cleanup() | Worker[{WorkId}] _sents.Values.ForEach(m => m.Close.Invoke())", _workerId);
             }
         }
 
-        public async Task NotifyAsync(FlatBufferBuilder bufferBuilder, Event @event, FBS.Notification.Body? bodyType, int? bodyOffset, string? handlerId)
+        public async Task NotifyAsync(
+            FlatBufferBuilder bufferBuilder,
+            Event @event,
+            FBS.Notification.Body? bodyType,
+            int? bodyOffset,
+            string? handlerId
+        )
         {
             _logger.LogDebug("NotifyAsync() | Worker[{WorkId}] Event:{Event}", _workerId, @event);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     BufferPool.Return(bufferBuilder);
                     throw new InvalidStateException("Channel closed");
                 }
 
-                var notificationRequestMessage = CreateNotificationRequestMessage(bufferBuilder, @event, bodyType, bodyOffset, handlerId);
+                var notificationRequestMessage = CreateNotificationRequestMessage(
+                    bufferBuilder,
+                    @event,
+                    bodyType,
+                    bodyOffset,
+                    handlerId
+                );
                 SendNotification(notificationRequestMessage);
             }
         }
 
         protected abstract void SendNotification(RequestMessage requestMessage);
 
-        public async Task<Response?> RequestAsync(FlatBufferBuilder bufferBuilder, Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null)
+        public async Task<Response?> RequestAsync(
+            FlatBufferBuilder bufferBuilder,
+            Method method,
+            FBS.Request.Body? bodyType = null,
+            int? bodyOffset = null,
+            string? handlerId = null
+        )
         {
             _logger.LogDebug("RequestAsync() | Worker[{WorkId}] Method:{Method}", _workerId, method);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     BufferPool.Return(bufferBuilder);
                     throw new InvalidStateException("Channel closed");
@@ -151,7 +169,7 @@ namespace Tubumu.Mediasoup
                     RequestMessage = requestMessage,
                     Resolve = data =>
                     {
-                        if(!_sents.TryRemove(requestMessage.Id!.Value, out _))
+                        if (!_sents.TryRemove(requestMessage.Id!.Value, out _))
                         {
                             tcs.TrySetException(
                                 new Exception($"Received response does not match any sent request [id:{requestMessage.Id}]")
@@ -163,7 +181,7 @@ namespace Tubumu.Mediasoup
                     },
                     Reject = e =>
                     {
-                        if(!_sents.TryRemove(requestMessage.Id!.Value, out _))
+                        if (!_sents.TryRemove(requestMessage.Id!.Value, out _))
                         {
                             tcs.TrySetException(
                                 new Exception($"Received response does not match any sent request [id:{requestMessage.Id}]")
@@ -173,9 +191,9 @@ namespace Tubumu.Mediasoup
 
                         tcs.TrySetException(e);
                     },
-                    Close = () => tcs.TrySetException(new InvalidStateException("Channel closed"))
+                    Close = () => tcs.TrySetException(new InvalidStateException("Channel closed")),
                 };
-                if(!_sents.TryAdd(requestMessage.Id!.Value, sent))
+                if (!_sents.TryAdd(requestMessage.Id!.Value, sent))
                 {
                     throw new Exception($"Error add sent request [id:{requestMessage.Id}]");
                 }
@@ -199,7 +217,7 @@ namespace Tubumu.Mediasoup
         {
             try
             {
-                switch(message.DataType)
+                switch (message.DataType)
                 {
                     case FBS.Message.Body.Response:
                         ThreadPool.QueueUserWorkItem(_ =>
@@ -229,16 +247,20 @@ namespace Tubumu.Mediasoup
                         break;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "ProcessMessage() | Worker[{WorkerId}] Received invalid message from the worker process", _workerId);
+                _logger.LogError(
+                    ex,
+                    "ProcessMessage() | Worker[{WorkerId}] Received invalid message from the worker process",
+                    _workerId
+                );
                 return;
             }
         }
 
         private void ProcessResponse(Response response)
         {
-            if(!_sents.TryGetValue(response.Id, out var sent))
+            if (!_sents.TryGetValue(response.Id, out var sent))
             {
                 _logger.LogError(
                     "ProcessResponse() | Worker[{WorkerId}] Received response does not match any sent request [id:{Id}]",
@@ -248,7 +270,7 @@ namespace Tubumu.Mediasoup
                 return;
             }
 
-            if(response.Accepted)
+            if (response.Accepted)
             {
                 _logger.LogDebug(
                     "ProcessResponse() | Worker[{WorkerId}] Request succeed [method:{Method}, id:{Id}]",
@@ -258,7 +280,7 @@ namespace Tubumu.Mediasoup
                 );
                 sent.Resolve(response);
             }
-            else if(!response.Error.IsNullOrWhiteSpace())
+            else if (!response.Error.IsNullOrWhiteSpace())
             {
                 // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
                 _logger.LogWarning(
@@ -301,40 +323,40 @@ namespace Tubumu.Mediasoup
         {
             var logData = log.Data;
 
-            switch(logData[0])
+            switch (logData[0])
             {
                 // 'D' (a debug log).
                 case 'D':
-                    {
-                        _logger.LogDebug("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
+                {
+                    _logger.LogDebug("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
 
-                        break;
-                    }
+                    break;
+                }
 
                 // 'W' (a warn log).
                 case 'W':
-                    {
-                        _logger.LogWarning("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
+                {
+                    _logger.LogWarning("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
 
-                        break;
-                    }
+                    break;
+                }
 
                 // 'E' (a error log).
                 case 'E':
-                    {
-                        _logger.LogError("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
+                {
+                    _logger.LogError("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
 
-                        break;
-                    }
+                    break;
+                }
 
                 // 'X' (a dump log).
                 case 'X':
-                    {
-                        // eslint-disable-next-line no-console
-                        _logger.LogTrace("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
+                {
+                    // eslint-disable-next-line no-console
+                    _logger.LogTrace("Worker[{WorkerId}] {Flag}", _workerId, logData[1..]);
 
-                        break;
-                    }
+                    break;
+                }
             }
         }
 
@@ -354,7 +376,7 @@ namespace Tubumu.Mediasoup
 
             Offset<Request> requestOffset;
 
-            if(bodyType.HasValue && bodyOffset.HasValue)
+            if (bodyType.HasValue && bodyOffset.HasValue)
             {
                 requestOffset = Request.CreateRequest(
                     bufferBuilder,
@@ -376,14 +398,17 @@ namespace Tubumu.Mediasoup
             bufferBuilder.FinishSizePrefixed(messageOffset.Value);
 
             // Zero copy.
-            var buffer = bufferBuilder.DataBuffer.ToArraySegment(bufferBuilder.DataBuffer.Position, bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position);
+            var buffer = bufferBuilder.DataBuffer.ToArraySegment(
+                bufferBuilder.DataBuffer.Position,
+                bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position
+            );
 
             // Clear the buffer builder so it's reused for the next request.
             bufferBuilder.Clear();
 
             BufferPool.Return(bufferBuilder);
 
-            if(buffer.Count > MessageMaxLen)
+            if (buffer.Count > MessageMaxLen)
             {
                 throw new Exception($"request too big [method:{method}]");
             }
@@ -393,7 +418,7 @@ namespace Tubumu.Mediasoup
                 Id = id,
                 Method = method,
                 HandlerId = handlerId,
-                Payload = buffer
+                Payload = buffer,
             };
             return requestMessage;
         }
@@ -410,7 +435,7 @@ namespace Tubumu.Mediasoup
 
             Offset<Notification> notificationOffset;
 
-            if(bodyType.HasValue && bodyOffset.HasValue)
+            if (bodyType.HasValue && bodyOffset.HasValue)
             {
                 notificationOffset = Notification.CreateNotification(
                     bufferBuilder,
@@ -437,14 +462,17 @@ namespace Tubumu.Mediasoup
             bufferBuilder.FinishSizePrefixed(messageOffset.Value);
 
             // Zero copy.
-            var buffer = bufferBuilder.DataBuffer.ToArraySegment(bufferBuilder.DataBuffer.Position, bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position);
+            var buffer = bufferBuilder.DataBuffer.ToArraySegment(
+                bufferBuilder.DataBuffer.Position,
+                bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position
+            );
 
             // Clear the buffer builder so it's reused for the next request.
             bufferBuilder.Clear();
 
             BufferPool.Return(bufferBuilder);
 
-            if(buffer.Count > MessageMaxLen)
+            if (buffer.Count > MessageMaxLen)
             {
                 throw new Exception($"notification too big [event:{@event}]");
             }
@@ -453,7 +481,7 @@ namespace Tubumu.Mediasoup
             {
                 Event = @event,
                 HandlerId = handlerId,
-                Payload = buffer
+                Payload = buffer,
             };
             return requestMessage;
         }

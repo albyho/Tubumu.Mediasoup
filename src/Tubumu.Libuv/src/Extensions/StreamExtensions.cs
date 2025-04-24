@@ -23,7 +23,7 @@ namespace Tubumu.Libuv.Extensions
 
         public static async Task<string?> ReadStringAsync(this IUVStream<ArraySegment<byte>> stream, Encoding encoding)
         {
-            if(encoding == null)
+            if (encoding == null)
             {
                 throw new ArgumentNullException(nameof(encoding));
             }
@@ -42,7 +42,7 @@ namespace Tubumu.Libuv.Extensions
 
         public static string? GetString(this Encoding encoding, ArraySegment<byte>? segment)
         {
-            if(!segment.HasValue)
+            if (!segment.HasValue)
             {
                 return null;
             }
@@ -87,7 +87,12 @@ namespace Tubumu.Libuv.Extensions
             hashAlgorithm.TransformBlock(input, 0, input.Length, outputBuffer, 0);
         }
 
-        public static void TransformBlock(this HashAlgorithm hashAlgorithm, ArraySegment<byte> input, byte[]? outputBuffer, int outputOffset)
+        public static void TransformBlock(
+            this HashAlgorithm hashAlgorithm,
+            ArraySegment<byte> input,
+            byte[]? outputBuffer,
+            int outputOffset
+        )
         {
             hashAlgorithm.TransformBlock(input.Array!, input.Offset, input.Count, outputBuffer, outputOffset);
         }

@@ -7,9 +7,7 @@ namespace Tubumu.Libuv
         public static readonly int Size = UV.Sizeof(RequestType.UV_WORK);
 
         public WorkRequest()
-            : base(Size)
-        {
-        }
+            : base(Size) { }
 
         private readonly Action? before;
         private readonly Action? after;

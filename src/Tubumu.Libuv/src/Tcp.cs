@@ -10,14 +10,10 @@ namespace Tubumu.Libuv
         internal static extern int uv_tcp_init(IntPtr loop, IntPtr handle);
 
         public TcpListener()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public TcpListener(Loop loop)
-            : base(loop, HandleType.UV_TCP, uv_tcp_init)
-        {
-        }
+            : base(loop, HandleType.UV_TCP, uv_tcp_init) { }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_tcp_bind(IntPtr handle, ref sockaddr_in sockaddr, uint flags);
@@ -73,14 +69,10 @@ namespace Tubumu.Libuv
         internal static extern int uv_tcp_init(IntPtr loop, IntPtr handle);
 
         public Tcp()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public Tcp(Loop loop)
-            : base(loop, HandleType.UV_TCP, uv_tcp_init)
-        {
-        }
+            : base(loop, HandleType.UV_TCP, uv_tcp_init) { }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_tcp_connect(IntPtr req, IntPtr handle, ref sockaddr_in addr, callback callback);
@@ -95,13 +87,10 @@ namespace Tubumu.Libuv
             Ensure.ArgumentNotNull(ipEndPoint, "ipEndPoint");
             Ensure.AddressFamily(ipEndPoint.Address);
 
-            var cpr = new ConnectRequest
-            {
-                Callback = (status, cpr2) => Ensure.Success(status, callback)
-            };
+            var cpr = new ConnectRequest { Callback = (status, cpr2) => Ensure.Success(status, callback) };
 
             int r;
-            if(ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            if (ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 sockaddr_in address = UV.ToStruct(ipEndPoint.Address.ToString(), ipEndPoint.Port);
                 r = uv_tcp_connect(cpr.Handle, NativeHandle, ref address, CallbackPermaRequest.CallbackDelegate);

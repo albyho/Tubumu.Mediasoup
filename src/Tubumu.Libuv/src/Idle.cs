@@ -15,14 +15,10 @@ namespace Tubumu.Libuv
         private static extern int uv_idle_stop(IntPtr idle);
 
         public Idle()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public Idle(Loop loop)
-            : base(loop, HandleType.UV_IDLE, uv_idle_init)
-        {
-        }
+            : base(loop, HandleType.UV_IDLE, uv_idle_init) { }
 
         public override void Start()
         {

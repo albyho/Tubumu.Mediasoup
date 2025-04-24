@@ -44,7 +44,7 @@ namespace Tubumu.Libuv
         {
             Exception? e = null;
             var r = Result.ToInt32();
-            if(r < 0)
+            if (r < 0)
             {
                 e = Ensure.Map(r, string.IsNullOrEmpty(Path) ? null : Path);
             }

@@ -11,7 +11,7 @@
         "@microsoft/signalr": "^6.0.25",
         "core-js": "^3.23.3",
         "element-ui": "^2.15.5",
-        "mediasoup-client": "^3.6.37",
+        "mediasoup-client": "^3.9.8",
         "vue": "2.6.10"
     },
     "devDependencies": {

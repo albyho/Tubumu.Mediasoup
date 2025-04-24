@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum IceRole : byte
     {
@@ -16,4 +17,5 @@ namespace FBS.WebRtcTransport
         [EnumMember(Value = "controlling")]
         CONTROLLING = 1,
     }
+
 }

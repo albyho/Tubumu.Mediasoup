@@ -24,17 +24,17 @@ namespace Tubumu.Utils
 
         public byte[] Read(int count, int offset = 0, bool peek = false)
         {
-            if(count < 1)
+            if (count < 1)
             {
                 throw new ArgumentException($"`{nameof(count)}` must be greater than or equal to 1");
             }
 
-            if(offset < 0)
+            if (offset < 0)
             {
                 throw new ArgumentException($"`{nameof(offset)}` cannot be negative");
             }
 
-            if(count + offset > Count)
+            if (count + offset > Count)
             {
                 throw new InvalidOperationException("Not enough data available in buffer to read");
             }
@@ -46,13 +46,13 @@ namespace Tubumu.Utils
             var readSegmentIndex = 0;
             var readSegmentOffset = 0;
 
-            for(var segmentIndex = 0; segmentIndex < _segments.Count; segmentIndex++)
+            for (var segmentIndex = 0; segmentIndex < _segments.Count; segmentIndex++)
             {
                 var segment = _segments[segmentIndex];
-                if(segmentIndex == 0)
+                if (segmentIndex == 0)
                 {
                     // 如果第一段已经有足够的数据来适应 offset。
-                    if(segment.Count > offset)
+                    if (segment.Count > offset)
                     {
                         readSegmentIndex = segmentIndex;
                         readSegmentOffset = offset;
@@ -61,7 +61,7 @@ namespace Tubumu.Utils
                     else
                     {
                         peekBytes += segment.Count;
-                        if(!peek)
+                        if (!peek)
                         {
                             segmentsToRemove.Add(segment);
                         }
@@ -70,7 +70,7 @@ namespace Tubumu.Utils
                 else
                 {
                     // 如果非第一段已经有足够的数据来适应 offset。
-                    if(peekBytes + segment.Count > offset)
+                    if (peekBytes + segment.Count > offset)
                     {
                         readSegmentIndex = segmentIndex;
                         readSegmentOffset = peekBytes + segment.Count - offset;
@@ -79,7 +79,7 @@ namespace Tubumu.Utils
                     else
                     {
                         peekBytes += segment.Count;
-                        if(!peek)
+                        if (!peek)
                         {
                             segmentsToRemove.Add(segment);
                         }
@@ -103,14 +103,18 @@ namespace Tubumu.Utils
                 dataWriteOffset += segmentBytesToRead;
                 bytesToRead -= segmentBytesToRead;
 
-                if(!peek)
+                if (!peek)
                 {
                     // 如果当前 segment 还有数据，说明数据已经足额读取。新建一个 ArraySegment<byte> 对象。
-                    if(segment.Count - readSegmentOffset > segmentBytesToRead)
+                    if (segment.Count - readSegmentOffset > segmentBytesToRead)
                     {
                         // For testing
                         Debug.Assert(bytesToRead == 0);
-                        _segments[readSegmentIndex] = new ArraySegment<byte>(segment.Array!, segment.Offset + segmentBytesToRead, segment.Count - segmentBytesToRead);
+                        _segments[readSegmentIndex] = new ArraySegment<byte>(
+                            segment.Array!,
+                            segment.Offset + segmentBytesToRead,
+                            segment.Count - segmentBytesToRead
+                        );
                     }
                     else
                     {
@@ -121,9 +125,9 @@ namespace Tubumu.Utils
                 readSegmentIndex++;
                 // 只有第一段可能导致偏移。
                 readSegmentOffset = 0;
-            } while(bytesToRead > 0);
+            } while (bytesToRead > 0);
 
-            if(!peek)
+            if (!peek)
             {
                 _segments.RemoveAll(m => segmentsToRemove.Contains(m));
                 Count -= count;

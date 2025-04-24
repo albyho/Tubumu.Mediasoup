@@ -13,9 +13,9 @@ namespace System
         public static string ConvertToPinYin(this string source)
         {
             var pinYin = "";
-            foreach(var item in source)
+            foreach (var item in source)
             {
-                if(ChineseChar.IsValidChar(item))
+                if (ChineseChar.IsValidChar(item))
                 {
                     var cc = new ChineseChar(item);
                     //PYstr += string.Join("", cc.Pinyins.ToArray());
@@ -38,9 +38,9 @@ namespace System
         {
             var pinYin = "";
             var py = "";
-            foreach(char item in source)
+            foreach (char item in source)
             {
-                if(ChineseChar.IsValidChar(item))
+                if (ChineseChar.IsValidChar(item))
                 {
                     var cc = new ChineseChar(item);
                     var pinYinString = cc.Pinyins[0][0..^1].ToLowerInvariant();
@@ -64,9 +64,9 @@ namespace System
         public static string ConvertToPY(this string source)
         {
             string py = "";
-            foreach(char item in source)
+            foreach (char item in source)
             {
-                if(ChineseChar.IsValidChar(item))
+                if (ChineseChar.IsValidChar(item))
                 {
                     var cc = new ChineseChar(item);
                     py += cc.Pinyins[0][..1].ToLowerInvariant();

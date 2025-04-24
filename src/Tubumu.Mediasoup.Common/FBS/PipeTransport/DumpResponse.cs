@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.PipeTransport
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct DumpResponse : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static DumpResponse GetRootAsDumpResponse(ByteBuffer _bb) { return GetRootAsDumpResponse(_bb, new DumpResponse()); }
         public static DumpResponse GetRootAsDumpResponse(ByteBuffer _bb, DumpResponse obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -76,4 +80,38 @@ namespace FBS.PipeTransport
               _srtp_parameters);
         }
     }
+
+    public class DumpResponseT
+    {
+        public FBS.Transport.DumpT Base { get; set; }
+
+        public FBS.Transport.TupleT Tuple { get; set; }
+
+        public bool Rtx { get; set; }
+
+        public FBS.SrtpParameters.SrtpParametersT SrtpParameters { get; set; }
+
+        public DumpResponseT()
+        {
+            this.Base = null;
+            this.Tuple = null;
+            this.Rtx = false;
+            this.SrtpParameters = null;
+        }
+    }
+
+
+    static public class DumpResponseVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyTable(tablePos, 4 /*Base*/, FBS.Transport.DumpVerify.Verify, true)
+              && verifier.VerifyTable(tablePos, 6 /*Tuple*/, FBS.Transport.TupleVerify.Verify, true)
+              && verifier.VerifyField(tablePos, 8 /*Rtx*/, 1 /*bool*/, 1, false)
+              && verifier.VerifyTable(tablePos, 10 /*SrtpParameters*/, FBS.SrtpParameters.SrtpParametersVerify.Verify, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

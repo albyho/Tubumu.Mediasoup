@@ -17,9 +17,21 @@ namespace Tubumu.Mediasoup
 
         Task CloseAsync();
 
-        Task<Response?> RequestAsync(FlatBufferBuilder bufferBuilder, Method method, FBS.Request.Body? bodyType = null, int? bodyOffset = null, string? handlerId = null);
+        Task<Response?> RequestAsync(
+            FlatBufferBuilder bufferBuilder,
+            Method method,
+            FBS.Request.Body? bodyType = null,
+            int? bodyOffset = null,
+            string? handlerId = null
+        );
 
-        Task NotifyAsync(FlatBufferBuilder bufferBuilder, Event @event, FBS.Notification.Body? bodyType, int? bodyOffset, string? handlerId);
+        Task NotifyAsync(
+            FlatBufferBuilder bufferBuilder,
+            Event @event,
+            FBS.Notification.Body? bodyType,
+            int? bodyOffset,
+            string? handlerId
+        );
 
         void ProcessMessage(Message message);
     }

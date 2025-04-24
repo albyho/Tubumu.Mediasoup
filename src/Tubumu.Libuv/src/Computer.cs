@@ -65,7 +65,7 @@ namespace Tubumu.Libuv
 
             var ret = new CpuInformation[count];
 
-            for(int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
                 var cpuinfo = (uv_cpu_info_t*)(info.ToInt64() + (i * sizeof(uv_cpu_info_t)));
                 ret[i] = new CpuInformation(cpuinfo);
@@ -94,7 +94,7 @@ namespace Tubumu.Libuv
             Name = Marshal.PtrToStringAnsi(iface->name)!;
             Internal = iface->is_internal != 0;
             byte[] phys_addr = new byte[6];
-            for(int i = 0; i < phys_addr.Length; i++)
+            for (int i = 0; i < phys_addr.Length; i++)
             {
                 phys_addr[i] = iface->phys_addr[i];
             }
@@ -122,9 +122,11 @@ namespace Tubumu.Libuv
 
             NetworkInterface[] ret = new NetworkInterface[count];
 
-            for(int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
-                uv_interface_address_t* iface = (uv_interface_address_t*)(interfaces.ToInt64() + (i * sizeof(uv_interface_address_t)));
+                uv_interface_address_t* iface = (uv_interface_address_t*)(
+                    interfaces.ToInt64() + (i * sizeof(uv_interface_address_t))
+                );
                 ret[i] = new NetworkInterface(iface);
             }
 

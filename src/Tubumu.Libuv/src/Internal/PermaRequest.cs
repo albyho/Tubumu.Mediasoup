@@ -28,9 +28,7 @@ namespace Tubumu.Libuv
         }
 
         public PermaRequest(int size)
-            : this(UV.Alloc(size))
-        {
-        }
+            : this(UV.Alloc(size)) { }
 
         public PermaRequest(IntPtr handle)
         {
@@ -48,23 +46,24 @@ namespace Tubumu.Libuv
 
         public virtual void Dispose(bool disposing)
         {
-            if(Data != IntPtr.Zero)
+            if (Data != IntPtr.Zero)
             {
-                if(GCHandle.IsAllocated)
+                if (GCHandle.IsAllocated)
                 {
                     GCHandle.Free();
                 }
                 Data = IntPtr.Zero;
             }
 
-            if(Handle != IntPtr.Zero)
+            if (Handle != IntPtr.Zero)
             {
                 UV.Free(Handle);
                 Handle = IntPtr.Zero;
             }
         }
 
-        public static unsafe T? GetObject<T>(IntPtr ptr) where T : class
+        public static unsafe T? GetObject<T>(IntPtr ptr)
+            where T : class
         {
             uv_req_t* req = (uv_req_t*)ptr.ToPointer();
             return GCHandle.FromIntPtr(req->data).Target as T;

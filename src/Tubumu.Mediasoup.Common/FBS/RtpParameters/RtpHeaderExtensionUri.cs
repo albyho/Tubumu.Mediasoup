@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum RtpHeaderExtensionUri : byte
     {
@@ -42,5 +43,9 @@ namespace FBS.RtpParameters
 
         [EnumMember(Value = "http://www.webrtc.org/experiments/rtp-hdrext/abs-capture-time")]
         AbsCaptureTime = 10,
+
+        [EnumMember(Value = "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay")]
+        PlayoutDelay = 11,
     }
+
 }

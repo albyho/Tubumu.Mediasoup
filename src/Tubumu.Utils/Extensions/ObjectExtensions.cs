@@ -17,10 +17,7 @@ namespace System
 
         static ObjectExtensions()
         {
-            DefaultJsonSerializerOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            };
+            DefaultJsonSerializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
             DefaultJsonSerializerOptions.Converters.Add(new JsonStringEnumMemberConverter());
         }
 
@@ -36,15 +33,19 @@ namespace System
         /// FromJson
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public static T? FromJson<T>(this string json) where T : class
+        public static T? FromJson<T>(this string json)
+            where T : class
         {
-            return string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, DefaultJsonSerializerOptions);
+            return string.IsNullOrWhiteSpace(json)
+                ? default
+                : JsonSerializer.Deserialize<T>(json, DefaultJsonSerializerOptions);
         }
 
         /// <summary>
         /// XML 反序列化
         /// </summary>
-        public static T? FromXml<T>(this string serializedObject) where T : class
+        public static T? FromXml<T>(this string serializedObject)
+            where T : class
         {
             return FromXml(typeof(T), serializedObject) as T;
         }
@@ -55,7 +56,7 @@ namespace System
         public static object? FromXml(this Type type, string serializedObject)
         {
             object? filledObject = null;
-            if(!string.IsNullOrEmpty(serializedObject))
+            if (!string.IsNullOrEmpty(serializedObject))
             {
                 try
                 {
@@ -63,7 +64,7 @@ namespace System
                     using var reader = new StringReader(serializedObject);
                     filledObject = serializer.Deserialize(reader);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Debug.WriteLine($"FromXml() | {ex.Message}");
                     filledObject = null;
@@ -80,11 +81,11 @@ namespace System
         {
             var serializedObject = string.Empty;
 
-            if(source != null)
+            if (source != null)
             {
                 var serializer = new XmlSerializer(source.GetType());
 
-                if(noneXsn)
+                if (noneXsn)
                 {
                     var sb = new StringBuilder();
 
@@ -121,7 +122,7 @@ namespace System
         public static bool IsNumericType(this object o)
         {
             var jsonElement = o as JsonElement?;
-            if(jsonElement != null)
+            if (jsonElement != null)
             {
                 return jsonElement.Value.ValueKind == JsonValueKind.Number;
             }

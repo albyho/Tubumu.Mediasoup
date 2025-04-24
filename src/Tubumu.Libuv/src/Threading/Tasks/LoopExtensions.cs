@@ -9,34 +9,37 @@ namespace Tubumu.Libuv.Threading.Tasks
         {
             var tcs = new TaskCompletionSource<object?>();
 #if TASK_STATUS
-			HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
+            HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             Exception? exception = null;
             try
             {
-                loop.QueueUserWorkItem(() =>
-                {
-                    try
+                loop.QueueUserWorkItem(
+                    () =>
                     {
-                        action();
-                    }
-                    catch(Exception e)
+                        try
+                        {
+                            action();
+                        }
+                        catch (Exception e)
+                        {
+                            exception = e;
+                        }
+                    },
+                    () =>
                     {
-                        exception = e;
+                        if (exception == null)
+                        {
+                            tcs.SetResult(null);
+                        }
+                        else
+                        {
+                            tcs.SetException(exception);
+                        }
                     }
-                }, () =>
-                {
-                    if(exception == null)
-                    {
-                        tcs.SetResult(null);
-                    }
-                    else
-                    {
-                        tcs.SetException(exception);
-                    }
-                });
+                );
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 tcs.SetException(ex);
             }
@@ -47,35 +50,38 @@ namespace Tubumu.Libuv.Threading.Tasks
         {
             var tcs = new TaskCompletionSource<T?>();
 #if TASK_STATUS
-			HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
+            HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             Exception? exception = null;
             T? res = default;
             try
             {
-                loop.QueueUserWorkItem(() =>
-                {
-                    try
+                loop.QueueUserWorkItem(
+                    () =>
                     {
-                        res = action();
-                    }
-                    catch(Exception e)
+                        try
+                        {
+                            res = action();
+                        }
+                        catch (Exception e)
+                        {
+                            exception = e;
+                        }
+                    },
+                    () =>
                     {
-                        exception = e;
+                        if (exception == null)
+                        {
+                            tcs.SetResult(res);
+                        }
+                        else
+                        {
+                            tcs.SetException(exception);
+                        }
                     }
-                }, () =>
-                {
-                    if(exception == null)
-                    {
-                        tcs.SetResult(res);
-                    }
-                    else
-                    {
-                        tcs.SetException(exception);
-                    }
-                });
+                );
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 tcs.SetException(ex);
             }

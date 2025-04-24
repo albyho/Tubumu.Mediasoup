@@ -7,10 +7,12 @@ using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum IceCandidateType : byte
     {
         [EnumMember(Value = "host")]
         HOST = 0,
     }
+
 }

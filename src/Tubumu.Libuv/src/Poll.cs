@@ -23,9 +23,7 @@ namespace Tubumu.Libuv
         private static extern int uv_poll_stop(IntPtr handle);
 
         public Poll(int fd)
-            : this(Loop.Constructor, fd)
-        {
-        }
+            : this(Loop.Constructor, fd) { }
 
         public Poll(Loop loop, int fd)
             : base(loop, HandleType.UV_POLL, uv_poll_init, fd)

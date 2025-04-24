@@ -15,14 +15,10 @@ namespace Tubumu.Libuv
         private static extern int uv_check_stop(IntPtr check);
 
         public Check()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public Check(Loop loop)
-            : base(loop, HandleType.UV_IDLE, uv_check_init)
-        {
-        }
+            : base(loop, HandleType.UV_IDLE, uv_check_init) { }
 
         public override void Start()
         {

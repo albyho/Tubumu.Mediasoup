@@ -19,6 +19,6 @@ namespace Tubumu.Mediasoup
         ReceiveOnly,
 
         [EnumMember(Value = "inactive")]
-        Inactive
+        Inactive,
     }
 }

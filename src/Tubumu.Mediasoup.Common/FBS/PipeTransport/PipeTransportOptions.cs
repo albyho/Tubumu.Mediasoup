@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.PipeTransport
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct PipeTransportOptions : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static PipeTransportOptions GetRootAsPipeTransportOptions(ByteBuffer _bb) { return GetRootAsPipeTransportOptions(_bb, new PipeTransportOptions()); }
         public static PipeTransportOptions GetRootAsPipeTransportOptions(ByteBuffer _bb, PipeTransportOptions obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -75,4 +79,38 @@ namespace FBS.PipeTransport
               _o.EnableSrtp);
         }
     }
+
+    public class PipeTransportOptionsT
+    {
+        public FBS.Transport.OptionsT Base { get; set; }
+
+        public FBS.Transport.ListenInfoT ListenInfo { get; set; }
+
+        public bool EnableRtx { get; set; }
+
+        public bool EnableSrtp { get; set; }
+
+        public PipeTransportOptionsT()
+        {
+            this.Base = null;
+            this.ListenInfo = null;
+            this.EnableRtx = false;
+            this.EnableSrtp = false;
+        }
+    }
+
+
+    static public class PipeTransportOptionsVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyTable(tablePos, 4 /*Base*/, FBS.Transport.OptionsVerify.Verify, true)
+              && verifier.VerifyTable(tablePos, 6 /*ListenInfo*/, FBS.Transport.ListenInfoVerify.Verify, true)
+              && verifier.VerifyField(tablePos, 8 /*EnableRtx*/, 1 /*bool*/, 1, false)
+              && verifier.VerifyField(tablePos, 10 /*EnableSrtp*/, 1 /*bool*/, 1, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

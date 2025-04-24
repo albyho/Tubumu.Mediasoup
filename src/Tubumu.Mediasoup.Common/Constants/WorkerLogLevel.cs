@@ -28,6 +28,6 @@ namespace Tubumu.Mediasoup
         /// Do not log anything.
         /// </summary>
         [EnumMember(Value = "none")]
-        None
+        None,
     }
 }

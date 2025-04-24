@@ -9,9 +9,7 @@ namespace Tubumu.Libuv
         private readonly Queue<T> queue = new();
 
         public AsyncWatcher()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public AsyncWatcher(Loop loop)
         {
@@ -19,15 +17,15 @@ namespace Tubumu.Libuv
             async.Callback += () =>
             {
                 Queue<T> tmp;
-                lock(queue)
+                lock (queue)
                 {
                     tmp = new Queue<T>();
-                    while(queue.Count > 0)
+                    while (queue.Count > 0)
                     {
                         tmp.Enqueue(queue.Dequeue());
                     }
                 }
-                while(tmp.Count > 0)
+                while (tmp.Count > 0)
                 {
                     OnCallback(tmp.Dequeue());
                 }
@@ -60,7 +58,7 @@ namespace Tubumu.Libuv
 
         public void Send(T item)
         {
-            lock(queue)
+            lock (queue)
             {
                 queue.Enqueue(item);
             }
@@ -71,9 +69,9 @@ namespace Tubumu.Libuv
         {
             Ensure.ArgumentNotNull(data, "data");
 
-            lock(queue)
+            lock (queue)
             {
-                foreach(var dataitem in data)
+                foreach (var dataitem in data)
                 {
                     queue.Enqueue(dataitem);
                 }

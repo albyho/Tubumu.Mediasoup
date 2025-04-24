@@ -47,9 +47,9 @@ namespace Tubumu.Mediasoup
         {
             _rwl.EnterWriteLock();
             var eventNameList = eventNames.Split(EventSeparator, StringSplitOptions.RemoveEmptyEntries);
-            foreach(var eventName in eventNameList)
+            foreach (var eventName in eventNameList)
             {
-                if(_events.TryGetValue(eventName, out var subscribedMethods))
+                if (_events.TryGetValue(eventName, out var subscribedMethods))
                 {
                     subscribedMethods.Add(method);
                 }
@@ -70,22 +70,26 @@ namespace Tubumu.Mediasoup
         public void Emit(string eventName, object? data = null)
         {
             _rwl.EnterReadLock();
-            if(!_events.TryGetValue(eventName, out var subscribedMethods))
+            if (!_events.TryGetValue(eventName, out var subscribedMethods))
             {
                 //throw new DoesNotExistException($"Event [{eventName}] does not exist in the emitter. Consider calling EventEmitter.On");
             }
             else
             {
-                foreach(var f in subscribedMethods)
+                foreach (var f in subscribedMethods)
                 {
-                    f(eventName, data).ContinueWith(val =>
-                    {
-                        val.Exception!.Handle(ex =>
-                        {
-                            Debug.WriteLine("Emit fail:{0}", ex);
-                            return true;
-                        });
-                    }, TaskContinuationOptions.OnlyOnFaulted);
+                    f(eventName, data)
+                        .ContinueWith(
+                            val =>
+                            {
+                                val.Exception!.Handle(ex =>
+                                {
+                                    Debug.WriteLine("Emit fail:{0}", ex);
+                                    return true;
+                                });
+                            },
+                            TaskContinuationOptions.OnlyOnFaulted
+                        );
                 }
             }
 
@@ -101,16 +105,16 @@ namespace Tubumu.Mediasoup
         {
             _rwl.EnterWriteLock();
             var eventNameList = eventNames.Split(EventSeparator, StringSplitOptions.RemoveEmptyEntries);
-            foreach(var eventName in eventNameList)
+            foreach (var eventName in eventNameList)
             {
-                if(!_events.TryGetValue(eventName, out var subscribedMethods))
+                if (!_events.TryGetValue(eventName, out var subscribedMethods))
                 {
                     throw new DoesNotExistException($"Event [{eventName}] does not exist to have listeners removed.");
                 }
                 else
                 {
                     var _event = subscribedMethods.Exists(e => e == method);
-                    if(!_event)
+                    if (!_event)
                     {
                         throw new DoesNotExistException($"Func [{method.Method}] does not exist to be removed.");
                     }
@@ -132,9 +136,9 @@ namespace Tubumu.Mediasoup
         {
             _rwl.EnterWriteLock();
             var eventNameList = eventNames.Split(EventSeparator, StringSplitOptions.RemoveEmptyEntries);
-            foreach(var eventName in eventNameList)
+            foreach (var eventName in eventNameList)
             {
-                if(!_events.TryGetValue(eventName, out var subscribedMethods))
+                if (!_events.TryGetValue(eventName, out var subscribedMethods))
                 {
                     throw new DoesNotExistException($"Event [{eventName}] does not exist to have methods removed.");
                 }

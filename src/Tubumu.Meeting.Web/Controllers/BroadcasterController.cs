@@ -51,10 +51,7 @@ namespace Tubumu.Meeting.Web.Controllers
 
             _ = await _scheduler.JoinAsync(deviceId, "", null!, joinRequest);
 
-            var joinRoomRequest = new JoinRoomRequest
-            {
-                RoomId = roomId,
-            };
+            var joinRoomRequest = new JoinRoomRequest { RoomId = roomId };
             _ = await _scheduler.JoinRoomAsync(deviceId, "", joinRoomRequest);
 
             var createPlainTransportRequest = new CreatePlainTransportRequest
@@ -76,24 +73,16 @@ namespace Tubumu.Meeting.Web.Controllers
                 {
                     Codecs = new List<RtpCodecParameters>
                     {
-                        new ()
+                        new()
                         {
                             MimeType = "video/h264",
                             PayloadType = 98,
                             ClockRate = 90000,
-                        }
+                        },
                     },
-                    Encodings = new List<RtpEncodingParametersT> {
-                        new ()
-                        {
-                            Ssrc = videoSsrc
-                        }
-                    },
+                    Encodings = new List<RtpEncodingParametersT> { new() { Ssrc = videoSsrc } },
                 },
-                AppData = new Dictionary<string, object>
-                {
-                    ["peerId"] = deviceId,
-                }
+                AppData = new Dictionary<string, object> { ["peerId"] = deviceId },
             };
             _ = await _scheduler.ProduceAsync(deviceId, "", videoProduceRequest);
 
@@ -105,24 +94,16 @@ namespace Tubumu.Meeting.Web.Controllers
                 {
                     Codecs = new List<RtpCodecParameters>
                     {
-                        new ()
+                        new()
                         {
-                        MimeType = "audio/PCMA",
-                        PayloadType = 8,
-                        ClockRate = 8000,
-                        }
+                            MimeType = "audio/PCMA",
+                            PayloadType = 8,
+                            ClockRate = 8000,
+                        },
                     },
-                    Encodings = new List<RtpEncodingParametersT> {
-                        new ()
-                        {
-                            Ssrc = audioSsrc
-                        }
-                    },
+                    Encodings = new List<RtpEncodingParametersT> { new() { Ssrc = audioSsrc } },
                 },
-                AppData = new Dictionary<string, object>
-                {
-                    ["peerId"] = deviceId,
-                }
+                AppData = new Dictionary<string, object> { ["peerId"] = deviceId },
             };
             _ = await _scheduler.ProduceAsync(deviceId, "", audioProduceRequest);
 
@@ -132,10 +113,7 @@ namespace Tubumu.Meeting.Web.Controllers
                 Address = transport.Data.Tuple.LocalAddress,
                 Port = transport.Data.Tuple.LocalPort,
             };
-            return new ApiResult<CreatePlainTransportResult>
-            {
-                Data = result
-            };
+            return new ApiResult<CreatePlainTransportResult> { Data = result };
         }
     }
 }

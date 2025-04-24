@@ -33,6 +33,6 @@
         /// <para>5. 用户发布的流就算无人消费也不会自动停止流。</para>
         /// <para>6. 会议室的其他用户将被动消费。</para>
         /// </summary>
-        Invite
+        Invite,
     }
 }

@@ -22,15 +22,18 @@ namespace Tubumu.Libuv.Threading
         public static void QueueUserWorkItem<T>(this Loop loop, T state, Action<T> work, Action? after = null)
         {
             loop.Ref();
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                work?.Invoke((T)o!);
-                loop.Sync(() =>
+            ThreadPool.QueueUserWorkItem(
+                o =>
                 {
-                    loop.Unref();
-                    after?.Invoke();
-                });
-            }, state);
+                    work?.Invoke((T)o!);
+                    loop.Sync(() =>
+                    {
+                        loop.Unref();
+                        after?.Invoke();
+                    });
+                },
+                state
+            );
         }
     }
 }

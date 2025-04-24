@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.LibUring
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct Dump : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static Dump GetRootAsDump(ByteBuffer _bb) { return GetRootAsDump(_bb, new Dump()); }
         public static Dump GetRootAsDump(ByteBuffer _bb, Dump obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -65,4 +69,34 @@ namespace FBS.LibUring
               _o.UserDataMissCount);
         }
     }
+
+    public class DumpT
+    {
+        public ulong SqeProcessCount { get; set; }
+
+        public ulong SqeMissCount { get; set; }
+
+        public ulong UserDataMissCount { get; set; }
+
+        public DumpT()
+        {
+            this.SqeProcessCount = 0;
+            this.SqeMissCount = 0;
+            this.UserDataMissCount = 0;
+        }
+    }
+
+
+    static public class DumpVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*SqeProcessCount*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 6 /*SqeMissCount*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 8 /*UserDataMissCount*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

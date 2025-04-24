@@ -23,7 +23,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] EncryptToByteArray(string rawString)
         {
-            if(rawString == null)
+            if (rawString == null)
             {
                 throw new ArgumentNullException(nameof(rawString));
             }

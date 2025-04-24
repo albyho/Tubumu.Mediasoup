@@ -12,6 +12,6 @@ namespace Tubumu.H264ProfileLevelId
 
         High = 5,
 
-        PredictiveHigh444 = 6
+        PredictiveHigh444 = 6,
     }
 }

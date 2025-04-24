@@ -20,22 +20,23 @@ namespace System
         /// <typeparam name="T">枚举类型</typeparam>
         /// <param name="description">枚举描述</param>
         /// <returns>枚举</returns>
-        public static T GetValueByDescription<T>(this string description) where T : Enum
+        public static T GetValueByDescription<T>(this string description)
+            where T : Enum
         {
             var type = typeof(T);
-            foreach(var field in type.GetFields())
+            foreach (var field in type.GetFields())
             {
                 var curDesc = field.GetDescriptAttributes();
-                if(curDesc?.Length > 0)
+                if (curDesc?.Length > 0)
                 {
-                    if(curDesc[0].Description == description)
+                    if (curDesc[0].Description == description)
                     {
                         return (T)field.GetValue(null)!;
                     }
                 }
                 else
                 {
-                    if(field.Name == description)
+                    if (field.Name == description)
                     {
                         return (T)field.GetValue(null)!;
                     }
@@ -52,7 +53,9 @@ namespace System
         /// <returns>DescriptionAttribute[] </returns>
         private static DescriptionAttribute[]? GetDescriptAttributes(this FieldInfo fieldInfo)
         {
-            return fieldInfo != null ? (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false) : null;
+            return fieldInfo != null
+                ? (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false)
+                : null;
         }
 
         /// <summary>
@@ -66,10 +69,10 @@ namespace System
             var enumName = Enum.GetName(type, enumValue) ?? throw new NotSupportedException();
 
             var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault();
-            if(attribute != null)
+            if (attribute != null)
             {
                 var displayName = ((DisplayAttribute)attribute).Name;
-                if(displayName != null)
+                if (displayName != null)
                 {
                     return displayName;
                 }
@@ -84,10 +87,10 @@ namespace System
         /// <typeparam name="T">泛型参数</typeparam>
         /// <param name="type">枚举类型</param>
         /// <returns>枚举值与对应的 DisplayAttribute 的 Name 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetDescriptionMap<T>(this Type type) where T : Enum
+        public static IEnumerable<KeyValuePair<T, string>> GetDescriptionMap<T>(this Type type)
+            where T : Enum
         {
-            return from e in Enum.GetValues(type).Cast<T>()
-                   select new KeyValuePair<T, string>(e, e.GetDescription());
+            return from e in Enum.GetValues(type).Cast<T>() select new KeyValuePair<T, string>(e, e.GetDescription());
         }
 
         /// <summary>
@@ -95,7 +98,8 @@ namespace System
         /// </summary>
         /// <typeparam name="T">泛型参数</typeparam>
         /// <returns>枚举值与对应的 DisplayAttribute 的 Name 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetDescriptionMap<T>() where T : Enum
+        public static IEnumerable<KeyValuePair<T, string>> GetDescriptionMap<T>()
+            where T : Enum
         {
             return GetDescriptionMap<T>(typeof(T));
         }
@@ -115,10 +119,10 @@ namespace System
             var enumName = Enum.GetName(type, enumValue) ?? throw new NotSupportedException();
 
             var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault();
-            if(attribute != null)
+            if (attribute != null)
             {
                 var displayName = ((DisplayAttribute)attribute).Name;
-                if(displayName != null)
+                if (displayName != null)
                 {
                     return displayName;
                 }
@@ -133,10 +137,10 @@ namespace System
         /// <typeparam name="T">泛型参数</typeparam>
         /// <param name="type">枚举类型</param>
         /// <returns>枚举值与对应的 DisplayAttribute 的 Name 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>(this Type type) where T : Enum
+        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>(this Type type)
+            where T : Enum
         {
-            return from e in Enum.GetValues(type).Cast<T>()
-                   select new KeyValuePair<T, string>(e, e.GetDisplayName());
+            return from e in Enum.GetValues(type).Cast<T>() select new KeyValuePair<T, string>(e, e.GetDisplayName());
         }
 
         /// <summary>
@@ -144,7 +148,8 @@ namespace System
         /// </summary>
         /// <typeparam name="T">泛型参数</typeparam>
         /// <returns>枚举值与对应的 DisplayAttribute 的 Name 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>() where T : Enum
+        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>()
+            where T : Enum
         {
             return GetDisaplayNameMap<T>(typeof(T));
         }
@@ -164,10 +169,10 @@ namespace System
             var enumName = Enum.GetName(type, enumValue) ?? throw new NotSupportedException();
 
             var attribute = type.GetField(enumName)!.GetCustomAttributes(typeof(EnumMemberAttribute), false).FirstOrDefault();
-            if(attribute != null)
+            if (attribute != null)
             {
                 var value = ((EnumMemberAttribute)attribute).Value;
-                if(value != null)
+                if (value != null)
                 {
                     return value;
                 }
@@ -182,10 +187,10 @@ namespace System
         /// <typeparam name="T">泛型参数</typeparam>
         /// <param name="type">枚举类型</param>
         /// <returns>枚举值与对应的 EnumMemberAttribute 的 Value 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetEnumMemberValueMap<T>(this Type type) where T : Enum
+        public static IEnumerable<KeyValuePair<T, string>> GetEnumMemberValueMap<T>(this Type type)
+            where T : Enum
         {
-            return from e in Enum.GetValues(type).Cast<T>()
-                   select new KeyValuePair<T, string>(e, e.GetEnumMemberValue());
+            return from e in Enum.GetValues(type).Cast<T>() select new KeyValuePair<T, string>(e, e.GetEnumMemberValue());
         }
 
         /// <summary>
@@ -193,7 +198,8 @@ namespace System
         /// </summary>
         /// <typeparam name="T">泛型参数</typeparam>
         /// <returns>枚举值与对应的 EnumMemberAttribute 的 Value 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetEnumMemberValueMap<T>() where T : Enum
+        public static IEnumerable<KeyValuePair<T, string>> GetEnumMemberValueMap<T>()
+            where T : Enum
         {
             return GetDisaplayNameMap<T>(typeof(T));
         }

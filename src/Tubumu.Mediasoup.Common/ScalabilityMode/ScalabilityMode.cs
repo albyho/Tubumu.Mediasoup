@@ -9,7 +9,10 @@ namespace Tubumu.Mediasoup
     /// </summary>
     public class ScalabilityMode
     {
-        private static readonly Regex ScalabilityModeRegex = new("^[LS]([1-9]\\d{0,1})T([1-9]\\d{0,1})(_KEY)?.*", RegexOptions.Compiled);
+        private static readonly Regex ScalabilityModeRegex = new(
+            "^[LS]([1-9]\\d{0,1})T([1-9]\\d{0,1})(_KEY)?.*",
+            RegexOptions.Compiled
+        );
 
         /// <summary>
         /// 空间层
@@ -33,7 +36,7 @@ namespace Tubumu.Mediasoup
         {
             var match = ScalabilityModeRegex.Match(scalabilityMode);
             var result = new ScalabilityMode();
-            if(match.Success)
+            if (match.Success)
             {
                 result.SpatialLayers = int.Parse(match.Groups[1].Value);
                 result.TemporalLayers = int.Parse(match.Groups[2].Value);

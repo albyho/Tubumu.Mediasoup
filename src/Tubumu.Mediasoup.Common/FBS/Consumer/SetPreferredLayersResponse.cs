@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Consumer
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct SetPreferredLayersResponse : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static SetPreferredLayersResponse GetRootAsSetPreferredLayersResponse(ByteBuffer _bb) { return GetRootAsSetPreferredLayersResponse(_bb, new SetPreferredLayersResponse()); }
         public static SetPreferredLayersResponse GetRootAsSetPreferredLayersResponse(ByteBuffer _bb, SetPreferredLayersResponse obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -54,4 +58,26 @@ namespace FBS.Consumer
               _preferred_layers);
         }
     }
+
+    public class SetPreferredLayersResponseT
+    {
+        public FBS.Consumer.ConsumerLayersT PreferredLayers { get; set; }
+
+        public SetPreferredLayersResponseT()
+        {
+            this.PreferredLayers = null;
+        }
+    }
+
+
+    static public class SetPreferredLayersResponseVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyTable(tablePos, 4 /*PreferredLayers*/, FBS.Consumer.ConsumerLayersVerify.Verify, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

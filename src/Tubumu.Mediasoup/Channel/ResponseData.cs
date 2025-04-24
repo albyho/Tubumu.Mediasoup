@@ -6,21 +6,13 @@ using FBS.WebRtcTransport;
 
 namespace Tubumu.Mediasoup
 {
-    public class RouterCreateWebRtcTransportResponseData : WebRtcTransportData
-    {
-    }
+    public class RouterCreateWebRtcTransportResponseData : WebRtcTransportData { }
 
-    public class RouterCreatePlainTransportResponseData : PlainTransportData
-    {
-    }
+    public class RouterCreatePlainTransportResponseData : PlainTransportData { }
 
-    public class RouterCreatePipeTransportResponseData : PipeTransportData
-    {
-    }
+    public class RouterCreatePipeTransportResponseData : PipeTransportData { }
 
-    public class RouterCreateDirectTransportResponseData : PipeTransportData
-    {
-    }
+    public class RouterCreateDirectTransportResponseData : PipeTransportData { }
 
     public class TransportProduceResponseData
     {
@@ -64,13 +56,9 @@ namespace Tubumu.Mediasoup
         public string? Protocol { get; set; }
     }
 
-    public class TransportDataConsumeResponseData : DataConsumerData
-    {
-    }
+    public class TransportDataConsumeResponseData : DataConsumerData { }
 
-    public class ConsumerSetPreferredLayersResponseData : ConsumerLayersT
-    {
-    }
+    public class ConsumerSetPreferredLayersResponseData : ConsumerLayersT { }
 
     public class ConsumerSetOrUnsetPriorityResponseData
     {

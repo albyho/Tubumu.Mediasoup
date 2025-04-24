@@ -23,7 +23,7 @@ namespace Tubumu.Mediasoup
         /// SCTP packet will stop being retransmitted. Defaults to the value in the
         /// DataProducer if it has type 'sctp' or unset if it has type 'direct'.
         /// </summary>
-        public int? MaxPacketLifeTime { get; set; }
+        public ushort? MaxPacketLifeTime { get; set; }
 
         /// <summary>
         /// Just if consuming over SCTP.
@@ -31,7 +31,7 @@ namespace Tubumu.Mediasoup
         /// be retransmitted. Defaults to the value in the DataProducer if it has type
         /// 'sctp' or unset if it has type 'direct'.
         /// </summary>
-        public int? MaxRetransmits { get; set; }
+        public ushort? MaxRetransmits { get; set; }
 
         /// <summary>
         /// Whether the data consumer must start in paused mode. Default false.
@@ -40,10 +40,10 @@ namespace Tubumu.Mediasoup
         public bool Paused { get; set; }
 
         /**
-		 * Subchannels this data consumer initially subscribes to.
-		 * Only used in case this data consumer receives messages from a local data
-		 * producer that specifies subchannel(s) when calling send().
-		 */
+         * Subchannels this data consumer initially subscribes to.
+         * Only used in case this data consumer receives messages from a local data
+         * producer that specifies subchannel(s) when calling send().
+         */
         public List<ushort>? Subchannels { get; set; }
 
         /// <summary>

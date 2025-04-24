@@ -53,14 +53,10 @@ namespace Tubumu.Libuv
         }
 
         internal UVStream(Loop loop, int size)
-            : this(loop, UV.Alloc(size))
-        {
-        }
+            : this(loop, UV.Alloc(size)) { }
 
         internal UVStream(Loop loop, HandleType type)
-            : this(loop, Size(type))
-        {
-        }
+            : this(loop, Size(type)) { }
 
         internal UVStream(Loop loop, HandleType type, Func<IntPtr, IntPtr, int> constructor)
             : this(loop, type)
@@ -104,13 +100,13 @@ namespace Tubumu.Libuv
         private void rcallback(IntPtr streamPointer, IntPtr size)
         {
             long nread = size.ToInt64();
-            if(nread == 0)
+            if (nread == 0)
             {
                 return;
             }
-            else if(nread < 0)
+            else if (nread < 0)
             {
-                if(UVException.Map((int)nread) == UVErrorCode.EOF)
+                if (UVException.Map((int)nread) == UVErrorCode.EOF)
                 {
                     Close(Complete);
                 }
@@ -173,11 +169,11 @@ namespace Tubumu.Libuv
 
                     Ensure.Success(status, callback);
 
-                    if(PendingWrites == 0)
+                    if (PendingWrites == 0)
                     {
                         OnDrain();
                     }
-                }
+                },
             };
 
             var ptr = (IntPtr)(datagchandle.AddrOfPinnedObject().ToInt64() + index);
@@ -199,7 +195,7 @@ namespace Tubumu.Libuv
             {
                 Callback = (status, cpr2) =>
                 {
-                    for(var i = 0; i < n; ++i)
+                    for (var i = 0; i < n; ++i)
                     {
                         datagchandles[i].Free();
                     }
@@ -208,14 +204,14 @@ namespace Tubumu.Libuv
 
                     Ensure.Success(status, callback);
 
-                    if(PendingWrites == 0)
+                    if (PendingWrites == 0)
                     {
                         OnDrain();
                     }
-                }
+                },
             };
             var bufs = new uv_buf_t[n];
-            for(var i = 0; i < n; ++i)
+            for (var i = 0; i < n; ++i)
             {
                 var data = buffers[i];
                 var index = data.Offset;
@@ -237,11 +233,15 @@ namespace Tubumu.Libuv
             {
                 Callback = (status, _) =>
                 {
-                    Ensure.Success(status, (ex) => Close(() =>
-                    {
-                        callback?.Invoke(ex);
-                    }));
-                }
+                    Ensure.Success(
+                        status,
+                        (ex) =>
+                            Close(() =>
+                            {
+                                callback?.Invoke(ex);
+                            })
+                    );
+                },
             };
             uv_shutdown(cbr.Handle, NativeHandle, CallbackPermaRequest.CallbackDelegate);
         }
@@ -287,7 +287,7 @@ namespace Tubumu.Libuv
 
             Ensure.ArgumentNotNull(data.Array!, "data");
 
-            fixed(byte* bytePtr = data.Array)
+            fixed (byte* bytePtr = data.Array)
             {
                 IntPtr ptr = (IntPtr)(bytePtr + data.Offset);
                 var buf = new uv_buf_t[] { new uv_buf_t(ptr, data.Count) };

@@ -1,12 +1,12 @@
 {
     "MediasoupStartupSettings": {
-        "MediasoupVersion": "3.13.24",
+        "MediasoupVersion": "3.15.7",
         "WorkerInProcess": false,
-        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Debug/mediasoup-worker",
-        //"WorkerPath": "/Users/alby/Workspace/Tubumu.Mediasoup/Tubumu.Mediasoup.Executable/runtimes/osx/native/mediasoup-worker",
-        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/xcode/debug/mediasoup-worker",
         //"WorkerPath": "C:\\Workspace\\OpenSource\\mediasoup\\worker\\out\\vs\\mediasoup-worker",
-        "WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/prebuild/3.13.24/mediasoup-worker",
+        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Debug/mediasoup-worker",
+        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/xcode/debug/mediasoup-worker",
+        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/prebuild/3.15.7/mediasoup-worker",
+        "WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Debug/mediasoup-worker",
         "NumberOfWorkers": 1,
         "UseWebRtcServer": true
     },
@@ -123,7 +123,11 @@
                     "Protocol": "udp",
                     "Ip": "0.0.0.0",
                     // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-                    "AnnouncedAddress": null
+                    "AnnouncedAddress": null,
+                    "PortRange": {
+                        "Min": 40000,
+                        "Max": 49999
+                    }
                 }
             ],
             "InitialAvailableOutgoingBitrate": 1000000,
@@ -139,12 +143,16 @@
             "ListenInfo": {
                 "Ip": "0.0.0.0",
                 // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-                "AnnouncedAddress": null
+                "AnnouncedAddress": null,
+                "PortRange": {
+                    "Min": 40000,
+                    "Max": 49999
+                }
             },
             "MaxSctpMessageSize": 262144
         }
     },
     "MeetingServerSettings": {
-        "ServeMode": "Open" // Open,Invite or Pull
+        "ServeMode": "Pull" // Open,Invite or Pull
     }
 }

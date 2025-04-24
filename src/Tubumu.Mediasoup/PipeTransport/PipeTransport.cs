@@ -73,7 +73,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected override Task OnCloseAsync()
         {
-            if(Data.Base.SctpState.HasValue)
+            if (Data.Base.SctpState.HasValue)
             {
                 Data.Base.SctpState = FBS.SctpAssociation.SctpState.CLOSED;
             }
@@ -111,7 +111,13 @@ namespace Tubumu.Mediasoup
             // Build Request
             var bufferBuilder = Channel.BufferPool.Get();
 
-            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            var response = await Channel.RequestAsync(
+                bufferBuilder,
+                Method.TRANSPORT_GET_STATS,
+                null,
+                null,
+                Internal.TransportId
+            );
             var data = response.Value.BodyAsPipeTransport_GetStatsResponse().UnPack();
 
             return new[] { data };
@@ -124,7 +130,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("OnConnectAsync() | PipeTransport:{TransportId}", TransportId);
 
-            if(parameters is not ConnectRequestT connectRequestT)
+            if (parameters is not ConnectRequestT connectRequestT)
             {
                 throw new Exception($"{nameof(parameters)} type is not FBS.PipeTransport.ConnectRequestT");
             }
@@ -134,10 +140,13 @@ namespace Tubumu.Mediasoup
 
             var connectRequestOffset = ConnectRequest.Pack(bufferBuilder, connectRequestT);
 
-            var response = await Channel.RequestAsync(bufferBuilder, Method.PIPETRANSPORT_CONNECT,
-                 FBS.Request.Body.PipeTransport_ConnectRequest,
-                 connectRequestOffset.Value,
-                 Internal.TransportId);
+            var response = await Channel.RequestAsync(
+                bufferBuilder,
+                Method.PIPETRANSPORT_CONNECT,
+                FBS.Request.Body.PipeTransport_ConnectRequest,
+                connectRequestOffset.Value,
+                Internal.TransportId
+            );
 
             /* Decode Response. */
             var data = response.Value.BodyAsPipeTransport_ConnectResponse().UnPack();
@@ -154,12 +163,14 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ConsumeAsync()");
 
-            if(consumerOptions.ProducerId.IsNullOrWhiteSpace())
+            if (consumerOptions.ProducerId.IsNullOrWhiteSpace())
             {
                 throw new Exception("missing producerId");
             }
 
-            var producer = await GetProducerById(consumerOptions.ProducerId) ?? throw new Exception($"Producer with id {consumerOptions.ProducerId} not found");
+            var producer =
+                await GetProducerById(consumerOptions.ProducerId)
+                ?? throw new Exception($"Producer with id {consumerOptions.ProducerId} not found");
 
             // This may throw.
             var rtpParameters = ORTC.GetPipeConsumerRtpParameters(producer.Data.ConsumableRtpParameters, Data.Rtx);
@@ -181,10 +192,13 @@ namespace Tubumu.Mediasoup
 
             var consumeRequestOffset = ConsumeRequest.Pack(bufferBuilder, consumeRequest);
 
-            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_CONSUME,
-                 FBS.Request.Body.Transport_ConsumeRequest,
-                 consumeRequestOffset.Value,
-                 Internal.TransportId);
+            var response = await Channel.RequestAsync(
+                bufferBuilder,
+                Method.TRANSPORT_CONSUME,
+                FBS.Request.Body.Transport_ConsumeRequest,
+                consumeRequestOffset.Value,
+                Internal.TransportId
+            );
 
             /* Decode Response. */
             var responseData = response.Value.BodyAsTransport_ConsumeResponse().UnPack();
@@ -201,7 +215,7 @@ namespace Tubumu.Mediasoup
             {
                 Score = 10,
                 ProducerScore = 10,
-                ProducerScores = new List<byte>(0)
+                ProducerScores = new List<byte>(0),
             };
 
             var consumer = new Consumer(
@@ -217,24 +231,24 @@ namespace Tubumu.Mediasoup
             );
 
             consumer.On(
-                    "@close",
-                    async (_, _) =>
+                "@close",
+                async (_, _) =>
+                {
+                    await ConsumersLock.WaitAsync();
+                    try
                     {
-                        await ConsumersLock.WaitAsync();
-                        try
-                        {
-                            Consumers.Remove(consumer.ConsumerId);
-                        }
-                        catch(Exception ex)
-                        {
-                            _logger.LogError(ex, "@close");
-                        }
-                        finally
-                        {
-                            ConsumersLock.Set();
-                        }
+                        Consumers.Remove(consumer.ConsumerId);
                     }
-                );
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "@close");
+                    }
+                    finally
+                    {
+                        ConsumersLock.Set();
+                    }
+                }
+            );
             consumer.On(
                 "@producerclose",
                 async (_, _) =>
@@ -244,7 +258,7 @@ namespace Tubumu.Mediasoup
                     {
                         Consumers.Remove(consumer.ConsumerId);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         _logger.LogError(ex, "@producerclose");
                     }
@@ -260,7 +274,7 @@ namespace Tubumu.Mediasoup
             {
                 Consumers[consumer.ConsumerId] = consumer;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "ConsumeAsync()");
             }
@@ -284,42 +298,46 @@ namespace Tubumu.Mediasoup
 
         private void OnNotificationHandle(string handlerId, Event @event, Notification notification)
         {
-            if(handlerId != Internal.TransportId)
+            if (handlerId != Internal.TransportId)
             {
                 return;
             }
 
-            switch(@event)
+            switch (@event)
             {
                 case Event.TRANSPORT_SCTP_STATE_CHANGE:
-                    {
-                        var sctpStateChangeNotification = notification.BodyAsTransport_SctpStateChangeNotification().UnPack();
+                {
+                    var sctpStateChangeNotification = notification.BodyAsTransport_SctpStateChangeNotification().UnPack();
 
-                        Data.Base.SctpState = sctpStateChangeNotification.SctpState;
+                    Data.Base.SctpState = sctpStateChangeNotification.SctpState;
 
-                        Emit("sctpstatechange", Data.Base.SctpState);
+                    Emit("sctpstatechange", Data.Base.SctpState);
 
-                        // Emit observer event.
-                        Observer.Emit("sctpstatechange", Data.Base.SctpState);
+                    // Emit observer event.
+                    Observer.Emit("sctpstatechange", Data.Base.SctpState);
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.TRANSPORT_TRACE:
-                    {
-                        var traceNotification = notification.BodyAsTransport_TraceNotification().UnPack();
+                {
+                    var traceNotification = notification.BodyAsTransport_TraceNotification().UnPack();
 
-                        Emit("trace", traceNotification);
+                    Emit("trace", traceNotification);
 
-                        // Emit observer event.
-                        Observer.Emit("trace", traceNotification);
+                    // Emit observer event.
+                    Observer.Emit("trace", traceNotification);
 
-                        break;
-                    }
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError("OnNotificationHandle() | PipeTransport:{TransportId} Ignoring unknown event:{@event}", TransportId, @event);
-                        break;
-                    }
+                {
+                    _logger.LogError(
+                        "OnNotificationHandle() | PipeTransport:{TransportId} Ignoring unknown event:{@event}",
+                        TransportId,
+                        @event
+                    );
+                    break;
+                }
             }
         }
 

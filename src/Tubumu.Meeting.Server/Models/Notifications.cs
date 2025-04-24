@@ -168,23 +168,17 @@ namespace Tubumu.Meeting.Server
     /// <summary>
     /// 消费者关闭通知
     /// </summary>
-    public class ConsumerClosedNotification : ConsumerNotificationBase
-    {
-    }
+    public class ConsumerClosedNotification : ConsumerNotificationBase { }
 
     /// <summary>
     /// 消费者暂停通知
     /// </summary>
-    public class ConsumerPausedNotification : ConsumerNotificationBase
-    {
-    }
+    public class ConsumerPausedNotification : ConsumerNotificationBase { }
 
     /// <summary>
     /// 消费者恢复通知
     /// </summary>
-    public class ConsumerResumedNotification : ConsumerNotificationBase
-    {
-    }
+    public class ConsumerResumedNotification : ConsumerNotificationBase { }
 
     /// <summary>
     /// 消费者 Layers 改变通知
@@ -237,9 +231,7 @@ namespace Tubumu.Meeting.Server
     /// <summary>
     /// 生产者关闭通知
     /// </summary>
-    public class ProducerClosedNotification : ProducerNotificationBase
-    {
-    }
+    public class ProducerClosedNotification : ProducerNotificationBase { }
 
     #endregion
 }

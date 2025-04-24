@@ -16,12 +16,12 @@ namespace System.Collections.Generic
         /// <param name="action">要对枚举器的每个元素执行的委托</param>
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
-            if(source == null || action == null)
+            if (source == null || action == null)
             {
                 return;
             }
 
-            foreach(var item in source)
+            foreach (var item in source)
             {
                 action(item);
             }
@@ -89,9 +89,7 @@ namespace System.Collections.Generic
         /// <returns>Filtered or not filtered enumerable based on <paramref name="condition"/></returns>
         public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> source, bool condition, Func<T, bool> predicate)
         {
-            return condition
-                ? source.Where(predicate)
-                : source;
+            return condition ? source.Where(predicate) : source;
         }
 
         /// <summary>
@@ -104,9 +102,7 @@ namespace System.Collections.Generic
         /// <returns>Filtered or not filtered enumerable based on <paramref name="condition"/></returns>
         public static IEnumerable<T> WhereIf<T>(this IEnumerable<T> source, bool condition, Func<T, int, bool> predicate)
         {
-            return condition
-                ? source.Where(predicate)
-                : source;
+            return condition ? source.Where(predicate) : source;
         }
 
         /// <summary>

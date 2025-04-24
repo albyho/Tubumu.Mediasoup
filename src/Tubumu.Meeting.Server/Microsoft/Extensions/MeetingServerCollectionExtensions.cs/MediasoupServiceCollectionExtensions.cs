@@ -10,12 +10,20 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MeetingServerServiceCollectionExtensions
     {
-        public static IServiceCollection AddMeetingServer(this IServiceCollection services, Action<MeetingServerOptions>? configure)
+        public static IServiceCollection AddMeetingServer(
+            this IServiceCollection services,
+            Action<MeetingServerOptions>? configure
+        )
         {
             var meetingServerOptions = new MeetingServerOptions();
             return AddMeetingServer(services, meetingServerOptions, configure);
         }
-        public static IServiceCollection AddMeetingServer(this IServiceCollection services, IConfiguration configuration, Action<MeetingServerOptions>? configure = null)
+
+        public static IServiceCollection AddMeetingServer(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            Action<MeetingServerOptions>? configure = null
+        )
         {
             var meetingServerOptions = new MeetingServerOptions();
             services.AddMediasoup(configuration);
@@ -23,7 +31,11 @@ namespace Microsoft.Extensions.DependencyInjection
             return AddMeetingServer(services, meetingServerOptions, configure);
         }
 
-        public static IServiceCollection AddMeetingServer(this IServiceCollection services, MeetingServerOptions meetingServerOptions, Action<MeetingServerOptions>? configure = null)
+        public static IServiceCollection AddMeetingServer(
+            this IServiceCollection services,
+            MeetingServerOptions meetingServerOptions,
+            Action<MeetingServerOptions>? configure = null
+        )
         {
             configure?.Invoke(meetingServerOptions);
             services.AddSingleton(meetingServerOptions);
@@ -32,12 +44,17 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        private static void Configure(this IServiceCollection services, MeetingServerOptions meetingServerOptions, IConfiguration configuration)
+        private static void Configure(
+            this IServiceCollection services,
+            MeetingServerOptions meetingServerOptions,
+            IConfiguration configuration
+        )
         {
-            services.AddSignalR(options =>
-            {
-                options.EnableDetailedErrors = true;
-            })
+            services
+                .AddSignalR(options =>
+                {
+                    options.EnableDetailedErrors = true;
+                })
                 .AddJsonProtocol(options =>
                 {
                     options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumMemberConverter());
@@ -46,7 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.Replace(ServiceDescriptor.Singleton(typeof(IUserIdProvider), typeof(NameUserIdProvider)));
 
-            var meetingServerSettings = configuration.GetSection("MeetingServerSettings").Get<MeetingServerSettings>();
+            var meetingServerSettings = configuration.GetSection("MeetingServerSettings").Get<MeetingServerSettings>()!;
             meetingServerOptions.ServeMode = meetingServerSettings.ServeMode;
         }
     }

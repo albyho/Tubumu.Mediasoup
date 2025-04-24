@@ -7,7 +7,10 @@ namespace System
     /// </summary>
     public static class GuidExtensions
     {
-        private static readonly Regex GuidRegex = new(@"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$", RegexOptions.Compiled | RegexOptions.Singleline);
+        private static readonly Regex GuidRegex = new(
+            @"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$",
+            RegexOptions.Compiled | RegexOptions.Singleline
+        );
 
         /// <summary>
         /// IsNullOrEmpty
@@ -30,7 +33,7 @@ namespace System
         /// </summary>
         public static bool GuidTryParse(this string source, out Guid result)
         {
-            if(source.IsNullOrWhiteSpace())
+            if (source.IsNullOrWhiteSpace())
             {
                 result = Guid.Empty;
                 return false;
@@ -41,12 +44,12 @@ namespace System
                 result = new Guid(source);
                 return true;
             }
-            catch(FormatException)
+            catch (FormatException)
             {
                 result = Guid.Empty;
                 return false;
             }
-            catch(OverflowException)
+            catch (OverflowException)
             {
                 result = Guid.Empty;
                 return false;

@@ -7,10 +7,12 @@ using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum IceCandidateTcpType : byte
     {
         [EnumMember(Value = "passive")]
         PASSIVE = 0,
     }
+
 }

@@ -15,7 +15,7 @@
         {
             double fSize = size;
             var i = 0;
-            while(fSize >= FileSizeMod)
+            while (fSize >= FileSizeMod)
             {
                 fSize /= FileSizeMod;
                 i++;
@@ -33,7 +33,7 @@
         {
             double fSize = size;
             var i = 0;
-            while(fSize >= FileSizeMod)
+            while (fSize >= FileSizeMod)
             {
                 fSize /= FileSizeMod;
                 i++;

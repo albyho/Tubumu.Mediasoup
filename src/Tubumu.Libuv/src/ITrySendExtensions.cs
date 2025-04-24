@@ -15,7 +15,14 @@ namespace Tubumu.Libuv
             return sender.TrySend(IPAddress.Parse(ipAddress), port, data, 0, data.Length);
         }
 
-        public static int TrySend<TMessage>(this ITrySend<TMessage> sender, string ipAddress, int port, byte[] data, int index, int count)
+        public static int TrySend<TMessage>(
+            this ITrySend<TMessage> sender,
+            string ipAddress,
+            int port,
+            byte[] data,
+            int index,
+            int count
+        )
             where TMessage : IMessage<IPEndPoint, ArraySegment<byte>>, new()
         {
             Ensure.ArgumentNotNull(ipAddress, "ipAddress");
@@ -33,7 +40,14 @@ namespace Tubumu.Libuv
             return sender.TrySend(ipAddress, port, data, 0, data.Length);
         }
 
-        public static int TrySend<TMessage>(this ITrySend<TMessage> sender, IPAddress ipAddress, int port, byte[] data, int index, int count)
+        public static int TrySend<TMessage>(
+            this ITrySend<TMessage> sender,
+            IPAddress ipAddress,
+            int port,
+            byte[] data,
+            int index,
+            int count
+        )
             where TMessage : IMessage<IPEndPoint, ArraySegment<byte>>, new()
         {
             Ensure.ArgumentNotNull(data, "data");
@@ -52,7 +66,13 @@ namespace Tubumu.Libuv
             return sender.TrySend(endPoint, data, 0, data.Length);
         }
 
-        public static int TrySend<TMessage, TEndPoint>(this ITrySend<TMessage> sender, TEndPoint endPoint, byte[] data, int index, int count)
+        public static int TrySend<TMessage, TEndPoint>(
+            this ITrySend<TMessage> sender,
+            TEndPoint endPoint,
+            byte[] data,
+            int index,
+            int count
+        )
             where TMessage : IMessage<TEndPoint, ArraySegment<byte>>, new()
         {
             Ensure.ArgumentNotNull(data, "data");
@@ -63,14 +83,24 @@ namespace Tubumu.Libuv
 
         #region TMessage
 
-        public static int TrySend<TMessage, TPayload>(this ITrySend<TMessage> sender, string ipAddress, int port, TPayload payload)
+        public static int TrySend<TMessage, TPayload>(
+            this ITrySend<TMessage> sender,
+            string ipAddress,
+            int port,
+            TPayload payload
+        )
             where TMessage : IMessage<IPEndPoint, TPayload>, new()
         {
             Ensure.ArgumentNotNull(ipAddress, "ipAddress");
             return sender.TrySend(IPAddress.Parse(ipAddress), port, payload);
         }
 
-        public static int TrySend<TMessage, TPayload>(this ITrySend<TMessage> sender, IPAddress ipAddress, int port, TPayload payload)
+        public static int TrySend<TMessage, TPayload>(
+            this ITrySend<TMessage> sender,
+            IPAddress ipAddress,
+            int port,
+            TPayload payload
+        )
             where TMessage : IMessage<IPEndPoint, TPayload>, new()
         {
             Ensure.ArgumentNotNull(ipAddress, "ipAddress");
@@ -79,7 +109,11 @@ namespace Tubumu.Libuv
 
         #endregion TMessage
 
-        public static int TrySend<TMessage, TEndPoint, TPayload>(this ITrySend<TMessage> sender, TEndPoint endPoint, TPayload payload)
+        public static int TrySend<TMessage, TEndPoint, TPayload>(
+            this ITrySend<TMessage> sender,
+            TEndPoint endPoint,
+            TPayload payload
+        )
             where TMessage : IMessage<TEndPoint, TPayload>, new()
         {
             return sender.TrySend(new TMessage() { EndPoint = endPoint, Payload = payload });

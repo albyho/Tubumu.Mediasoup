@@ -9,18 +9,21 @@ namespace Tubumu.Libuv.Threading.Tasks
         {
             var tcs = new TaskCompletionSource<object>();
 #if TASK_STATUS
-			HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
+            HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
 #endif
             try
             {
-                timer.Start(timeout, () =>
-                {
+                timer.Start(
+                    timeout,
+                    () =>
+                    {
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-                    tcs.SetResult(null);
+                        tcs.SetResult(null);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
-                });
+                    }
+                );
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 tcs.SetException(e);
             }

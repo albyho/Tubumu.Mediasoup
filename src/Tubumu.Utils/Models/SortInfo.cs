@@ -54,6 +54,6 @@ namespace Tubumu.Utils.Models
         /// <summary>
         /// 倒序
         /// </summary>
-        DESC
+        DESC,
     }
 }

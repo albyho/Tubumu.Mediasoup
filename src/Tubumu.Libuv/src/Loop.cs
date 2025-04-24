@@ -8,7 +8,7 @@ namespace Tubumu.Libuv
     {
         UV_RUN_DEFAULT = 0,
         UV_RUN_ONCE,
-        UV_RUN_NOWAIT
+        UV_RUN_NOWAIT,
     };
 
     public partial class Loop : IDisposable
@@ -75,14 +75,10 @@ namespace Tubumu.Libuv
         }
 
         public Loop()
-            : this(new CopyingByteBufferAllocator())
-        {
-        }
+            : this(new CopyingByteBufferAllocator()) { }
 
         public Loop(ByteBufferAllocatorBase allocator)
-            : this(CreateLoop(), allocator)
-        {
-        }
+            : this(CreateLoop(), allocator) { }
 
         private static IntPtr CreateLoop()
         {
@@ -106,7 +102,7 @@ namespace Tubumu.Libuv
 
         private bool RunGuard(Action action)
         {
-            if(IsRunning)
+            if (IsRunning)
             {
                 return false;
             }
@@ -191,10 +187,10 @@ namespace Tubumu.Libuv
         protected virtual void Dispose(bool disposing)
         {
             // close all active handles
-            foreach(var kvp in handles)
+            foreach (var kvp in handles)
             {
                 var handle = kvp.Value;
-                if(!handle.IsClosing)
+                if (!handle.IsClosing)
                 {
                     handle.Dispose();
                 }
@@ -203,9 +199,9 @@ namespace Tubumu.Libuv
             // make sure the callbacks of close are called
             RunOnce();
 
-            if(disposing)
+            if (disposing)
             {
-                if(ByteBufferAllocator != null)
+                if (ByteBufferAllocator != null)
                 {
                     ByteBufferAllocator.Dispose();
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
@@ -262,7 +258,7 @@ namespace Tubumu.Libuv
             {
                 var tmp = Handles;
                 var handles = new Handle?[tmp.Length];
-                for(var i = 0; i < tmp.Length; i++)
+                for (var i = 0; i < tmp.Length; i++)
                 {
                     handles[i] = GetHandle(tmp[i]);
                 }
@@ -274,7 +270,7 @@ namespace Tubumu.Libuv
 
         public void Ref()
         {
-            if(RefCount == 0)
+            if (RefCount == 0)
             {
                 async.Ref();
             }
@@ -283,11 +279,11 @@ namespace Tubumu.Libuv
 
         public void Unref()
         {
-            if(RefCount <= 0)
+            if (RefCount <= 0)
             {
                 return;
             }
-            if(RefCount == 1)
+            if (RefCount == 1)
             {
                 async.Unref();
             }
@@ -300,7 +296,7 @@ namespace Tubumu.Libuv
         {
             get
             {
-                if(loopBackend == null)
+                if (loopBackend == null)
                 {
                     loopBackend = new LoopBackend(this);
                 }

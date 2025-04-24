@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Consumer
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct ScoreNotification : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static ScoreNotification GetRootAsScoreNotification(ByteBuffer _bb) { return GetRootAsScoreNotification(_bb, new ScoreNotification()); }
         public static ScoreNotification GetRootAsScoreNotification(ByteBuffer _bb, ScoreNotification obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -55,4 +59,26 @@ namespace FBS.Consumer
               _score);
         }
     }
+
+    public class ScoreNotificationT
+    {
+        public FBS.Consumer.ConsumerScoreT Score { get; set; }
+
+        public ScoreNotificationT()
+        {
+            this.Score = null;
+        }
+    }
+
+
+    static public class ScoreNotificationVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyTable(tablePos, 4 /*Score*/, FBS.Consumer.ConsumerScoreVerify.Verify, true)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

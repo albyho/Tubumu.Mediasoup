@@ -4,6 +4,7 @@
 
 namespace FBS.WebRtcTransport
 {
+
     public enum Listen : byte
     {
         NONE = 0,
@@ -16,6 +17,7 @@ namespace FBS.WebRtcTransport
     public class ListenUnion
     {
         public Listen Type { get; set; }
+
         public object Value { get; set; }
 
         public ListenUnion()
@@ -43,4 +45,30 @@ namespace FBS.WebRtcTransport
             }
         }
     }
+
+
+
+
+    static public class ListenVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, byte typeId, uint tablePos)
+        {
+            bool result = true;
+            switch((Listen)typeId)
+            {
+                case Listen.ListenIndividual:
+                    result = FBS.WebRtcTransport.ListenIndividualVerify.Verify(verifier, tablePos);
+                    break;
+                case Listen.ListenServer:
+                    result = FBS.WebRtcTransport.ListenServerVerify.Verify(verifier, tablePos);
+                    break;
+                default:
+                    result = true;
+                    break;
+            }
+            return result;
+        }
+    }
+
+
 }

@@ -40,7 +40,7 @@ namespace NPOI
             var sourceCell = sourceRow.GetCellByName(sourceCellName);
             var targetCell = row.GetCellByName(cellName);
 
-            switch(sourceCell.CellType)
+            switch (sourceCell.CellType)
             {
                 case CellType.Numeric:
                     targetCell.SetCellValue(sourceCell.NumericCellValue);
@@ -81,10 +81,10 @@ namespace NPOI
         public static string ToNumberSystem26(int n)
         {
             var s = string.Empty;
-            while(n > 0)
+            while (n > 0)
             {
                 int m = n % 26;
-                if(m == 0)
+                if (m == 0)
                 {
                     m = 26;
                 }
@@ -103,16 +103,16 @@ namespace NPOI
         /// <returns>自然数。</returns>
         public static int FromNumberSystem26(string s)
         {
-            if(string.IsNullOrEmpty(s))
+            if (string.IsNullOrEmpty(s))
             {
                 return 0;
             }
 
             var n = 0;
-            for(int i = s.Length - 1, j = 1; i >= 0; i--, j *= 26)
+            for (int i = s.Length - 1, j = 1; i >= 0; i--, j *= 26)
             {
                 var c = char.ToUpper(s[i]);
-                if(c is < 'A' or > 'Z')
+                if (c is < 'A' or > 'Z')
                 {
                     return 0;
                 }
@@ -129,11 +129,11 @@ namespace NPOI
         public static CellRangeAddress? GetStrictCellRangeAddress(this ISheet sheet, int rowNum, int colNum)
         {
             var regionsCount = sheet.NumMergedRegions;
-            for(var i = 0; i < regionsCount; i++)
+            for (var i = 0; i < regionsCount; i++)
             {
                 CellRangeAddress range = sheet.GetMergedRegion(i);
                 //sheet.IsMergedRegion(range);
-                if(range.FirstRow == rowNum && range.FirstColumn == colNum)
+                if (range.FirstRow == rowNum && range.FirstColumn == colNum)
                 {
                     //int rowSpan = range.LastRow - range.FirstRow + 1;
                     //int colSpan = range.LastColumn - range.FirstColumn + 1;
@@ -150,10 +150,10 @@ namespace NPOI
         public static CellRangeAddress? GetCellRangeAddress(this ISheet sheet, int rowNum, int colNum)
         {
             var regionsCount = sheet.NumMergedRegions;
-            for(var i = 0; i < regionsCount; i++)
+            for (var i = 0; i < regionsCount; i++)
             {
                 CellRangeAddress range = sheet.GetMergedRegion(i);
-                if(range.FirstRow >= rowNum && range.FirstColumn <= colNum)
+                if (range.FirstRow >= rowNum && range.FirstColumn <= colNum)
                 {
                     return range;
                 }
@@ -172,7 +172,7 @@ namespace NPOI
             {
                 book = new XSSFWorkbook(path);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine($"OpenExecelFile failure | {ex.Message}");
                 var file = new FileStream(path, FileMode.Open, FileAccess.Read);

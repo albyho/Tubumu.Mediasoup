@@ -6,39 +6,25 @@ namespace Tubumu.Libuv
     public class UdpReceiveMessage : UdpMessage
     {
         public UdpReceiveMessage(IPEndPoint endPoint, byte[] payload)
-            : this(endPoint, new ArraySegment<byte>(payload))
-        {
-        }
+            : this(endPoint, new ArraySegment<byte>(payload)) { }
 
         public UdpReceiveMessage(IPEndPoint endPoint, byte[] payload, int offset, int count)
-            : this(endPoint, new ArraySegment<byte>(payload, offset, count))
-        {
-        }
+            : this(endPoint, new ArraySegment<byte>(payload, offset, count)) { }
 
         public UdpReceiveMessage(IPAddress ipAddress, int port, byte[] payload)
-            : this(new IPEndPoint(ipAddress, port), payload)
-        {
-        }
+            : this(new IPEndPoint(ipAddress, port), payload) { }
 
         public UdpReceiveMessage(IPAddress ipAddress, int port, byte[] payload, int offset, int count)
-            : this(new IPEndPoint(ipAddress, port), new ArraySegment<byte>(payload, offset, count))
-        {
-        }
+            : this(new IPEndPoint(ipAddress, port), new ArraySegment<byte>(payload, offset, count)) { }
 
         public UdpReceiveMessage(IPAddress ipAddress, int port, ArraySegment<byte> payload)
-            : this(new IPEndPoint(ipAddress, port), payload)
-        {
-        }
+            : this(new IPEndPoint(ipAddress, port), payload) { }
 
         public UdpReceiveMessage(string ipAddress, int port, byte[] payload)
-            : this(IPAddress.Parse(ipAddress), port, payload)
-        {
-        }
+            : this(IPAddress.Parse(ipAddress), port, payload) { }
 
         public UdpReceiveMessage(string ipAddress, int port, ArraySegment<byte> payload)
-            : this(IPAddress.Parse(ipAddress), port, payload)
-        {
-        }
+            : this(IPAddress.Parse(ipAddress), port, payload) { }
 
         public UdpReceiveMessage(IPEndPoint endPoint, ArraySegment<byte> payload)
         {
@@ -47,39 +33,25 @@ namespace Tubumu.Libuv
         }
 
         public UdpReceiveMessage(IPEndPoint endPoint, byte[] payload, bool @partial)
-            : this(endPoint, new ArraySegment<byte>(payload), @partial)
-        {
-        }
+            : this(endPoint, new ArraySegment<byte>(payload), @partial) { }
 
         public UdpReceiveMessage(IPEndPoint endPoint, byte[] payload, int offset, int count, bool @partial)
-            : this(endPoint, new ArraySegment<byte>(payload, offset, count), @partial)
-        {
-        }
+            : this(endPoint, new ArraySegment<byte>(payload, offset, count), @partial) { }
 
         public UdpReceiveMessage(IPAddress ipAddress, int port, byte[] payload, bool @partial)
-            : this(new IPEndPoint(ipAddress, port), payload, @partial)
-        {
-        }
+            : this(new IPEndPoint(ipAddress, port), payload, @partial) { }
 
         public UdpReceiveMessage(IPAddress ipAddress, int port, byte[] payload, int offset, int count, bool @partial)
-            : this(new IPEndPoint(ipAddress, port), new ArraySegment<byte>(payload, offset, count), @partial)
-        {
-        }
+            : this(new IPEndPoint(ipAddress, port), new ArraySegment<byte>(payload, offset, count), @partial) { }
 
         public UdpReceiveMessage(IPAddress ipAddress, int port, ArraySegment<byte> payload, bool @partial)
-            : this(new IPEndPoint(ipAddress, port), payload, @partial)
-        {
-        }
+            : this(new IPEndPoint(ipAddress, port), payload, @partial) { }
 
         public UdpReceiveMessage(string ipAddress, int port, byte[] payload, bool @partial)
-            : this(IPAddress.Parse(ipAddress), port, payload, @partial)
-        {
-        }
+            : this(IPAddress.Parse(ipAddress), port, payload, @partial) { }
 
         public UdpReceiveMessage(string ipAddress, int port, ArraySegment<byte> payload, bool @partial)
-            : this(IPAddress.Parse(ipAddress), port, payload, @partial)
-        {
-        }
+            : this(IPAddress.Parse(ipAddress), port, payload, @partial) { }
 
         public UdpReceiveMessage(IPEndPoint endPoint, ArraySegment<byte> payload, bool @partial)
             : this(endPoint, payload)

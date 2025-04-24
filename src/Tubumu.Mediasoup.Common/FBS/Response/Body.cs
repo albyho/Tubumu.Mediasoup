@@ -4,6 +4,7 @@
 
 namespace FBS.Response
 {
+
     public enum Body : byte
     {
         NONE = 0,
@@ -39,7 +40,7 @@ namespace FBS.Response
         DataConsumer_SetSubchannelsResponse = 30,
         DataConsumer_AddSubchannelResponse = 31,
         DataConsumer_RemoveSubchannelResponse = 32,
-    }
+    };
 
     public class BodyUnion
     {
@@ -191,4 +192,118 @@ namespace FBS.Response
             }
         }
     }
+
+
+    static public class BodyVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, byte typeId, uint tablePos)
+        {
+            bool result = true;
+            switch((Body)typeId)
+            {
+                case Body.Worker_DumpResponse:
+                    result = FBS.Worker.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Worker_ResourceUsageResponse:
+                    result = FBS.Worker.ResourceUsageResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.WebRtcServer_DumpResponse:
+                    result = FBS.WebRtcServer.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Router_DumpResponse:
+                    result = FBS.Router.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_ProduceResponse:
+                    result = FBS.Transport.ProduceResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_ConsumeResponse:
+                    result = FBS.Transport.ConsumeResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Transport_RestartIceResponse:
+                    result = FBS.Transport.RestartIceResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.PlainTransport_ConnectResponse:
+                    result = FBS.PlainTransport.ConnectResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.PlainTransport_DumpResponse:
+                    result = FBS.PlainTransport.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.PlainTransport_GetStatsResponse:
+                    result = FBS.PlainTransport.GetStatsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.PipeTransport_ConnectResponse:
+                    result = FBS.PipeTransport.ConnectResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.PipeTransport_DumpResponse:
+                    result = FBS.PipeTransport.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.PipeTransport_GetStatsResponse:
+                    result = FBS.PipeTransport.GetStatsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DirectTransport_DumpResponse:
+                    result = FBS.DirectTransport.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DirectTransport_GetStatsResponse:
+                    result = FBS.DirectTransport.GetStatsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.WebRtcTransport_ConnectResponse:
+                    result = FBS.WebRtcTransport.ConnectResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.WebRtcTransport_DumpResponse:
+                    result = FBS.WebRtcTransport.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.WebRtcTransport_GetStatsResponse:
+                    result = FBS.WebRtcTransport.GetStatsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Producer_DumpResponse:
+                    result = FBS.Producer.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Producer_GetStatsResponse:
+                    result = FBS.Producer.GetStatsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Consumer_DumpResponse:
+                    result = FBS.Consumer.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Consumer_GetStatsResponse:
+                    result = FBS.Consumer.GetStatsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Consumer_SetPreferredLayersResponse:
+                    result = FBS.Consumer.SetPreferredLayersResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Consumer_SetPriorityResponse:
+                    result = FBS.Consumer.SetPriorityResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataProducer_DumpResponse:
+                    result = FBS.DataProducer.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataProducer_GetStatsResponse:
+                    result = FBS.DataProducer.GetStatsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_GetBufferedAmountResponse:
+                    result = FBS.DataConsumer.GetBufferedAmountResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_DumpResponse:
+                    result = FBS.DataConsumer.DumpResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_GetStatsResponse:
+                    result = FBS.DataConsumer.GetStatsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_SetSubchannelsResponse:
+                    result = FBS.DataConsumer.SetSubchannelsResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_AddSubchannelResponse:
+                    result = FBS.DataConsumer.AddSubchannelResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.DataConsumer_RemoveSubchannelResponse:
+                    result = FBS.DataConsumer.RemoveSubchannelResponseVerify.Verify(verifier, tablePos);
+                    break;
+                default:
+                    result = true;
+                    break;
+            }
+            return result;
+        }
+    }
+
+
 }

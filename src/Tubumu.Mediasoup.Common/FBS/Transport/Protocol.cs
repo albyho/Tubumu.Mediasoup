@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.Transport
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum Protocol : byte
     {
@@ -16,4 +17,6 @@ namespace FBS.Transport
         [EnumMember(Value = "tcp")]
         TCP = 2,
     }
+
+
 }

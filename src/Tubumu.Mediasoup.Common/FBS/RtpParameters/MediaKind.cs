@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.RtpParameters
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum MediaKind : byte
     {
@@ -16,4 +17,6 @@ namespace FBS.RtpParameters
         [EnumMember(Value = "video")]
         VIDEO = 1,
     }
+
+
 }

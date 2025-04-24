@@ -34,9 +34,7 @@ namespace Tubumu.Libuv
         }
 
         internal UVException(int systemErrorCode)
-            : this(systemErrorCode, ErrorName(systemErrorCode), StringError(systemErrorCode))
-        {
-        }
+            : this(systemErrorCode, ErrorName(systemErrorCode), StringError(systemErrorCode)) { }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern sbyte* uv_strerror(int systemErrorCode);
@@ -81,7 +79,7 @@ namespace Tubumu.Libuv
             {
                 // every comment prefixed with WSA is not in the reference source
                 // every comment prefixed with SocktError is not defined in uv.h
-                switch(ErrorCode)
+                switch (ErrorCode)
                 {
                     case UVErrorCode.EINTR:
                         return SocketError.Interrupted;

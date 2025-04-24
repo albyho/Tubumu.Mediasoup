@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Transport
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct SetMinOutgoingBitrateRequest : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static SetMinOutgoingBitrateRequest GetRootAsSetMinOutgoingBitrateRequest(ByteBuffer _bb) { return GetRootAsSetMinOutgoingBitrateRequest(_bb, new SetMinOutgoingBitrateRequest()); }
         public static SetMinOutgoingBitrateRequest GetRootAsSetMinOutgoingBitrateRequest(ByteBuffer _bb, SetMinOutgoingBitrateRequest obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -56,7 +60,6 @@ namespace FBS.Transport
 
     public class SetMinOutgoingBitrateRequestT
     {
-        [JsonPropertyName("min_outgoing_bitrate")]
         public uint MinOutgoingBitrate { get; set; }
 
         public SetMinOutgoingBitrateRequestT()
@@ -64,4 +67,16 @@ namespace FBS.Transport
             this.MinOutgoingBitrate = 0;
         }
     }
+
+
+    static public class SetMinOutgoingBitrateRequestVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*MinOutgoingBitrate*/, 4 /*uint*/, 4, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

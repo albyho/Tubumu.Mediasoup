@@ -15,14 +15,10 @@ namespace Tubumu.Libuv
         private static extern int uv_prepare_stop(IntPtr prepare);
 
         public Prepare()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public Prepare(Loop loop)
-            : base(loop, HandleType.UV_PREPARE, uv_prepare_init)
-        {
-        }
+            : base(loop, HandleType.UV_PREPARE, uv_prepare_init) { }
 
         public override void Start()
         {

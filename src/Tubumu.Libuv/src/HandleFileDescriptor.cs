@@ -15,7 +15,7 @@ namespace Tubumu.Libuv
         {
             get
             {
-                if(UV.IsUnix)
+                if (UV.IsUnix)
                 {
                     uv_fileno_unix(NativeHandle, out var value);
                     return (IntPtr)value;
@@ -43,7 +43,12 @@ namespace Tubumu.Libuv
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
         private static extern int uv_pipe_open(IntPtr handle, int fd);
 
-        public static int Open(Func<IntPtr, int, int> unix, Func<IntPtr, IntPtr, int> windows, IntPtr handle, IntPtr fileDescriptor)
+        public static int Open(
+            Func<IntPtr, int, int> unix,
+            Func<IntPtr, IntPtr, int> windows,
+            IntPtr handle,
+            IntPtr fileDescriptor
+        )
         {
             return UV.IsUnix ? unix(handle, fileDescriptor.ToInt32()) : windows(handle, fileDescriptor);
         }
@@ -51,7 +56,7 @@ namespace Tubumu.Libuv
         public void Open(IntPtr fileDescriptor)
         {
             int r;
-            switch(HandleType)
+            switch (HandleType)
             {
                 case HandleType.UV_TCP:
                     r = Open(uv_tcp_open_unix, uv_tcp_open_windows, NativeHandle, fileDescriptor);

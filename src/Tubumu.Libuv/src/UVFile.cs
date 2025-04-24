@@ -17,9 +17,7 @@ namespace Tubumu.Libuv
     public class UVFile
     {
         public UVFile(int fd)
-            : this(Loop.Constructor, fd)
-        {
-        }
+            : this(Loop.Constructor, fd) { }
 
         public UVFile(Loop loop, int fd)
         {
@@ -32,7 +30,14 @@ namespace Tubumu.Libuv
         public Encoding? Encoding { get; set; }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_open(IntPtr loop, IntPtr req, string path, int flags, int mode, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_open(
+            IntPtr loop,
+            IntPtr req,
+            string path,
+            int flags,
+            int mode,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public static void Open(Loop loop, string path, UVFileAccess access, Action<Exception?, UVFile?> callback)
         {
@@ -40,7 +45,7 @@ namespace Tubumu.Libuv
             fsr.Callback = (ex) =>
             {
                 UVFile? file = null;
-                if(fsr.Result != IntPtr.Zero)
+                if (fsr.Result != IntPtr.Zero)
                 {
                     file = new UVFile(loop, fsr.Result.ToInt32());
                 }
@@ -60,10 +65,7 @@ namespace Tubumu.Libuv
 
         public void Close(Loop loop, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_close(loop.NativeHandle, fsr.Handle, FileDescriptor, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -84,7 +86,15 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_read(IntPtr loop, IntPtr req, int fd, uv_buf_t[] buf, int nbufs, long offset, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_read(
+            IntPtr loop,
+            IntPtr req,
+            int fd,
+            uv_buf_t[] buf,
+            int nbufs,
+            long offset,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public void Read(Loop loop, int offset, byte[] data, int index, int count, Action<Exception?, int?>? callback)
         {
@@ -102,7 +112,15 @@ namespace Tubumu.Libuv
             };
             var ptr = new IntPtr(datagchandle.AddrOfPinnedObject().ToInt64() + segment.Offset);
             var buf = new uv_buf_t[] { new uv_buf_t(ptr, segment.Count) };
-            int r = uv_fs_read(loop.NativeHandle, fsr.Handle, FileDescriptor, buf, 1, offset, FileSystemRequest.CallbackDelegate);
+            int r = uv_fs_read(
+                loop.NativeHandle,
+                fsr.Handle,
+                FileDescriptor,
+                buf,
+                1,
+                offset,
+                FileSystemRequest.CallbackDelegate
+            );
             Ensure.Success(r);
         }
 
@@ -251,7 +269,15 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_write(IntPtr loop, IntPtr req, int fd, uv_buf_t[] bufs, int nbufs, long offset, NativeMethods.uv_fs_cb fs_cb);
+        private static extern int uv_fs_write(
+            IntPtr loop,
+            IntPtr req,
+            int fd,
+            uv_buf_t[] bufs,
+            int nbufs,
+            long offset,
+            NativeMethods.uv_fs_cb fs_cb
+        );
 
         public void Write(Loop loop, int offset, ArraySegment<byte> segment, Action<Exception?, int?>? callback)
         {
@@ -264,7 +290,15 @@ namespace Tubumu.Libuv
             };
             var ptr = new IntPtr(datagchandle.AddrOfPinnedObject().ToInt64() + segment.Offset);
             var buf = new uv_buf_t[] { new uv_buf_t(ptr, segment.Count) };
-            int r = uv_fs_write(loop.NativeHandle, fsr.Handle, FileDescriptor, buf, segment.Count, offset, FileSystemRequest.CallbackDelegate);
+            int r = uv_fs_write(
+                loop.NativeHandle,
+                fsr.Handle,
+                FileDescriptor,
+                buf,
+                segment.Count,
+                offset,
+                FileSystemRequest.CallbackDelegate
+            );
             Ensure.Success(r);
         }
 
@@ -465,7 +499,7 @@ namespace Tubumu.Libuv
             var fsr = new FileSystemRequest();
             fsr.Callback = (ex) =>
             {
-                if(callback != null)
+                if (callback != null)
                 {
                     Ensure.Success(ex, callback, new UVFileStat(fsr.stat));
                 }
@@ -487,7 +521,7 @@ namespace Tubumu.Libuv
             var fsr = new FileSystemRequest();
             fsr.Callback = (ex) =>
             {
-                if(callback != null)
+                if (callback != null)
                 {
                     Ensure.Success(ex, callback, new UVFileStat(fsr.stat));
                 }
@@ -501,10 +535,7 @@ namespace Tubumu.Libuv
 
         public void Sync(Loop loop, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_fsync(loop.NativeHandle, fsr.Handle, FileDescriptor, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -529,10 +560,7 @@ namespace Tubumu.Libuv
 
         public void DataSync(Loop loop, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_fdatasync(loop.NativeHandle, fsr.Handle, FileDescriptor, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -553,21 +581,19 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_ftruncate(IntPtr loop, IntPtr req, int file, long offset, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_ftruncate(
+            IntPtr loop,
+            IntPtr req,
+            int file,
+            long offset,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public void Truncate(Loop loop, int offset, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_ftruncate(loop.NativeHandle, fsr.Handle, FileDescriptor, offset, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
-        }
-
-        public void Truncate(Loop loop, int offset)
-        {
-            Truncate(loop, offset);
         }
 
         public void Truncate(int offset, Action<Exception?>? callback)
@@ -585,10 +611,7 @@ namespace Tubumu.Libuv
 
         public void Chmod(Loop loop, int mode, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_fchmod(loop.NativeHandle, fsr.Handle, FileDescriptor, mode, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -613,10 +636,7 @@ namespace Tubumu.Libuv
 
         public static void Chmod(Loop loop, string path, int mode, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_chmod(loop.NativeHandle, fsr.Handle, path, mode, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -637,14 +657,18 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_chown(IntPtr loop, IntPtr req, string path, int uid, int gid, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_chown(
+            IntPtr loop,
+            IntPtr req,
+            string path,
+            int uid,
+            int gid,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public static void Chown(Loop loop, string path, int uid, int gid, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_chown(loop.NativeHandle, fsr.Handle, path, uid, gid, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -665,14 +689,18 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_fchown(IntPtr loop, IntPtr req, int fd, int uid, int gid, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_fchown(
+            IntPtr loop,
+            IntPtr req,
+            int fd,
+            int uid,
+            int gid,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public void Chown(Loop loop, int uid, int gid, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_fchown(loop.NativeHandle, fsr.Handle, FileDescriptor, uid, gid, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -697,10 +725,7 @@ namespace Tubumu.Libuv
 
         public static void Unlink(Loop loop, string path, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_unlink(loop.NativeHandle, fsr.Handle, path, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -721,14 +746,17 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_link(IntPtr loop, IntPtr req, string path, string newPath, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_link(
+            IntPtr loop,
+            IntPtr req,
+            string path,
+            string newPath,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public static void Link(Loop loop, string path, string newPath, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_link(loop.NativeHandle, fsr.Handle, path, newPath, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -749,14 +777,18 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int uv_fs_symlink(IntPtr loop, IntPtr req, string path, string newPath, int flags, NativeMethods.uv_fs_cb callback);
+        private static extern int uv_fs_symlink(
+            IntPtr loop,
+            IntPtr req,
+            string path,
+            string newPath,
+            int flags,
+            NativeMethods.uv_fs_cb callback
+        );
 
         public static void Symlink(Loop loop, string path, string newPath, Action<Exception?>? callback)
         {
-            var fsr = new FileSystemRequest
-            {
-                Callback = callback
-            };
+            var fsr = new FileSystemRequest { Callback = callback };
             int r = uv_fs_symlink(loop.NativeHandle, fsr.Handle, path, newPath, 0, FileSystemRequest.CallbackDelegate);
             Ensure.Success(r);
         }
@@ -785,7 +817,7 @@ namespace Tubumu.Libuv
             fsr.Callback = (ex) =>
             {
                 string? res = null;
-                if(ex == null)
+                if (ex == null)
                 {
                     res = Marshal.PtrToStringAuto(fsr.Pointer);
                 }

@@ -63,10 +63,12 @@ namespace Tubumu.Mediasoup
         /// <para>@emits webrtctransporthandled - (webRtcTransport: WebRtcTransport)</para>
         /// <para>@emits webrtctransportunhandled - (webRtcTransport: WebRtcTransport)</para>
         /// </summary>
-        public WebRtcServer(ILoggerFactory loggerFactory,
-                        WebRtcServerInternal internal_,
-                        IChannel channel,
-                        Dictionary<string, object>? appData)
+        public WebRtcServer(
+            ILoggerFactory loggerFactory,
+            WebRtcServerInternal internal_,
+            IChannel channel,
+            Dictionary<string, object>? appData
+        )
         {
             _logger = loggerFactory.CreateLogger<WebRtcServer>();
 
@@ -82,9 +84,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CloseAsync() | WebRtcServerId:{WebRtcServerId}", WebRtcServerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -99,13 +101,20 @@ namespace Tubumu.Mediasoup
                     WebRtcServerId = _internal.WebRtcServerId,
                 };
 
-                var closeWebRtcServerRequestOffset = FBS.Worker.CloseWebRtcServerRequest.Pack(bufferBuilder, closeWebRtcServerRequest);
+                var closeWebRtcServerRequestOffset = FBS.Worker.CloseWebRtcServerRequest.Pack(
+                    bufferBuilder,
+                    closeWebRtcServerRequest
+                );
 
                 // Fire and forget
-                _channel.RequestAsync(bufferBuilder, Method.WORKER_WEBRTCSERVER_CLOSE,
-                    Body.Worker_CloseWebRtcServerRequest,
-                    closeWebRtcServerRequestOffset.Value
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.WORKER_WEBRTCSERVER_CLOSE,
+                        Body.Worker_CloseWebRtcServerRequest,
+                        closeWebRtcServerRequestOffset.Value
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 await CloseInternalAsync();
 
@@ -123,9 +132,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("WorkerClosedAsync() | WebRtcServerId:{WebRtcServerId}", WebRtcServerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -143,10 +152,10 @@ namespace Tubumu.Mediasoup
 
         private async Task CloseInternalAsync()
         {
-            using(await _webRtcTransportsLock.WriteLockAsync())
+            await using (await _webRtcTransportsLock.WriteLockAsync())
             {
                 // Close every WebRtcTransport.
-                foreach(var webRtcTransport in _webRtcTransports.Values)
+                foreach (var webRtcTransport in _webRtcTransports.Values)
                 {
                     await webRtcTransport.ListenServerClosedAsync();
 
@@ -165,9 +174,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("DumpAsync() | WebRtcServerId:{WebRtcServerId}", WebRtcServerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("WebRtcServer closed");
                 }
@@ -175,10 +184,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.WEBRTCSERVER_DUMP,
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.WEBRTCSERVER_DUMP,
                     null,
                     null,
-                    _internal.WebRtcServerId);
+                    _internal.WebRtcServerId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsWebRtcServer_DumpResponse().UnPack();
@@ -188,7 +200,7 @@ namespace Tubumu.Mediasoup
 
         public async Task HandleWebRtcTransportAsync(WebRtcTransport webRtcTransport)
         {
-            using(await _webRtcTransportsLock.WriteLockAsync())
+            await using (await _webRtcTransportsLock.WriteLockAsync())
             {
                 _webRtcTransports[webRtcTransport.TransportId] = webRtcTransport;
             }
@@ -196,16 +208,19 @@ namespace Tubumu.Mediasoup
             // Emit observer event.
             Observer.Emit("webrtctransporthandled", webRtcTransport);
 
-            webRtcTransport.On("@close", async (_, _) =>
-            {
-                using(await _webRtcTransportsLock.WriteLockAsync())
+            webRtcTransport.On(
+                "@close",
+                async (_, _) =>
                 {
-                    _webRtcTransports.Remove(webRtcTransport.TransportId);
-                }
+                    await using (await _webRtcTransportsLock.WriteLockAsync())
+                    {
+                        _webRtcTransports.Remove(webRtcTransport.TransportId);
+                    }
 
-                // Emit observer event.
-                Observer.Emit("webrtctransportunhandled", webRtcTransport);
-            });
+                    // Emit observer event.
+                    Observer.Emit("webrtctransportunhandled", webRtcTransport);
+                }
+            );
         }
     }
 }

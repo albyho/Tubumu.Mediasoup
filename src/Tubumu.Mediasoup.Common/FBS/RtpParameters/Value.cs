@@ -4,20 +4,16 @@
 
 namespace FBS.RtpParameters
 {
+
     public enum Value : byte
     {
         NONE = 0,
-
         Boolean = 1,
-
         Integer32 = 2,
-
         Double = 3,
-
         String = 4,
-
         Integer32Array = 5,
-    }
+    };
 
     public class ValueUnion
     {
@@ -61,4 +57,37 @@ namespace FBS.RtpParameters
             }
         }
     }
+
+
+    static public class ValueVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, byte typeId, uint tablePos)
+        {
+            bool result = true;
+            switch((Value)typeId)
+            {
+                case Value.Boolean:
+                    result = FBS.RtpParameters.BooleanVerify.Verify(verifier, tablePos);
+                    break;
+                case Value.Integer32:
+                    result = FBS.RtpParameters.Integer32Verify.Verify(verifier, tablePos);
+                    break;
+                case Value.Double:
+                    result = FBS.RtpParameters.DoubleVerify.Verify(verifier, tablePos);
+                    break;
+                case Value.String:
+                    result = FBS.RtpParameters.StringVerify.Verify(verifier, tablePos);
+                    break;
+                case Value.Integer32Array:
+                    result = FBS.RtpParameters.Integer32ArrayVerify.Verify(verifier, tablePos);
+                    break;
+                default:
+                    result = true;
+                    break;
+            }
+            return result;
+        }
+    }
+
+
 }

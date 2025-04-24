@@ -18,7 +18,7 @@ namespace Tubumu.Meeting.Server
 
         public bool Equals(Room? other)
         {
-            if(other is null)
+            if (other is null)
             {
                 return false;
             }
@@ -68,11 +68,14 @@ namespace Tubumu.Meeting.Server
 
         //public PassthroughObserver PassthroughObserver { get; }
 
-        public Room(ILoggerFactory loggerFactory,
+        public Room(
+            ILoggerFactory loggerFactory,
             Router router,
             AudioLevelObserver audioLevelObserver,
             //PassthroughObserver passthroughObserver,
-            string roomId, string name)
+            string roomId,
+            string name
+        )
         {
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger<Room>();
@@ -83,73 +86,65 @@ namespace Tubumu.Meeting.Server
             Name = name.NullOrWhiteSpaceReplace("Default");
             _closed = false;
 
-            HandleAudioLevelObserver();
+            // HandleAudioLevelObserver();
         }
 
         public async Task<JoinRoomResult> PeerJoinAsync(Peer peer)
         {
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new Exception($"PeerJoinAsync() | RoomId:{RoomId} was closed.");
                 }
 
-                using(await _peersLock.WriteLockAsync())
+                await using (await _peersLock.WriteLockAsync())
                 {
-                    if(_peers.ContainsKey(peer.PeerId))
+                    if (_peers.ContainsKey(peer.PeerId))
                     {
                         throw new Exception($"PeerJoinAsync() | Peer:{peer.PeerId} was in RoomId:{RoomId} already.");
                     }
 
                     _peers[peer.PeerId] = peer;
 
-                    return new JoinRoomResult
-                    {
-                        SelfPeer = peer,
-                        Peers = _peers.Values.ToArray(),
-                    };
+                    return new JoinRoomResult { SelfPeer = peer, Peers = _peers.Values.ToArray() };
                 }
             }
         }
 
         public async Task<LeaveRoomResult> PeerLeaveAsync(string peerId)
         {
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new Exception($"PeerLeaveAsync() | RoomId:{RoomId} was closed.");
                 }
 
-                using(await _peersLock.WriteLockAsync())
+                await using (await _peersLock.WriteLockAsync())
                 {
-                    if(!_peers.TryGetValue(peerId, out var peer))
+                    if (!_peers.TryGetValue(peerId, out var peer))
                     {
                         throw new Exception($"PeerLeaveAsync() | Peer:{peerId} is not in RoomId:{RoomId}.");
                     }
 
                     _peers.Remove(peerId);
 
-                    return new LeaveRoomResult
-                    {
-                        SelfPeer = peer,
-                        OtherPeerIds = _peers.Keys.ToArray()
-                    };
+                    return new LeaveRoomResult { SelfPeer = peer, OtherPeerIds = _peers.Keys.ToArray() };
                 }
             }
         }
 
         public async Task<string[]> GetPeerIdsAsync()
         {
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new Exception($"GetPeerIdsAsync() | RoomId:{RoomId} was closed.");
                 }
 
-                using(await _peersLock.ReadLockAsync())
+                await using (await _peersLock.ReadLockAsync())
                 {
                     return _peers.Keys.ToArray();
                 }
@@ -158,14 +153,14 @@ namespace Tubumu.Meeting.Server
 
         public async Task<Peer[]> GetPeersAsync()
         {
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new Exception($"GetPeersAsync() | RoomId:{RoomId} was closed.");
                 }
 
-                using(await _peersLock.ReadLockAsync())
+                await using (await _peersLock.ReadLockAsync())
                 {
                     return _peers.Values.ToArray();
                 }
@@ -174,9 +169,9 @@ namespace Tubumu.Meeting.Server
 
         public async Task CloseAsync()
         {
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -191,51 +186,63 @@ namespace Tubumu.Meeting.Server
 
         private void HandleAudioLevelObserver()
         {
-            AudioLevelObserver.On("volumes", async (_, volumes) =>
-            {
-                using(await _closeLock.ReadLockAsync())
+            AudioLevelObserver.On(
+                "volumes",
+                async (_, volumes) =>
                 {
-                    if(_closed)
+                    await using (await _closeLock.ReadLockAsync())
                     {
-                        return;
-                    }
-
-                    using(await _peersLock.ReadLockAsync())
-                    {
-                        foreach(var peer in _peers.Values)
+                        if (_closed)
                         {
-                            peer.HubClient?.Notify(new MeetingNotification
+                            return;
+                        }
+
+                        await using (await _peersLock.ReadLockAsync())
+                        {
+                            foreach (var peer in _peers.Values)
                             {
-                                Type = "activeSpeaker",
-                                // TODO: (alby)Strongly typed
-                                Data = (volumes as List<AudioLevelObserverVolume>)!.Select(m => new { PeerId = m.Producer.AppData!["peerId"], m.Producer.ProducerId, m.Volume }),
-                            }).ContinueWithOnFaultedHandleLog(_logger);
+                                peer.HubClient?.Notify(
+                                        new MeetingNotification
+                                        {
+                                            Type = "activeSpeaker",
+                                            // TODO: (alby)Strongly typed
+                                            Data = (volumes as List<AudioLevelObserverVolume>)!.Select(m => new
+                                            {
+                                                PeerId = m.Producer.AppData!["peerId"],
+                                                m.Producer.ProducerId,
+                                                m.Volume,
+                                            }),
+                                        }
+                                    )
+                                    .ContinueWithOnFaultedHandleLog(_logger);
+                            }
                         }
                     }
                 }
-            });
+            );
 
-            AudioLevelObserver.On("silence", async (_, _) =>
-            {
-                using(await _closeLock.ReadLockAsync())
+            AudioLevelObserver.On(
+                "silence",
+                async (_, _) =>
                 {
-                    if(_closed)
+                    await using (await _closeLock.ReadLockAsync())
                     {
-                        return;
-                    }
-
-                    using(await _peersLock.ReadLockAsync())
-                    {
-                        foreach(var peer in _peers.Values)
+                        if (_closed)
                         {
-                            peer.HubClient?.Notify(new MeetingNotification
+                            return;
+                        }
+
+                        await using (await _peersLock.ReadLockAsync())
+                        {
+                            foreach (var peer in _peers.Values)
                             {
-                                Type = "activeSpeaker",
-                            }).ContinueWithOnFaultedHandleLog(_logger);
+                                peer.HubClient?.Notify(new MeetingNotification { Type = "activeSpeaker" })
+                                    .ContinueWithOnFaultedHandleLog(_logger);
+                            }
                         }
                     }
                 }
-            });
+            );
         }
     }
 }

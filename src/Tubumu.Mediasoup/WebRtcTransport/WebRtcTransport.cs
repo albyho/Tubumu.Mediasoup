@@ -73,7 +73,7 @@ namespace Tubumu.Mediasoup
             Data.IceSelectedTuple = null;
             Data.DtlsState = DtlsState.CLOSED;
 
-            if(Data.Base.SctpState.HasValue)
+            if (Data.Base.SctpState.HasValue)
             {
                 Data.Base.SctpState = FBS.SctpAssociation.SctpState.CLOSED;
             }
@@ -111,7 +111,13 @@ namespace Tubumu.Mediasoup
             // Build Request
             var bufferBuilder = Channel.BufferPool.Get();
 
-            var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_GET_STATS, null, null, Internal.TransportId);
+            var response = await Channel.RequestAsync(
+                bufferBuilder,
+                Method.TRANSPORT_GET_STATS,
+                null,
+                null,
+                Internal.TransportId
+            );
             var data = response.Value.BodyAsWebRtcTransport_GetStatsResponse().UnPack();
 
             return new[] { data };
@@ -124,7 +130,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("OnConnectAsync() | WebRtcTransportId:{WebRtcTransportId}", TransportId);
 
-            if(parameters is not ConnectRequestT connectRequestT)
+            if (parameters is not ConnectRequestT connectRequestT)
             {
                 throw new Exception($"{nameof(parameters)} type is not FBS.WebRtcTransport.ConnectRequestT");
             }
@@ -134,10 +140,13 @@ namespace Tubumu.Mediasoup
 
             var connectRequestOffset = ConnectRequest.Pack(bufferBuilder, connectRequestT);
 
-            var response = await Channel.RequestAsync(bufferBuilder, Method.WEBRTCTRANSPORT_CONNECT,
-                 FBS.Request.Body.WebRtcTransport_ConnectRequest,
-                 connectRequestOffset.Value,
-                 Internal.TransportId);
+            var response = await Channel.RequestAsync(
+                bufferBuilder,
+                Method.WEBRTCTRANSPORT_CONNECT,
+                FBS.Request.Body.WebRtcTransport_ConnectRequest,
+                connectRequestOffset.Value,
+                Internal.TransportId
+            );
 
             /* Decode Response. */
             var data = response.Value.BodyAsWebRtcTransport_ConnectResponse().UnPack();
@@ -153,9 +162,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("RestartIceAsync() | WebRtcTransportId:{WebRtcTransportId}", TransportId);
 
-            using(await CloseLock.ReadLockAsync())
+            await using (await CloseLock.ReadLockAsync())
             {
-                if(Closed)
+                if (Closed)
                 {
                     throw new InvalidStateException("Transport closed");
                 }
@@ -163,10 +172,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = Channel.BufferPool.Get();
 
-                var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_RESTART_ICE,
-                     null,
-                     null,
-                     Internal.TransportId);
+                var response = await Channel.RequestAsync(
+                    bufferBuilder,
+                    Method.TRANSPORT_RESTART_ICE,
+                    null,
+                    null,
+                    Internal.TransportId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsTransport_RestartIceResponse().UnPack();
@@ -192,88 +204,94 @@ namespace Tubumu.Mediasoup
 
         private void OnNotificationHandle(string handlerId, Event @event, Notification notification)
         {
-            if(handlerId != Internal.TransportId)
+            if (handlerId != Internal.TransportId)
             {
                 return;
             }
 
-            switch(@event)
+            switch (@event)
             {
                 case Event.WEBRTCTRANSPORT_ICE_STATE_CHANGE:
-                    {
-                        var iceStateChangeNotification = notification.BodyAsWebRtcTransport_IceStateChangeNotification().UnPack();
+                {
+                    var iceStateChangeNotification = notification.BodyAsWebRtcTransport_IceStateChangeNotification().UnPack();
 
-                        Data.IceState = iceStateChangeNotification.IceState;
+                    Data.IceState = iceStateChangeNotification.IceState;
 
-                        Emit("icestatechange", Data.IceState);
+                    Emit("icestatechange", Data.IceState);
 
-                        // Emit observer event.
-                        Observer.Emit("icestatechange", Data.IceState);
+                    // Emit observer event.
+                    Observer.Emit("icestatechange", Data.IceState);
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.WEBRTCTRANSPORT_ICE_SELECTED_TUPLE_CHANGE:
-                    {
-                        var iceSelectedTupleChangeNotification = notification.BodyAsWebRtcTransport_IceSelectedTupleChangeNotification().UnPack();
+                {
+                    var iceSelectedTupleChangeNotification = notification
+                        .BodyAsWebRtcTransport_IceSelectedTupleChangeNotification()
+                        .UnPack();
 
-                        Data.IceSelectedTuple = iceSelectedTupleChangeNotification.Tuple;
+                    Data.IceSelectedTuple = iceSelectedTupleChangeNotification.Tuple;
 
-                        Emit("iceselectedtuplechange", Data.IceSelectedTuple);
+                    Emit("iceselectedtuplechange", Data.IceSelectedTuple);
 
-                        // Emit observer event.
-                        Observer.Emit("iceselectedtuplechange", Data.IceSelectedTuple);
+                    // Emit observer event.
+                    Observer.Emit("iceselectedtuplechange", Data.IceSelectedTuple);
 
-                        break;
-                    }
+                    break;
+                }
 
                 case Event.WEBRTCTRANSPORT_DTLS_STATE_CHANGE:
+                {
+                    var dtlsStateChangeNotification = notification.BodyAsWebRtcTransport_DtlsStateChangeNotification().UnPack();
+
+                    Data.DtlsState = dtlsStateChangeNotification.DtlsState;
+
+                    if (Data.DtlsState == DtlsState.CONNECTED)
                     {
-                        var dtlsStateChangeNotification = notification.BodyAsWebRtcTransport_DtlsStateChangeNotification().UnPack();
-
-                        Data.DtlsState = dtlsStateChangeNotification.DtlsState;
-
-                        if(Data.DtlsState == DtlsState.CONNECTED)
-                        {
-                            // TODO: DtlsRemoteCert donot exists.
-                            // Data.DtlsRemoteCert = dtlsStateChangeNotification.RemoteCert;
-                        }
-
-                        Emit("dtlsstatechange", Data.DtlsState);
-
-                        // Emit observer event.
-                        Observer.Emit("dtlsstatechange", Data.DtlsState);
-
-                        break;
+                        // TODO: DtlsRemoteCert donot exists.
+                        // Data.DtlsRemoteCert = dtlsStateChangeNotification.RemoteCert;
                     }
+
+                    Emit("dtlsstatechange", Data.DtlsState);
+
+                    // Emit observer event.
+                    Observer.Emit("dtlsstatechange", Data.DtlsState);
+
+                    break;
+                }
                 case Event.TRANSPORT_SCTP_STATE_CHANGE:
-                    {
-                        var sctpStateChangeNotification = notification.BodyAsTransport_SctpStateChangeNotification().UnPack();
+                {
+                    var sctpStateChangeNotification = notification.BodyAsTransport_SctpStateChangeNotification().UnPack();
 
-                        Data.Base.SctpState = sctpStateChangeNotification.SctpState;
+                    Data.Base.SctpState = sctpStateChangeNotification.SctpState;
 
-                        Emit("sctpstatechange", Data.Base.SctpState);
+                    Emit("sctpstatechange", Data.Base.SctpState);
 
-                        // Emit observer event.
-                        Observer.Emit("sctpstatechange", Data.Base.SctpState);
+                    // Emit observer event.
+                    Observer.Emit("sctpstatechange", Data.Base.SctpState);
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.TRANSPORT_TRACE:
-                    {
-                        var traceNotification = notification.BodyAsTransport_TraceNotification().UnPack();
+                {
+                    var traceNotification = notification.BodyAsTransport_TraceNotification().UnPack();
 
-                        Emit("trace", traceNotification);
+                    Emit("trace", traceNotification);
 
-                        // Emit observer event.
-                        Observer.Emit("trace", traceNotification);
+                    // Emit observer event.
+                    Observer.Emit("trace", traceNotification);
 
-                        break;
-                    }
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError("OnNotificationHandle() | WebRtcTransport:{TransportId} Ignoring unknown event:{@event}", TransportId, @event);
-                        break;
-                    }
+                {
+                    _logger.LogError(
+                        "OnNotificationHandle() | WebRtcTransport:{TransportId} Ignoring unknown event:{@event}",
+                        TransportId,
+                        @event
+                    );
+                    break;
+                }
             }
         }
 

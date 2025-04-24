@@ -41,7 +41,12 @@ namespace System.Net.Http
         /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
         /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
         /// </summary>
-        public static async Task<T?> PostFromJsonAsync<T>(this HttpClient client, Uri requestUri, HttpContent? content, CancellationToken cancellationToken)
+        public static async Task<T?> PostFromJsonAsync<T>(
+            this HttpClient client,
+            Uri requestUri,
+            HttpContent? content,
+            CancellationToken cancellationToken
+        )
         {
             content ??= new StringContent(string.Empty);
             var message = await client.PostAsync(requestUri, content, cancellationToken);
@@ -55,7 +60,12 @@ namespace System.Net.Http
         /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
         /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
         /// </summary>
-        public static Task<T?> PostFromJsonAsync<T>(this HttpClient client, string requestUri, HttpContent? content, CancellationToken cancellationToken)
+        public static Task<T?> PostFromJsonAsync<T>(
+            this HttpClient client,
+            string requestUri,
+            HttpContent? content,
+            CancellationToken cancellationToken
+        )
         {
             return client.PostFromJsonAsync<T>(new Uri(requestUri), content, cancellationToken);
         }
@@ -82,10 +92,15 @@ namespace System.Net.Http
         /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
         /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
         /// </summary>
-        public static Task<T?> PostAsJsonFromJsonAsync<K, T>(this HttpClient client, Uri requestUri, K? obj, CancellationToken cancellationToken)
+        public static Task<T?> PostAsJsonFromJsonAsync<K, T>(
+            this HttpClient client,
+            Uri requestUri,
+            K? obj,
+            CancellationToken cancellationToken
+        )
         {
             StringContent? content = null;
-            if(obj != null)
+            if (obj != null)
             {
                 var json = obj.ToJson();
                 content = new StringContent(json);
@@ -99,7 +114,12 @@ namespace System.Net.Http
         /// Sends a POST request to the specified Uri containing the value serialized as JSON in the request body
         /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
         /// </summary>
-        public static Task<T?> PostAsJsonFromJsonAsync<K, T>(this HttpClient client, string requestUri, K obj, CancellationToken cancellationToken)
+        public static Task<T?> PostAsJsonFromJsonAsync<K, T>(
+            this HttpClient client,
+            string requestUri,
+            K obj,
+            CancellationToken cancellationToken
+        )
         {
             return client.PostAsJsonFromJsonAsync<K, T>(new Uri(requestUri), obj, cancellationToken);
         }
@@ -130,7 +150,12 @@ namespace System.Net.Http
         /// Sends a Put request to the specified Uri containing the value serialized as JSON in the request body
         /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
         /// </summary>
-        public static async Task<T?> PutFromJsonAsync<T>(this HttpClient client, Uri requestUri, HttpContent? content, CancellationToken cancellationToken)
+        public static async Task<T?> PutFromJsonAsync<T>(
+            this HttpClient client,
+            Uri requestUri,
+            HttpContent? content,
+            CancellationToken cancellationToken
+        )
         {
             content ??= new StringContent(string.Empty);
             var message = await client.PutAsync(requestUri, content, cancellationToken);
@@ -144,7 +169,12 @@ namespace System.Net.Http
         /// Sends a Put request to the specified Uri containing the value serialized as JSON in the request body
         /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
         /// </summary>
-        public static Task<T?> PutFromJsonAsync<T>(this HttpClient client, string requestUri, HttpContent? content, CancellationToken cancellationToken)
+        public static Task<T?> PutFromJsonAsync<T>(
+            this HttpClient client,
+            string requestUri,
+            HttpContent? content,
+            CancellationToken cancellationToken
+        )
         {
             return client.PutFromJsonAsync<T>(new Uri(requestUri), content, cancellationToken);
         }
@@ -171,10 +201,15 @@ namespace System.Net.Http
         /// Sends a Put request to the specified Uri containing the value serialized as JSON in the request body
         /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
         /// </summary>
-        public static Task<T?> PutAsJsonFromJsonAsync<K, T>(this HttpClient client, Uri requestUri, K? obj, CancellationToken cancellationToken)
+        public static Task<T?> PutAsJsonFromJsonAsync<K, T>(
+            this HttpClient client,
+            Uri requestUri,
+            K? obj,
+            CancellationToken cancellationToken
+        )
         {
             StringContent? content = null;
-            if(obj != null)
+            if (obj != null)
             {
                 var json = obj.ToJson();
                 content = new StringContent(json);
@@ -188,7 +223,12 @@ namespace System.Net.Http
         /// Sends a Put request to the specified Uri containing the value serialized as JSON in the request body
         /// and returns the value that results from deserializing the response body as JSON in an asynchronous operation.
         /// </summary>
-        public static Task<T?> PutAsJsonFromJsonAsync<K, T>(this HttpClient client, string requestUri, K obj, CancellationToken cancellationToken)
+        public static Task<T?> PutAsJsonFromJsonAsync<K, T>(
+            this HttpClient client,
+            string requestUri,
+            K obj,
+            CancellationToken cancellationToken
+        )
         {
             return client.PutAsJsonFromJsonAsync<K, T>(new Uri(requestUri), obj, cancellationToken);
         }

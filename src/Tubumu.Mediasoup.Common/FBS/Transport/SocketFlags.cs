@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Transport
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct SocketFlags : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static SocketFlags GetRootAsSocketFlags(ByteBuffer _bb) { return GetRootAsSocketFlags(_bb, new SocketFlags()); }
         public static SocketFlags GetRootAsSocketFlags(ByteBuffer _bb, SocketFlags obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -59,4 +63,30 @@ namespace FBS.Transport
               _o.UdpReusePort);
         }
     }
+
+    public class SocketFlagsT
+    {
+        public bool Ipv6Only { get; set; }
+
+        public bool UdpReusePort { get; set; }
+
+        public SocketFlagsT()
+        {
+            this.Ipv6Only = false;
+            this.UdpReusePort = false;
+        }
+    }
+
+
+    static public class SocketFlagsVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*Ipv6Only*/, 1 /*bool*/, 1, false)
+              && verifier.VerifyField(tablePos, 6 /*UdpReusePort*/, 1 /*bool*/, 1, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

@@ -6,11 +6,12 @@ namespace Tubumu.Libuv.Threading.Tasks
 {
     public static class StreamExtensions
     {
-        public static Task<TData?> ReadStructAsync<TData>(this IUVStream<TData> stream) where TData : struct
+        public static Task<TData?> ReadStructAsync<TData>(this IUVStream<TData> stream)
+            where TData : struct
         {
             var tcs = new TaskCompletionSource<TData?>();
 #if TASK_STATUS
-			HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
+            HelperFunctions.SetStatus(tcs.Task, TaskStatus.Running);
 #endif
 
             Action<Exception?, TData?>? finish = null;
@@ -30,13 +31,16 @@ namespace Tubumu.Libuv.Threading.Tasks
                 finish?.Invoke(null, null);
             }
 
-            finish = HelperFunctions.Finish(tcs, () =>
-            {
-                stream.Pause();
-                stream.Error -= error;
-                stream.Complete -= end;
-                stream.Data -= data;
-            });
+            finish = HelperFunctions.Finish(
+                tcs,
+                () =>
+                {
+                    stream.Pause();
+                    stream.Error -= error;
+                    stream.Complete -= end;
+                    stream.Data -= data;
+                }
+            );
 
             try
             {
@@ -45,7 +49,7 @@ namespace Tubumu.Libuv.Threading.Tasks
                 stream.Data += data;
                 stream.Resume();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 finish(e, null);
             }

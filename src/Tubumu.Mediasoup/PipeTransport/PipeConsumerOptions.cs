@@ -1,6 +1,4 @@
 ﻿namespace Tubumu.Mediasoup
 {
-    public class PipeConsumerOptions : ConsumerOptionsBase
-    {
-    }
+    public class PipeConsumerOptions : ConsumerOptionsBase { }
 }

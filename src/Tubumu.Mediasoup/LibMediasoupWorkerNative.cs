@@ -31,8 +31,13 @@ namespace Tubumu.Mediasoup
         /// <param name="ctx">void*</param>
         /// <returns>Returns `ChannelReadFree` on successful read that must be used to free `message`</returns>
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        internal delegate ChannelReadFreeFn? ChannelReadFn(IntPtr message, IntPtr messageLen, size_t messageCtx,
-            IntPtr handle, ChannelReadCtx ctx);
+        internal delegate ChannelReadFreeFn? ChannelReadFn(
+            IntPtr message,
+            IntPtr messageLen,
+            size_t messageCtx,
+            IntPtr handle,
+            ChannelReadCtx ctx
+        );
 
         /// <summary>
         /// Read from Channel
@@ -66,8 +71,14 @@ namespace Tubumu.Mediasoup
         /// <param name="channelWriteFn">Channel write function</param>
         /// <param name="channelWriteCtx">Channel write function context</param>
         /// <returns>Returns `0` on success, or an error code `< 0` on failure</returns>
-        [DllImport(Lib, EntryPoint = "mediasoup_worker_run", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        internal static extern int MediasoupWorkerRun(int argc,
+        [DllImport(
+            Lib,
+            EntryPoint = "mediasoup_worker_run",
+            CallingConvention = CallingConvention.Cdecl,
+            CharSet = CharSet.Unicode
+        )]
+        internal static extern int MediasoupWorkerRun(
+            int argc,
             [In] string[] argv,
             string version,
             int consumerChannelFd,
@@ -76,6 +87,6 @@ namespace Tubumu.Mediasoup
             ChannelReadCtx channelReadCtx,
             ChannelWriteFn channelWriteFn,
             ChannelWriteCtx channelWriteCtx
-            );
+        );
     }
 }

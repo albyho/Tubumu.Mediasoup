@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Transport
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct RecvRtpHeaderExtensions : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static RecvRtpHeaderExtensions GetRootAsRecvRtpHeaderExtensions(ByteBuffer _bb) { return GetRootAsRecvRtpHeaderExtensions(_bb, new RecvRtpHeaderExtensions()); }
         public static RecvRtpHeaderExtensions GetRootAsRecvRtpHeaderExtensions(ByteBuffer _bb, RecvRtpHeaderExtensions obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -80,15 +84,14 @@ namespace FBS.Transport
 
     public class RecvRtpHeaderExtensionsT
     {
-        [JsonPropertyName("mid")]
         public byte? Mid { get; set; }
-        [JsonPropertyName("rid")]
+
         public byte? Rid { get; set; }
-        [JsonPropertyName("rrid")]
+
         public byte? Rrid { get; set; }
-        [JsonPropertyName("abs_send_time")]
+
         public byte? AbsSendTime { get; set; }
-        [JsonPropertyName("transport_wide_cc01")]
+
         public byte? TransportWideCc01 { get; set; }
 
         public RecvRtpHeaderExtensionsT()
@@ -100,4 +103,20 @@ namespace FBS.Transport
             this.TransportWideCc01 = null;
         }
     }
+
+
+    static public class RecvRtpHeaderExtensionsVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*Mid*/, 1 /*byte*/, 1, false)
+              && verifier.VerifyField(tablePos, 6 /*Rid*/, 1 /*byte*/, 1, false)
+              && verifier.VerifyField(tablePos, 8 /*Rrid*/, 1 /*byte*/, 1, false)
+              && verifier.VerifyField(tablePos, 10 /*AbsSendTime*/, 1 /*byte*/, 1, false)
+              && verifier.VerifyField(tablePos, 12 /*TransportWideCc01*/, 1 /*byte*/, 1, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

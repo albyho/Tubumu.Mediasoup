@@ -113,7 +113,6 @@ namespace Tubumu.Libuv.Threading.Tasks
         }
 
         public static Task<int?> ReadAsync(this UVFile file, byte[] data, int index, int count)
-
         {
             return HelperFunctions.Wrap<byte[], int, int, int?>(data, index, count, file.Read);
         }
@@ -178,7 +177,6 @@ namespace Tubumu.Libuv.Threading.Tasks
         }
 
         public static Task<int?> WriteAsync(this UVFile file, byte[] data, int index, int count)
-
         {
             return HelperFunctions.Wrap<byte[], int, int, int?>(data, index, count, file.Write);
         }

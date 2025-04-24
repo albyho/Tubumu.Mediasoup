@@ -29,13 +29,15 @@ namespace Tubumu.Libuv
                 SynchronizationContext.SetSynchronizationContext(new LoopSynchronizationContext(loop));
                 var task = asyncMethod();
 #if TASK_STATUS
-				HelperFunctions.SetStatus(task, TaskStatus.Running);
+                HelperFunctions.SetStatus(task, TaskStatus.Running);
 #endif
-                task.ContinueWith((t) =>
-                {
-                    loop.Unref();
-                    loop.Sync(() => { });
-                });
+                task.ContinueWith(
+                    (t) =>
+                    {
+                        loop.Unref();
+                        loop.Sync(() => { });
+                    }
+                );
                 loop.Ref();
 
                 var returnValue = loop.Run();
@@ -52,13 +54,13 @@ namespace Tubumu.Libuv
         {
             get
             {
-                if(currentLoop != null)
+                if (currentLoop != null)
                 {
                     return currentLoop;
                 }
 
                 var current = SynchronizationContext.Current;
-                if(current is LoopSynchronizationContext context)
+                if (current is LoopSynchronizationContext context)
                 {
                     return context.Loop;
                 }

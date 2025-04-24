@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Transport
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct Options : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static Options GetRootAsOptions(ByteBuffer _bb) { return GetRootAsOptions(_bb, new Options()); }
         public static Options GetRootAsOptions(ByteBuffer _bb, Options obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -100,21 +104,20 @@ namespace FBS.Transport
 
     public class OptionsT
     {
-        [JsonPropertyName("direct")]
         public bool Direct { get; set; }
-        [JsonPropertyName("max_message_size")]
+
         public uint? MaxMessageSize { get; set; }
-        [JsonPropertyName("initial_available_outgoing_bitrate")]
+
         public uint? InitialAvailableOutgoingBitrate { get; set; }
-        [JsonPropertyName("enable_sctp")]
+
         public bool EnableSctp { get; set; }
-        [JsonPropertyName("num_sctp_streams")]
+
         public FBS.SctpParameters.NumSctpStreamsT NumSctpStreams { get; set; }
-        [JsonPropertyName("max_sctp_message_size")]
+
         public uint MaxSctpMessageSize { get; set; }
-        [JsonPropertyName("sctp_send_buffer_size")]
+
         public uint SctpSendBufferSize { get; set; }
-        [JsonPropertyName("is_data_channel")]
+
         public bool IsDataChannel { get; set; }
 
         public OptionsT()
@@ -129,4 +132,23 @@ namespace FBS.Transport
             this.IsDataChannel = false;
         }
     }
+
+
+    static public class OptionsVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*Direct*/, 1 /*bool*/, 1, false)
+              && verifier.VerifyField(tablePos, 6 /*MaxMessageSize*/, 4 /*uint*/, 4, false)
+              && verifier.VerifyField(tablePos, 8 /*InitialAvailableOutgoingBitrate*/, 4 /*uint*/, 4, false)
+              && verifier.VerifyField(tablePos, 10 /*EnableSctp*/, 1 /*bool*/, 1, false)
+              && verifier.VerifyTable(tablePos, 12 /*NumSctpStreams*/, FBS.SctpParameters.NumSctpStreamsVerify.Verify, false)
+              && verifier.VerifyField(tablePos, 14 /*MaxSctpMessageSize*/, 4 /*uint*/, 4, false)
+              && verifier.VerifyField(tablePos, 16 /*SctpSendBufferSize*/, 4 /*uint*/, 4, false)
+              && verifier.VerifyField(tablePos, 18 /*IsDataChannel*/, 1 /*bool*/, 1, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

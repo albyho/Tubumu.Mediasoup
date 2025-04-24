@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.SrtpParameters
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum SrtpCryptoSuite : byte
     {
@@ -23,4 +24,6 @@ namespace FBS.SrtpParameters
         [EnumMember(Value = "AES_CM_128_HMAC_SHA1_32")]
         AES_CM_128_HMAC_SHA1_32 = 3,
     }
+
+
 }

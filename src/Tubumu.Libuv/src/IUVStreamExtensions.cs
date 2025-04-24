@@ -12,7 +12,13 @@ namespace Tubumu.Libuv
 
         #region Write
 
-        public static void Write(this IUVStream<ArraySegment<byte>> stream, byte[] data, int index, int count, Action<Exception?>? callback)
+        public static void Write(
+            this IUVStream<ArraySegment<byte>> stream,
+            byte[] data,
+            int index,
+            int count,
+            Action<Exception?>? callback
+        )
         {
             stream.Write(new ArraySegment<byte>(data, index, count), callback);
         }
@@ -42,7 +48,12 @@ namespace Tubumu.Libuv
 
         #region Write string
 
-        public static int Write(this IUVStream<ArraySegment<byte>> stream, Encoding enc, string text, Action<Exception?>? callback)
+        public static int Write(
+            this IUVStream<ArraySegment<byte>> stream,
+            Encoding enc,
+            string text,
+            Action<Exception?>? callback
+        )
         {
             var bytes = enc.GetBytes(text);
             stream.Write(bytes, callback);
@@ -82,7 +93,13 @@ namespace Tubumu.Libuv
 
         #region End
 
-        public static void End(this IUVStream<ArraySegment<byte>> stream, byte[] data, int index, int count, Action<Exception?>? callback)
+        public static void End(
+            this IUVStream<ArraySegment<byte>> stream,
+            byte[] data,
+            int index,
+            int count,
+            Action<Exception?>? callback
+        )
         {
             stream.Write(data, index, count);
             stream.Shutdown(callback);
@@ -115,7 +132,12 @@ namespace Tubumu.Libuv
             stream.End(data, null);
         }
 
-        public static int End(this IUVStream<ArraySegment<byte>> stream, Encoding encoding, string text, Action<Exception?>? callback)
+        public static int End(
+            this IUVStream<ArraySegment<byte>> stream,
+            Encoding encoding,
+            string text,
+            Action<Exception?>? callback
+        )
         {
             int size = stream.Write(encoding, text);
             stream.Shutdown(callback);

@@ -114,9 +114,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CloseAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -134,16 +134,21 @@ namespace Tubumu.Mediasoup
                     DataConsumerId = _internal.DataConsumerId,
                 };
 
-                var closeDataConsumerRequestOffset = FBS.Transport.CloseDataConsumerRequest.Pack(bufferBuilder, closeDataConsumerRequest);
+                var closeDataConsumerRequestOffset = FBS.Transport.CloseDataConsumerRequest.Pack(
+                    bufferBuilder,
+                    closeDataConsumerRequest
+                );
 
                 // Fire and forget
-                _channel.RequestAsync(
-                    bufferBuilder,
-                    Method.TRANSPORT_CLOSE_DATACONSUMER,
-                    FBS.Request.Body.Transport_CloseDataConsumerRequest,
-                    closeDataConsumerRequestOffset.Value,
-                    _internal.TransportId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.TRANSPORT_CLOSE_DATACONSUMER,
+                        FBS.Request.Body.Transport_CloseDataConsumerRequest,
+                        closeDataConsumerRequestOffset.Value,
+                        _internal.TransportId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("@close");
 
@@ -159,9 +164,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("TransportClosedAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -185,9 +190,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("DumpAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -195,10 +200,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_DUMP,
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.DATACONSUMER_DUMP,
                     null,
                     null,
-                    _internal.DataConsumerId);
+                    _internal.DataConsumerId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsDataConsumer_DumpResponse().UnPack();
@@ -213,9 +221,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetStatsAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -223,10 +231,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_GET_STATS,
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.DATACONSUMER_GET_STATS,
                     null,
                     null,
-                    _internal.DataConsumerId);
+                    _internal.DataConsumerId
+                );
 
                 // Decode Response
                 var data = response.Value.BodyAsDataConsumer_GetStatsResponse().UnPack();
@@ -242,9 +253,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("PauseAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -253,17 +264,14 @@ namespace Tubumu.Mediasoup
                 var bufferBuilder = _channel.BufferPool.Get();
 
                 /* Ignore Response. */
-                _ = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE,
-                     null,
-                     null,
-                     _internal.DataConsumerId);
+                _ = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE, null, null, _internal.DataConsumerId);
 
                 var wasPaused = _paused;
 
                 _paused = true;
 
                 // Emit observer event.
-                if(!wasPaused && !_dataProducerPaused)
+                if (!wasPaused && !_dataProducerPaused)
                 {
                     Observer.Emit("pause");
                 }
@@ -277,9 +285,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ResumeAsync() | DataConsumer:{DataConsumerId}", DataConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -287,17 +295,14 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE,
-                    null,
-                    null,
-                    _internal.DataConsumerId);
+                await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_PAUSE, null, null, _internal.DataConsumerId);
 
                 var wasPaused = _paused;
 
                 _paused = false;
 
                 // Emit observer event.
-                if(wasPaused && !_dataProducerPaused)
+                if (wasPaused && !_dataProducerPaused)
                 {
                     Observer.Emit("resume");
                 }
@@ -311,9 +316,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("SetBufferedAmountLowThreshold() | Threshold:{threshold}", threshold);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -321,21 +326,23 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var setBufferedAmountLowThresholdRequest = new SetBufferedAmountLowThresholdRequestT
-                {
-                    Threshold = threshold
-                };
+                var setBufferedAmountLowThresholdRequest = new SetBufferedAmountLowThresholdRequestT { Threshold = threshold };
 
-                var setBufferedAmountLowThresholdRequestOffset = SetBufferedAmountLowThresholdRequest.Pack(bufferBuilder, setBufferedAmountLowThresholdRequest);
+                var setBufferedAmountLowThresholdRequestOffset = SetBufferedAmountLowThresholdRequest.Pack(
+                    bufferBuilder,
+                    setBufferedAmountLowThresholdRequest
+                );
 
                 // Fire and forget
-                _channel.RequestAsync(
-                    bufferBuilder,
-                    Method.DATACONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD,
-                    FBS.Request.Body.DataConsumer_SetBufferedAmountLowThresholdRequest,
-                    setBufferedAmountLowThresholdRequestOffset.Value,
-                    _internal.DataConsumerId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.DATACONSUMER_SET_BUFFERED_AMOUNT_LOW_THRESHOLD,
+                        FBS.Request.Body.DataConsumer_SetBufferedAmountLowThresholdRequest,
+                        setBufferedAmountLowThresholdRequestOffset.Value,
+                        _internal.DataConsumerId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -365,7 +372,7 @@ namespace Tubumu.Mediasoup
             ppid ??= !message.IsNullOrEmpty() ? 51u : 56u;
 
             // Ensure we honor PPIDs.
-            if(ppid == 56)
+            if (ppid == 56)
             {
                 message = " ";
             }
@@ -383,7 +390,7 @@ namespace Tubumu.Mediasoup
             ppid ??= !message.IsNullOrEmpty() ? 53u : 57u;
 
             // Ensure we honor PPIDs.
-            if(ppid == 57)
+            if (ppid == 57)
             {
                 message = new byte[1];
             }
@@ -393,9 +400,9 @@ namespace Tubumu.Mediasoup
 
         private async Task SendInternalAsync(byte[] data, uint ppid)
         {
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -403,20 +410,20 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var sendRequest = new SendRequestT
-                {
-                    Ppid = ppid,
-                    Data = data
-                };
+                var sendRequest = new SendRequestT { Ppid = ppid, Data = data };
 
                 var sendRequestOffset = SendRequest.Pack(bufferBuilder, sendRequest);
 
                 // Fire and forget
-                _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_SEND,
-                    FBS.Request.Body.DataConsumer_SendRequest,
-                    sendRequestOffset.Value,
-                    _internal.DataConsumerId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.DATACONSUMER_SEND,
+                        FBS.Request.Body.DataConsumer_SendRequest,
+                        sendRequestOffset.Value,
+                        _internal.DataConsumerId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
             }
         }
 
@@ -427,9 +434,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetBufferedAmountAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -437,10 +444,13 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_GET_BUFFERED_AMOUNT,
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.DATACONSUMER_GET_BUFFERED_AMOUNT,
                     null,
                     null,
-                    _internal.DataConsumerId);
+                    _internal.DataConsumerId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsDataConsumer_GetBufferedAmountResponse().UnPack();
@@ -455,9 +465,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("SetSubchannelsAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -465,17 +475,17 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var setSubchannelsRequest = new SetSubchannelsRequestT
-                {
-                    Subchannels = subchannels
-                };
+                var setSubchannelsRequest = new SetSubchannelsRequestT { Subchannels = subchannels };
 
                 var setSubchannelsRequestOffset = SetSubchannelsRequest.Pack(bufferBuilder, setSubchannelsRequest);
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_SET_SUBCHANNELS,
-                     FBS.Request.Body.DataConsumer_SetSubchannelsRequest,
-                     setSubchannelsRequestOffset.Value,
-                     _internal.DataConsumerId);
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.DATACONSUMER_SET_SUBCHANNELS,
+                    FBS.Request.Body.DataConsumer_SetSubchannelsRequest,
+                    setSubchannelsRequestOffset.Value,
+                    _internal.DataConsumerId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsDataConsumer_SetSubchannelsResponse().UnPack();
@@ -491,9 +501,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("AddSubchannelAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -501,17 +511,17 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var addSubchannelsRequest = new AddSubchannelRequestT
-                {
-                    Subchannel = subchannel
-                };
+                var addSubchannelsRequest = new AddSubchannelRequestT { Subchannel = subchannel };
 
                 var addSubchannelRequestOffset = AddSubchannelRequest.Pack(bufferBuilder, addSubchannelsRequest);
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_ADD_SUBCHANNEL,
-                     FBS.Request.Body.DataConsumer_AddSubchannelRequest,
-                     addSubchannelRequestOffset.Value,
-                     _internal.DataConsumerId);
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.DATACONSUMER_ADD_SUBCHANNEL,
+                    FBS.Request.Body.DataConsumer_AddSubchannelRequest,
+                    addSubchannelRequestOffset.Value,
+                    _internal.DataConsumerId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsDataConsumer_AddSubchannelResponse().UnPack();
@@ -527,9 +537,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("RemoveSubchannelAsync()");
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("DataConsumer closed");
                 }
@@ -537,17 +547,17 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var removeSubchannelsRequest = new RemoveSubchannelRequestT
-                {
-                    Subchannel = subchannel
-                };
+                var removeSubchannelsRequest = new RemoveSubchannelRequestT { Subchannel = subchannel };
 
                 var removeSubchannelRequestOffset = RemoveSubchannelRequest.Pack(bufferBuilder, removeSubchannelsRequest);
 
-                var response = await _channel.RequestAsync(bufferBuilder, Method.DATACONSUMER_REMOVE_SUBCHANNEL,
-                     FBS.Request.Body.DataConsumer_RemoveSubchannelRequest,
-                     removeSubchannelRequestOffset.Value,
-                     _internal.DataConsumerId);
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.DATACONSUMER_REMOVE_SUBCHANNEL,
+                    FBS.Request.Body.DataConsumer_RemoveSubchannelRequest,
+                    removeSubchannelRequestOffset.Value,
+                    _internal.DataConsumerId
+                );
 
                 /* Decode Response. */
                 var data = response.Value.BodyAsDataConsumer_AddSubchannelResponse().UnPack();
@@ -567,101 +577,106 @@ namespace Tubumu.Mediasoup
         private async void OnNotificationHandle(string handlerId, Event @event, Notification notification)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            if(handlerId != DataConsumerId)
+            if (handlerId != DataConsumerId)
             {
                 return;
             }
 
-            switch(@event)
+            switch (@event)
             {
                 case Event.DATACONSUMER_DATAPRODUCER_CLOSE:
+                {
+                    await using (await _closeLock.WriteLockAsync())
                     {
-                        using(await _closeLock.WriteLockAsync())
-                        {
-                            if(_closed)
-                            {
-                                break;
-                            }
-
-                            _closed = true;
-
-                            // Remove notification subscriptions.
-                            _channel.OnNotification -= OnNotificationHandle;
-
-                            Emit("@dataproducerclose");
-                            Emit("dataproducerclose");
-
-                            // Emit observer event.
-                            Observer.Emit("close");
-                        }
-
-                        break;
-                    }
-                case Event.DATACONSUMER_DATAPRODUCER_PAUSE:
-                    {
-                        if(_dataProducerPaused)
+                        if (_closed)
                         {
                             break;
                         }
 
-                        _dataProducerPaused = true;
+                        _closed = true;
 
-                        Emit("dataproducerpause");
+                        // Remove notification subscriptions.
+                        _channel.OnNotification -= OnNotificationHandle;
+
+                        Emit("@dataproducerclose");
+                        Emit("dataproducerclose");
 
                         // Emit observer event.
-                        if(!_paused)
-                        {
-                            Observer.Emit("pause");
-                        }
+                        Observer.Emit("close");
+                    }
 
+                    break;
+                }
+                case Event.DATACONSUMER_DATAPRODUCER_PAUSE:
+                {
+                    if (_dataProducerPaused)
+                    {
                         break;
                     }
+
+                    _dataProducerPaused = true;
+
+                    Emit("dataproducerpause");
+
+                    // Emit observer event.
+                    if (!_paused)
+                    {
+                        Observer.Emit("pause");
+                    }
+
+                    break;
+                }
 
                 case Event.DATACONSUMER_DATAPRODUCER_RESUME:
+                {
+                    if (!_dataProducerPaused)
                     {
-                        if(!_dataProducerPaused)
-                        {
-                            break;
-                        }
-
-                        _dataProducerPaused = false;
-
-                        Emit("dataproducerresume");
-
-                        // Emit observer event.
-                        if(!_paused)
-                        {
-                            Observer.Emit("resume");
-                        }
-
                         break;
                     }
+
+                    _dataProducerPaused = false;
+
+                    Emit("dataproducerresume");
+
+                    // Emit observer event.
+                    if (!_paused)
+                    {
+                        Observer.Emit("resume");
+                    }
+
+                    break;
+                }
                 case Event.DATACONSUMER_SCTP_SENDBUFFER_FULL:
-                    {
-                        Emit("sctpsendbufferfull");
+                {
+                    Emit("sctpsendbufferfull");
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.DATACONSUMER_BUFFERED_AMOUNT_LOW:
-                    {
-                        var bufferedAmountLowNotification = notification.BodyAsDataConsumer_BufferedAmountLowNotification().UnPack();
+                {
+                    var bufferedAmountLowNotification = notification
+                        .BodyAsDataConsumer_BufferedAmountLowNotification()
+                        .UnPack();
 
-                        Emit("bufferedamountlow", bufferedAmountLowNotification.BufferedAmount);
+                    Emit("bufferedamountlow", bufferedAmountLowNotification.BufferedAmount);
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.DATACONSUMER_MESSAGE:
-                    {
-                        var messageNotification = notification.BodyAsDataConsumer_MessageNotification().UnPack();
-                        Emit("message", messageNotification);
+                {
+                    var messageNotification = notification.BodyAsDataConsumer_MessageNotification().UnPack();
+                    Emit("message", messageNotification);
 
-                        break;
-                    }
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError("OnNotificationHandle() | Ignoring unknown event \"{@event}\" in channel listener", @event);
-                        break;
-                    }
+                {
+                    _logger.LogError(
+                        "OnNotificationHandle() | Ignoring unknown event \"{@event}\" in channel listener",
+                        @event
+                    );
+                    break;
+                }
             }
         }
 

@@ -6,22 +6,42 @@ using System.Runtime.InteropServices;
 namespace Tubumu.Libuv
 {
     [StructLayout(LayoutKind.Sequential)]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+    // ReSharper disable once InconsistentNaming
     internal struct sockaddr
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
     {
         public short sin_family;
         public ushort sin_port;
     }
 
     [StructLayout(LayoutKind.Sequential, Size = 16)]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+    // ReSharper disable once InconsistentNaming
     internal struct sockaddr_in
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+
     {
-        public int a, b, c, d;
+        public int a,
+            b,
+            c,
+            d;
     }
 
     [StructLayout(LayoutKind.Sequential, Size = 28)]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+    // ReSharper disable once InconsistentNaming
     internal struct sockaddr_in6
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+
     {
-        public int a, b, c, d, e, f, g;
+        public int a,
+            b,
+            c,
+            d,
+            e,
+            f,
+            g;
     }
 
     public static class UV
@@ -70,14 +90,14 @@ namespace Tubumu.Libuv
 
         private static bool IsMapping(byte[] data)
         {
-            if(data.Length != 16)
+            if (data.Length != 16)
             {
                 return false;
             }
 
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
-                if(data[i] != 0)
+                if (data[i] != 0)
                 {
                     return false;
                 }
@@ -89,7 +109,7 @@ namespace Tubumu.Libuv
         private static IPAddress GetMapping(byte[] data)
         {
             var ip = new byte[4];
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 ip[i] = data[12 + i];
             }
@@ -100,13 +120,16 @@ namespace Tubumu.Libuv
         {
             var sa = (sockaddr*)sockaddr;
             var addr = new byte[64];
-            var r = sa->sin_family == 2 ? uv_ip4_name(sockaddr, addr, (IntPtr)addr.Length) : uv_ip6_name(sockaddr, addr, (IntPtr)addr.Length);
+            var r =
+                sa->sin_family == 2
+                    ? uv_ip4_name(sockaddr, addr, (IntPtr)addr.Length)
+                    : uv_ip6_name(sockaddr, addr, (IntPtr)addr.Length);
             Ensure.Success(r);
 
             IPAddress ip = IPAddress.Parse(System.Text.Encoding.ASCII.GetString(addr, 0, strlen(addr)));
 
             var bytes = ip.GetAddressBytes();
-            if(map && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 && IsMapping(bytes))
+            if (map && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 && IsMapping(bytes))
             {
                 ip = GetMapping(bytes);
             }
@@ -117,7 +140,7 @@ namespace Tubumu.Libuv
         private static int strlen(byte[] bytes)
         {
             int i = 0;
-            while(i < bytes.Length && bytes[i] != 0)
+            while (i < bytes.Length && bytes[i] != 0)
             {
                 i++;
             }
@@ -158,7 +181,7 @@ namespace Tubumu.Libuv
         internal static void Free(IntPtr ptr)
         {
 #if DEBUG
-            if(pointers.Contains(ptr))
+            if (pointers.Contains(ptr))
             {
                 pointers.Remove(ptr);
                 Marshal.FreeHGlobal(ptr);
@@ -168,7 +191,7 @@ namespace Tubumu.Libuv
                 Console.WriteLine("{0} not allocated", ptr);
             }
 #else
-			Marshal.FreeHGlobal(ptr);
+            Marshal.FreeHGlobal(ptr);
 #endif
         }
 
@@ -180,10 +203,10 @@ namespace Tubumu.Libuv
         {
             var e = pointers.GetEnumerator();
             Console.Write("[");
-            if(e.MoveNext())
+            if (e.MoveNext())
             {
                 Console.Write(e.Current);
-                while(e.MoveNext())
+                while (e.MoveNext())
                 {
                     Console.Write(", ");
                     Console.Write(e.Current);
@@ -191,7 +214,6 @@ namespace Tubumu.Libuv
             }
             Console.WriteLine("]");
         }
-
 #endif
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
@@ -233,16 +255,22 @@ namespace Tubumu.Libuv
             return GetIPEndPoint(ptr, true);
         }
 
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+        // ReSharper disable once InconsistentNaming
         internal delegate int bind(IntPtr handle, ref sockaddr_in sockaddr, uint flags);
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+        // ReSharper disable once InconsistentNaming
         internal delegate int bind6(IntPtr handle, ref sockaddr_in6 sockaddr, uint flags);
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
         internal static void Bind(Handle handle, bind bind, bind6 bind6, IPAddress ipAddress, int port, bool dualstack)
         {
             Ensure.AddressFamily(ipAddress);
 
             int r;
-            if(ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 sockaddr_in address = ToStruct(ipAddress.ToString(), port);
                 r = bind(handle.NativeHandle, ref address, 0);
@@ -255,7 +283,10 @@ namespace Tubumu.Libuv
             Ensure.Success(r);
         }
 
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+        // ReSharper disable once InconsistentNaming
         internal delegate int callback(IntPtr handle, ref IntPtr size);
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
         internal static string ToString(int size, callback func)
         {
@@ -270,7 +301,7 @@ namespace Tubumu.Libuv
             }
             finally
             {
-                if(ptr != IntPtr.Zero)
+                if (ptr != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(ptr);
                 }
@@ -289,7 +320,7 @@ namespace Tubumu.Libuv
             }
             finally
             {
-                if(ptr != IntPtr.Zero)
+                if (ptr != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(ptr);
                 }

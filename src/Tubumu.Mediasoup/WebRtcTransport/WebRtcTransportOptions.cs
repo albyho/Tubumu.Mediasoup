@@ -29,7 +29,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// ICE consent timeout (in seconds). If 0 it is disabled. Default 30.
         /// </summary>
-	    public byte IceConsentTimeout { get; set; } = 30;
+        public byte IceConsentTimeout { get; set; } = 30;
 
         /// <summary>
         /// Initial available outgoing bitrate (in bps). Default 600000.
@@ -44,10 +44,10 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// SCTP streams number.
         /// </summary>
-        public NumSctpStreamsT? NumSctpStreams { get; set; } = new NumSctpStreamsT { OS = 1024, MIS = 1024 };
+        public NumSctpStreamsT? NumSctpStreams { get; set; } = new NumSctpStreamsT { Os = 1024, Mis = 1024 };
 
         /// <summary>
-	    /// Maximum allowed size for SCTP messages sent by DataProducers.
+        /// Maximum allowed size for SCTP messages sent by DataProducers.
         /// Default 262144.
         /// </summary>
         public uint MaxSctpMessageSize { get; set; } = 262144;

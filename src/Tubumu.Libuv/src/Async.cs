@@ -9,9 +9,7 @@ namespace Tubumu.Libuv
         private static extern int uv_async_init(IntPtr loop, IntPtr handle, uv_handle_cb callback);
 
         public Async()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public Async(Loop loop)
             : base(loop, HandleType.UV_ASYNC)

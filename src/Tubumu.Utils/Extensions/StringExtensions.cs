@@ -94,13 +94,13 @@ namespace System
         /// <param name="times">重复次数</param>
         public static string Repeat(this string source, int times)
         {
-            if(string.IsNullOrEmpty(source) || times <= 0)
+            if (string.IsNullOrEmpty(source) || times <= 0)
             {
                 return source;
             }
 
             var sb = new StringBuilder();
-            while(times > 0)
+            while (times > 0)
             {
                 sb.Append(source);
                 times--;
@@ -114,7 +114,8 @@ namespace System
         /// </summary>
         /// <param name="source">源对象</param>
         /// <returns>字符串</returns>
-        public static string? ToNullableString<T>(this T source) where T : class
+        public static string? ToNullableString<T>(this T source)
+            where T : class
         {
             return source?.ToString();
         }
@@ -122,7 +123,8 @@ namespace System
         /// <summary>
         /// 如果源对象为 null ，则返回 string.Empty ，否则返回其 ToString 方法返回值
         /// </summary>
-        public static string ToEmptyableString<T>(this T? source) where T : class
+        public static string ToEmptyableString<T>(this T? source)
+            where T : class
         {
             return source != null ? source.ToString()! : string.Empty;
         }

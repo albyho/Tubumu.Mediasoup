@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Consumer
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct SetPriorityRequest : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static SetPriorityRequest GetRootAsSetPriorityRequest(ByteBuffer _bb) { return GetRootAsSetPriorityRequest(_bb, new SetPriorityRequest()); }
         public static SetPriorityRequest GetRootAsSetPriorityRequest(ByteBuffer _bb, SetPriorityRequest obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -53,4 +57,26 @@ namespace FBS.Consumer
               _o.Priority);
         }
     }
+
+    public class SetPriorityRequestT
+    {
+        public byte Priority { get; set; }
+
+        public SetPriorityRequestT()
+        {
+            this.Priority = 0;
+        }
+    }
+
+
+    static public class SetPriorityRequestVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*Priority*/, 1 /*byte*/, 1, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

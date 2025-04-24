@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Consumer
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct LayersChangeNotification : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static LayersChangeNotification GetRootAsLayersChangeNotification(ByteBuffer _bb) { return GetRootAsLayersChangeNotification(_bb, new LayersChangeNotification()); }
         public static LayersChangeNotification GetRootAsLayersChangeNotification(ByteBuffer _bb, LayersChangeNotification obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -54,4 +58,26 @@ namespace FBS.Consumer
               _layers);
         }
     }
+
+    public class LayersChangeNotificationT
+    {
+        public FBS.Consumer.ConsumerLayersT Layers { get; set; }
+
+        public LayersChangeNotificationT()
+        {
+            this.Layers = null;
+        }
+    }
+
+
+    static public class LayersChangeNotificationVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyTable(tablePos, 4 /*Layers*/, FBS.Consumer.ConsumerLayersVerify.Verify, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

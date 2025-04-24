@@ -22,7 +22,7 @@ namespace Tubumu.Meeting.Server.Authorization
         /// <summary>
         /// 获取 Refresh Token
         /// </summary>
-        Task<string> GetRefreshTokenAsync(int userId);
+        Task<string?> GetRefreshTokenAsync(int userId);
 
         /// <summary>
         /// 废弃 Refresh Token

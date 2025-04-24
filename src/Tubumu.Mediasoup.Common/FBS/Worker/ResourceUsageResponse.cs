@@ -3,15 +3,19 @@
 // </auto-generated>
 
 using System.Text.Json.Serialization;
-using Google.FlatBuffers;
 
 namespace FBS.Worker
 {
+
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::Google.FlatBuffers;
+
     public struct ResourceUsageResponse : IFlatbufferObject
     {
         private Table __p;
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
-        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_23_5_26(); }
+        public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_25_2_10(); }
         public static ResourceUsageResponse GetRootAsResourceUsageResponse(ByteBuffer _bb) { return GetRootAsResourceUsageResponse(_bb, new ResourceUsageResponse()); }
         public static ResourceUsageResponse GetRootAsResourceUsageResponse(ByteBuffer _bb, ResourceUsageResponse obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
@@ -143,4 +147,87 @@ namespace FBS.Worker
               _o.RuNivcsw);
         }
     }
+
+    public class ResourceUsageResponseT
+    {
+        [JsonPropertyName("ru_utime")]
+        public ulong RuUtime { get; set; }
+        [JsonPropertyName("ru_stime")]
+        public ulong RuStime { get; set; }
+        [JsonPropertyName("ru_maxrss")]
+        public ulong RuMaxrss { get; set; }
+        [JsonPropertyName("ru_ixrss")]
+        public ulong RuIxrss { get; set; }
+        [JsonPropertyName("ru_idrss")]
+        public ulong RuIdrss { get; set; }
+        [JsonPropertyName("ru_isrss")]
+        public ulong RuIsrss { get; set; }
+        [JsonPropertyName("ru_minflt")]
+        public ulong RuMinflt { get; set; }
+        [JsonPropertyName("ru_majflt")]
+        public ulong RuMajflt { get; set; }
+        [JsonPropertyName("ru_nswap")]
+        public ulong RuNswap { get; set; }
+        [JsonPropertyName("ru_inblock")]
+        public ulong RuInblock { get; set; }
+        [JsonPropertyName("ru_oublock")]
+        public ulong RuOublock { get; set; }
+        [JsonPropertyName("ru_msgsnd")]
+        public ulong RuMsgsnd { get; set; }
+        [JsonPropertyName("ru_msgrcv")]
+        public ulong RuMsgrcv { get; set; }
+        [JsonPropertyName("ru_nsignals")]
+        public ulong RuNsignals { get; set; }
+        [JsonPropertyName("ru_nvcsw")]
+        public ulong RuNvcsw { get; set; }
+        [JsonPropertyName("ru_nivcsw")]
+        public ulong RuNivcsw { get; set; }
+
+        public ResourceUsageResponseT()
+        {
+            this.RuUtime = 0;
+            this.RuStime = 0;
+            this.RuMaxrss = 0;
+            this.RuIxrss = 0;
+            this.RuIdrss = 0;
+            this.RuIsrss = 0;
+            this.RuMinflt = 0;
+            this.RuMajflt = 0;
+            this.RuNswap = 0;
+            this.RuInblock = 0;
+            this.RuOublock = 0;
+            this.RuMsgsnd = 0;
+            this.RuMsgrcv = 0;
+            this.RuNsignals = 0;
+            this.RuNvcsw = 0;
+            this.RuNivcsw = 0;
+        }
+    }
+
+
+    static public class ResourceUsageResponseVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
+        {
+            return verifier.VerifyTableStart(tablePos)
+              && verifier.VerifyField(tablePos, 4 /*RuUtime*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 6 /*RuStime*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 8 /*RuMaxrss*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 10 /*RuIxrss*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 12 /*RuIdrss*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 14 /*RuIsrss*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 16 /*RuMinflt*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 18 /*RuMajflt*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 20 /*RuNswap*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 22 /*RuInblock*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 24 /*RuOublock*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 26 /*RuMsgsnd*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 28 /*RuMsgrcv*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 30 /*RuNsignals*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 32 /*RuNvcsw*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyField(tablePos, 34 /*RuNivcsw*/, 8 /*ulong*/, 8, false)
+              && verifier.VerifyTableEnd(tablePos);
+        }
+    }
+
 }

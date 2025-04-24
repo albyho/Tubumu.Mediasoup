@@ -4,7 +4,12 @@ using System.Runtime.InteropServices;
 
 namespace Tubumu.Libuv
 {
-    public class Udp : HandleBase, IMessageSender<UdpMessage>, IMessageReceiver<UdpReceiveMessage>, ITrySend<UdpMessage>, IBindable<Udp, IPEndPoint>
+    public class Udp
+        : HandleBase,
+            IMessageSender<UdpMessage>,
+            IMessageReceiver<UdpReceiveMessage>,
+            ITrySend<UdpMessage>,
+            IBindable<Udp, IPEndPoint>
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate void recv_start_callback(IntPtr handle, IntPtr nread, ref uv_buf_t buf, IntPtr sockaddr, ushort flags);
@@ -27,14 +32,10 @@ namespace Tubumu.Libuv
         }
 
         public Udp()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public Udp(Loop loop)
-            : base(loop, HandleType.UV_UDP, uv_udp_init)
-        {
-        }
+            : base(loop, HandleType.UV_UDP, uv_udp_init) { }
 
         private void Bind(IPAddress ipAddress, int port, bool dualstack)
         {
@@ -55,10 +56,24 @@ namespace Tubumu.Libuv
         }
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int uv_udp_send(IntPtr req, IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in addr, callback callback);
+        internal static extern int uv_udp_send(
+            IntPtr req,
+            IntPtr handle,
+            uv_buf_t[] bufs,
+            int nbufs,
+            ref sockaddr_in addr,
+            callback callback
+        );
 
         [DllImport(NativeMethods.Libuv, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int uv_udp_send(IntPtr req, IntPtr handle, uv_buf_t[] bufs, int nbufs, ref sockaddr_in6 addr, callback callback);
+        internal static extern int uv_udp_send(
+            IntPtr req,
+            IntPtr handle,
+            uv_buf_t[] bufs,
+            int nbufs,
+            ref sockaddr_in6 addr,
+            callback callback
+        );
 
         public void Send(UdpMessage message, Action<Exception?>? callback)
         {
@@ -77,7 +92,7 @@ namespace Tubumu.Libuv
                 {
                     datagchandle.Free();
                     Ensure.Success(status, callback);
-                }
+                },
             };
 
             var ptr = (IntPtr)(datagchandle.AddrOfPinnedObject().ToInt64() + data.Offset);
@@ -85,7 +100,7 @@ namespace Tubumu.Libuv
             int r;
             uv_buf_t[] buf = new uv_buf_t[] { new uv_buf_t(ptr, data.Count) };
 
-            if(ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            if (ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 sockaddr_in address = UV.ToStruct(ipEndPoint.Address.ToString(), ipEndPoint.Port);
                 r = uv_udp_send(cpr.Handle, NativeHandle, buf, 1, ref address, CallbackPermaRequest.CallbackDelegate);
@@ -113,12 +128,12 @@ namespace Tubumu.Libuv
         {
             var n = (int)nread;
 
-            if(n == 0)
+            if (n == 0)
             {
                 return;
             }
 
-            if(Message != null)
+            if (Message != null)
             {
                 var ep = UV.GetIPEndPoint(sockaddr, true);
 
@@ -208,13 +223,13 @@ namespace Tubumu.Libuv
             var data = message.Payload;
             var ipEndPoint = message.EndPoint;
 
-            fixed(byte* bytePtr = data.Array)
+            fixed (byte* bytePtr = data.Array)
             {
                 var ptr = (IntPtr)(bytePtr + message.Payload.Offset);
                 int r;
                 var buf = new uv_buf_t[] { new uv_buf_t(ptr, data.Count) };
 
-                if(ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                if (ipEndPoint.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 {
                     sockaddr_in address = UV.ToStruct(ipEndPoint.Address.ToString(), ipEndPoint.Port);
                     r = uv_udp_try_send(NativeHandle, buf, 1, ref address);

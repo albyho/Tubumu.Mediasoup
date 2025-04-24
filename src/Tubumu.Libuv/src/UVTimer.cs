@@ -29,14 +29,10 @@ namespace Tubumu.Libuv
         private Action? onehit;
 
         public UVTimer()
-            : this(Loop.Constructor)
-        {
-        }
+            : this(Loop.Constructor) { }
 
         public UVTimer(Loop loop)
-            : base(loop, HandleType.UV_TIMER, uv_timer_init)
-        {
-        }
+            : base(loop, HandleType.UV_TIMER, uv_timer_init) { }
 
         public ulong LongRepeat
         {
@@ -61,7 +57,7 @@ namespace Tubumu.Libuv
         {
             CheckDisposed();
 
-            if(Running)
+            if (Running)
             {
                 Stop();
             }
@@ -82,7 +78,7 @@ namespace Tubumu.Libuv
         private void OnTick()
         {
             var cb = onehit;
-            if(cb != null)
+            if (cb != null)
             {
                 // ensure onehit is null when invoking
                 onehit = null;
@@ -124,7 +120,7 @@ namespace Tubumu.Libuv
         {
             CheckDisposed();
 
-            if(Running)
+            if (Running)
             {
                 int r = uv_timer_stop(NativeHandle);
                 Ensure.Success(r);
@@ -162,7 +158,7 @@ namespace Tubumu.Libuv
             {
                 i++;
                 callback?.Invoke(i);
-                if(i >= times)
+                if (i >= times)
                 {
                     timer.Close();
                 }

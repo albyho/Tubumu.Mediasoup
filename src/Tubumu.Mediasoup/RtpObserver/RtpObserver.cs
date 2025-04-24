@@ -91,9 +91,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("Close() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -111,14 +111,21 @@ namespace Tubumu.Mediasoup
                     RtpObserverId = Internal.RtpObserverId,
                 };
 
-                var closeRtpObserverRequestOffset = FBS.Router.CloseRtpObserverRequest.Pack(bufferBuilder, closeRtpObserverRequest);
+                var closeRtpObserverRequestOffset = FBS.Router.CloseRtpObserverRequest.Pack(
+                    bufferBuilder,
+                    closeRtpObserverRequest
+                );
 
                 // Fire and forget
-                Channel.RequestAsync(bufferBuilder, Method.ROUTER_CLOSE_RTPOBSERVER,
-                    FBS.Request.Body.Router_CloseRtpObserverRequest,
-                    closeRtpObserverRequestOffset.Value,
-                    Internal.RouterId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                Channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.ROUTER_CLOSE_RTPOBSERVER,
+                        FBS.Request.Body.Router_CloseRtpObserverRequest,
+                        closeRtpObserverRequestOffset.Value,
+                        Internal.RouterId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 Emit("@close");
 
@@ -134,9 +141,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("RouterClosed() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -160,9 +167,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("PauseAsync() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("PauseAsync()");
                 }
@@ -176,21 +183,19 @@ namespace Tubumu.Mediasoup
                     var bufferBuilder = Channel.BufferPool.Get();
 
                     // Fire and forget
-                    Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_PAUSE,
-                        null,
-                        null,
-                        Internal.RtpObserverId
-                        ).ContinueWithOnFaultedHandleLog(_logger);
+                    Channel
+                        .RequestAsync(bufferBuilder, Method.RTPOBSERVER_PAUSE, null, null, Internal.RtpObserverId)
+                        .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = true;
 
                     // Emit observer event.
-                    if(!wasPaused)
+                    if (!wasPaused)
                     {
                         Observer.Emit("pause");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "PauseAsync()");
                 }
@@ -208,9 +213,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ResumeAsync() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("ResumeAsync()");
                 }
@@ -224,21 +229,19 @@ namespace Tubumu.Mediasoup
                     var bufferBuilder = Channel.BufferPool.Get();
 
                     // Fire and forget
-                    Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_RESUME,
-                        null,
-                        null,
-                        Internal.RtpObserverId
-                        ).ContinueWithOnFaultedHandleLog(_logger);
+                    Channel
+                        .RequestAsync(bufferBuilder, Method.RTPOBSERVER_RESUME, null, null, Internal.RtpObserverId)
+                        .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = false;
 
                     // Emit observer event.
-                    if(wasPaused)
+                    if (wasPaused)
                     {
                         Observer.Emit("resume");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "ResumeAsync()");
                 }
@@ -254,17 +257,21 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public async Task AddProducerAsync(RtpObserverAddRemoveProducerOptions rtpObserverAddRemoveProducerOptions)
         {
-            _logger.LogDebug("AddProducerAsync() | RtpObserverId:{RtpObserverId} ProducerId:{ProducerId}", Internal.RtpObserverId, rtpObserverAddRemoveProducerOptions.ProducerId);
+            _logger.LogDebug(
+                "AddProducerAsync() | RtpObserverId:{RtpObserverId} ProducerId:{ProducerId}",
+                Internal.RtpObserverId,
+                rtpObserverAddRemoveProducerOptions.ProducerId
+            );
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("RepObserver closed");
                 }
 
                 var producer = GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
-                if(producer == null)
+                if (producer == null)
                 {
                     return;
                 }
@@ -274,17 +281,21 @@ namespace Tubumu.Mediasoup
 
                 var addProducerRequest = new FBS.RtpObserver.AddProducerRequestT
                 {
-                    ProducerId = rtpObserverAddRemoveProducerOptions.ProducerId
+                    ProducerId = rtpObserverAddRemoveProducerOptions.ProducerId,
                 };
 
                 var addProducerRequestOffset = FBS.RtpObserver.AddProducerRequest.Pack(bufferBuilder, addProducerRequest);
 
                 // Fire and forget
-                Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_ADD_PRODUCER,
-                    FBS.Request.Body.RtpObserver_AddProducerRequest,
-                    addProducerRequestOffset.Value,
-                    Internal.RtpObserverId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                Channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.RTPOBSERVER_ADD_PRODUCER,
+                        FBS.Request.Body.RtpObserver_AddProducerRequest,
+                        addProducerRequestOffset.Value,
+                        Internal.RtpObserverId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 // Emit observer event.
                 Observer.Emit("addproducer", producer);
@@ -298,15 +309,15 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("RemoveProducerAsync() | RtpObserverId:{RtpObserverId}", Internal.RtpObserverId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("RepObserver closed");
                 }
 
                 var producer = GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
-                if(producer == null)
+                if (producer == null)
                 {
                     return;
                 }
@@ -316,17 +327,24 @@ namespace Tubumu.Mediasoup
 
                 var removeProducerRequest = new FBS.RtpObserver.RemoveProducerRequestT
                 {
-                    ProducerId = rtpObserverAddRemoveProducerOptions.ProducerId
+                    ProducerId = rtpObserverAddRemoveProducerOptions.ProducerId,
                 };
 
-                var removeProducerRequestOffset = FBS.RtpObserver.RemoveProducerRequest.Pack(bufferBuilder, removeProducerRequest);
+                var removeProducerRequestOffset = FBS.RtpObserver.RemoveProducerRequest.Pack(
+                    bufferBuilder,
+                    removeProducerRequest
+                );
 
                 // Fire and forget
-                Channel.RequestAsync(bufferBuilder, Method.RTPOBSERVER_REMOVE_PRODUCER,
-                    FBS.Request.Body.RtpObserver_RemoveProducerRequest,
-                    removeProducerRequestOffset.Value,
-                    Internal.RtpObserverId
-                    ).ContinueWithOnFaultedHandleLog(_logger);
+                Channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.RTPOBSERVER_REMOVE_PRODUCER,
+                        FBS.Request.Body.RtpObserver_RemoveProducerRequest,
+                        removeProducerRequestOffset.Value,
+                        Internal.RtpObserverId
+                    )
+                    .ContinueWithOnFaultedHandleLog(_logger);
 
                 // Emit observer event.
                 Observer.Emit("removeproducer", producer);

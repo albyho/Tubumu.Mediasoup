@@ -150,9 +150,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("CloseAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -165,18 +165,19 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var requestOffset = FBS.Transport.CloseConsumerRequest.Pack(bufferBuilder, new FBS.Transport.CloseConsumerRequestT
-                {
-                    ConsumerId = _internal.ConsumerId
-                });
+                var requestOffset = FBS.Transport.CloseConsumerRequest.Pack(
+                    bufferBuilder,
+                    new FBS.Transport.CloseConsumerRequestT { ConsumerId = _internal.ConsumerId }
+                );
 
                 // Fire and forget
-                _channel.RequestAsync(
-                    bufferBuilder,
-                    Method.TRANSPORT_CLOSE_CONSUMER,
-                    FBS.Request.Body.Transport_CloseConsumerRequest,
-                    requestOffset.Value,
-                    _internal.TransportId
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.TRANSPORT_CLOSE_CONSUMER,
+                        FBS.Request.Body.Transport_CloseConsumerRequest,
+                        requestOffset.Value,
+                        _internal.TransportId
                     )
                     .ContinueWithOnFaultedHandleLog(_logger);
 
@@ -194,9 +195,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("TransportClosed() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.WriteLockAsync())
+            await using (await _closeLock.WriteLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     return;
                 }
@@ -220,15 +221,21 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("DumpAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
 
                 var bufferBuilder = _channel.BufferPool.Get();
-                var response = await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_DUMP, null, null, _internal.ConsumerId);
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.CONSUMER_DUMP,
+                    null,
+                    null,
+                    _internal.ConsumerId
+                );
                 var data = response.Value.BodyAsConsumer_DumpResponse().UnPack();
                 return data;
             }
@@ -241,15 +248,21 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("GetStatsAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
 
                 var bufferBuilder = _channel.BufferPool.Get();
-                var response = await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_GET_STATS, null, null, _internal.ConsumerId);
+                var response = await _channel.RequestAsync(
+                    bufferBuilder,
+                    Method.CONSUMER_GET_STATS,
+                    null,
+                    null,
+                    _internal.ConsumerId
+                );
                 var stats = response.Value.BodyAsConsumer_GetStatsResponse().UnPack().Stats;
                 return stats;
             }
@@ -262,9 +275,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("PauseAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
@@ -277,18 +290,19 @@ namespace Tubumu.Mediasoup
                     var bufferBuilder = _channel.BufferPool.Get();
 
                     // Fire and forget
-                    _channel.RequestAsync(bufferBuilder, Method.CONSUMER_PAUSE, null, null, _internal.ConsumerId)
+                    _channel
+                        .RequestAsync(bufferBuilder, Method.CONSUMER_PAUSE, null, null, _internal.ConsumerId)
                         .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = true;
 
                     // Emit observer event.
-                    if(!wasPaused)
+                    if (!wasPaused)
                     {
                         Observer.Emit("pause");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "PauseAsync()");
                 }
@@ -306,9 +320,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("ResumeAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
@@ -321,18 +335,19 @@ namespace Tubumu.Mediasoup
                     var bufferBuilder = _channel.BufferPool.Get();
 
                     // Fire and forget
-                    _channel.RequestAsync(bufferBuilder, Method.CONSUMER_RESUME, null, null, _internal.ConsumerId)
+                    _channel
+                        .RequestAsync(bufferBuilder, Method.CONSUMER_RESUME, null, null, _internal.ConsumerId)
                         .ContinueWithOnFaultedHandleLog(_logger);
 
                     _paused = false;
 
                     // Emit observer event.
-                    if(wasPaused && !ProducerPaused)
+                    if (wasPaused && !ProducerPaused)
                     {
                         Observer.Emit("resume");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     _logger.LogError(ex, "ResumeAsync()");
                 }
@@ -350,9 +365,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("SetPreferredLayersAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
@@ -367,7 +382,8 @@ namespace Tubumu.Mediasoup
                     Method.CONSUMER_SET_PREFERRED_LAYERS,
                     FBS.Request.Body.Consumer_SetPreferredLayersRequest,
                     setPreferredLayersRequestOffset.Value,
-                    _internal.ConsumerId);
+                    _internal.ConsumerId
+                );
                 var preferredLayers = response.Value.BodyAsConsumer_SetPreferredLayersResponse().UnPack().PreferredLayers;
 
                 PreferredLayers = preferredLayers;
@@ -381,9 +397,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("SetPriorityAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
@@ -397,7 +413,8 @@ namespace Tubumu.Mediasoup
                     Method.CONSUMER_SET_PRIORITY,
                     FBS.Request.Body.Consumer_SetPriorityRequest,
                     setPriorityRequestOffset.Value,
-                    _internal.ConsumerId);
+                    _internal.ConsumerId
+                );
 
                 var priorityResponse = response.Value.BodyAsConsumer_SetPriorityResponse().UnPack().Priority;
 
@@ -412,10 +429,7 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("UnsetPriorityAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            return SetPriorityAsync(new SetPriorityRequestT
-            {
-                Priority = 1,
-            });
+            return SetPriorityAsync(new SetPriorityRequestT { Priority = 1 });
         }
 
         /// <summary>
@@ -425,9 +439,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("RequestKeyFrameAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
@@ -435,10 +449,7 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_REQUEST_KEY_FRAME,
-                    null,
-                    null,
-                    _internal.ConsumerId);
+                await _channel.RequestAsync(bufferBuilder, Method.CONSUMER_REQUEST_KEY_FRAME, null, null, _internal.ConsumerId);
             }
         }
 
@@ -449,9 +460,9 @@ namespace Tubumu.Mediasoup
         {
             _logger.LogDebug("EnableTraceEventAsync() | Consumer:{ConsumerId}", ConsumerId);
 
-            using(await _closeLock.ReadLockAsync())
+            await using (await _closeLock.ReadLockAsync())
             {
-                if(_closed)
+                if (_closed)
                 {
                     throw new InvalidStateException("Consumer closed");
                 }
@@ -459,20 +470,19 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var request = new EnableTraceEventRequestT
-                {
-                    Events = types ?? new List<TraceEventType>(0)
-                };
+                var request = new EnableTraceEventRequestT { Events = types ?? new List<TraceEventType>(0) };
 
                 var requestOffset = FBS.Consumer.EnableTraceEventRequest.Pack(bufferBuilder, request);
 
                 // Fire and forget
-                _channel.RequestAsync(
-                    bufferBuilder,
-                    Method.CONSUMER_ENABLE_TRACE_EVENT,
-                    FBS.Request.Body.Consumer_EnableTraceEventRequest,
-                    requestOffset.Value,
-                     _internal.ConsumerId)
+                _channel
+                    .RequestAsync(
+                        bufferBuilder,
+                        Method.CONSUMER_ENABLE_TRACE_EVENT,
+                        FBS.Request.Body.Consumer_EnableTraceEventRequest,
+                        requestOffset.Value,
+                        _internal.ConsumerId
+                    )
                     .ContinueWithOnFaultedHandleLog(_logger);
             }
         }
@@ -488,124 +498,124 @@ namespace Tubumu.Mediasoup
         private async void OnNotificationHandle(string handlerId, Event @event, Notification notification)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            if(handlerId != ConsumerId)
+            if (handlerId != ConsumerId)
             {
                 return;
             }
 
-            switch(@event)
+            switch (@event)
             {
                 case Event.CONSUMER_PRODUCER_CLOSE:
+                {
+                    await using (await _closeLock.WriteLockAsync())
                     {
-                        using(await _closeLock.WriteLockAsync())
+                        if (_closed)
                         {
-                            if(_closed)
-                            {
-                                break;
-                            }
-
-                            _closed = true;
-
-                            // Remove notification subscriptions.
-                            _channel.OnNotification -= OnNotificationHandle;
-
-                            Emit("@producerclose");
-                            Emit("producerclose");
-
-                            // Emit observer event.
-                            Observer.Emit("close");
+                            break;
                         }
 
-                        break;
+                        _closed = true;
+
+                        // Remove notification subscriptions.
+                        _channel.OnNotification -= OnNotificationHandle;
+
+                        Emit("@producerclose");
+                        Emit("producerclose");
+
+                        // Emit observer event.
+                        Observer.Emit("close");
                     }
+
+                    break;
+                }
                 case Event.CONSUMER_PRODUCER_PAUSE:
+                {
+                    if (ProducerPaused)
                     {
-                        if(ProducerPaused)
-                        {
-                            break;
-                        }
-
-                        var wasPaused = _paused || ProducerPaused;
-
-                        ProducerPaused = true;
-
-                        Emit("producerpause");
-
-                        // Emit observer event.
-                        if(!wasPaused)
-                        {
-                            Observer.Emit("pause");
-                        }
-
                         break;
                     }
+
+                    var wasPaused = _paused || ProducerPaused;
+
+                    ProducerPaused = true;
+
+                    Emit("producerpause");
+
+                    // Emit observer event.
+                    if (!wasPaused)
+                    {
+                        Observer.Emit("pause");
+                    }
+
+                    break;
+                }
                 case Event.CONSUMER_PRODUCER_RESUME:
+                {
+                    if (!ProducerPaused)
                     {
-                        if(!ProducerPaused)
-                        {
-                            break;
-                        }
-
-                        var wasPaused = _paused || ProducerPaused;
-
-                        ProducerPaused = false;
-
-                        Emit("producerresume");
-
-                        // Emit observer event.
-                        if(wasPaused && !_paused)
-                        {
-                            Observer.Emit("resume");
-                        }
-
                         break;
                     }
+
+                    var wasPaused = _paused || ProducerPaused;
+
+                    ProducerPaused = false;
+
+                    Emit("producerresume");
+
+                    // Emit observer event.
+                    if (wasPaused && !_paused)
+                    {
+                        Observer.Emit("resume");
+                    }
+
+                    break;
+                }
                 case Event.CONSUMER_SCORE:
-                    {
-                        var scoreNotification = notification.BodyAsConsumer_ScoreNotification();
-                        var score = scoreNotification.Score!.Value.UnPack();
-                        Score = score;
+                {
+                    var scoreNotification = notification.BodyAsConsumer_ScoreNotification();
+                    var score = scoreNotification.Score!.Value.UnPack();
+                    Score = score;
 
-                        Emit("score", Score);
+                    Emit("score", Score);
 
-                        // Emit observer event.
-                        Observer.Emit("score", Score);
+                    // Emit observer event.
+                    Observer.Emit("score", Score);
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.CONSUMER_LAYERS_CHANGE:
-                    {
-                        var layersChangeNotification = notification.BodyAsConsumer_LayersChangeNotification();
-                        var currentLayers = layersChangeNotification.Layers!.Value.UnPack();
-                        CurrentLayers = currentLayers;
+                {
+                    var layersChangeNotification = notification.BodyAsConsumer_LayersChangeNotification();
+                    var currentLayers = layersChangeNotification.Layers!.Value.UnPack();
+                    CurrentLayers = currentLayers;
 
-                        Emit("layerschange", CurrentLayers);
+                    Emit("layerschange", CurrentLayers);
 
-                        // Emit observer event.
-                        Observer.Emit("layersChange", CurrentLayers);
+                    // Emit observer event.
+                    Observer.Emit("layersChange", CurrentLayers);
 
-                        break;
-                    }
+                    break;
+                }
                 case Event.CONSUMER_TRACE:
-                    {
-                        var traceNotification = notification.BodyAsConsumer_TraceNotification();
-                        var trace = traceNotification.UnPack();
+                {
+                    var traceNotification = notification.BodyAsConsumer_TraceNotification();
+                    var trace = traceNotification.UnPack();
 
-                        Emit("trace", trace);
+                    Emit("trace", trace);
 
-                        // Emit observer event.
-                        Observer.Emit("trace", trace);
+                    // Emit observer event.
+                    Observer.Emit("trace", trace);
 
-                        break;
-                    }
+                    break;
+                }
                 default:
-                    {
-                        _logger.LogError("OnNotificationHandle() | Ignoring unknown event{@event}", @event);
-                        break;
-                    }
+                {
+                    _logger.LogError("OnNotificationHandle() | Ignoring unknown event{@event}", @event);
+                    break;
+                }
             }
         }
     }
 
-    #endregion Event Handlers
+        #endregion Event Handlers
 }

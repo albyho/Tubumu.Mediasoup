@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // 如果已更改目标框架，请确保更新程序路径。
-            "program": "${workspaceFolder}/src/Tubumu.Meeting.Web/bin/Debug/net6.0/Tubumu.Meeting.Web.dll",
+            "program": "${workspaceFolder}/src/Tubumu.Meeting.Web/bin/Debug/net8.0/Tubumu.Meeting.Web.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Tubumu.Meeting.Web",
             "stopAtEntry": false,

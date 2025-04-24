@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.WebRtcTransport
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum DtlsRole : byte
     {
@@ -19,4 +20,6 @@ namespace FBS.WebRtcTransport
         [EnumMember(Value = "server")]
         SERVER = 2,
     }
+
+
 }

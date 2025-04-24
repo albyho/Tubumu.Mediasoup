@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NPOI.SS.Formula.Functions;
 
 namespace Tubumu.Mediasoup
 {
@@ -16,16 +17,6 @@ namespace Tubumu.Mediasoup
         /// Debugging documentation.
         /// </summary>
         public WorkerLogTag[]? LogTags { get; set; }
-
-        /// <summary>
-        /// Minimun RTC port for ICE, DTLS, RTP, etc. Default 10000.
-        /// </summary>
-        public int? RtcMinPort { get; set; } = 10000;
-
-        /// <summary>
-        /// Maximum RTC port for ICE, DTLS, RTP, etc. Default 59999.
-        /// </summary>
-        public int? RtcMaxPort { get; set; } = 59999;
 
         /// <summary>
         /// Path to the DTLS public certificate file in PEM format. If unset, a
@@ -51,6 +42,11 @@ namespace Tubumu.Mediasoup
         /// </para>
         /// </summary>
         public string? LibwebrtcFieldTrials { get; set; }
+
+        /// <summary>
+        /// Disable liburing (io_uring) despite it's supported in current host.
+        /// </summary>
+        public bool? DisableLiburing = false;
 
         /// <summary>
         /// Custom application data.

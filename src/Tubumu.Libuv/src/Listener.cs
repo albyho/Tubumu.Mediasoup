@@ -2,7 +2,8 @@ using System;
 
 namespace Tubumu.Libuv
 {
-    public abstract class Listener<TStream> : Handle, IListener<TStream> where TStream : class
+    public abstract class Listener<TStream> : Handle, IListener<TStream>
+        where TStream : class
     {
         internal Listener(Loop loop, HandleType type)
             : base(loop, type)
@@ -50,7 +51,7 @@ namespace Tubumu.Libuv
             {
                 Invoke(NativeMethods.uv_accept, stream.NativeHandle);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 stream.Dispose();
 

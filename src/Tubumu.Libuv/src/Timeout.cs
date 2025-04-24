@@ -10,7 +10,7 @@ namespace Tubumu.Libuv
 
             void end(Exception? exception)
             {
-                if(timer != null)
+                if (timer != null)
                 {
                     timer.Close();
                     timer = null;
@@ -39,7 +39,10 @@ namespace Tubumu.Libuv
             };
         }
 
-        public static Action<T1, T2, Action<Exception?>?> In<T1, T2>(TimeSpan timeSpan, Action<T1, T2, Action<Exception?>?> callback)
+        public static Action<T1, T2, Action<Exception?>?> In<T1, T2>(
+            TimeSpan timeSpan,
+            Action<T1, T2, Action<Exception?>?> callback
+        )
         {
             return (T1 arg1, T2 arg2, Action<Exception?>? cb) =>
             {
@@ -47,7 +50,10 @@ namespace Tubumu.Libuv
             };
         }
 
-        public static Action<T1, T2, T3, Action<Exception?>?> In<T1, T2, T3>(TimeSpan timeSpan, Action<T1, T2, T3, Action<Exception?>?> callback)
+        public static Action<T1, T2, T3, Action<Exception?>?> In<T1, T2, T3>(
+            TimeSpan timeSpan,
+            Action<T1, T2, T3, Action<Exception?>?> callback
+        )
         {
             return (T1 arg1, T2 arg2, T3 arg3, Action<Exception?>? cb) =>
             {
@@ -55,7 +61,10 @@ namespace Tubumu.Libuv
             };
         }
 
-        public static Action<T1, T2, T3, T4, Action<Exception?>?> In<T1, T2, T3, T4>(TimeSpan timeSpan, Action<T1, T2, T3, T4, Action<Exception?>?> callback)
+        public static Action<T1, T2, T3, T4, Action<Exception?>?> In<T1, T2, T3, T4>(
+            TimeSpan timeSpan,
+            Action<T1, T2, T3, T4, Action<Exception?>?> callback
+        )
         {
             return (T1 arg1, T2 arg2, T3 arg3, T4 arg4, Action<Exception?>? cb) =>
             {
@@ -63,7 +72,10 @@ namespace Tubumu.Libuv
             };
         }
 
-        public static Action<T1, T2, T3, T4, T5, Action<Exception?>?> In<T1, T2, T3, T4, T5>(TimeSpan timeSpan, Action<T1, T2, T3, T4, T5, Action<Exception?>?> callback)
+        public static Action<T1, T2, T3, T4, T5, Action<Exception?>?> In<T1, T2, T3, T4, T5>(
+            TimeSpan timeSpan,
+            Action<T1, T2, T3, T4, T5, Action<Exception?>?> callback
+        )
         {
             return (T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, Action<Exception?>? cb) =>
             {
@@ -71,7 +83,10 @@ namespace Tubumu.Libuv
             };
         }
 
-        public static Action<T1, T2, T3, T4, T5, T6, Action<Exception?>?> In<T1, T2, T3, T4, T5, T6>(TimeSpan timeSpan, Action<T1, T2, T3, T4, T5, T6, Action<Exception?>?> callback)
+        public static Action<T1, T2, T3, T4, T5, T6, Action<Exception?>?> In<T1, T2, T3, T4, T5, T6>(
+            TimeSpan timeSpan,
+            Action<T1, T2, T3, T4, T5, T6, Action<Exception?>?> callback
+        )
         {
             return (T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, Action<Exception?>? cb) =>
             {
@@ -79,7 +94,10 @@ namespace Tubumu.Libuv
             };
         }
 
-        public static Action<T1, T2, T3, T4, T5, T6, T7, Action<Exception?>?> In<T1, T2, T3, T4, T5, T6, T7>(TimeSpan timeSpan, Action<T1, T2, T3, T4, T5, T6, T7, Action<Exception?>?> callback)
+        public static Action<T1, T2, T3, T4, T5, T6, T7, Action<Exception?>?> In<T1, T2, T3, T4, T5, T6, T7>(
+            TimeSpan timeSpan,
+            Action<T1, T2, T3, T4, T5, T6, T7, Action<Exception?>?> callback
+        )
         {
             return (T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, Action<Exception?>? cb) =>
             {
@@ -87,7 +105,10 @@ namespace Tubumu.Libuv
             };
         }
 
-        public static Action<T1, T2, T3, T4, T5, T6, T7, T8, Action<Exception?>?> In<T1, T2, T3, T4, T5, T6, T7, T8>(TimeSpan timeSpan, Action<T1, T2, T3, T4, T5, T6, T7, T8, Action<Exception?>?> callback)
+        public static Action<T1, T2, T3, T4, T5, T6, T7, T8, Action<Exception?>?> In<T1, T2, T3, T4, T5, T6, T7, T8>(
+            TimeSpan timeSpan,
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, Action<Exception?>?> callback
+        )
         {
             return (T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8, Action<Exception?>? cb) =>
             {

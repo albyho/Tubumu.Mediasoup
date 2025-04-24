@@ -9,33 +9,37 @@ namespace System.Threading.Tasks
     public static class TaskExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // 造成编译器优化调用
-        public static void NoWarning(this Task _)
-        {
-        }
+        public static void NoWarning(this Task _) { }
 
         public static void ContinueWithOnFaultedLog(this Task task, ILogger logger)
         {
-            task.ContinueWith(val =>
-            {
-                // we need to access val.Exception property otherwise unobserved exception will be thrown
-                // ReSharper disable once PossibleNullReferenceException
-                foreach(var ex in val.Exception!.Flatten().InnerExceptions)
+            task.ContinueWith(
+                val =>
                 {
-                    logger.LogError(ex, "Task exception");
-                }
-            }, TaskContinuationOptions.OnlyOnFaulted);
+                    // we need to access val.Exception property otherwise unobserved exception will be thrown
+                    // ReSharper disable once PossibleNullReferenceException
+                    foreach (var ex in val.Exception!.Flatten().InnerExceptions)
+                    {
+                        logger.LogError(ex, "Task exception");
+                    }
+                },
+                TaskContinuationOptions.OnlyOnFaulted
+            );
         }
 
         public static void ContinueWithOnFaultedHandleLog(this Task task, ILogger logger)
         {
-            task.ContinueWith(val =>
-            {
-                val.Exception!.Handle(ex =>
+            task.ContinueWith(
+                val =>
                 {
-                    logger.LogError(ex, "Task exception");
-                    return true;
-                });
-            }, TaskContinuationOptions.OnlyOnFaulted);
+                    val.Exception!.Handle(ex =>
+                    {
+                        logger.LogError(ex, "Task exception");
+                        return true;
+                    });
+                },
+                TaskContinuationOptions.OnlyOnFaulted
+            );
         }
 
         /// <summary>
@@ -53,9 +57,9 @@ namespace System.Threading.Tasks
             using var timerCancellation = new CancellationTokenSource();
             var timeoutTask = Task.Delay(timeout, timerCancellation.Token);
             var firstCompletedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
-            if(firstCompletedTask == timeoutTask)
+            if (firstCompletedTask == timeoutTask)
             {
-                if(cancelled == null)
+                if (cancelled == null)
                 {
                     throw new TimeoutException();
                 }
@@ -97,12 +101,20 @@ namespace System.Threading.Tasks
         public static Task<TResult> WithTimeout<TResult>(this Task<TResult> task, TimeSpan timeout)
         {
             var result = new TaskCompletionSource<TResult>(task.AsyncState);
-            var timer = new Timer(state => ((TaskCompletionSource<TResult>)state!).TrySetCanceled(), result, timeout, TimeSpan.FromMilliseconds(-1));
-            task.ContinueWith(t =>
-            {
-                timer.Dispose();
-                result.TrySetFromTask(t);
-            }, TaskContinuationOptions.ExecuteSynchronously);
+            var timer = new Timer(
+                state => ((TaskCompletionSource<TResult>)state!).TrySetCanceled(),
+                result,
+                timeout,
+                TimeSpan.FromMilliseconds(-1)
+            );
+            task.ContinueWith(
+                t =>
+                {
+                    timer.Dispose();
+                    result.TrySetFromTask(t);
+                },
+                TaskContinuationOptions.ExecuteSynchronously
+            );
             return result.Task;
         }
 
@@ -115,7 +127,7 @@ namespace System.Threading.Tasks
         /// <returns>Whether the transfer could be completed.</returns>
         public static bool TrySetFromTask<TResult>(this TaskCompletionSource<TResult> resultSetter, Task task)
         {
-            switch(task.Status)
+            switch (task.Status)
             {
                 case TaskStatus.RanToCompletion:
 #pragma warning disable CS8604 // Possible null reference argument.
@@ -159,23 +171,35 @@ namespace System.Threading.Tasks
             return tcs.Task;
         }
 
-        public static TaskCompletionSource<TResult> WithTimeout<TResult>(this TaskCompletionSource<TResult> taskCompletionSource, TimeSpan timeout)
+        public static TaskCompletionSource<TResult> WithTimeout<TResult>(
+            this TaskCompletionSource<TResult> taskCompletionSource,
+            TimeSpan timeout
+        )
         {
             return WithTimeout(taskCompletionSource, timeout, null);
         }
 
-        public static TaskCompletionSource<TResult> WithTimeout<TResult>(this TaskCompletionSource<TResult> taskCompletionSource, TimeSpan timeout, Action? cancelled)
+        public static TaskCompletionSource<TResult> WithTimeout<TResult>(
+            this TaskCompletionSource<TResult> taskCompletionSource,
+            TimeSpan timeout,
+            Action? cancelled
+        )
         {
             Timer? timer = null;
-            timer = new Timer(_ =>
-            {
-                timer?.Dispose();
-                if(taskCompletionSource.Task.Status != TaskStatus.RanToCompletion)
+            timer = new Timer(
+                _ =>
                 {
-                    taskCompletionSource.TrySetCanceled();
-                    cancelled?.Invoke();
-                }
-            }, null, timeout, TimeSpan.FromMilliseconds(-1));
+                    timer?.Dispose();
+                    if (taskCompletionSource.Task.Status != TaskStatus.RanToCompletion)
+                    {
+                        taskCompletionSource.TrySetCanceled();
+                        cancelled?.Invoke();
+                    }
+                },
+                null,
+                timeout,
+                TimeSpan.FromMilliseconds(-1)
+            );
 
             return taskCompletionSource;
         }
@@ -189,7 +213,12 @@ namespace System.Threading.Tasks
         /// <param name="result">result</param>
         public static void TrySetResult<TResult>(this TaskCompletionSource<TResult> taskCompletionSource, TResult result)
         {
-            Task.Factory.StartNew(() => taskCompletionSource.TrySetResult(result), CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
+            Task.Factory.StartNew(
+                () => taskCompletionSource.TrySetResult(result),
+                CancellationToken.None,
+                TaskCreationOptions.None,
+                TaskScheduler.Default
+            );
         }
 
         #region Synchronously await
@@ -287,9 +316,7 @@ namespace System.Threading.Tasks
             {
                 await task.ConfigureAwait(false);
             }
-            catch(OperationCanceledException)
-            {
-            }
+            catch (OperationCanceledException) { }
         }
 
         /// <summary>
@@ -307,9 +334,7 @@ namespace System.Threading.Tasks
             {
                 await task.ConfigureAwait(false);
             }
-            catch(OperationCanceledException)
-            {
-            }
+            catch (OperationCanceledException) { }
         }
 
         /// <summary>
@@ -426,7 +451,7 @@ namespace System.Threading.Tasks
         /// </returns>
         public bool TryGetResult(out TResult? operationResult)
         {
-            if(IsComplete)
+            if (IsComplete)
             {
                 operationResult = _exception != null ? throw _exception : _result;
                 return true;
@@ -448,7 +473,7 @@ namespace System.Threading.Tasks
             {
                 _result = await task.ConfigureAwait(false);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 _exception = exception;
             }
@@ -470,7 +495,7 @@ namespace System.Threading.Tasks
             {
                 _result = await task.ConfigureAwait(false);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 _exception = exception;
             }
@@ -537,7 +562,7 @@ namespace System.Threading.Tasks
         public void GetResult()
         {
             _manualResetEvent.WaitOne();
-            if(_exception != null)
+            if (_exception != null)
             {
                 throw _exception;
             }
@@ -558,10 +583,8 @@ namespace System.Threading.Tasks
             {
                 await task.ConfigureAwait(false);
             }
-            catch(OperationCanceledException)
-            {
-            }
-            catch(Exception exception)
+            catch (OperationCanceledException) { }
+            catch (Exception exception)
             {
                 _exception = exception;
             }
@@ -586,10 +609,8 @@ namespace System.Threading.Tasks
             {
                 await task.ConfigureAwait(false);
             }
-            catch(OperationCanceledException)
-            {
-            }
-            catch(Exception exception)
+            catch (OperationCanceledException) { }
+            catch (Exception exception)
             {
                 _exception = exception;
             }

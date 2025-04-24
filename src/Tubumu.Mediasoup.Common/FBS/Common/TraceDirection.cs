@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.Common
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum TraceDirection : byte
     {
@@ -16,4 +17,5 @@ namespace FBS.Common
         [EnumMember(Value = "out")]
         DIRECTION_OUT = 1,
     };
+
 }

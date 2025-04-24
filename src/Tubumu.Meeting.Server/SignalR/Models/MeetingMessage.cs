@@ -16,20 +16,12 @@ namespace Tubumu.Meeting.Server
 
         public static MeetingMessage Failure(string? message = null)
         {
-            return new MeetingMessage
-            {
-                Code = 400,
-                Message = message ?? "Failure"
-            };
+            return new MeetingMessage { Code = 400, Message = message ?? "Failure" };
         }
 
         public static MeetingMessage Success(string? message = null)
         {
-            return new MeetingMessage
-            {
-                Code = 200,
-                Message = message ?? "Success"
-            };
+            return new MeetingMessage { Code = 200, Message = message ?? "Success" };
         }
 
         public static string Stringify(int code, string message, string? data = null)
@@ -54,17 +46,13 @@ namespace Tubumu.Meeting.Server
             {
                 Code = 200,
                 Message = message ?? "Success",
-                Data = data
+                Data = data,
             };
         }
 
         public static new MeetingMessage<T> Failure(string? message = null)
         {
-            return new MeetingMessage<T>
-            {
-                Code = 400,
-                Message = message ?? "Success",
-            };
+            return new MeetingMessage<T> { Code = 400, Message = message ?? "Success" };
         }
     }
 }

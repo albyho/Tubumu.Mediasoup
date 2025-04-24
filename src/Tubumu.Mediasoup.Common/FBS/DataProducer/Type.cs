@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace FBS.DataProducer
 {
+
     [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum Type : byte
     {

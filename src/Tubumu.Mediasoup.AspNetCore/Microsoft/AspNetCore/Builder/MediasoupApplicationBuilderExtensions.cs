@@ -22,9 +22,9 @@ namespace Microsoft.AspNetCore.Builder
             var numberOfWorkers = mediasoupOptions.MediasoupStartupSettings.NumberOfWorkers;
             numberOfWorkers = !numberOfWorkers.HasValue || numberOfWorkers <= 0 ? Environment.ProcessorCount : numberOfWorkers;
 
-            if(mediasoupOptions.MediasoupStartupSettings.WorkerInProcess)
+            if (mediasoupOptions.MediasoupStartupSettings.WorkerInProcess)
             {
-                for(var c = 0; c < numberOfWorkers; c++)
+                for (var c = 0; c < numberOfWorkers; c++)
                 {
                     ThreadPool.QueueUserWorkItem(_ =>
                     {
@@ -32,18 +32,21 @@ namespace Microsoft.AspNetCore.Builder
                         {
                             var threadId = Environment.CurrentManagedThreadId;
                             var worker = app.ApplicationServices.GetRequiredService<WorkerNative>();
-                            worker.On("@success", async (_, _) =>
-                            {
-                                mediasoupServer.AddWorker(worker);
-                                logger.LogInformation("Worker[{ThreadId}] create success.", threadId);
-                                if(mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
+                            worker.On(
+                                "@success",
+                                async (_, _) =>
                                 {
-                                    await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                    mediasoupServer.AddWorker(worker);
+                                    logger.LogInformation("Worker[{ThreadId}] create success.", threadId);
+                                    if (mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
+                                    {
+                                        await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                    }
                                 }
-                            });
+                            );
                             worker.Run();
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             logger.LogError(ex, "Worker create failure.");
                         }
@@ -56,18 +59,21 @@ namespace Microsoft.AspNetCore.Builder
                 {
                     Loop.Default.Run(() =>
                     {
-                        for(var c = 0; c < numberOfWorkers; c++)
+                        for (var c = 0; c < numberOfWorkers; c++)
                         {
                             var worker = app.ApplicationServices.GetRequiredService<Worker>();
-                            worker.On("@success", async (_, _) =>
-                            {
-                                mediasoupServer.AddWorker(worker);
-                                logger.LogInformation("Worker[{ProcessId}] create success.", worker.ProcessId);
-                                if(mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
+                            worker.On(
+                                "@success",
+                                async (_, _) =>
                                 {
-                                    await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                    mediasoupServer.AddWorker(worker);
+                                    logger.LogInformation("Worker[{ProcessId}] create success.", worker.ProcessId);
+                                    if (mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
+                                    {
+                                        await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                    }
                                 }
-                            });
+                            );
                         }
                     });
                 });
@@ -76,13 +82,17 @@ namespace Microsoft.AspNetCore.Builder
             return app;
         }
 
-        private static Task<WebRtcServer> CreateWebRtcServerAsync(WorkerBase worker, ushort portIncrement, WebRtcServerSettings defaultWebRtcServerSettings)
+        private static Task<WebRtcServer> CreateWebRtcServerAsync(
+            WorkerBase worker,
+            ushort portIncrement,
+            WebRtcServerSettings defaultWebRtcServerSettings
+        )
         {
             var webRtcServerSettings = defaultWebRtcServerSettings.DeepClone();
             var listenInfos = webRtcServerSettings.ListenInfos;
-            foreach(var listenInfo in listenInfos)
+            foreach (var listenInfo in listenInfos)
             {
-                if(listenInfo.Port != 0)
+                if (listenInfo.Port != 0)
                 {
                     listenInfo.Port = (ushort)(listenInfo.Port + portIncrement);
                 }
@@ -91,7 +101,7 @@ namespace Microsoft.AspNetCore.Builder
             var webRtcServerOptions = new WebRtcServerOptions
             {
                 ListenInfos = listenInfos,
-                AppData = new Dictionary<string, object>()
+                AppData = new Dictionary<string, object>(),
             };
             return worker.CreateWebRtcServerAsync(webRtcServerOptions);
         }

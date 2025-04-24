@@ -11,9 +11,7 @@ namespace Tubumu.Libuv.Threading.Tasks
         public int PendingOperations { get; private set; }
 
         public LoopSynchronizationContext(Loop loop)
-            : this(loop, Thread.CurrentThread)
-        {
-        }
+            : this(loop, Thread.CurrentThread) { }
 
         public LoopSynchronizationContext(Loop loop, Thread thread)
         {
@@ -23,7 +21,7 @@ namespace Tubumu.Libuv.Threading.Tasks
 
         public override void Post(SendOrPostCallback d, object? state)
         {
-            if(Thread == Thread.CurrentThread)
+            if (Thread == Thread.CurrentThread)
             {
                 d(state);
             }

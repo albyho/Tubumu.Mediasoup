@@ -7,7 +7,14 @@ namespace Tubumu.Libuv
     {
         #region Write
 
-        public static void Write(this IPCPipe pipe, Handle handle, byte[] data, int index, int count, Action<Exception?>? callback)
+        public static void Write(
+            this IPCPipe pipe,
+            Handle handle,
+            byte[] data,
+            int index,
+            int count,
+            Action<Exception?>? callback
+        )
         {
             pipe.Write(handle, new ArraySegment<byte>(data, index, count), callback);
         }

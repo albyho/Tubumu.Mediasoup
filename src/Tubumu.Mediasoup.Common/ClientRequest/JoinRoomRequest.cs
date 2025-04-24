@@ -17,6 +17,6 @@ namespace Tubumu.Mediasoup
         Normal,
 
         [EnumMember(Value = "admin")]
-        Admin
+        Admin,
     }
 }

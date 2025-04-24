@@ -34,6 +34,6 @@ namespace Tubumu.H264ProfileLevelId
 
         L5_1 = 51,
 
-        L5_2 = 52
+        L5_2 = 52,
     }
 }

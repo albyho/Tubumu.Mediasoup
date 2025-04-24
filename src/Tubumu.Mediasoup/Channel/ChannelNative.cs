@@ -20,13 +20,13 @@ namespace Tubumu.Mediasoup
             try
             {
                 // Notify worker that there is something to read
-                if(LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
+                if (LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
                 {
                     _logger.LogError("uv_async_send call failed");
                     sent.Reject(new Exception("uv_async_send call failed"));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "uv_async_send call failed");
                 sent.Reject(ex);
@@ -40,12 +40,12 @@ namespace Tubumu.Mediasoup
             try
             {
                 // Notify worker that there is something to read
-                if(LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
+                if (LibMediasoupWorkerNative.uv_async_send(_requestMessageQueue.Handle) != 0)
                 {
                     _logger.LogError("uv_async_send call failed");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "uv_async_send call failed");
             }
@@ -55,17 +55,17 @@ namespace Tubumu.Mediasoup
         {
             _requestMessageQueue.Handle = handle;
 
-            if(!_requestMessageQueue.Queue.TryDequeue(out var requestMessage))
+            if (!_requestMessageQueue.Queue.TryDequeue(out var requestMessage))
             {
                 return null;
             }
 
-            if(requestMessage!.Payload.Count == 0)
+            if (requestMessage!.Payload.Count == 0)
             {
                 throw new Exception("Channel request failed. Zero length.");
             }
 
-            if(requestMessage!.Payload.Count > MessageMaxLen)
+            if (requestMessage!.Payload.Count > MessageMaxLen)
             {
                 throw new Exception("Channel request failed. Invalid length.");
             }
@@ -74,7 +74,10 @@ namespace Tubumu.Mediasoup
             //var messagePtr = (IntPtr)(messageBytesHandle.AddrOfPinnedObject().ToInt64() + requestMessage!.Payload.Offset);
             //var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(requestMessage!.Payload.Array!, 0);
 
-            var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(requestMessage!.Payload.Array!, requestMessage!.Payload.Offset);
+            var messagePtr = Marshal.UnsafeAddrOfPinnedArrayElement(
+                requestMessage!.Payload.Array!,
+                requestMessage!.Payload.Offset
+            );
 
             // 将数据的指针写入 message
             var temp1 = messagePtr.IntPtrToBytes(); // 4 or 8 bytes
@@ -86,7 +89,7 @@ namespace Tubumu.Mediasoup
             Marshal.Copy(temp2, 0, messageLen, requestMessage!.Payload.Count);
 
             // 将消息句柄写入 messageCtx，以便 OnChannelReadFree 释放。
-            var temp3 = GCHandle.ToIntPtr(messageBytesHandle).IntPtrToBytes();  // 4 or 8 bytes
+            var temp3 = GCHandle.ToIntPtr(messageBytesHandle).IntPtrToBytes(); // 4 or 8 bytes
             Marshal.Copy(temp3, 0, messageCtx, temp3.Length);
             return requestMessage;
         }
@@ -116,7 +119,11 @@ namespace Tubumu.Mediasoup
             return requestMessage == null ? null : OnChannelReadFree;
         };
 
-        internal static readonly LibMediasoupWorkerNative.ChannelWriteFn OnChannelWrite = (payload, payloadLen, channelWriteCtx) =>
+        internal static readonly LibMediasoupWorkerNative.ChannelWriteFn OnChannelWrite = (
+            payload,
+            payloadLen,
+            channelWriteCtx
+        ) =>
         {
             // 因为 ProcessMessage 会在子线程处理数据，故拷贝一份。
             var messageBytes = new byte[payloadLen];

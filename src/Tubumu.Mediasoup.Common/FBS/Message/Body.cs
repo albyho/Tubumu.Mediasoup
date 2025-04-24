@@ -4,16 +4,13 @@
 
 namespace FBS.Message
 {
+
     public enum Body : byte
     {
         NONE = 0,
-
         Request = 1,
-
         Response = 2,
-
         Notification = 3,
-
         Log = 4,
     };
 
@@ -55,4 +52,33 @@ namespace FBS.Message
             }
         }
     }
+
+    static public class BodyVerify
+    {
+        static public bool Verify(Google.FlatBuffers.Verifier verifier, byte typeId, uint tablePos)
+        {
+            bool result = true;
+            switch((Body)typeId)
+            {
+                case Body.Request:
+                    result = FBS.Request.RequestVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Response:
+                    result = FBS.Response.ResponseVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Notification:
+                    result = FBS.Notification.NotificationVerify.Verify(verifier, tablePos);
+                    break;
+                case Body.Log:
+                    result = FBS.Log.LogVerify.Verify(verifier, tablePos);
+                    break;
+                default:
+                    result = true;
+                    break;
+            }
+            return result;
+        }
+    }
+
+
 }

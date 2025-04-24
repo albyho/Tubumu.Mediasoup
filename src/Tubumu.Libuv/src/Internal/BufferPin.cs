@@ -9,24 +9,16 @@ namespace Tubumu.Libuv
         public GCHandle GCHandle { get; protected set; }
 
         public BufferPin(int count)
-            : this(new byte[count])
-        {
-        }
+            : this(new byte[count]) { }
 
         public BufferPin(byte[] buffer)
-            : this(buffer, 0, buffer.LongLength)
-        {
-        }
+            : this(buffer, 0, buffer.LongLength) { }
 
         public BufferPin(byte[] buffer, int offset, int count)
-            : this(buffer, (IntPtr)offset, (IntPtr)count)
-        {
-        }
+            : this(buffer, (IntPtr)offset, (IntPtr)count) { }
 
         public BufferPin(byte[] buffer, long offset, long count)
-            : this(buffer, (IntPtr)offset, (IntPtr)count)
-        {
-        }
+            : this(buffer, (IntPtr)offset, (IntPtr)count) { }
 
         public BufferPin(byte[] buffer, IntPtr offset, IntPtr count)
         {
@@ -55,7 +47,7 @@ namespace Tubumu.Libuv
 
         protected virtual void Dispose(bool disposing)
         {
-            if(GCHandle.IsAllocated)
+            if (GCHandle.IsAllocated)
             {
                 GCHandle.Free();
             }
@@ -93,8 +85,7 @@ namespace Tubumu.Libuv
 
         public bool Fits(IntPtr ptr)
         {
-            return (Start.ToInt64() <= ptr.ToInt64()) &&
-                ptr.ToInt64() <= End.ToInt64();
+            return (Start.ToInt64() <= ptr.ToInt64()) && ptr.ToInt64() <= End.ToInt64();
         }
     }
 }

@@ -10,11 +10,11 @@ namespace Tubumu.Libuv
 
         public override int Alloc(int size, out IntPtr ptr)
         {
-            if(pin == null)
+            if (pin == null)
             {
                 pin = new BufferPin(size);
             }
-            else if(pin.Buffer.Length < size)
+            else if (pin.Buffer.Length < size)
             {
                 pin.Dispose();
                 pin = new BufferPin(size);

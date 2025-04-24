@@ -24,7 +24,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[]? EncryptFromStringToByteArray(string encryptString)
         {
-            if(encryptString.IsNullOrWhiteSpace())
+            if (encryptString.IsNullOrWhiteSpace())
             {
                 return null;
             }
@@ -49,7 +49,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static string? EncryptFromStringToBase64(string encryptString)
         {
-            if(encryptString.IsNullOrWhiteSpace())
+            if (encryptString.IsNullOrWhiteSpace())
             {
                 return null;
             }
@@ -84,7 +84,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         private static string ByteArrayToHex(IEnumerable<byte> inputByteArray, bool lower)
         {
             var sb = new StringBuilder();
-            foreach(var item in inputByteArray)
+            foreach (var item in inputByteArray)
             {
                 sb.AppendFormat(lower ? "{0:x2}" : "{0:X2}", item);
             }
