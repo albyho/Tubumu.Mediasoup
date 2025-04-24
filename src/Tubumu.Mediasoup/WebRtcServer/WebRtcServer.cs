@@ -65,14 +65,14 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public WebRtcServer(
             ILoggerFactory loggerFactory,
-            WebRtcServerInternal internal_,
+            WebRtcServerInternal @internal,
             IChannel channel,
             Dictionary<string, object>? appData
         )
         {
             _logger = loggerFactory.CreateLogger<WebRtcServer>();
 
-            _internal = internal_;
+            _internal = @internal;
             _channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
         }
@@ -193,7 +193,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsWebRtcServer_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsWebRtcServer_DumpResponse().UnPack();
                 return data;
             }
         }

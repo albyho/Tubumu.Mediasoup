@@ -7,7 +7,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// The id of the DataProducer to consume.
         /// </summary>
-        public string DataProducerId { get; set; }
+        public string DataProducerId { get; init; }
 
         /// <summary>
         /// Just if consuming over SCTP.

@@ -90,12 +90,10 @@ namespace Tubumu.Meeting.Server
         {
             await using (await _peersLock.WriteLockAsync())
             {
-                if (!_peers.TryGetValue(peerId, out var peer))
+                if (!_peers.Remove(peerId, out var peer))
                 {
                     return null;
                 }
-
-                _peers.Remove(peerId);
 
                 return await peer.LeaveAsync();
             }
@@ -403,7 +401,7 @@ namespace Tubumu.Meeting.Server
 
                 var peerProduceResult =
                     await peer.ProduceAsync(produceRequest)
-                    ?? throw new Exception($"ProduceAsync() | Peer:{peerId} produce faild.");
+                    ?? throw new Exception($"ProduceAsync() | Peer:{peerId} produce failed.");
 
                 // NOTE: 这里假设了 Room 存在
                 var pullPaddingConsumerPeers = new List<Peer>();
@@ -427,7 +425,7 @@ namespace Tubumu.Meeting.Server
             }
         }
 
-        public async Task<Consumer?> ConsumeAsync(string producerPeerId, string cosumerPeerId, string producerId)
+        public async Task<Consumer?> ConsumeAsync(string producerPeerId, string consumerPeerId, string producerId)
         {
             await using (await _peersLock.ReadLockAsync())
             {
@@ -436,13 +434,13 @@ namespace Tubumu.Meeting.Server
                     throw new PeerNotExistsException("ConsumeAsync()", producerPeerId);
                 }
 
-                if (!_peers.TryGetValue(cosumerPeerId, out var cosumerPeer))
+                if (!_peers.TryGetValue(consumerPeerId, out var consumerPeer))
                 {
-                    throw new PeerNotExistsException("ConsumeAsync()", cosumerPeerId);
+                    throw new PeerNotExistsException("ConsumeAsync()", consumerPeerId);
                 }
 
                 // NOTE: 这里假设了 Room 存在
-                return await cosumerPeer.ConsumeAsync(producerPeer, producerId);
+                return await consumerPeer.ConsumeAsync(producerPeer, producerId);
             }
         }
 
@@ -581,22 +579,22 @@ namespace Tubumu.Meeting.Server
             }
         }
 
-        public async Task<bool> SetConsumerPreferedLayersAsync(
+        public async Task<bool> SetConsumerPreferredLayersAsync(
             string peerId,
             string connectionId,
-            SetConsumerPreferedLayersRequest setConsumerPreferedLayersRequest
+            SetConsumerPreferredLayersRequest setConsumerPreferredLayersRequest
         )
         {
             await using (await _peersLock.ReadLockAsync())
             {
                 if (!_peers.TryGetValue(peerId, out var peer))
                 {
-                    throw new PeerNotExistsException("SetConsumerPreferedLayersAsync()", peerId);
+                    throw new PeerNotExistsException("SetConsumerPreferredLayersAsync()", peerId);
                 }
 
                 CheckConnection(peer, connectionId);
 
-                return await peer.SetConsumerPreferedLayersAsync(setConsumerPreferedLayersRequest);
+                return await peer.SetConsumerPreferredLayersAsync(setConsumerPreferredLayersRequest);
             }
         }
 

@@ -34,23 +34,23 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Initial available outgoing bitrate (in bps). Default 600000.
         /// </summary>
-        public uint InitialAvailableOutgoingBitrate { get; set; } = 600000;
+        public uint InitialAvailableOutgoingBitrate { get; init; } = 600000;
 
         /// <summary>
         /// Create a SCTP association. Default false.
         /// </summary>
-        public bool EnableSctp { get; set; }
+        public bool EnableSctp { get; init; }
 
         /// <summary>
         /// SCTP streams number.
         /// </summary>
-        public NumSctpStreamsT? NumSctpStreams { get; set; } = new NumSctpStreamsT { Os = 1024, Mis = 1024 };
+        public NumSctpStreamsT? NumSctpStreams { get; init; } = new NumSctpStreamsT { Os = 1024, Mis = 1024 };
 
         /// <summary>
         /// Maximum allowed size for SCTP messages sent by DataProducers.
         /// Default 262144.
         /// </summary>
-        public uint MaxSctpMessageSize { get; set; } = 262144;
+        public uint MaxSctpMessageSize { get; init; } = 262144;
 
         /// <summary>
         /// Maximum SCTP send buffer used by DataConsumers.
@@ -61,7 +61,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Custom application data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; set; }
+        public Dictionary<string, object>? AppData { get; init; }
     }
 
     public class WebRtcTransportListenServer
@@ -92,12 +92,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Instance of WebRtcServer. Mandatory unless listenIps is given.
         /// </summary>
-        public WebRtcServer? WebRtcServer { get; set; }
+        public WebRtcServer? WebRtcServer { get; init; }
 
         /// <summary>
         /// Listening IP address or addresses in order of preference (first one is the
         /// preferred one).
         /// </summary>
-        public ListenInfoT[]? ListenInfos { get; set; }
+        public ListenInfoT[]? ListenInfos { get; init; }
     }
 }

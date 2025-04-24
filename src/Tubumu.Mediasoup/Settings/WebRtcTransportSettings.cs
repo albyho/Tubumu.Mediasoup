@@ -14,6 +14,6 @@ namespace Tubumu.Mediasoup
         public uint MaxSctpMessageSize { get; set; }
 
         // Additional options that are not part of WebRtcTransportOptions.
-        public uint? MaximumIncomingBitrate { get; set; }
+        public uint? MaximumIncomingBitrate { get; init; }
     }
 }

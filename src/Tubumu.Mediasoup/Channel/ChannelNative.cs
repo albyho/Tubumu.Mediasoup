@@ -60,12 +60,12 @@ namespace Tubumu.Mediasoup
                 return null;
             }
 
-            if (requestMessage!.Payload.Count == 0)
+            if (requestMessage.Payload.Count == 0)
             {
                 throw new Exception("Channel request failed. Zero length.");
             }
 
-            if (requestMessage!.Payload.Count > MessageMaxLen)
+            if (requestMessage.Payload.Count > MessageMaxLen)
             {
                 throw new Exception("Channel request failed. Invalid length.");
             }
@@ -96,7 +96,7 @@ namespace Tubumu.Mediasoup
 
         #region P/Invoke Channel
 
-        internal static readonly LibMediasoupWorkerNative.ChannelReadFreeFn OnChannelReadFree = (
+        private static readonly LibMediasoupWorkerNative.ChannelReadFreeFn OnChannelReadFree = (
             _, // message
             _, // messageLen
             messageCtx

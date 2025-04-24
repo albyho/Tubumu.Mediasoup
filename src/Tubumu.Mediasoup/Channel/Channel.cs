@@ -52,11 +52,11 @@ namespace Tubumu.Mediasoup
             _producerSocket.Error += ProducerSocketOnError;
         }
 
-        public override void Cleanup()
+        protected override void Cleanup()
         {
             base.Cleanup();
 
-            // Remove event listeners but leave a fake 'error' hander to avoid
+            // Remove event listeners but leave a fake 'error' handler to avoid
             // propagation.
             _consumerSocket.Data -= ConsumerSocketOnData;
             _consumerSocket.Closed -= ConsumerSocketOnClosed;

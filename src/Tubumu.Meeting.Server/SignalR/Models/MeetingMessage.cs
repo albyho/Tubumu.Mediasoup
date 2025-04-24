@@ -50,7 +50,7 @@ namespace Tubumu.Meeting.Server
             };
         }
 
-        public static new MeetingMessage<T> Failure(string? message = null)
+        public  new static MeetingMessage<T> Failure(string? message = null)
         {
             return new MeetingMessage<T> { Code = 400, Message = message ?? "Success" };
         }

@@ -114,7 +114,7 @@ namespace System
         /// </summary>
         /// <param name="source">源对象</param>
         /// <returns>字符串</returns>
-        public static string? ToNullableString<T>(this T source)
+        public static string? ToNullableString<T>(this T? source)
             where T : class
         {
             return source?.ToString();

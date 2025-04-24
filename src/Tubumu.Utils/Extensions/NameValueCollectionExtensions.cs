@@ -11,7 +11,7 @@ namespace System.Collections.Specialized
         /// <summary>
         /// IsTrue
         /// </summary>
-        public static bool IsTrue(this NameValueCollection collection, string key)
+        public static bool IsTrue(this NameValueCollection? collection, string key)
         {
             if (collection == null)
             {

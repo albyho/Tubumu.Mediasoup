@@ -162,7 +162,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected Transport(
             ILoggerFactory loggerFactory,
-            TransportInternal internal_,
+            TransportInternal @internal,
             DumpT data,
             IChannel channel,
             Dictionary<string, object>? appData,
@@ -174,7 +174,7 @@ namespace Tubumu.Mediasoup
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<Transport>();
 
-            Internal = internal_;
+            Internal = @internal;
             BaseData = data;
             Channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
@@ -627,7 +627,7 @@ namespace Tubumu.Mediasoup
                     // Transport, take it.
                     if (
                         _cnameForProducers.IsNullOrWhiteSpace()
-                        && producerOptions.RtpParameters.Rtcp?.Cname.IsNullOrWhiteSpace() == false
+                        && producerOptions.RtpParameters.Rtcp.Cname.IsNullOrWhiteSpace() == false
                     )
                     {
                         _cnameForProducers = producerOptions.RtpParameters.Rtcp.Cname;
@@ -641,7 +641,7 @@ namespace Tubumu.Mediasoup
 
                     // Override Producer's CNAME.
                     // 对 RtcpParameters 序列化时，CNAME 和 ReducedSize 为 null 会忽略，因为客户端库对其有校验。
-                    producerOptions.RtpParameters.Rtcp ??= new();
+                    producerOptions.RtpParameters.Rtcp ??= new RtcpParametersT();
                     producerOptions.RtpParameters.Rtcp.Cname = _cnameForProducers;
                 }
 

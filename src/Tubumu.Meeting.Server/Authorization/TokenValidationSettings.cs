@@ -8,41 +8,41 @@
         /// <summary>
         /// ValidIssuer
         /// </summary>
-        public string ValidIssuer { get; set; }
+        public string ValidIssuer { get; init; }
 
         /// <summary>
         /// ValidAudience
         /// </summary>
-        public string ValidAudience { get; set; }
+        public string ValidAudience { get; init; }
 
         /// <summary>
         /// IssuerSigningKey
         /// </summary>
-        public string IssuerSigningKey { get; set; }
+        public string IssuerSigningKey { get; init; }
 
         /// <summary>
         /// ValidateLifetime
         /// </summary>
-        public bool ValidateLifetime { get; set; }
+        public bool ValidateLifetime { get; init; }
 
         /// <summary>
         /// ClockSkewSeconds
         /// </summary>
-        public int ClockSkewSeconds { get; set; }
+        public int ClockSkewSeconds { get; init; }
 
         /// <summary>
         /// ExpiresSeconds
         /// </summary>
-        public int ExpiresSeconds { get; set; }
+        public int ExpiresSeconds { get; init; }
 
         /// <summary>
         /// RefreshTokenExpiresSeconds
         /// </summary>
-        public int RefreshTokenExpiresSeconds { get; set; }
+        public int RefreshTokenExpiresSeconds { get; init; }
 
         /// <summary>
         /// LoginUrl
         /// </summary>
-        public string LoginUrl { get; set; }
+        public string LoginUrl { get; init; }
     }
 }

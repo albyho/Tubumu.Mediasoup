@@ -19,15 +19,9 @@ namespace System.Net
         public static int ToInt32(this IPAddress ip)
         {
             var x = 3;
-            var v = 0;
             var bytes = ip.GetAddressBytes();
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                var f = bytes[i];
-                v += f << (8 * x--);
-            }
 
-            return v;
+            return bytes.Sum(f => f << (8 * x--));
         }
 
         /// <summary>
@@ -36,15 +30,9 @@ namespace System.Net
         public static long ToInt64(this IPAddress ip)
         {
             var x = 3;
-            var v = 0L;
             var bytes = ip.GetAddressBytes();
-            for (var i = 0; i < bytes.Length; i++)
-            {
-                var f = bytes[i];
-                v += (long)f << (8 * x--);
-            }
 
-            return v;
+            return bytes.Sum(f => (long)f << (8 * x--));
         }
 
         /// <summary>
@@ -88,7 +76,6 @@ namespace System.Net
         /// </summary>
         public static IEnumerable<IPAddress> GetLocalIPAddresses(AddressFamily? addressFamily = null)
         {
-            var ips = new List<IPAddress>();
             var host = Dns.GetHostEntry(Dns.GetHostName());
             return host.AddressList.Where(m => addressFamily == null || m.AddressFamily == addressFamily);
         }

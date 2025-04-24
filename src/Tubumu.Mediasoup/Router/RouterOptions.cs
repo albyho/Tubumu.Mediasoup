@@ -7,7 +7,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Router media codecs.
         /// </summary>
-        public RtpCodecCapability[] MediaCodecs { get; set; }
+        public RtpCodecCapability[] MediaCodecs { get; init; }
 
         /// <summary>
         /// Custom application data.

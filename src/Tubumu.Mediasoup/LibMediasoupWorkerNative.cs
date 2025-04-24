@@ -8,7 +8,7 @@ namespace Tubumu.Mediasoup
 {
     internal static class LibMediasoupWorkerNative
     {
-        internal const string Lib = "mediasoup-worker";
+        private const string Lib = "mediasoup-worker";
 
         #region P/Invoke Channel
 
@@ -54,7 +54,7 @@ namespace Tubumu.Mediasoup
         /// Call when wrote some messages to Channel or PayloadChannel
         /// </summary>
         /// <param name="handle">RequestMessage Queue handle</param>
-        /// <returns>Returns `0` on success, or an error code `< 0` on failure</returns>
+        /// <returns>Returns `0` on success, or an error code `greater than 0` on failure</returns>
         [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int uv_async_send(IntPtr handle);
 
@@ -63,14 +63,14 @@ namespace Tubumu.Mediasoup
         /// </summary>
         /// <param name="argc">Number of arguments</param>
         /// <param name="argv">The arguments</param>
-        /// <param name="version">Medisaoup version</param>
+        /// <param name="version">Mediasoup version</param>
         /// <param name="consumerChannelFd">Consumer channel fd, Zero.</param>
         /// <param name="producerChannelFd">Consumer channel fd, Zero.</param>
         /// <param name="channelReadFn">Channel read function</param>
         /// <param name="channelReadCtx">Channel read function context</param>
         /// <param name="channelWriteFn">Channel write function</param>
         /// <param name="channelWriteCtx">Channel write function context</param>
-        /// <returns>Returns `0` on success, or an error code `< 0` on failure</returns>
+        /// <returns>Returns `0` on success, or an error code `greater than 0` on failure</returns>
         [DllImport(
             Lib,
             EntryPoint = "mediasoup_worker_run",

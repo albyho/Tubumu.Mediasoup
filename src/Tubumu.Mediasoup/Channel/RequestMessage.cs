@@ -10,10 +10,10 @@ namespace Tubumu.Mediasoup
         #region Request
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public uint? Id { get; set; }
+        public uint? Id { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public Method? Method { get; set; }
+        public Method? Method { get; init; }
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace Tubumu.Mediasoup
 
         public string? HandlerId { get; set; }
 
-        public ArraySegment<byte> Payload { get; set; }
+        public ArraySegment<byte> Payload { get; init; }
 
         #endregion
     }

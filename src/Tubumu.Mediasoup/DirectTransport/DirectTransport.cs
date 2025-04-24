@@ -28,7 +28,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public DirectTransport(
             ILoggerFactory loggerFactory,
-            TransportInternal internal_,
+            TransportInternal @internal,
             DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
@@ -38,7 +38,7 @@ namespace Tubumu.Mediasoup
         )
             : base(
                 loggerFactory,
-                internal_,
+                @internal,
                 data.Base,
                 channel,
                 appData,
@@ -79,7 +79,7 @@ namespace Tubumu.Mediasoup
             var bufferBuilder = Channel.BufferPool.Get();
 
             var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
-            var data = response.Value.BodyAsDirectTransport_DumpResponse().UnPack();
+            var data = response!.Value.BodyAsDirectTransport_DumpResponse().UnPack();
 
             return data;
         }
@@ -99,8 +99,8 @@ namespace Tubumu.Mediasoup
                 null,
                 Internal.TransportId
             );
-            var data = response.Value.BodyAsDirectTransport_GetStatsResponse().UnPack();
-            return new[] { data };
+            var data = response!.Value.BodyAsDirectTransport_GetStatsResponse().UnPack();
+            return [data];
         }
 
         /// <summary>

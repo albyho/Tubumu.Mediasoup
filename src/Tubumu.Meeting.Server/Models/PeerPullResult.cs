@@ -5,8 +5,8 @@ namespace Tubumu.Meeting.Server
 {
     public class PeerPullResult
     {
-        public Producer[] ExistsProducers { get; set; }
+        public Producer[] ExistsProducers { get; init; }
 
-        public HashSet<string> ProduceSources { get; set; }
+        public HashSet<string> ProduceSources { get; init; }
     }
 }

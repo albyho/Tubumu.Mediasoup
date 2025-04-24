@@ -7,11 +7,11 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Producer
         /// </summary>
-        public Producer Producer { get; set; }
+        public Producer Producer { get; init; }
 
         /// <summary>
         /// PullPaddings
         /// </summary>
-        public PullPadding[] PullPaddings { get; set; }
+        public PullPadding[] PullPaddings { get; init; }
     }
 }

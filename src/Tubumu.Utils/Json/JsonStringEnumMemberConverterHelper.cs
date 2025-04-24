@@ -257,7 +257,7 @@ namespace System.Text.Json.Serialization
             {
                 ulong calculatedValue = 0;
 
-                var Builder = new StringBuilder();
+                var builder = new StringBuilder();
                 foreach (KeyValuePair<TEnum, EnumInfo> enumItem in _rawToTransformed)
                 {
                     enumInfo = enumItem.Value;
@@ -269,17 +269,17 @@ namespace System.Text.Json.Serialization
                     // Track the value to make sure all bits are represented.
                     calculatedValue |= enumInfo.RawValue;
 
-                    if (Builder.Length > 0)
+                    if (builder.Length > 0)
                     {
-                        Builder.Append(", ");
+                        builder.Append(", ");
                     }
 
-                    Builder.Append(enumInfo.Name);
+                    builder.Append(enumInfo.Name);
                 }
 
                 if (calculatedValue == rawValue)
                 {
-                    string finalName = Builder.ToString();
+                    string finalName = builder.ToString();
                     if (_rawToTransformed.Count < 64)
                     {
                         _rawToTransformed[value] = new EnumInfo(finalName, value, rawValue);

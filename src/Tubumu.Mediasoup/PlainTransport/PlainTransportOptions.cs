@@ -10,7 +10,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Listening information.
         /// </summary>
-        public ListenInfoT ListenInfo { get; set; }
+        public ListenInfoT ListenInfo { get; init; }
 
         /// <summary>
         /// RTCP listening information. If not given and rtcpPort is not false,
@@ -29,7 +29,7 @@ namespace Tubumu.Mediasoup
         /// SRTP is enabled. If so, it must be called with just remote SRTP parameters.
         /// Default false.
         /// </summary>
-        public bool Comedia { get; set; }
+        public bool Comedia { get; init; }
 
         /// <summary>
         /// Create a SCTP association. Default false.
@@ -45,7 +45,7 @@ namespace Tubumu.Mediasoup
         /// Maximum allowed size for SCTP messages sent by DataProducers.
         /// Default 262144.
         /// </summary>
-        public uint MaxSctpMessageSize { get; set; } = 262144;
+        public uint MaxSctpMessageSize { get; init; } = 262144;
 
         /// <summary>
         /// Maximum SCTP send buffer used by DataConsumers.
@@ -63,11 +63,11 @@ namespace Tubumu.Mediasoup
         /// The SRTP crypto suite to be used if enableSrtp is set. Default
         /// 'AES_CM_128_HMAC_SHA1_80'.
         /// </summary>
-        public SrtpCryptoSuite SrtpCryptoSuite { get; set; } = FBS.SrtpParameters.SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80;
+        public SrtpCryptoSuite SrtpCryptoSuite { get; set; } = SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80;
 
         /// <summary>
         /// Custom application data.
         /// </summary>
-        public Dictionary<string, object>? AppData { get; set; }
+        public Dictionary<string, object>? AppData { get; init; }
     }
 }

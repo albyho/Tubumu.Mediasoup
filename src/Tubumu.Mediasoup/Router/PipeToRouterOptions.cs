@@ -21,7 +21,7 @@ namespace Tubumu.Mediasoup
         public Router Router { get; set; }
 
         /// <summary>
-        /// Listenning Infomation.
+        /// Listening Information.
         /// </summary>
         public ListenInfoT ListenInfo { get; set; }
 

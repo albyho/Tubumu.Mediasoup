@@ -18,9 +18,9 @@ namespace System
                 if (ChineseChar.IsValidChar(item))
                 {
                     var cc = new ChineseChar(item);
-                    //PYstr += string.Join("", cc.Pinyins.ToArray());
+                    // pyStr += string.Join("", cc.Pinyins.ToArray());
                     pinYin += cc.Pinyins[0][0..^1].ToLowerInvariant();
-                    //PYstr += cc.Pinyins[0].Substring(0, cc.Pinyins[0].Length - 1).Substring(0, 1).ToLower();
+                    // pyStr += cc.Pinyins[0].Substring(0, cc.Pinyins[0].Length - 1).Substring(0, 1).ToLower();
                 }
                 else
                 {

@@ -8,7 +8,7 @@ namespace Tubumu.Utils
     {
         private readonly List<ArraySegment<byte>> _segments;
 
-        public int Count { get; private set; }
+        private int Count { get; set; }
 
         public ByteSegmentBuffer()
         {

@@ -7,9 +7,9 @@ namespace Tubumu.Mediasoup
 {
     public class MediasoupOptions
     {
-        public MediasoupStartupSettings MediasoupStartupSettings { get; set; }
+        public MediasoupStartupSettings MediasoupStartupSettings { get; private init; }
 
-        public MediasoupSettings MediasoupSettings { get; set; }
+        public MediasoupSettings MediasoupSettings { get; private init; }
 
         public static MediasoupOptions Default { get; } =
             new MediasoupOptions

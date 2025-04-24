@@ -26,7 +26,7 @@ namespace System
             var type = typeof(T);
             foreach (var field in type.GetFields())
             {
-                var curDesc = field.GetDescriptAttributes();
+                var curDesc = field.GetDescriptionAttributes();
                 if (curDesc?.Length > 0)
                 {
                     if (curDesc[0].Description == description)
@@ -51,7 +51,7 @@ namespace System
         /// </summary>
         /// <param name="fieldInfo">FieldInfo</param>
         /// <returns>DescriptionAttribute[] </returns>
-        private static DescriptionAttribute[]? GetDescriptAttributes(this FieldInfo fieldInfo)
+        private static DescriptionAttribute[]? GetDescriptionAttributes(this FieldInfo? fieldInfo)
         {
             return fieldInfo != null
                 ? (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false)
@@ -137,7 +137,7 @@ namespace System
         /// <typeparam name="T">泛型参数</typeparam>
         /// <param name="type">枚举类型</param>
         /// <returns>枚举值与对应的 DisplayAttribute 的 Name 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>(this Type type)
+        public static IEnumerable<KeyValuePair<T, string>> GetDisplayNameMap<T>(this Type type)
             where T : Enum
         {
             return from e in Enum.GetValues(type).Cast<T>() select new KeyValuePair<T, string>(e, e.GetDisplayName());
@@ -148,10 +148,10 @@ namespace System
         /// </summary>
         /// <typeparam name="T">泛型参数</typeparam>
         /// <returns>枚举值与对应的 DisplayAttribute 的 Name 形成的字典</returns>
-        public static IEnumerable<KeyValuePair<T, string>> GetDisaplayNameMap<T>()
+        public static IEnumerable<KeyValuePair<T, string>> GetDisplayNameMap<T>()
             where T : Enum
         {
-            return GetDisaplayNameMap<T>(typeof(T));
+            return GetDisplayNameMap<T>(typeof(T));
         }
 
         #endregion DisplayAttribute
@@ -201,7 +201,7 @@ namespace System
         public static IEnumerable<KeyValuePair<T, string>> GetEnumMemberValueMap<T>()
             where T : Enum
         {
-            return GetDisaplayNameMap<T>(typeof(T));
+            return GetDisplayNameMap<T>(typeof(T));
         }
 
         #endregion EnumMemberAttribute

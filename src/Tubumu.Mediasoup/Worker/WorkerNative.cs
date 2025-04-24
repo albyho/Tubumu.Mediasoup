@@ -13,7 +13,7 @@ namespace Tubumu.Mediasoup
 
         private readonly string _version;
 
-        private readonly IntPtr _channlPtr;
+        private readonly IntPtr _channelPtr;
 
         public WorkerNative(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
             : base(loggerFactory, mediasoupOptions)
@@ -64,7 +64,7 @@ namespace Tubumu.Mediasoup
 
             _channel = new ChannelNative(_loggerFactory.CreateLogger<ChannelNative>(), threadId);
             _channel.OnNotification += OnNotificationHandle;
-            _channlPtr = GCHandle.ToIntPtr(GCHandle.Alloc(_channel, GCHandleType.Normal));
+            _channelPtr = GCHandle.ToIntPtr(GCHandle.Alloc(_channel, GCHandleType.Normal));
         }
 
         public void Run()
@@ -76,9 +76,9 @@ namespace Tubumu.Mediasoup
                 0,
                 0,
                 ChannelNative.OnChannelRead,
-                _channlPtr,
+                _channelPtr,
                 ChannelNative.OnChannelWrite,
-                _channlPtr
+                _channelPtr
             );
 
             void OnExit()
@@ -110,9 +110,9 @@ namespace Tubumu.Mediasoup
 
         protected override void DestoryUnmanaged()
         {
-            if (_channlPtr != IntPtr.Zero)
+            if (_channelPtr != IntPtr.Zero)
             {
-                var handle = GCHandle.FromIntPtr(_channlPtr);
+                var handle = GCHandle.FromIntPtr(_channelPtr);
                 if (handle.IsAllocated)
                 {
                     handle.Free();

@@ -67,7 +67,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         protected RtpObserver(
             ILoggerFactory loggerFactory,
-            RtpObserverInternal internal_,
+            RtpObserverInternal @internal,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
@@ -75,7 +75,7 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<RtpObserver>();
 
-            Internal = internal_;
+            Internal = @internal;
             Channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
             GetProducerById = getProducerById;
@@ -270,7 +270,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("RepObserver closed");
                 }
 
-                var producer = GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
+                var producer = await GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
                 if (producer == null)
                 {
                     return;
@@ -316,7 +316,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("RepObserver closed");
                 }
 
-                var producer = GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
+                var producer = await GetProducerById(rtpObserverAddRemoveProducerOptions.ProducerId);
                 if (producer == null)
                 {
                     return;

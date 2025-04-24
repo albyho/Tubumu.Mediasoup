@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Threading;
 
 namespace Tubumu.Mediasoup
 {
-    public abstract class WorkerBase : EventEmitter, IDisposable, IWorker
+    public abstract class WorkerBase : EventEmitter, IWorker
     {
         #region Protected Fields
 
@@ -113,7 +113,7 @@ namespace Tubumu.Mediasoup
                 var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.WORKER_DUMP);
-                var data = response.Value.BodyAsWorker_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsWorker_DumpResponse().UnPack();
                 return data;
             }
         }
@@ -136,7 +136,7 @@ namespace Tubumu.Mediasoup
                 var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.WORKER_GET_RESOURCE_USAGE);
-                var data = response.Value.BodyAsWorker_ResourceUsageResponse().UnPack();
+                var data = response!.Value.BodyAsWorker_ResourceUsageResponse().UnPack();
 
                 return data;
             }
@@ -158,7 +158,7 @@ namespace Tubumu.Mediasoup
 
                 var logLevel = workerUpdateableSettings.LogLevel ?? WorkerLogLevel.None;
                 var logLevelString = logLevel.GetEnumMemberValue();
-                var logTags = workerUpdateableSettings.LogTags ?? Array.Empty<WorkerLogTag>();
+                var logTags = workerUpdateableSettings.LogTags ?? [];
                 var logTagStrings = logTags.Select(m => m.GetEnumMemberValue()).ToList();
 
                 // Build Request
@@ -332,7 +332,7 @@ namespace Tubumu.Mediasoup
 
         #region IDisposable Support
 
-        private bool disposedValue = false; // 要检测冗余调用
+        private bool _disposedValue = false; // 要检测冗余调用
 
         protected virtual void DestroyManaged() { }
 
@@ -340,7 +340,7 @@ namespace Tubumu.Mediasoup
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
@@ -352,7 +352,7 @@ namespace Tubumu.Mediasoup
                 // TODO: 将大型字段设置为 null。
                 DestoryUnmanaged();
 
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 

@@ -48,6 +48,7 @@ namespace System.Threading.Tasks
         /// </summary>
         /// <param name="task">The task to wait for.</param>
         /// <param name="timeout">The maximum time to wait.</param>
+        /// <param name="cancelled"></param>
         /// <returns>
         /// A task that completes with the result of the specified <paramref name="task"/> or
         /// faults with a <see cref="TimeoutException"/> if <paramref name="timeout"/> elapses first.
@@ -68,7 +69,7 @@ namespace System.Threading.Tasks
             }
 
             // The timeout did not elapse, so cancel the timer to recover system resources.
-            timerCancellation.Cancel();
+            await timerCancellation.CancelAsync();
 
             // re-throw any exceptions from the completed task.
             await task.ConfigureAwait(false);
@@ -81,6 +82,7 @@ namespace System.Threading.Tasks
         /// <typeparam name="T">The type of value returned by the original task.</typeparam>
         /// <param name="task">The task to wait for.</param>
         /// <param name="timeout">The maximum time to wait.</param>
+        /// <param name="cancelled"></param>
         /// <returns>
         /// A task that completes with the result of the specified <paramref name="task"/> or
         /// faults with a <see cref="TimeoutException"/> if <paramref name="timeout"/> elapses first.
@@ -123,7 +125,7 @@ namespace System.Threading.Tasks
         /// </summary>
         /// <typeparam name="TResult">Specifies the type of the result.</typeparam>
         /// <param name="resultSetter">The TaskCompletionSource.</param>
-        /// <param name="task">The task whose completion results should be transfered.</param>
+        /// <param name="task">The task whose completion results should be transferred.</param>
         /// <returns>Whether the transfer could be completed.</returns>
         public static bool TrySetFromTask<TResult>(this TaskCompletionSource<TResult> resultSetter, Task task)
         {
@@ -157,7 +159,7 @@ namespace System.Threading.Tasks
         /// </summary>
         /// <typeparam name="TResult">Specifies the type of the result.</typeparam>
         /// <param name="resultSetter">The TaskCompletionSource.</param>
-        /// <param name="task">The task whose completion results should be transfered.</param>
+        /// <param name="task">The task whose completion results should be transferred.</param>
         /// <returns>Whether the transfer could be completed.</returns>
         public static bool TrySetFromTask<TResult>(this TaskCompletionSource<TResult> resultSetter, Task<TResult> task)
         {
@@ -206,7 +208,7 @@ namespace System.Threading.Tasks
 
         /// <summary>
         /// Set the TaskCompletionSource in an async fashion. This prevents the Task Continuation being executed sync on the same thread
-        /// This is required otherwise contintinuations will happen on CEF UI threads
+        /// This is required otherwise continue actions will happen on CEF UI threads
         /// </summary>
         /// <typeparam name="TResult">Generic param</typeparam>
         /// <param name="taskCompletionSource">tcs</param>
@@ -426,7 +428,7 @@ namespace System.Threading.Tasks
         /// <summary>
         /// Gets a value indicating whether the operation is complete.
         /// </summary>
-        public bool IsComplete => _manualResetEvent.WaitOne(0);
+        public bool IsCompleted => _manualResetEvent.WaitOne(0);
 
         /// <summary>
         /// Synchronously get the result of an asynchronous operation.
@@ -451,7 +453,7 @@ namespace System.Threading.Tasks
         /// </returns>
         public bool TryGetResult(out TResult? operationResult)
         {
-            if (IsComplete)
+            if (IsCompleted)
             {
                 operationResult = _exception != null ? throw _exception : _result;
                 return true;

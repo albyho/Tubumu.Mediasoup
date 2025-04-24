@@ -44,12 +44,12 @@ namespace System.Text.Json.Serialization
         /// <inheritdoc/>
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            (bool IsNullableEnum, Type? UnderlyingType) = TestNullableEnum(typeToConvert);
+            (bool isNullableEnum, Type? underlyingType) = TestNullableEnum(typeToConvert);
 
-            return IsNullableEnum
+            return isNullableEnum
                 ? (JsonConverter)
                     Activator.CreateInstance(
-                        typeof(NullableEnumMemberConverter<>).MakeGenericType(UnderlyingType!)!,
+                        typeof(NullableEnumMemberConverter<>).MakeGenericType(underlyingType!),
                         BindingFlags.Instance | BindingFlags.Public,
                         binder: null,
                         args: new object?[] { _namingPolicy, _allowIntegerValues },
@@ -57,7 +57,7 @@ namespace System.Text.Json.Serialization
                     )!
                 : (JsonConverter)
                     Activator.CreateInstance(
-                        typeof(EnumMemberConverter<>).MakeGenericType(typeToConvert)!,
+                        typeof(EnumMemberConverter<>).MakeGenericType(typeToConvert),
                         BindingFlags.Instance | BindingFlags.Public,
                         binder: null,
                         args: new object?[] { _namingPolicy, _allowIntegerValues },
@@ -67,9 +67,9 @@ namespace System.Text.Json.Serialization
 
         private static (bool IsNullableEnum, Type? UnderlyingType) TestNullableEnum(Type typeToConvert)
         {
-            Type? UnderlyingType = Nullable.GetUnderlyingType(typeToConvert);
+            Type? underlyingType = Nullable.GetUnderlyingType(typeToConvert);
 
-            return (UnderlyingType?.IsEnum ?? false, UnderlyingType);
+            return (underlyingType?.IsEnum ?? false, underlyingType);
         }
 
 #pragma warning disable CA1812 // Remove class never instantiated
@@ -77,11 +77,11 @@ namespace System.Text.Json.Serialization
             where TEnum : struct, Enum
 #pragma warning restore CA1812 // Remove class never instantiated
         {
-            private readonly JsonStringEnumMemberConverterHelper<TEnum> _JsonStringEnumMemberConverterHelper;
+            private readonly JsonStringEnumMemberConverterHelper<TEnum> _jsonStringEnumMemberConverterHelper;
 
             public EnumMemberConverter(JsonNamingPolicy? namingPolicy, bool allowIntegerValues)
             {
-                _JsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(
+                _jsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(
                     namingPolicy,
                     allowIntegerValues
                 );
@@ -89,12 +89,12 @@ namespace System.Text.Json.Serialization
 
             public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                return _JsonStringEnumMemberConverterHelper.Read(ref reader);
+                return _jsonStringEnumMemberConverterHelper.Read(ref reader);
             }
 
             public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
             {
-                _JsonStringEnumMemberConverterHelper.Write(writer, value);
+                _jsonStringEnumMemberConverterHelper.Write(writer, value);
             }
         }
 
@@ -103,11 +103,11 @@ namespace System.Text.Json.Serialization
             where TEnum : struct, Enum
 #pragma warning restore CA1812 // Remove class never instantiated
         {
-            private readonly JsonStringEnumMemberConverterHelper<TEnum> _JsonStringEnumMemberConverterHelper;
+            private readonly JsonStringEnumMemberConverterHelper<TEnum> _jsonStringEnumMemberConverterHelper;
 
             public NullableEnumMemberConverter(JsonNamingPolicy? namingPolicy, bool allowIntegerValues)
             {
-                _JsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(
+                _jsonStringEnumMemberConverterHelper = new JsonStringEnumMemberConverterHelper<TEnum>(
                     namingPolicy,
                     allowIntegerValues
                 );
@@ -115,12 +115,12 @@ namespace System.Text.Json.Serialization
 
             public override TEnum? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                return _JsonStringEnumMemberConverterHelper.Read(ref reader);
+                return _jsonStringEnumMemberConverterHelper.Read(ref reader);
             }
 
             public override void Write(Utf8JsonWriter writer, TEnum? value, JsonSerializerOptions options)
             {
-                _JsonStringEnumMemberConverterHelper.Write(writer, value!.Value);
+                _jsonStringEnumMemberConverterHelper.Write(writer, value!.Value);
             }
         }
     }

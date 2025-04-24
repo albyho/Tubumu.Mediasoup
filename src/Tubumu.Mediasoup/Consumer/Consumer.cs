@@ -87,7 +87,7 @@ namespace Tubumu.Mediasoup
         public ConsumerLayersT? PreferredLayers { get; private set; }
 
         /// <summary>
-        /// Curent layers.
+        /// Current layers.
         /// </summary>
         public ConsumerLayersT? CurrentLayers { get; private set; }
 
@@ -118,19 +118,19 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public Consumer(
             ILoggerFactory loggerFactory,
-            ConsumerInternal internal_,
+            ConsumerInternal @internal,
             ConsumerData data,
             IChannel channel,
             Dictionary<string, object>? appData,
             bool paused,
             bool producerPaused,
-            FBS.Consumer.ConsumerScoreT? score,
+            ConsumerScoreT? score,
             ConsumerLayersT? preferredLayers
         )
         {
             _logger = loggerFactory.CreateLogger<Consumer>();
 
-            _internal = internal_;
+            _internal = @internal;
             Data = data;
             _channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
@@ -236,7 +236,7 @@ namespace Tubumu.Mediasoup
                     null,
                     _internal.ConsumerId
                 );
-                var data = response.Value.BodyAsConsumer_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsConsumer_DumpResponse().UnPack();
                 return data;
             }
         }
@@ -263,7 +263,7 @@ namespace Tubumu.Mediasoup
                     null,
                     _internal.ConsumerId
                 );
-                var stats = response.Value.BodyAsConsumer_GetStatsResponse().UnPack().Stats;
+                var stats = response!.Value.BodyAsConsumer_GetStatsResponse().UnPack().Stats;
                 return stats;
             }
         }
@@ -384,7 +384,7 @@ namespace Tubumu.Mediasoup
                     setPreferredLayersRequestOffset.Value,
                     _internal.ConsumerId
                 );
-                var preferredLayers = response.Value.BodyAsConsumer_SetPreferredLayersResponse().UnPack().PreferredLayers;
+                var preferredLayers = response!.Value.BodyAsConsumer_SetPreferredLayersResponse().UnPack().PreferredLayers;
 
                 PreferredLayers = preferredLayers;
             }
@@ -416,7 +416,7 @@ namespace Tubumu.Mediasoup
                     _internal.ConsumerId
                 );
 
-                var priorityResponse = response.Value.BodyAsConsumer_SetPriorityResponse().UnPack().Priority;
+                var priorityResponse = response!.Value.BodyAsConsumer_SetPriorityResponse().UnPack().Priority;
 
                 Priority = priorityResponse;
             }
@@ -456,7 +456,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Enable 'trace' event.
         /// </summary>
-        public async Task EnableTraceEventAsync(List<TraceEventType> types)
+        public async Task EnableTraceEventAsync(List<TraceEventType>? types)
         {
             _logger.LogDebug("EnableTraceEventAsync() | Consumer:{ConsumerId}", ConsumerId);
 
@@ -470,9 +470,9 @@ namespace Tubumu.Mediasoup
                 // Build Request
                 var bufferBuilder = _channel.BufferPool.Get();
 
-                var request = new EnableTraceEventRequestT { Events = types ?? new List<TraceEventType>(0) };
+                var request = new EnableTraceEventRequestT { Events = types ?? [] };
 
-                var requestOffset = FBS.Consumer.EnableTraceEventRequest.Pack(bufferBuilder, request);
+                var requestOffset = EnableTraceEventRequest.Pack(bufferBuilder, request);
 
                 // Fire and forget
                 _channel

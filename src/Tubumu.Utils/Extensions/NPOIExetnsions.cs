@@ -11,7 +11,7 @@ namespace NPOI
     /// <summary>
     /// NPOI 扩展方法
     /// </summary>
-    public static class NPOIExetnsion
+    public static class NPOIExtensions
     {
         /// <summary>
         /// 从某个单元格中复制数字
@@ -174,7 +174,7 @@ namespace NPOI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"OpenExecelFile failure | {ex.Message}");
+                Debug.WriteLine($"OpenExcelFile failure | {ex.Message}");
                 var file = new FileStream(path, FileMode.Open, FileAccess.Read);
                 book = new HSSFWorkbook(file);
             }

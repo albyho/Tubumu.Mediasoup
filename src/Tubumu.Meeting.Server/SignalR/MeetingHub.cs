@@ -915,29 +915,29 @@ namespace Tubumu.Meeting.Server
         }
 
         /// <summary>
-        /// Set consumer's preferedLayers.
+        /// Set consumer's preferredLayers.
         /// </summary>
-        public async Task<MeetingMessage> SetConsumerPreferedLayers(
-            SetConsumerPreferedLayersRequest setConsumerPreferedLayersRequest
+        public async Task<MeetingMessage> SetConsumerPreferredLayers(
+            SetConsumerPreferredLayersRequest setConsumerPreferredLayersRequest
         )
         {
             try
             {
-                if (await _scheduler.SetConsumerPreferedLayersAsync(UserId, ConnectionId, setConsumerPreferedLayersRequest))
+                if (await _scheduler.SetConsumerPreferredLayersAsync(UserId, ConnectionId, setConsumerPreferredLayersRequest))
                 {
-                    return MeetingMessage.Success("SetConsumerPreferedLayers 成功");
+                    return MeetingMessage.Success("SetConsumerPreferredLayers 成功");
                 }
             }
             catch (MeetingException ex)
             {
-                _logger.LogError("SetConsumerPreferedLayers 调用失败: {Message}", ex.Message);
+                _logger.LogError("SetConsumerPreferredLayers 调用失败: {Message}", ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "SetConsumerPreferedLayers 调用失败.");
+                _logger.LogError(ex, "SetConsumerPreferredLayers 调用失败.");
             }
 
-            return MeetingMessage.Failure("SetConsumerPreferedLayers 失败");
+            return MeetingMessage.Failure("SetConsumerPreferredLayers 失败");
         }
 
         /// <summary>
@@ -961,7 +961,7 @@ namespace Tubumu.Meeting.Server
                 _logger.LogError(ex, "SetConsumerPriority 调用失败.");
             }
 
-            return MeetingMessage.Failure("SetConsumerPreferedLayers 失败");
+            return MeetingMessage.Failure("SetConsumerPreferredLayers 失败");
         }
 
         /// <summary>
@@ -1155,7 +1155,7 @@ namespace Tubumu.Meeting.Server
         }
 
         /// <summary>
-        /// Unset peer'ss appData. Then notify other peer, if in a room.
+        /// Unset peer's appData. Then notify other peer, if in a room.
         /// </summary>
         public async Task<MeetingMessage> UnsetPeerAppData(UnsetPeerAppDataRequest unsetPeerAppDataRequest)
         {

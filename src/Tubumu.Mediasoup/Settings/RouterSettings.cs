@@ -2,6 +2,6 @@
 {
     public class RouterSettings
     {
-        public RtpCodecCapability[] RtpCodecCapabilities { get; set; }
+        public RtpCodecCapability[] RtpCodecCapabilities { get; init; }
     }
 }

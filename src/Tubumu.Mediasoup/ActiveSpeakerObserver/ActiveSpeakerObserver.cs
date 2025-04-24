@@ -28,12 +28,12 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public ActiveSpeakerObserver(
             ILoggerFactory loggerFactory,
-            RtpObserverInternal internal_,
+            RtpObserverInternal @internal,
             IChannel channel,
             Dictionary<string, object>? appData,
             Func<string, Task<Producer?>> getProducerById
         )
-            : base(loggerFactory, internal_, channel, appData, getProducerById)
+            : base(loggerFactory, @internal, channel, appData, getProducerById)
         {
             _logger = loggerFactory.CreateLogger<ActiveSpeakerObserver>();
         }
@@ -55,7 +55,7 @@ namespace Tubumu.Mediasoup
                         .BodyAsActiveSpeakerObserver_DominantSpeakerNotification()
                         .UnPack();
 
-                    var producer = GetProducerById(dominantSpeakerNotification.ProducerId);
+                    var producer = await GetProducerById(dominantSpeakerNotification.ProducerId);
                     if (producer != null)
                     {
                         var dominantSpeaker = new ActiveSpeakerObserverDominantSpeaker

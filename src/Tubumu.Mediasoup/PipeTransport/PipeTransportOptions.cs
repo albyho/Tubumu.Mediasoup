@@ -7,19 +7,19 @@ namespace Tubumu.Mediasoup
     public class PipeTransportOptions
     {
         /// <summary>
-        /// Listening Infomation.
+        /// Listening Information.
         /// </summary>
-        public ListenInfoT ListenInfo { get; set; }
+        public ListenInfoT ListenInfo { get; init; }
 
         /// <summary>
         /// Create a SCTP association. Default false.
         /// </summary>
-        public bool EnableSctp { get; set; }
+        public bool EnableSctp { get; init; }
 
         /// <summary>
         /// SCTP streams number.
         /// </summary>
-        public NumSctpStreamsT NumSctpStreams { get; set; } = new NumSctpStreamsT { Os = 1024, Mis = 1024 };
+        public NumSctpStreamsT NumSctpStreams { get; init; } = new NumSctpStreamsT { Os = 1024, Mis = 1024 };
 
         /// <summary>
         /// Maximum allowed size for SCTP messages sent by DataProducers.
@@ -38,14 +38,14 @@ namespace Tubumu.Mediasoup
         /// located in different hosts and there is packet lost in the link. For this
         /// to work, both PipeTransports must enable this setting. Default false.
         /// </summary>
-        public bool EnableRtx { get; set; }
+        public bool EnableRtx { get; init; }
 
         /// <summary>
         /// Enable SRTP. Useful to protect the RTP and RTCP traffic if both Routers
         /// are located in different hosts. For this to work, connect() must be called
         /// with remote SRTP parameters. Default false.
         /// </summary>
-        public bool EnableSrtp { get; set; }
+        public bool EnableSrtp { get; init; }
 
         /// <summary>
         /// Custom application data.

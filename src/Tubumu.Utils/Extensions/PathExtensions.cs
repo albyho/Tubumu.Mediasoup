@@ -18,12 +18,12 @@ namespace System
             }
 
             var extension = Path.GetExtension(path);
-            if (extension?.Length == 0)
+            if (extension.Length == 0)
             {
                 throw new Exception("No extension");
             }
 
-            var newPath = $"{path[..^extension!.Length]}{newExtension}";
+            var newPath = $"{path[..^extension.Length]}{newExtension}";
             return newPath;
         }
     }

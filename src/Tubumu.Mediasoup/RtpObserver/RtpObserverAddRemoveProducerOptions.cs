@@ -2,6 +2,6 @@
 {
     public class RtpObserverAddRemoveProducerOptions
     {
-        public string ProducerId { get; set; }
+        public string ProducerId { get; init; }
     }
 }

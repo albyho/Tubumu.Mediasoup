@@ -7,7 +7,7 @@
     {
         public static byte[] IntPtrToBytes(this IntPtr input)
         {
-            return IntPtr.Size == sizeof(int) ? BitConverter.GetBytes((int)input) : BitConverter.GetBytes((long)input);
+            return IntPtr.Size == sizeof(int) ? BitConverter.GetBytes((int)input) : BitConverter.GetBytes(input);
         }
 
         public static IntPtr BytesToIntPtr(this byte[] input)

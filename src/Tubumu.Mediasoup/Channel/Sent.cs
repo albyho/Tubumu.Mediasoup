@@ -5,12 +5,12 @@ namespace Tubumu.Mediasoup
 {
     public class Sent
     {
-        public RequestMessage RequestMessage { get; set; }
+        public RequestMessage RequestMessage { get; init; }
 
-        public Action<Response> Resolve { get; set; }
+        public Action<Response> Resolve { get; init; }
 
-        public Action<Exception> Reject { get; set; }
+        public Action<Exception> Reject { get; init; }
 
-        public Action Close { get; set; }
+        public Action Close { get; init; }
     }
 }

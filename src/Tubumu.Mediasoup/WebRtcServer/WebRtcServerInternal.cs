@@ -2,6 +2,6 @@
 {
     public class WebRtcServerInternal
     {
-        public string WebRtcServerId { get; set; }
+        public string WebRtcServerId { get; init; }
     }
 }

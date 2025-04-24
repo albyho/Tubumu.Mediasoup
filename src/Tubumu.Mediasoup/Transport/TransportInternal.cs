@@ -3,7 +3,7 @@
     public class TransportInternal : RouterInternal
     {
         /// <summary>
-        /// Trannsport id.
+        /// Transport id.
         /// </summary>
         public string TransportId { get; }
 

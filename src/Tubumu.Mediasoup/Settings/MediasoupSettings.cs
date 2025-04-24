@@ -2,14 +2,14 @@
 {
     public class MediasoupSettings
     {
-        public WorkerSettings WorkerSettings { get; set; }
+        public WorkerSettings WorkerSettings { get; init; }
 
         public RouterSettings RouterSettings { get; set; }
 
-        public WebRtcServerSettings WebRtcServerSettings { get; set; }
+        public WebRtcServerSettings WebRtcServerSettings { get; init; }
 
-        public WebRtcTransportSettings WebRtcTransportSettings { get; set; }
+        public WebRtcTransportSettings WebRtcTransportSettings { get; init; }
 
-        public PlainTransportSettings PlainTransportSettings { get; set; }
+        public PlainTransportSettings PlainTransportSettings { get; init; }
     }
 }

@@ -39,7 +39,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public PlainTransport(
             ILoggerFactory loggerFactory,
-            TransportInternal internal_,
+            TransportInternal @internal,
             DumpResponseT data,
             IChannel channel,
             Dictionary<string, object>? appData,
@@ -49,7 +49,7 @@ namespace Tubumu.Mediasoup
         )
             : base(
                 loggerFactory,
-                internal_,
+                @internal,
                 data.Base,
                 channel,
                 appData,
@@ -95,7 +95,7 @@ namespace Tubumu.Mediasoup
             var bufferBuilder = Channel.BufferPool.Get();
 
             var response = await Channel.RequestAsync(bufferBuilder, Method.TRANSPORT_DUMP, null, null, Internal.TransportId);
-            var data = response.Value.BodyAsPlainTransport_DumpResponse().UnPack();
+            var data = response!.Value.BodyAsPlainTransport_DumpResponse().UnPack();
 
             return data;
         }
@@ -115,9 +115,9 @@ namespace Tubumu.Mediasoup
                 null,
                 Internal.TransportId
             );
-            var data = response.Value.BodyAsPlainTransport_GetStatsResponse().UnPack();
+            var data = response!.Value.BodyAsPlainTransport_GetStatsResponse().UnPack();
 
-            return new[] { data };
+            return [data];
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace Tubumu.Mediasoup
             );
 
             /* Decode Response. */
-            var data = response.Value.BodyAsPlainTransport_ConnectResponse().UnPack();
+            var data = response!.Value.BodyAsPlainTransport_ConnectResponse().UnPack();
 
             // Update data.
             if (data.Tuple != null)

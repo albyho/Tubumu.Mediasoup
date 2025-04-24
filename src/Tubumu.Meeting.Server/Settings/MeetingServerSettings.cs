@@ -2,6 +2,6 @@
 {
     public class MeetingServerSettings
     {
-        public ServeMode ServeMode { get; set; }
+        public ServeMode ServeMode { get; init; }
     }
 }

@@ -202,7 +202,7 @@ namespace Tubumu.Mediasoup
                 var bufferBuilder = _channel.BufferPool.Get();
 
                 var response = await _channel.RequestAsync(bufferBuilder, Method.ROUTER_DUMP, null, null, _internal.RouterId);
-                var data = response.Value.BodyAsRouter_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsRouter_DumpResponse().UnPack();
 
                 return data;
             }
@@ -261,7 +261,7 @@ namespace Tubumu.Mediasoup
                 else
                 {
                     var fbsListenInfos = webRtcTransportOptions
-                        .ListenInfos!.Select(m => new FBS.Transport.ListenInfoT
+                        .ListenInfos!.Select(m => new ListenInfoT
                         {
                             Protocol = m.Protocol,
                             Ip = m.Ip,
@@ -280,7 +280,7 @@ namespace Tubumu.Mediasoup
                     };
                 }
 
-                var baseTransportOptions = new FBS.Transport.OptionsT
+                var baseTransportOptions = new OptionsT
                 {
                     Direct = false,
                     MaxMessageSize = null,
@@ -337,7 +337,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsWebRtcTransport_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsWebRtcTransport_DumpResponse().UnPack();
 
                 var transport = new WebRtcTransport(
                     _loggerFactory,
@@ -388,13 +388,13 @@ namespace Tubumu.Mediasoup
                 }
 
                 // If rtcpMux is enabled, ignore rtcpListenInfo.
-                if (plainTransportOptions.RtcpMux && plainTransportOptions.RtcpListenInfo != null)
+                if (plainTransportOptions is { RtcpMux: true, RtcpListenInfo: not null })
                 {
                     _logger.LogWarning("createPlainTransport() | ignoring rtcpMux since rtcpListenInfo is given");
                     plainTransportOptions.RtcpMux = false;
                 }
 
-                var baseTransportOptions = new FBS.Transport.OptionsT
+                var baseTransportOptions = new OptionsT
                 {
                     Direct = false,
                     MaxMessageSize = null,
@@ -440,7 +440,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsPlainTransport_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsPlainTransport_DumpResponse().UnPack();
 
                 var transport = new PlainTransport(
                     _loggerFactory,
@@ -492,7 +492,7 @@ namespace Tubumu.Mediasoup
                     throw new ArgumentException("Missing ListenInfo");
                 }
 
-                var baseTransportOptions = new FBS.Transport.OptionsT
+                var baseTransportOptions = new OptionsT
                 {
                     Direct = false,
                     MaxMessageSize = null,
@@ -537,7 +537,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsPipeTransport_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsPipeTransport_DumpResponse().UnPack();
 
                 var transport = new PipeTransport(
                     _loggerFactory,
@@ -582,7 +582,7 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Router closed");
                 }
 
-                var baseTransportOptions = new FBS.Transport.OptionsT
+                var baseTransportOptions = new OptionsT
                 {
                     Direct = true,
                     MaxMessageSize = directTransportOptions.MaxMessageSize,
@@ -625,7 +625,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsDirectTransport_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsDirectTransport_DumpResponse().UnPack();
 
                 var transport = new DirectTransport(
                     _loggerFactory,
@@ -1100,7 +1100,7 @@ namespace Tubumu.Mediasoup
                     {
                         await using (await _producersLock.ReadLockAsync())
                         {
-                            return _producers.TryGetValue(m, out var p) ? p : null;
+                            return _producers.GetValueOrDefault(m);
                         }
                     }
                 );
@@ -1166,7 +1166,7 @@ namespace Tubumu.Mediasoup
                     {
                         await using (await _producersLock.ReadLockAsync())
                         {
-                            return _producers.TryGetValue(m, out var p) ? p : null;
+                            return _producers.GetValueOrDefault(m);
                         }
                     }
                 );

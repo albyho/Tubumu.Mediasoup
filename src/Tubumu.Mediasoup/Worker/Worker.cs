@@ -162,7 +162,7 @@ namespace Tubumu.Mediasoup
             _channel = new Channel(_loggerFactory.CreateLogger<Channel>(), _pipes[3], _pipes[4], ProcessId);
             _channel.OnNotification += OnNotificationHandle;
 
-            _pipes.ForEach(m => m?.Resume());
+            _pipes.ForEach(m => m.Resume());
         }
 
         public override async Task CloseAsync()
@@ -181,7 +181,7 @@ namespace Tubumu.Mediasoup
                 // Kill the worker process.
                 if (_child != null)
                 {
-                    // Remove event listeners but leave a fake 'error' hander to avoid
+                    // Remove event listeners but leave a fake 'error' handler to avoid
                     // propagation.
                     _child.Kill(
                         15 /*SIGTERM*/
@@ -226,7 +226,7 @@ namespace Tubumu.Mediasoup
         protected override void DestroyManaged()
         {
             _child?.Dispose();
-            _pipes.ForEach(m => m?.Dispose());
+            _pipes.ForEach(m => m.Dispose());
         }
 
         #region Event handles

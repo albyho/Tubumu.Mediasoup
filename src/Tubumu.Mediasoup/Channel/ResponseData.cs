@@ -17,7 +17,7 @@ namespace Tubumu.Mediasoup
     public class TransportProduceResponseData
     {
         /// <summary>
-        /// Producer donot support `pipe`
+        /// Producer doesn't support `pipe`
         /// </summary>
         public FBS.RtpParameters.Type Type { get; set; }
     }

@@ -85,7 +85,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public DataConsumer(
             ILoggerFactory loggerFactory,
-            DataConsumerInternal internal_,
+            DataConsumerInternal @internal,
             DataConsumerData data,
             IChannel channel,
             bool paused,
@@ -96,7 +96,7 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<DataConsumer>();
 
-            _internal = internal_;
+            _internal = @internal;
             Data = data;
             _channel = channel;
             _paused = paused;
@@ -209,7 +209,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsDataConsumer_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsDataConsumer_DumpResponse().UnPack();
                 return data;
             }
         }
@@ -240,7 +240,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 // Decode Response
-                var data = response.Value.BodyAsDataConsumer_GetStatsResponse().UnPack();
+                var data = response!.Value.BodyAsDataConsumer_GetStatsResponse().UnPack();
 
                 return new[] { data };
             }
@@ -453,7 +453,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsDataConsumer_GetBufferedAmountResponse().UnPack();
+                var data = response!.Value.BodyAsDataConsumer_GetBufferedAmountResponse().UnPack();
                 return data.BufferedAmount;
             }
         }
@@ -488,7 +488,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsDataConsumer_SetSubchannelsResponse().UnPack();
+                var data = response!.Value.BodyAsDataConsumer_SetSubchannelsResponse().UnPack();
                 // Update subchannels.
                 _subchannels = data.Subchannels;
             }
@@ -524,7 +524,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsDataConsumer_AddSubchannelResponse().UnPack();
+                var data = response!.Value.BodyAsDataConsumer_AddSubchannelResponse().UnPack();
                 // Update subchannels.
                 _subchannels = data.Subchannels;
             }
@@ -560,7 +560,7 @@ namespace Tubumu.Mediasoup
                 );
 
                 /* Decode Response. */
-                var data = response.Value.BodyAsDataConsumer_AddSubchannelResponse().UnPack();
+                var data = response!.Value.BodyAsDataConsumer_AddSubchannelResponse().UnPack();
                 // Update subchannels.
                 _subchannels = data.Subchannels;
             }

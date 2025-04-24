@@ -238,7 +238,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// HexFromByteArray
         /// </summary>
-        public static string HexFromByteArray(byte[] value)
+        public static string HexFromByteArray(byte[]? value)
         {
             if (value == null || value.Length == 0)
             {

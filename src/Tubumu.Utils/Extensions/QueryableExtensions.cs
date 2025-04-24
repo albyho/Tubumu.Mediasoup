@@ -135,7 +135,7 @@ namespace System.Linq
                     )
             );
             Expression body = containsExpressions.Aggregate(
-                (accumulate, containsExpression) => Expression.Or(accumulate, containsExpression)
+                Expression.Or
             );
 
             return query.Where(Expression.Lambda<Func<TEntity, bool>>(body, p));
@@ -178,7 +178,7 @@ namespace System.Linq
                         )
                     )
             );
-            Expression body = anyExpressions.Aggregate((accumulate, any) => Expression.Or(accumulate, any));
+            Expression body = anyExpressions.Aggregate(Expression.Or);
 
             return query.Where(Expression.Lambda<Func<TEntity, bool>>(body, selectorParameter));
         }
@@ -219,7 +219,7 @@ namespace System.Linq
             IEnumerable<Expression> equals = values.Select(value =>
                 (Expression)Expression.Equal(selector.Body, Expression.Constant(value, typeof(TValue)))
             );
-            Expression body = equals.Aggregate((accumulate, equal) => Expression.Or(accumulate, equal));
+            Expression body = equals.Aggregate(Expression.Or);
 
             return query.Where(Expression.Lambda<Func<TEntity, bool>>(body, p));
         }
@@ -389,7 +389,7 @@ namespace System.Linq
         /// </summary>
         public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, string propertyName)
         {
-            return Order(source, propertyName, false, false);
+            return Order(source, propertyName, false);
         }
 
         /// <summary>
@@ -397,7 +397,7 @@ namespace System.Linq
         /// </summary>
         public static IOrderedQueryable<T> OrderByDescending<T>(this IQueryable<T> source, string propertyName)
         {
-            return Order(source, propertyName, true, false);
+            return Order(source, propertyName, true);
         }
 
         /// <summary>
@@ -455,7 +455,7 @@ namespace System.Linq
             return typeof(Enumerable)
                 .GetTypeInfo()
                 .GetDeclaredMethods(name)
-                .Single(_ => _.GetParameters().Length == parameterCount && (predicate == null || predicate(_)));
+                .Single(m => m.GetParameters().Length == parameterCount && (predicate == null || predicate(m)));
         }
     }
 }

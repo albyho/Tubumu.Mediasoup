@@ -7,7 +7,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// RTP capabilities of the consuming endpoint.
         /// </summary>
-        public RtpCapabilities RtpCapabilities { get; set; }
+        public RtpCapabilities RtpCapabilities { get; init; }
 
         /// <summary>
         /// <para>Whether the Consumer must start in paused mode. Default false.</para>

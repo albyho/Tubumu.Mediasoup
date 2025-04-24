@@ -66,13 +66,13 @@ namespace Tubumu.Meeting.Server
 
         public AudioLevelObserver AudioLevelObserver { get; }
 
-        //public PassthroughObserver PassthroughObserver { get; }
+        //public PassThroughObserver PassThroughObserver { get; }
 
         public Room(
             ILoggerFactory loggerFactory,
             Router router,
             AudioLevelObserver audioLevelObserver,
-            //PassthroughObserver passthroughObserver,
+            //PassThroughObserver passThroughObserver,
             string roomId,
             string name
         )
@@ -81,7 +81,7 @@ namespace Tubumu.Meeting.Server
             _logger = _loggerFactory.CreateLogger<Room>();
             Router = router;
             AudioLevelObserver = audioLevelObserver;
-            //PassthroughObserver = passthroughObserver;
+            //PassThroughObserver = passThroughObserver;
             RoomId = roomId;
             Name = name.NullOrWhiteSpaceReplace("Default");
             _closed = false;
@@ -100,12 +100,10 @@ namespace Tubumu.Meeting.Server
 
                 await using (await _peersLock.WriteLockAsync())
                 {
-                    if (_peers.ContainsKey(peer.PeerId))
+                    if (!_peers.TryAdd(peer.PeerId, peer))
                     {
                         throw new Exception($"PeerJoinAsync() | Peer:{peer.PeerId} was in RoomId:{RoomId} already.");
                     }
-
-                    _peers[peer.PeerId] = peer;
 
                     return new JoinRoomResult { SelfPeer = peer, Peers = _peers.Values.ToArray() };
                 }
@@ -123,12 +121,10 @@ namespace Tubumu.Meeting.Server
 
                 await using (await _peersLock.WriteLockAsync())
                 {
-                    if (!_peers.TryGetValue(peerId, out var peer))
+                    if (!_peers.Remove(peerId, out var peer))
                     {
                         throw new Exception($"PeerLeaveAsync() | Peer:{peerId} is not in RoomId:{RoomId}.");
                     }
-
-                    _peers.Remove(peerId);
 
                     return new LeaveRoomResult { SelfPeer = peer, OtherPeerIds = _peers.Keys.ToArray() };
                 }
@@ -208,7 +204,7 @@ namespace Tubumu.Meeting.Server
                                             // TODO: (alby)Strongly typed
                                             Data = (volumes as List<AudioLevelObserverVolume>)!.Select(m => new
                                             {
-                                                PeerId = m.Producer.AppData!["peerId"],
+                                                PeerId = m.Producer.AppData["peerId"],
                                                 m.Producer.ProducerId,
                                                 m.Volume,
                                             }),

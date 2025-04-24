@@ -90,7 +90,7 @@ namespace Tubumu.Mediasoup
 
         /// <summary>
         /// <para>Events:</para>
-        /// <para>@emits transportclose</para></para>
+        /// <para>@emits transportclose</para>
         /// <para>@emits score - (score: ProducerScore[])</para>
         /// <para>@emits videoorientationchange - (videoOrientation: ProducerVideoOrientation)</para>
         /// <para>@emits trace - (trace: ProducerTraceEventData)</para>
@@ -105,7 +105,7 @@ namespace Tubumu.Mediasoup
         /// </summary>
         public Producer(
             ILoggerFactory loggerFactory,
-            ProducerInternal internal_,
+            ProducerInternal @internal,
             ProducerData data,
             IChannel channel,
             Dictionary<string, object>? appData,
@@ -114,7 +114,7 @@ namespace Tubumu.Mediasoup
         {
             _logger = loggerFactory.CreateLogger<Producer>();
 
-            _internal = internal_;
+            _internal = @internal;
             Data = data;
             _channel = channel;
             AppData = appData ?? new Dictionary<string, object>();
@@ -241,7 +241,7 @@ namespace Tubumu.Mediasoup
                     null,
                     _internal.ProducerId
                 );
-                var data = response.Value.BodyAsProducer_DumpResponse().UnPack();
+                var data = response!.Value.BodyAsProducer_DumpResponse().UnPack();
 
                 return data;
             }
@@ -271,7 +271,7 @@ namespace Tubumu.Mediasoup
                     null,
                     _internal.ProducerId
                 );
-                var stats = response.Value.BodyAsProducer_GetStatsResponse().UnPack().Stats;
+                var stats = response!.Value.BodyAsProducer_GetStatsResponse().UnPack().Stats;
 
                 return stats;
             }
@@ -366,7 +366,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Enable 'trace' event.
         /// </summary>
-        public async Task EnableTraceEventAsync(List<TraceEventType> types)
+        public async Task EnableTraceEventAsync(List<TraceEventType>? types)
         {
             _logger.LogDebug("EnableTraceEventAsync() | Producer:{ProducerId}", ProducerId);
 
@@ -382,7 +382,7 @@ namespace Tubumu.Mediasoup
 
                 var requestOffset = EnableTraceEventRequest.Pack(
                     bufferBuilder,
-                    new EnableTraceEventRequestT { Events = types ?? new List<TraceEventType>(0) }
+                    new EnableTraceEventRequestT { Events = types ?? [] }
                 );
 
                 // Fire and forget

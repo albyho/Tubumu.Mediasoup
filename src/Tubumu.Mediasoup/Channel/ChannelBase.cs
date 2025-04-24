@@ -50,12 +50,12 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Next id for messages sent to the worker process.
         /// </summary>
-        protected uint _nextId = 0;
+        private uint _nextId = 0;
 
         /// <summary>
         /// Map of pending sent requests.
         /// </summary>
-        protected readonly ConcurrentDictionary<uint, Sent> _sents = new();
+        private readonly ConcurrentDictionary<uint, Sent> _sents = new();
 
         #endregion Protected Fields
 
@@ -99,7 +99,7 @@ namespace Tubumu.Mediasoup
             }
         }
 
-        public virtual void Cleanup()
+        protected virtual void Cleanup()
         {
             // Close every pending sent.
             try
@@ -254,7 +254,6 @@ namespace Tubumu.Mediasoup
                     "ProcessMessage() | Worker[{WorkerId}] Received invalid message from the worker process",
                     _workerId
                 );
-                return;
             }
         }
 
@@ -284,7 +283,7 @@ namespace Tubumu.Mediasoup
             {
                 // 在 Node.js 实现中，error 的值可能是 "Error" 或 "TypeError"。
                 _logger.LogWarning(
-                    "ProcessResponse() | Worker[{WorkerId}] Request failed [method:{Method}, id:{Id}, reason:\"{Reson}\"]",
+                    "ProcessResponse() | Worker[{WorkerId}] Request failed [method:{Method}, id:{Id}, reason:\"{Reason}\"]",
                     _workerId,
                     sent.RequestMessage.Method,
                     response.Reason,
@@ -403,7 +402,7 @@ namespace Tubumu.Mediasoup
                 bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position
             );
 
-            // Clear the buffer builder so it's reused for the next request.
+            // Clear the buffer builder, so it's reused for the next request.
             bufferBuilder.Clear();
 
             BufferPool.Return(bufferBuilder);
@@ -467,7 +466,7 @@ namespace Tubumu.Mediasoup
                 bufferBuilder.DataBuffer.Length - bufferBuilder.DataBuffer.Position
             );
 
-            // Clear the buffer builder so it's reused for the next request.
+            // Clear the buffer builder, so it's reused for the next request.
             bufferBuilder.Clear();
 
             BufferPool.Return(bufferBuilder);

@@ -67,11 +67,11 @@
                 DateInterval.Second => (long)timeSpan.TotalSeconds,
                 DateInterval.Minute => (long)timeSpan.TotalMinutes,
                 DateInterval.Hour => (long)timeSpan.TotalHours,
-                DateInterval.Day => (long)timeSpan.Days,
-                DateInterval.Week => (long)(timeSpan.Days / 7),
-                DateInterval.Month => (long)(timeSpan.Days / 30),
-                DateInterval.Quarter => (long)(timeSpan.Days / 30 / 3),
-                DateInterval.Year => (long)(timeSpan.Days / 365),
+                DateInterval.Day => timeSpan.Days,
+                DateInterval.Week => timeSpan.Days / 7,
+                DateInterval.Month => timeSpan.Days / 30,
+                DateInterval.Quarter => timeSpan.Days / 30 / 3,
+                DateInterval.Year => timeSpan.Days / 365,
                 _ => throw new NotImplementedException(interval.ToString()),
             };
         }

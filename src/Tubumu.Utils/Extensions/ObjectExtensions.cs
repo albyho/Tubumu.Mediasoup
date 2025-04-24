@@ -77,43 +77,41 @@ namespace System
         /// <summary>
         /// XML 序列化
         /// </summary>
-        public static string ToXml(this object source, bool noneXsn = false)
+        public static string ToXml(this object? source, bool noneXsn = false)
         {
-            var serializedObject = string.Empty;
-
-            if (source != null)
+            if(source == null)
             {
-                var serializer = new XmlSerializer(source.GetType());
-
-                if (noneXsn)
-                {
-                    var sb = new StringBuilder();
-
-                    //去除xml version...
-                    var settings = new XmlWriterSettings
-                    {
-                        Indent = true,
-                        Encoding = Encoding.UTF8,
-                        OmitXmlDeclaration = true, //Remove the <?xml version="1.0" encoding="utf-8"?>
-                    };
-                    var xmlWriter = XmlWriter.Create(sb, settings);
-
-                    //去除默认命名空间
-                    var xsn = new XmlSerializerNamespaces();
-                    xsn.Add(string.Empty, string.Empty);
-
-                    serializer.Serialize(xmlWriter, source, xsn);
-                    return sb.ToString();
-                }
-                else
-                {
-                    using var writer = new StringWriter();
-                    serializer.Serialize(writer, source);
-                    return writer.ToString();
-                }
+                return string.Empty;
             }
 
-            return serializedObject;
+            var serializer = new XmlSerializer(source.GetType());
+
+            if (noneXsn)
+            {
+                var sb = new StringBuilder();
+
+                //去除xml version...
+                var settings = new XmlWriterSettings
+                {
+                    Indent = true,
+                    Encoding = Encoding.UTF8,
+                    OmitXmlDeclaration = true, //Remove the <?xml version="1.0" encoding="utf-8"?>
+                };
+                var xmlWriter = XmlWriter.Create(sb, settings);
+
+                //去除默认命名空间
+                var xsn = new XmlSerializerNamespaces();
+                xsn.Add(string.Empty, string.Empty);
+
+                serializer.Serialize(xmlWriter, source, xsn);
+                return sb.ToString();
+            }
+            else
+            {
+                using var writer = new StringWriter();
+                serializer.Serialize(writer, source);
+                return writer.ToString();
+            }
         }
 
         /// <summary>
@@ -121,10 +119,9 @@ namespace System
         /// </summary>
         public static bool IsNumericType(this object o)
         {
-            var jsonElement = o as JsonElement?;
-            if (jsonElement != null)
+            if (o is JsonElement jsonElement)
             {
-                return jsonElement.Value.ValueKind == JsonValueKind.Number;
+                return jsonElement.ValueKind == JsonValueKind.Number;
             }
 
             return Type.GetTypeCode(o.GetType()) switch
@@ -149,8 +146,7 @@ namespace System
         /// </summary>
         public static bool IsStringType(this object o)
         {
-            var jsonElement = o as JsonElement?;
-            return jsonElement != null ? jsonElement.Value.ValueKind == JsonValueKind.String : o.GetType() == typeof(string);
+            return o is JsonElement jsonElement ? jsonElement.ValueKind == JsonValueKind.String : o is string;
         }
     }
 }

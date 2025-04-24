@@ -14,7 +14,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         private const string DefaultKey = "$uqn.atko@5!7%8*"; // 16 Bytes
 
         private static readonly byte[] DefaultIV =
-        {
+        [
             0x96,
             0x47,
             0x22,
@@ -30,8 +30,8 @@ namespace Tubumu.Utils.Utilities.Cryptography
             0x23,
             0x18,
             0x39,
-            0x67,
-        };
+            0x67
+        ];
 
         #region 加密
 
@@ -149,7 +149,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
             var decryptBytes = new byte[inputByteArray.Length];
             using var ms = new MemoryStream();
             using var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
-            cs.Read(decryptBytes, 0, decryptBytes.Length);
+            _ = cs.Read(decryptBytes, 0, decryptBytes.Length);
 
             return decryptBytes;
         }
@@ -166,7 +166,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
 
             var buffer = ByteArrayFromHexString(decryptString);
 
-            return buffer.IsNullOrEmpty() ? Array.Empty<byte>() : DecryptFromByteArrayToByteArray(buffer, key);
+            return buffer.IsNullOrEmpty() ? [] : DecryptFromByteArrayToByteArray(buffer, key);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
 
             var buffer = Convert.FromBase64String(decryptString);
 
-            return buffer.IsNullOrEmpty() ? Array.Empty<byte>() : DecryptFromByteArrayToByteArray(buffer, key);
+            return buffer.IsNullOrEmpty() ? [] : DecryptFromByteArrayToByteArray(buffer, key);
         }
 
         #endregion 解密
@@ -203,7 +203,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         {
             if (hexString.IsNullOrWhiteSpace() || hexString.Length % 2 != 0)
             {
-                return Array.Empty<byte>();
+                return [];
             }
 
             var buffer = new byte[hexString.Length / 2];

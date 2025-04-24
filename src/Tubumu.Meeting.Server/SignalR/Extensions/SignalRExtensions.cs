@@ -10,7 +10,7 @@ namespace Tubumu.Meeting.Server
     {
         public static HttpContext? GetHttpContext(this HubCallerContext context)
         {
-            return context?.Features.Select(x => x.Value as IHttpContextFeature).FirstOrDefault(x => x != null)?.HttpContext;
+            return context.Features.Select(x => x.Value as IHttpContextFeature).FirstOrDefault(x => x != null)?.HttpContext;
         }
 
         public static Dictionary<string, object> ToDictionary(this IQueryCollection httpQuery)

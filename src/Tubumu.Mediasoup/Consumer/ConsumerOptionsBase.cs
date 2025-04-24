@@ -7,7 +7,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// The id of the Producer to consume.
         /// </summary>
-        public string ProducerId { get; set; }
+        public string ProducerId { get; init; }
 
         /// <summary>
         /// Custom application data.
