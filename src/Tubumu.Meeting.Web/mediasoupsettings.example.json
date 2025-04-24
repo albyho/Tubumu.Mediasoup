@@ -26,8 +26,7 @@
                 "sctp",
                 "message"
             ],
-            "RtcMinPort": 20000,
-            "RtcMaxPort": 29999
+            "DisableLiburing": false
         },
         // mediasoup Router options.
         // See https://mediasoup.org/documentation/v3/mediasoup/api/#RouterOptions
@@ -118,7 +117,11 @@
                 {
                     "Ip": "0.0.0.0",
                     // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-                    "AnnouncedAddress": null
+                    "AnnouncedAddress": null,
+                    "PortRange": {
+                        "Min": 40000,
+                        "Max": 49999
+                    }
                 }
             ],
             "InitialAvailableOutgoingBitrate": 1000000,
@@ -134,7 +137,11 @@
             "ListenInfo": {
                 "Ip": "0.0.0.0",
                 // 请改为本机在局域网或公网的 IP。如果不提供，则会尝试获取本机在局域网的 IPv4 地址。
-                "AnnouncedAddress": null
+                "AnnouncedAddress": null,
+                "PortRange": {
+                    "Min": 40000,
+                    "Max": 49999
+                }
             },
             "MaxSctpMessageSize": 262144
         }

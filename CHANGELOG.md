@@ -15,4 +15,3 @@
 * Thread safety fixes for `Worker`,`Router`,`Transport`,`Producer`,`Consumer`, `RtpObserver` etc.
 * Update NuGet deps.
 * Code clean up.
-

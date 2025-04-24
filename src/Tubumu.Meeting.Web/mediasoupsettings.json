@@ -30,8 +30,7 @@
                 "sctp",
                 "message"
             ],
-            "RtcMinPort": 20000,
-            "RtcMaxPort": 29999
+            "DisableLiburing": false
         },
         // mediasoup Router options.
         // See https://mediasoup.org/documentation/v3/mediasoup/api/#RouterOptions
