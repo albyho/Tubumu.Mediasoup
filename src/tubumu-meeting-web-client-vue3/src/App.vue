@@ -87,14 +87,14 @@
             playsinline
           />
           <video
-            v-for="(value, key) in remoteVideoStreams"
+            v-for="([key, value], index) in Array.from(remoteVideoStreams.entries())"
             :key="key"
             :srcObject="value"
             autoplay
             playsinline
           />
           <audio
-            v-for="(value, key) in remoteAudioStreams"
+            v-for="([key, value], index) in Array.from(remoteAudioStreams.entries())"
             :key="key"
             :srcObject="value"
             autoplay
@@ -109,7 +109,7 @@
 import Logger from './lib/Logger'
 import * as mediasoupClient from 'mediasoup-client'
 import * as signalR from '@microsoft/signalr'
-import { ref } from "vue"
+import { reactive } from "vue"
 
 // eslint-disable-next-line no-unused-vars
 const VIDEO_CONSTRAINS = {
@@ -172,8 +172,8 @@ export default {
       forceTcp: false,
       localAudioStream: null,
       localVideoStream: null,
-      remoteVideoStreams: ref(new Map()),
-      remoteAudioStreams: ref(new Map()),
+      remoteVideoStreams: reactive(new Map()),
+      remoteAudioStreams: reactive(new Map()),
       producers: new Map(),
       consumers: new Map(),
       dataProducer: null,
@@ -318,8 +318,8 @@ export default {
       self.disableMic().catch(() => {})
       self.disableCam().catch(() => {})
       self.peersForm.peers = []
-      self.remoteVideoStreams = ref(new Map())
-      self.remoteAudioStreams = ref(new Map())
+      self.remoteVideoStreams = reactive(new Map())
+      self.remoteAudioStreams = reactive(new Map())
       self.producers = new Map()
       self.dataProducer = null
       self.consumers = new Map()
@@ -634,9 +634,8 @@ export default {
       const stream = new MediaStream()
       stream.addTrack(consumer.track)
 
-      // TODO: FIX "Failed to set the 'srcObject' property on 'HTMLMediaElement': The provided value is not of type '(MediaSourceHandle or MediaStream)'."
       if (kind === 'video') {
-        self.remoteVideoStreams.value.set(consumerId, stream)
+        self.remoteVideoStreams.set(consumerId, stream)
       } else {
         self.remoteAudioStreams.set(consumerId, stream)
       }
@@ -970,7 +969,10 @@ export default {
       var self = this
       logger.debug('enableMic()')
 
-      if (self.micProducer) return
+      if (self.micProducer) {
+        logger.warn('enableMic() | exists')
+        return
+      }
       if (self.mediasoupDevice && !self.mediasoupDevice.canProduce('audio')) {
         logger.error('enableMic() | cannot produce audio')
         return
@@ -1021,8 +1023,11 @@ export default {
       }
     },
     async disableMic() {
+      var self = this
       logger.debug('disableMic()')
-      if (!self.micProducer) return
+      if (!self.micProducer) {
+        return
+      }
 
       const micProducerId = self.micProducer.id
       self.micClosed()
@@ -1034,6 +1039,7 @@ export default {
       }
     },
     micClosed() {
+      var self = this
       if (self.micProducer) {
         self.micProducer.close()
         self.micProducer = null
@@ -1044,7 +1050,10 @@ export default {
       var self = this
       logger.debug('enableCam()')
 
-      if (self.camProducer) return
+      if (self.camProducer) {
+        logger.warn('enableCam() | exists')
+        return
+      }
       if (self.mediasoupDevice && !self.mediasoupDevice.canProduce('video')) {
         logger.error('enableCam() | cannot produce video')
         return
@@ -1139,7 +1148,9 @@ export default {
       var self = this
       logger.debug('disableCam()')
 
-      if (!self.camProducer) return
+      if (!self.camProducer) {
+        return
+      }
 
       const camProducerId = self.camProducer.id
       self.camClosed()

@@ -153,6 +153,6 @@
         }
     },
     "MeetingServerSettings": {
-        "ServeMode": "Pull" // Open,Invite or Pull
+        "ServeMode": "Open" // Open,Invite or Pull
     }
 }
