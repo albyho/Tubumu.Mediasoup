@@ -4,14 +4,14 @@ namespace Tubumu.Mediasoup
 {
     public class JoinRequest
     {
-        public RtpCapabilities RtpCapabilities { get; set; }
+        public RtpCapabilities RtpCapabilities { get; init; }
 
         public SctpCapabilities? SctpCapabilities { get; set; }
 
-        public string DisplayName { get; set; }
+        public string DisplayName { get; init; }
 
-        public string[]? Sources { get; set; }
+        public string[]? Sources { get; init; }
 
-        public Dictionary<string, object>? AppData { get; set; }
+        public Dictionary<string, object>? AppData { get; init; }
     }
 }
