@@ -25,8 +25,8 @@ namespace Tubumu.Mediasoup
                     WorkerSettings = new WorkerSettings
                     {
                         LogLevel = WorkerLogLevel.Warn,
-                        LogTags = new WorkerLogTag[]
-                        {
+                        LogTags =
+                        [
                             WorkerLogTag.Info,
                             WorkerLogTag.Ice,
                             WorkerLogTag.Dtls,
@@ -39,13 +39,13 @@ namespace Tubumu.Mediasoup
                             WorkerLogTag.Simulcast,
                             WorkerLogTag.Svc,
                             WorkerLogTag.Sctp,
-                            WorkerLogTag.Message,
-                        }
+                            WorkerLogTag.Message
+                        ],
                     },
                     RouterSettings = new RouterSettings
                     {
-                        RtpCodecCapabilities = new[]
-                        {
+                        RtpCodecCapabilities =
+                        [
                             new RtpCodecCapability
                             {
                                 Kind = MediaKind.AUDIO,
@@ -97,12 +97,12 @@ namespace Tubumu.Mediasoup
                                     { "x-google-start-bitrate", 1000 },
                                 },
                             },
-                        },
+                        ],
                     },
                     WebRtcServerSettings = new WebRtcServerSettings
                     {
-                        ListenInfos = new[]
-                        {
+                        ListenInfos =
+                        [
                             new ListenInfoT
                             {
                                 Protocol = Protocol.UDP,
@@ -117,14 +117,23 @@ namespace Tubumu.Mediasoup
                                 AnnouncedAddress = null,
                                 Port = 44444,
                             },
-                        },
+                        ],
                     },
                     WebRtcTransportSettings = new WebRtcTransportSettings
                     {
-                        ListenInfos = new[]
-                        {
-                            new ListenInfoT { Ip = "0.0.0.0", AnnouncedAddress = null },
-                        },
+                        ListenInfos =
+                        [
+                            new ListenInfoT
+                            {
+                                Ip = "0.0.0.0",
+                                AnnouncedAddress = null,
+                                PortRange = new PortRangeT
+                                {
+                                    Min = 40000,
+                                    Max = 49999
+                                }
+                            },
+                        ],
                         InitialAvailableOutgoingBitrate = 1_000_000,
                         MinimumAvailableOutgoingBitrate = 600_000,
                         MaxSctpMessageSize = 256 * 1024,
@@ -132,7 +141,16 @@ namespace Tubumu.Mediasoup
                     },
                     PlainTransportSettings = new PlainTransportSettings
                     {
-                        ListenInfo = new ListenInfoT { Ip = "0.0.0.0", AnnouncedAddress = null },
+                        ListenInfo = new ListenInfoT
+                        {
+                            Ip = "0.0.0.0",
+                            AnnouncedAddress = null,
+                            PortRange = new PortRangeT
+                            {
+                                Min = 40000,
+                                Max = 49999
+                            }
+                        },
                         MaxSctpMessageSize = 256 * 1024,
                     },
                 },
