@@ -98,6 +98,6 @@ namespace Tubumu.Mediasoup
         /// Listening IP address or addresses in order of preference (first one is the
         /// preferred one).
         /// </summary>
-        public ListenInfoT[]? ListenInfos { get; init; }
+        public List<ListenInfoT> ListenInfos { get; init; }
     }
 }

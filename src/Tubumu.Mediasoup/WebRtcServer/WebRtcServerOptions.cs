@@ -8,7 +8,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Listen infos.
         /// </summary>
-        public ListenInfoT[] ListenInfos { get; init; }
+        public List<ListenInfoT> ListenInfos { get; init; }
 
         /// <summary>
         /// Custom application data.

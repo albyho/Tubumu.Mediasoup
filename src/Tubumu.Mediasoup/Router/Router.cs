@@ -260,23 +260,11 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    var fbsListenInfos = webRtcTransportOptions
-                        .ListenInfos!.Select(m => new ListenInfoT
-                        {
-                            Protocol = m.Protocol,
-                            Ip = m.Ip,
-                            AnnouncedAddress = m.AnnouncedAddress,
-                            Port = m.Port,
-                            PortRange = m.PortRange,
-                            Flags = m.Flags ?? new SocketFlagsT(),
-                            SendBufferSize = m.SendBufferSize,
-                            RecvBufferSize = m.RecvBufferSize,
-                        })
-                        .ToList();
-
+                    // mediasoup-worker 不允许 Flags 为 null
+                    webRtcTransportOptions.ListenInfos.ForEach(m => m.Flags ??= new SocketFlagsT());
                     webRtcTransportListenIndividual = new FBS.WebRtcTransport.ListenIndividualT
                     {
-                        ListenInfos = fbsListenInfos,
+                        ListenInfos = webRtcTransportOptions.ListenInfos!,
                     };
                 }
 

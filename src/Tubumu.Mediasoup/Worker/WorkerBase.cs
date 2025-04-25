@@ -195,20 +195,6 @@ namespace Tubumu.Mediasoup
                     throw new InvalidStateException("Workder closed");
                 }
 
-                // Build the request.
-                var fbsListenInfos = webRtcServerOptions
-                    .ListenInfos.Select(m => new ListenInfoT
-                    {
-                        Protocol = m.Protocol,
-                        Ip = m.Ip,
-                        AnnouncedAddress = m.AnnouncedAddress,
-                        Port = m.Port,
-                        Flags = m.Flags,
-                        SendBufferSize = m.SendBufferSize,
-                        RecvBufferSize = m.RecvBufferSize,
-                    })
-                    .ToList();
-
                 var webRtcServerId = Guid.NewGuid().ToString();
 
                 // Build Request
@@ -217,7 +203,7 @@ namespace Tubumu.Mediasoup
                 var createWebRtcServerRequestT = new CreateWebRtcServerRequestT
                 {
                     WebRtcServerId = webRtcServerId,
-                    ListenInfos = fbsListenInfos,
+                    ListenInfos = webRtcServerOptions.ListenInfos,
                 };
 
                 var createWebRtcServerRequestOffset = CreateWebRtcServerRequest.Pack(bufferBuilder, createWebRtcServerRequestT);

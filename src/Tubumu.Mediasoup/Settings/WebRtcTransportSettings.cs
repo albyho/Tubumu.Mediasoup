@@ -1,10 +1,11 @@
-﻿using FBS.Transport;
+﻿using System.Collections.Generic;
+using FBS.Transport;
 
 namespace Tubumu.Mediasoup
 {
     public class WebRtcTransportSettings
     {
-        public ListenInfoT[] ListenInfos { get; set; }
+        public List<ListenInfoT> ListenInfos { get; set; }
 
         public uint InitialAvailableOutgoingBitrate { get; set; }
 
