@@ -79,7 +79,7 @@ namespace System.Threading.Tasks
         /// Returns a task that completes as the original task completes or when a timeout expires,
         /// whichever happens first.
         /// </summary>
-        /// <typeparam name="T">The type of value returned by the original task.</typeparam>
+        /// <typeparam name="TResult">The type of value returned by the original task.</typeparam>
         /// <param name="task">The task to wait for.</param>
         /// <param name="timeout">The maximum time to wait.</param>
         /// <param name="cancelled"></param>
@@ -87,7 +87,7 @@ namespace System.Threading.Tasks
         /// A task that completes with the result of the specified <paramref name="task"/> or
         /// faults with a <see cref="TimeoutException"/> if <paramref name="timeout"/> elapses first.
         /// </returns>
-        public static async Task<T> WithTimeout<T>(this Task<T> task, TimeSpan timeout, Action? cancelled = null)
+        public static async Task<TResult> WithTimeout<TResult>(this Task<TResult> task, TimeSpan timeout, Action? cancelled = null)
         {
             await WithTimeout((Task)task, timeout, cancelled).ConfigureAwait(false);
             return task.GetAwaiter().GetResult();
@@ -509,7 +509,7 @@ namespace System.Threading.Tasks
     }
 
     /// <summary>
-    /// Internal class for  waiting for  asynchronous operations that have no result.
+    /// Internal class for waiting for  asynchronous operations that have no result.
     /// </summary>
     public class SynchronousAwaiter
     {

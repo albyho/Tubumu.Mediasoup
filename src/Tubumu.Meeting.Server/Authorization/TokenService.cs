@@ -110,11 +110,11 @@ namespace Tubumu.Meeting.Server.Authorization
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
-                ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
+                ValidateAudience = false, // TODO: (alby) You might want to validate the audience and issuer depending on your use case
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = SignatureHelper.GenerateSymmetricSecurityKey(_tokenValidationSettings.IssuerSigningKey),
-                ValidateLifetime = false, //here we are saying that we don't care about the token's expiration date
+                ValidateLifetime = false, // TODO: (alby) Here we are saying that we don't care about the token's expiration date
             };
 
             var principal = _tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);

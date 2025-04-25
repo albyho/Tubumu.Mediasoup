@@ -4,7 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Tubumu.Utils.Utilities.Cryptography
+namespace Tubumu.Utils.Cryptography
 {
     /// <summary>
     /// AES 加密解密算法
@@ -45,11 +45,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
             string? key = null
         )
         {
-            if (inputByteArray == null)
-            {
-                throw new ArgumentNullException(nameof(inputByteArray));
-            }
-
             //分组加密算法
             var aes = Aes.Create();
             aes.Padding = padding;
@@ -69,11 +64,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] EncryptFromByteArrayToByteArray(byte[] inputByteArray, string? key = null)
         {
-            if (inputByteArray == null)
-            {
-                throw new ArgumentNullException(nameof(inputByteArray));
-            }
-
             //分组加密算法
             var aes = Aes.Create();
             aes.Padding = PaddingMode.PKCS7;
@@ -135,11 +125,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] DecryptFromByteArrayToByteArray(byte[] inputByteArray, string? key = null)
         {
-            if (inputByteArray == null)
-            {
-                throw new ArgumentNullException(nameof(inputByteArray));
-            }
-
             var aes = Aes.Create();
             aes.Padding = PaddingMode.PKCS7;
             aes.Mode = CipherMode.CBC;
@@ -159,14 +144,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] DecryptFromHexToByteArray(string decryptString, string? key = null)
         {
-            if (decryptString == null)
-            {
-                throw new ArgumentNullException(nameof(decryptString));
-            }
-
             var buffer = ByteArrayFromHexString(decryptString);
 
-            return buffer.IsNullOrEmpty() ? [] : DecryptFromByteArrayToByteArray(buffer, key);
+            return DecryptFromByteArrayToByteArray(buffer, key);
         }
 
         /// <summary>
@@ -175,9 +155,7 @@ namespace Tubumu.Utils.Utilities.Cryptography
         public static string DecryptFromHexToString(string decryptString, string? key = null)
         {
             var buffer = ByteArrayFromHexString(decryptString);
-            return buffer.IsNullOrEmpty()
-                ? string.Empty
-                : Encoding.UTF8.GetString(DecryptFromByteArrayToByteArray(buffer, key)).Replace("\0", "");
+            return Encoding.UTF8.GetString(DecryptFromByteArrayToByteArray(buffer, key)).Replace("\0", "");
         }
 
         /// <summary>
@@ -185,14 +163,9 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// </summary>
         public static byte[] DecryptFromBase64ToByteArray(string decryptString, string? key = null)
         {
-            if (decryptString == null)
-            {
-                throw new ArgumentNullException(nameof(decryptString));
-            }
-
             var buffer = Convert.FromBase64String(decryptString);
 
-            return buffer.IsNullOrEmpty() ? [] : DecryptFromByteArrayToByteArray(buffer, key);
+            return DecryptFromByteArrayToByteArray(buffer, key);
         }
 
         #endregion 解密
@@ -201,11 +174,6 @@ namespace Tubumu.Utils.Utilities.Cryptography
 
         private static byte[] ByteArrayFromHexString(string hexString)
         {
-            if (hexString.IsNullOrWhiteSpace() || hexString.Length % 2 != 0)
-            {
-                return [];
-            }
-
             var buffer = new byte[hexString.Length / 2];
             for (int i = 0; i < buffer.Length; i++)
             {

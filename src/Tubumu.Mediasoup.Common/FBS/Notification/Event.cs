@@ -40,5 +40,4 @@ namespace FBS.Notification
         AUDIOLEVELOBSERVER_VOLUMES = 30,
     };
 
-
 }

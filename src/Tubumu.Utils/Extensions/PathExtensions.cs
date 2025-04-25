@@ -12,11 +12,6 @@ namespace System
         /// </summary>
         public static string ReplaceFileExtension(this string path, string newExtension)
         {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                throw new ArgumentException($"{nameof(path)} is null or white space.");
-            }
-
             var extension = Path.GetExtension(path);
             if (extension.Length == 0)
             {

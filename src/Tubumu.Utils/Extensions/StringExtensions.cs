@@ -123,7 +123,7 @@ namespace System
         /// <summary>
         /// 如果源对象为 null ，则返回 string.Empty ，否则返回其 ToString 方法返回值
         /// </summary>
-        public static string ToEmptyableString<T>(this T? source)
+        public static string ToEmptiableString<T>(this T? source)
             where T : class
         {
             return source != null ? source.ToString()! : string.Empty;

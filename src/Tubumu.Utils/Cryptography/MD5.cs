@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Tubumu.Utils.Utilities.Cryptography
+namespace Tubumu.Utils.Cryptography
 {
     /// <summary>
     /// MD5 加密算法
@@ -22,13 +22,8 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptFromStringToByteArray
         /// </summary>
-        public static byte[]? EncryptFromStringToByteArray(string encryptString)
+        public static byte[] EncryptFromStringToByteArray(string encryptString)
         {
-            if (encryptString.IsNullOrWhiteSpace())
-            {
-                return null;
-            }
-
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
 
             return EncryptFromByteArrayToByteArray(inputByteArray);
@@ -47,13 +42,8 @@ namespace Tubumu.Utils.Utilities.Cryptography
         /// <summary>
         /// EncryptFromStringToBase64
         /// </summary>
-        public static string? EncryptFromStringToBase64(string encryptString)
+        public static string EncryptFromStringToBase64(string encryptString)
         {
-            if (encryptString.IsNullOrWhiteSpace())
-            {
-                return null;
-            }
-
             var inputByteArray = Encoding.UTF8.GetBytes(encryptString);
             var encryptBuffer = EncryptFromByteArrayToByteArray(inputByteArray);
 

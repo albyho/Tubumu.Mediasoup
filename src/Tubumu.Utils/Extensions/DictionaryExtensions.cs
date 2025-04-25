@@ -86,7 +86,7 @@
         }
 
         /// <summary>
-        /// 合并两个字典，返回新的字典
+        /// 合并两个 Dictionary，返回新的 Dictionary
         /// </summary>
         public static Dictionary<TKey, TValue> Merge<TKey, TValue>(
             this IDictionary<TKey, TValue> first,
@@ -109,7 +109,7 @@
         }
 
         /// <summary>
-        /// 比较两个字典是否相同
+        /// 比较两个 Dictionary 是否相同
         /// </summary>
         public static bool DeepEquals<TKey, TValue>(this IDictionary<TKey, TValue> first, IDictionary<TKey, TValue> second)
             where TKey : notnull

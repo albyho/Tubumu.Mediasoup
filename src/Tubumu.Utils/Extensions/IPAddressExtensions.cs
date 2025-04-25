@@ -68,7 +68,7 @@ namespace System.Net
         /// </summary>
         public static bool IsIPv4(this string ip)
         {
-            return !ip.IsNullOrWhiteSpace() && ip.Length >= 7 && ip.Length <= 15 && IpV4Regex.IsMatch(ip);
+            return !ip.IsNullOrWhiteSpace() && ip.Length is >= 7 and <= 15 && IpV4Regex.IsMatch(ip);
         }
 
         /// <summary>

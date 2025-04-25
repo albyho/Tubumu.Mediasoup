@@ -63,6 +63,26 @@ dotnet_diagnostic.IDE0037.severity = none
 # CA1822:将成员标记为 static
 dotnet_diagnostic.CA1822.severity = warning
 
+# Expression-level preferences
+dotnet_style_coalesce_expression = true
+dotnet_style_collection_initializer = true
+dotnet_style_explicit_tuple_names = true
+dotnet_style_namespace_match_folder = false
+dotnet_style_null_propagation = true
+dotnet_style_object_initializer = true
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+dotnet_style_prefer_auto_properties = true
+dotnet_style_prefer_collection_expression = when_types_loosely_match
+dotnet_style_prefer_compound_assignment = true
+dotnet_style_prefer_conditional_expression_over_assignment = true
+dotnet_style_prefer_conditional_expression_over_return = true
+dotnet_style_prefer_foreach_explicit_cast_in_source = when_strongly_typed
+dotnet_style_prefer_inferred_anonymous_type_member_names = true
+dotnet_style_prefer_inferred_tuple_names = true
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true
+dotnet_style_prefer_simplified_boolean_expressions = true
+dotnet_style_prefer_simplified_interpolation = true
+
 # Add blank line after embedded statement
 dotnet_diagnostic.rcs0001.severity = suggestion
 # Add blank line after #region
@@ -102,3 +122,6 @@ dotnet_diagnostic.rcs0052.severity = suggestion
 # Add/remove blank line between switch sections
 dotnet_diagnostic.rcs0061.severity = suggestion
 dotnet_diagnostic.rcs1197.severity = none
+
+# Resharper
+resharper_check_namespace_highlighting = hint

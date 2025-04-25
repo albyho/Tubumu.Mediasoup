@@ -81,7 +81,7 @@ namespace System.Collections.Generic
 
         /// <summary>
         /// Filters a <see cref="IEnumerable{T}"/> by given predicate if given condition is true.
-        /// <para><see cref="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
+        /// <para><see href="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
         /// </summary>
         /// <param name="source">Enumerable to apply filtering</param>
         /// <param name="condition">A boolean value</param>
@@ -94,7 +94,7 @@ namespace System.Collections.Generic
 
         /// <summary>
         /// Filters a <see cref="IEnumerable{T}"/> by given predicate if given condition is true.
-        /// <para><see cref="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
+        /// <para><see href="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
         /// </summary>
         /// <param name="source">Enumerable to apply filtering</param>
         /// <param name="condition">A boolean value</param>
@@ -108,7 +108,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Concatenates the members of a collection, using the specified separator between each member.
         /// This is a shortcut for string.Join(...)
-        /// <para><see cref="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
+        /// <para><see href="https://github.com/aspnetboilerplate/aspnetboilerplate/blob/e0ded5d8702f389aa1f5947d3446f16aec845287/src/Abp/Collections/Extensions/EnumerableExtensions.cs"/></para>
         /// </summary>
         /// <param name="source">A collection that contains the objects to concatenate.</param>
         /// <param name="separator">The string to use as a separator. separator is included in the returned string only if values has more than one element.</param>

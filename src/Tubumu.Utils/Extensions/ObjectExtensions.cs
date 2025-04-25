@@ -34,7 +34,6 @@ namespace System
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public static T? FromJson<T>(this string json)
-            where T : class
         {
             return string.IsNullOrWhiteSpace(json)
                 ? default

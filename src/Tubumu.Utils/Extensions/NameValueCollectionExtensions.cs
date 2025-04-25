@@ -32,11 +32,6 @@ namespace System.Collections.Specialized
         /// </summary>
         public static bool? IsTrueNullable(this NameValueCollection collection, string key)
         {
-            if (collection == null)
-            {
-                return null;
-            }
-
             var values = collection.GetValues(key);
             return values.IsNullOrEmpty() ? null : bool.TryParse(values![0], out bool isTrueValue) && isTrueValue;
         }
