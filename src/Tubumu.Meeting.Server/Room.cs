@@ -66,13 +66,10 @@ namespace Tubumu.Meeting.Server
 
         public AudioLevelObserver AudioLevelObserver { get; }
 
-        //public PassThroughObserver PassThroughObserver { get; }
-
         public Room(
             ILoggerFactory loggerFactory,
             Router router,
             AudioLevelObserver audioLevelObserver,
-            //PassThroughObserver passThroughObserver,
             string roomId,
             string name
         )
@@ -81,12 +78,11 @@ namespace Tubumu.Meeting.Server
             _logger = _loggerFactory.CreateLogger<Room>();
             Router = router;
             AudioLevelObserver = audioLevelObserver;
-            //PassThroughObserver = passThroughObserver;
             RoomId = roomId;
             Name = name.NullOrWhiteSpaceReplace("Default");
             _closed = false;
 
-            // HandleAudioLevelObserver();
+            HandleAudioLevelObserver();
         }
 
         public async Task<JoinRoomResult> PeerJoinAsync(Peer peer)

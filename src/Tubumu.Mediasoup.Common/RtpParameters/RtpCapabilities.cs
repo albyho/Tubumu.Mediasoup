@@ -38,11 +38,11 @@ namespace Tubumu.Mediasoup
                         MimeType = "audio/opus",
                         ClockRate = 48000,
                         Channels = 2,
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nacc" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                     new()
                     {
@@ -57,11 +57,11 @@ namespace Tubumu.Mediasoup
                             { "num_streams", 2 },
                             { "coupled_streams", 2 },
                         },
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nacc" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                     new()
                     {
@@ -76,11 +76,11 @@ namespace Tubumu.Mediasoup
                             { "num_streams", 4 },
                             { "coupled_streams", 2 },
                         },
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nacc" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                     new()
                     {
@@ -95,11 +95,11 @@ namespace Tubumu.Mediasoup
                             { "num_streams", 5 },
                             { "coupled_streams", 4 },
                         },
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nacc" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                     new()
                     {
@@ -107,7 +107,7 @@ namespace Tubumu.Mediasoup
                         MimeType = "audio/PCMU",
                         PreferredPayloadType = 0,
                         ClockRate = 8000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
@@ -115,21 +115,21 @@ namespace Tubumu.Mediasoup
                         MimeType = "audio/PCMA",
                         PreferredPayloadType = 8,
                         ClockRate = 8000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
                         Kind = MediaKind.AUDIO,
                         MimeType = "audio/ISAC",
                         ClockRate = 32000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
                         Kind = MediaKind.AUDIO,
                         MimeType = "audio/ISAC",
                         ClockRate = 16000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
@@ -137,42 +137,42 @@ namespace Tubumu.Mediasoup
                         MimeType = "audio/G722",
                         PreferredPayloadType = 9,
                         ClockRate = 8000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
                         Kind = MediaKind.AUDIO,
                         MimeType = "audio/iLBC",
                         ClockRate = 8000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
                         Kind = MediaKind.AUDIO,
                         MimeType = "audio/SILK",
                         ClockRate = 24000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
                         Kind = MediaKind.AUDIO,
                         MimeType = "audio/SILK",
                         ClockRate = 16000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
                         Kind = MediaKind.AUDIO,
                         MimeType = "audio/SILK",
                         ClockRate = 12000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
                         Kind = MediaKind.AUDIO,
                         MimeType = "audio/SILK",
                         ClockRate = 8000,
-                        RtcpFeedback = new List<RtcpFeedbackT> { new() { Type = "transport-cc" } },
+                        RtcpFeedback = [new() { Type = "transport-cc" }],
                     },
                     new()
                     {
@@ -224,28 +224,28 @@ namespace Tubumu.Mediasoup
                         Kind = MediaKind.VIDEO,
                         MimeType = "video/VP8",
                         ClockRate = 90000,
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nack" },
                             new() { Type = "nack", Parameter = "pli" },
                             new() { Type = "ccm", Parameter = "fir" },
                             new() { Type = "goog-remb" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                     new()
                     {
                         Kind = MediaKind.VIDEO,
                         MimeType = "video/VP9",
                         ClockRate = 90000,
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nack" },
                             new() { Type = "nack", Parameter = "pli" },
                             new() { Type = "ccm", Parameter = "fir" },
                             new() { Type = "goog-remb" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                     new()
                     {
@@ -253,14 +253,14 @@ namespace Tubumu.Mediasoup
                         MimeType = "video/H264",
                         ClockRate = 90000,
                         Parameters = new Dictionary<string, object> { { "level-asymmetry-allowed", 1 } },
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nack" },
                             new() { Type = "nack", Parameter = "pli" },
                             new() { Type = "ccm", Parameter = "fir" },
                             new() { Type = "goog-remb" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                     new()
                     {
@@ -268,14 +268,14 @@ namespace Tubumu.Mediasoup
                         MimeType = "video/H264-SVC",
                         ClockRate = 90000,
                         Parameters = new Dictionary<string, object> { { "level-asymmetry-allowed", 1 } },
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nack" },
                             new() { Type = "nack", Parameter = "pli" },
                             new() { Type = "ccm", Parameter = "fir" },
                             new() { Type = "goog-remb" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                     new()
                     {
@@ -283,14 +283,14 @@ namespace Tubumu.Mediasoup
                         MimeType = "video/H265",
                         ClockRate = 90000,
                         Parameters = new Dictionary<string, object> { { "level-asymmetry-allowed", 1 } },
-                        RtcpFeedback = new List<RtcpFeedbackT>
-                        {
+                        RtcpFeedback =
+                        [
                             new() { Type = "nack" },
                             new() { Type = "nack", Parameter = "pli" },
                             new() { Type = "ccm", Parameter = "fir" },
                             new() { Type = "goog-remb" },
-                            new() { Type = "transport-cc" },
-                        },
+                            new() { Type = "transport-cc" }
+                        ],
                     },
                 },
                 HeaderExtensions = new RtpHeaderExtension[]

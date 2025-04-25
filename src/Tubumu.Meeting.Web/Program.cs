@@ -48,7 +48,6 @@ namespace Tubumu.Meeting.Web
 
                     webBuilder.UseConfiguration(configs);
                     webBuilder.UseStartup<Startup>();
-                })
-                ;
+                });
     }
 }

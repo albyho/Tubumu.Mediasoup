@@ -133,12 +133,7 @@ namespace Tubumu.Meeting.Server
                             }
                         );
 
-                        /*
-                        // Create a mediasoup PassthroughObserver.
-                        var passthroughObserver = await router.CreatePassthroughObserverAsync(new PassthroughObserverOptions());
 
-                        room = new Room(_loggerFactory, router, audioLevelObserver, passthroughObserver, joinRoomRequest.RoomId, "Default");
-                        */
                         room = new Room(_loggerFactory, router, audioLevelObserver, joinRoomRequest.RoomId, "Default");
                         _rooms[room.RoomId] = room;
                     }

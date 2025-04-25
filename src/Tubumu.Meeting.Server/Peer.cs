@@ -384,7 +384,6 @@ namespace Tubumu.Meeting.Server
         private async Task<PeerPullResult> PullInternalAsync(Peer producerPeer, IEnumerable<string> sources)
         {
             var consumerActiveRoom = _room!;
-            var producerActiveRoom = producerPeer._room!;
 
             var roomId = consumerActiveRoom.RoomId;
 
@@ -454,7 +453,6 @@ namespace Tubumu.Meeting.Server
 
             // Add peerId into appData to later get the associated Peer during
             // the 'loudest' event of the audioLevelObserver.
-            produceRequest.AppData ??= new Dictionary<string, object>();
             produceRequest.AppData["peerId"] = PeerId;
 
             await using (await _joinedLock.ReadLockAsync())
@@ -586,9 +584,7 @@ namespace Tubumu.Meeting.Server
                                     );
                                 }
 
-                                if (
-                                    _rtpCapabilities == null
-                                    || !await _room!.Router.CanConsumeAsync(producer.ProducerId, _rtpCapabilities)
+                                if (!await _room!.Router.CanConsumeAsync(producer.ProducerId, _rtpCapabilities)
                                 )
                                 {
                                     throw new Exception($"ConsumeAsync() | Peer:{PeerId} Can not consume.");
