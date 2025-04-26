@@ -22,7 +22,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Logger.
         /// </summary>
-        protected readonly ILogger<Worker> _logger;
+        protected readonly ILogger<WorkerBase> _logger;
 
         /// <summary>
         /// Channel instance.
@@ -84,7 +84,7 @@ namespace Tubumu.Mediasoup
         protected WorkerBase(ILoggerFactory loggerFactory, MediasoupOptions mediasoupOptions)
         {
             _loggerFactory = loggerFactory;
-            _logger = loggerFactory.CreateLogger<Worker>();
+            _logger = loggerFactory.CreateLogger<WorkerBase>();
 
             var workerSettings = mediasoupOptions.MediasoupSettings.WorkerSettings;
 
@@ -192,7 +192,7 @@ namespace Tubumu.Mediasoup
             {
                 if (_closed)
                 {
-                    throw new InvalidStateException("Workder closed");
+                    throw new InvalidStateException("Worker closed");
                 }
 
                 var webRtcServerId = Guid.NewGuid().ToString();

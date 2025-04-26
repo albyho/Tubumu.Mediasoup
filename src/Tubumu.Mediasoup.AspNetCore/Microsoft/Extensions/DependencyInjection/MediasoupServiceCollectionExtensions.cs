@@ -100,33 +100,22 @@ namespace Microsoft.Extensions.DependencyInjection
             mediasoupOptions.MediasoupSettings.WebRtcServerSettings.ListenInfos = webRtcServerSettings.ListenInfos;
             // 如果没有设置 ListenInfos 则获取本机所有的 IPv4 地址进行设置。
             var webRtcServerListenInfos = mediasoupOptions.MediasoupSettings.WebRtcServerSettings.ListenInfos;
-            if (webRtcServerListenInfos.IsNullOrEmpty())
+            foreach (var listenInfo in webRtcServerListenInfos)
             {
-                webRtcServerListenInfos = (
-                    from ip in localIPv4IPAddresses
-                    let ipString = ip.ToString()
-                    select new ListenInfoT
-                    {
-                        Protocol = Protocol.TCP,
-                        Ip = ipString,
-                        AnnouncedAddress = ipString,
-                        Port = 44444,
-                    }
-                ).ToList();
-
-                mediasoupOptions.MediasoupSettings.WebRtcServerSettings.ListenInfos = webRtcServerListenInfos;
-            }
-            else
-            {
-                foreach (var listenIp in webRtcServerListenInfos)
+                // mediasoup-worker 不允许 PortRange 为 null
+                listenInfo.PortRange ??= new PortRangeT();
+                if(listenInfo.Port == 0 && (listenInfo.PortRange.Min == 0 || listenInfo.PortRange.Max == 0))
                 {
-                    if (listenIp.AnnouncedAddress.IsNullOrWhiteSpace())
-                    {
-                        // 如果没有设置 AnnouncedAddress：
-                        // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
-                        listenIp.AnnouncedAddress =
-                            listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddresses[0].ToString() : listenIp.Ip;
-                    }
+                    throw new ArgumentException("WebRtcServerSettings 中，ListenInfo 的 Port 或  PortRange 不合法。");
+                }
+                // mediasoup-worker 不允许 Flags 为 null
+                listenInfo.Flags ??= new SocketFlagsT();
+                if (listenInfo.AnnouncedAddress.IsNullOrWhiteSpace())
+                {
+                    // 如果没有设置 AnnouncedAddress：
+                    // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
+                    listenInfo.AnnouncedAddress =
+                        listenInfo.Ip == IPAddress.Any.ToString() ? localIPv4IPAddresses[0].ToString() : listenInfo.Ip;
                 }
             }
 
@@ -141,26 +130,22 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // 如果没有设置 ListenInfos 则获取本机所有的 IPv4 地址进行设置。
             var webRtcTransportListenInfos = mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenInfos;
-            if (webRtcTransportListenInfos.IsNullOrEmpty())
+            foreach (var listenInfo in webRtcTransportListenInfos)
             {
-                webRtcTransportListenInfos = (
-                    from ip in localIPv4IPAddresses
-                    let ipString = ip.ToString()
-                    select new ListenInfoT { Ip = ipString, AnnouncedAddress = ipString }
-                ).ToList();
-                mediasoupOptions.MediasoupSettings.WebRtcTransportSettings.ListenInfos = webRtcTransportListenInfos;
-            }
-            else
-            {
-                foreach (var listenIp in webRtcTransportListenInfos)
+                // mediasoup-worker 不允许 PortRange 为 null
+                listenInfo.PortRange ??= new PortRangeT();
+                if(listenInfo.Port == 0 && (listenInfo.PortRange.Min == 0 || listenInfo.PortRange.Max == 0))
                 {
-                    if (listenIp.AnnouncedAddress.IsNullOrWhiteSpace())
-                    {
-                        // 如果没有设置 AnnouncedAddress：
-                        // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
-                        listenIp.AnnouncedAddress =
-                            listenIp.Ip == IPAddress.Any.ToString() ? localIPv4IPAddresses[0].ToString() : listenIp.Ip;
-                    }
+                    throw new ArgumentException("WebRtcTransportSettings 中，ListenInfo 的 Port 或  PortRange 不合法。");
+                }
+                // mediasoup-worker 不允许 Flags 为 null
+                listenInfo.Flags ??= new SocketFlagsT();
+                if (listenInfo.AnnouncedAddress.IsNullOrWhiteSpace())
+                {
+                    // 如果没有设置 AnnouncedAddress：
+                    // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
+                    listenInfo.AnnouncedAddress =
+                        listenInfo.Ip == IPAddress.Any.ToString() ? localIPv4IPAddresses[0].ToString() : listenInfo.Ip;
                 }
             }
 
@@ -169,22 +154,21 @@ namespace Microsoft.Extensions.DependencyInjection
             mediasoupOptions.MediasoupSettings.PlainTransportSettings.MaxSctpMessageSize =
                 plainTransportSettings.MaxSctpMessageSize;
 
-            var plainTransportlistenInfo = mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo;
-            if (plainTransportlistenInfo == null)
+            var plainTransportListenInfo = mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo;
+            if (plainTransportListenInfo.AnnouncedAddress.IsNullOrWhiteSpace())
             {
-                plainTransportlistenInfo = new ListenInfoT
+                // mediasoup-worker 不允许 PortRange 为 null
+                plainTransportListenInfo.PortRange ??= new PortRangeT();
+                if(plainTransportListenInfo.Port == 0 && (plainTransportListenInfo.PortRange.Min == 0 || plainTransportListenInfo.PortRange.Max == 0))
                 {
-                    Ip = localIPv4IPAddresses[0].ToString(),
-                    AnnouncedAddress = localIPv4IPAddresses[0].ToString(),
-                };
-                mediasoupOptions.MediasoupSettings.PlainTransportSettings.ListenInfo = plainTransportlistenInfo;
-            }
-            else if (plainTransportlistenInfo.AnnouncedAddress.IsNullOrWhiteSpace())
-            {
+                    throw new ArgumentException("PlainTransportSettings 中，ListenInfo 的 Port 或  PortRange 不合法。");
+                }
+                // mediasoup-worker 不允许 Flags 为 null
+                plainTransportListenInfo.Flags ??= new SocketFlagsT();
                 // 如果没有设置 AnnouncedAddress：
                 // 如果 Ip 属性的值不是 Any 则赋值为 Ip 属性的值，否则取本机的任意一个 IPv4 地址进行设置。(注意：可能获取的并不是正确的 IP)
-                plainTransportlistenInfo.AnnouncedAddress =
-                    plainTransportlistenInfo.Ip == IPAddress.Any.ToString() ? localIPv4IPAddresses[0].ToString() : plainTransportlistenInfo.Ip;
+                plainTransportListenInfo.AnnouncedAddress =
+                    plainTransportListenInfo.Ip == IPAddress.Any.ToString() ? localIPv4IPAddresses[0].ToString() : plainTransportListenInfo.Ip;
             }
         }
     }

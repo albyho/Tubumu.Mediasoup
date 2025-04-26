@@ -32,6 +32,7 @@ namespace Microsoft.AspNetCore.Builder
                         {
                             var threadId = Environment.CurrentManagedThreadId;
                             var worker = app.ApplicationServices.GetRequiredService<WorkerNative>();
+                            var cLocal = c;
                             worker.On(
                                 "@success",
                                 async (_, _) =>
@@ -40,7 +41,7 @@ namespace Microsoft.AspNetCore.Builder
                                     logger.LogInformation("Worker[{ThreadId}] create success.", threadId);
                                     if (mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
                                     {
-                                        await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                        await CreateWebRtcServerAsync(worker, (ushort)cLocal, defaultWebRtcServerSettings);
                                     }
                                 }
                             );
@@ -62,6 +63,7 @@ namespace Microsoft.AspNetCore.Builder
                         for (var c = 0; c < numberOfWorkers; c++)
                         {
                             var worker = app.ApplicationServices.GetRequiredService<Worker>();
+                            var cLocal = c;
                             worker.On(
                                 "@success",
                                 async (_, _) =>
@@ -70,7 +72,7 @@ namespace Microsoft.AspNetCore.Builder
                                     logger.LogInformation("Worker[{ProcessId}] create success.", worker.ProcessId);
                                     if (mediasoupOptions.MediasoupStartupSettings.UseWebRtcServer)
                                     {
-                                        await CreateWebRtcServerAsync(worker, (ushort)c, defaultWebRtcServerSettings);
+                                        await CreateWebRtcServerAsync(worker, (ushort)cLocal, defaultWebRtcServerSettings);
                                     }
                                 }
                             );

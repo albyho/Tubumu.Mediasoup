@@ -260,8 +260,6 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    // mediasoup-worker 不允许 Flags 为 null
-                    webRtcTransportOptions.ListenInfos.ForEach(m => m.Flags ??= new SocketFlagsT());
                     webRtcTransportListenIndividual = new FBS.WebRtcTransport.ListenIndividualT
                     {
                         ListenInfos = webRtcTransportOptions.ListenInfos!,
