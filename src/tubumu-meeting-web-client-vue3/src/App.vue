@@ -382,6 +382,7 @@ export default {
     async handleJoinRoom() {
       var self = this
       if (self.roomForm.isJoinedRoom) {
+        self.closeTransports()
         let result = await self.connection.invoke('LeaveRoom')
         if (result.code !== 200) {
           logger.error(`handleJoinRoom() | LeaveRoom failed: ${result.message}`)
@@ -392,7 +393,6 @@ export default {
         self.roomForm.isJoinedRoom = false
         await self.disableMic()
         await self.disableCam()
-        self.closeTransports()
         return
       }
       if (!self.roomForm.roomId && self.roomForm.roomId !== 0) {
