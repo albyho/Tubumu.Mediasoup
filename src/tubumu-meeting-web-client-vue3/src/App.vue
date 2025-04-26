@@ -317,6 +317,7 @@ export default {
       self.roomForm.isJoinedRoom = false
       self.disableMic().catch(() => {})
       self.disableCam().catch(() => {})
+      self.closeTransports()
       self.peersForm.peers = []
       self.remoteVideoStreams = reactive(new Map())
       self.remoteAudioStreams = reactive(new Map())
@@ -391,6 +392,7 @@ export default {
         self.roomForm.isJoinedRoom = false
         await self.disableMic()
         await self.disableCam()
+        self.closeTransports()
         return
       }
       if (!self.roomForm.roomId && self.roomForm.roomId !== 0) {
@@ -1241,6 +1243,17 @@ export default {
       } catch (error) {
         logger.error('_getCamDeviceId() failed: %o', error)
       }
+    },
+    closeTransports() {
+        var self = this
+        if(self.sendTransport) {
+            self.sendTransport.close()
+            self.sendTransport = null
+        }
+        if(self.recvTransport) {
+            self.recvTransport.close()
+            self.recvTransport = null
+        }
     }
   }
 }

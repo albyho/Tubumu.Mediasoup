@@ -62,12 +62,15 @@ namespace Tubumu.Meeting.Server
 
         private readonly AsyncReaderWriterLock _peersLock = new();
 
+        public WebRtcServer? WebRtcServer { get; }
+
         public Router Router { get; }
 
         public AudioLevelObserver AudioLevelObserver { get; }
 
         public Room(
             ILoggerFactory loggerFactory,
+            WebRtcServer webRtcServer,
             Router router,
             AudioLevelObserver audioLevelObserver,
             string roomId,
@@ -76,6 +79,7 @@ namespace Tubumu.Meeting.Server
         {
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger<Room>();
+            WebRtcServer = webRtcServer;
             Router = router;
             AudioLevelObserver = audioLevelObserver;
             RoomId = roomId;

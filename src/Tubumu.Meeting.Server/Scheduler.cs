@@ -133,8 +133,8 @@ namespace Tubumu.Meeting.Server
                             }
                         );
 
-
-                        room = new Room(_loggerFactory, router, audioLevelObserver, joinRoomRequest.RoomId, "Default");
+                        var webRtcServer = worker.GetDefaultWebRtcServer();
+                        room = new Room(_loggerFactory, webRtcServer, router, audioLevelObserver, joinRoomRequest.RoomId, "Default");
                         _rooms[room.RoomId] = room;
                     }
 

@@ -20,5 +20,7 @@ namespace Tubumu.Mediasoup
         Task<ResourceUsageResponseT> GetResourceUsageAsync();
 
         Task UpdateSettingsAsync(WorkerUpdateableSettings workerUpdateableSettings);
+
+        WebRtcServer? GetDefaultWebRtcServer();
     }
 }

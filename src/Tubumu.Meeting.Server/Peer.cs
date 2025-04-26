@@ -157,23 +157,6 @@ namespace Tubumu.Meeting.Server
             bool isSend
         )
         {
-            var webRtcTransportOptions = new Mediasoup.WebRtcTransportOptions
-            {
-                ListenInfos = _webRtcTransportSettings.ListenInfos,
-                InitialAvailableOutgoingBitrate = _webRtcTransportSettings.InitialAvailableOutgoingBitrate,
-                MaxSctpMessageSize = _webRtcTransportSettings.MaxSctpMessageSize,
-                EnableSctp = createWebRtcTransportRequest.SctpCapabilities != null,
-                NumSctpStreams = createWebRtcTransportRequest.SctpCapabilities?.NumStreams,
-                WebRtcServer = null, // TODO: Support WebRtcServer
-                AppData = new Dictionary<string, object> { { "Consuming", !isSend }, { "Producing", isSend } },
-            };
-
-            if (createWebRtcTransportRequest.ForceTcp)
-            {
-                webRtcTransportOptions.EnableUdp = false;
-                webRtcTransportOptions.EnableTcp = true;
-            }
-
             await using (await _joinedLock.ReadLockAsync())
             {
                 CheckJoined("CreateWebRtcTransportAsync()");
@@ -181,6 +164,23 @@ namespace Tubumu.Meeting.Server
                 await using (await _roomLock.ReadLockAsync())
                 {
                     CheckRoom("CreateWebRtcTransportAsync()");
+
+                    var webRtcTransportOptions = new Mediasoup.WebRtcTransportOptions
+                    {
+                        ListenInfos = _webRtcTransportSettings.ListenInfos,
+                        InitialAvailableOutgoingBitrate = _webRtcTransportSettings.InitialAvailableOutgoingBitrate,
+                        MaxSctpMessageSize = _webRtcTransportSettings.MaxSctpMessageSize,
+                        EnableSctp = createWebRtcTransportRequest.SctpCapabilities != null,
+                        NumSctpStreams = createWebRtcTransportRequest.SctpCapabilities?.NumStreams,
+                        WebRtcServer = _room!.WebRtcServer,
+                        AppData = new Dictionary<string, object> { { "Consuming", !isSend }, { "Producing", isSend } },
+                    };
+
+                    if (createWebRtcTransportRequest.ForceTcp)
+                    {
+                        webRtcTransportOptions.EnableUdp = false;
+                        webRtcTransportOptions.EnableTcp = true;
+                    }
 
                     var transport = await _room!.Router.CreateWebRtcTransportAsync(webRtcTransportOptions);
                     await using (await _transportsLock.WriteLockAsync())

@@ -40,7 +40,12 @@ namespace Tubumu.Mediasoup
         protected readonly object _routersLock = new();
 
         /// <summary>
-        /// WebRtcServers set.
+        /// Default WebRtcServer.
+        /// </summary>
+        protected WebRtcServer? _defaultWebRtcServer;
+
+        /// <summary>
+        /// WebRtcServers.
         /// </summary>
         protected readonly List<WebRtcServer> _webRtcServers = new();
 
@@ -225,6 +230,10 @@ namespace Tubumu.Mediasoup
                 lock (_webRtcServersLock)
                 {
                     _webRtcServers.Add(webRtcServer);
+                    if(_defaultWebRtcServer == null)
+                    {
+                        _defaultWebRtcServer = webRtcServer;
+                    }
                 }
 
                 webRtcServer.On(
@@ -234,6 +243,7 @@ namespace Tubumu.Mediasoup
                         lock (_webRtcServersLock)
                         {
                             _webRtcServers.Remove(webRtcServer);
+                            _defaultWebRtcServer = _webRtcServers.FirstOrDefault();
                         }
 
                         return Task.CompletedTask;
@@ -315,6 +325,14 @@ namespace Tubumu.Mediasoup
         }
 
         #endregion Request
+
+        public WebRtcServer? GetDefaultWebRtcServer()
+        {
+            lock(_webRtcServersLock)
+            {
+                return _defaultWebRtcServer;
+            }
+        }
 
         #region IDisposable Support
 
