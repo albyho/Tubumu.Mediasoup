@@ -89,7 +89,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var localIPv4IPAddresses = IPAddressExtensions
                 .GetLocalIPAddresses(AddressFamily.InterNetwork)
-                .Where(m => m != IPAddress.Loopback)
+                .Where(m => !IPAddress.IsLoopback(m))
                 .ToArray();
             if (localIPv4IPAddresses.IsNullOrEmpty())
             {
