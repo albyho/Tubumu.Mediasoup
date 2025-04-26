@@ -10,7 +10,7 @@ namespace System.Net
     /// </summary>
     public static class IPAddressExtensions
     {
-        private static readonly Regex IpV4Regex = new(@"^\d{1,3}[\.]\d{1,3}[\.]\d{1,3}[\.]\d{1,3}$", RegexOptions.Compiled);
+        private static readonly Regex IPV4Regex = new(@"^\d{1,3}[\.]\d{1,3}[\.]\d{1,3}[\.]\d{1,3}$", RegexOptions.Compiled);
 
         /// <summary>
         /// IPAddress 转 Int32
@@ -68,7 +68,7 @@ namespace System.Net
         /// </summary>
         public static bool IsIPv4(this string ip)
         {
-            return !ip.IsNullOrWhiteSpace() && ip.Length is >= 7 and <= 15 && IpV4Regex.IsMatch(ip);
+            return !ip.IsNullOrWhiteSpace() && ip.Length is >= 7 and <= 15 && IPV4Regex.IsMatch(ip);
         }
 
         /// <summary>
