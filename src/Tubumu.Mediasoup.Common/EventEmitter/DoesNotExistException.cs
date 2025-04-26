@@ -5,7 +5,7 @@ namespace Tubumu.Mediasoup
     public class DoesNotExistException : Exception
     {
         public DoesNotExistException()
-            : base() { }
+        { }
 
         public DoesNotExistException(string message)
             : base(message) { }

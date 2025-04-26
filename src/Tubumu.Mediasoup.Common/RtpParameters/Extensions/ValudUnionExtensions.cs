@@ -6,7 +6,7 @@ using FBS.RtpParameters;
 
 namespace Tubumu.Mediasoup
 {
-    public static class ValudUnionExtensions
+    public static class ValueUnionExtensions
     {
         public static object? UnPackValueUnion(this ValueUnion value)
         {

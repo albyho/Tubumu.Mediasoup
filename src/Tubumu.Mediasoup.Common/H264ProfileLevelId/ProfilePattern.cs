@@ -11,10 +11,10 @@
 
         public Profile Profile { get; }
 
-        public ProfilePattern(int profile_idc, BitPattern profile_iop, Profile profile)
+        public ProfilePattern(int profileIdc, BitPattern profileIop, Profile profile)
         {
-            ProfileIdc = profile_idc;
-            ProfileIop = profile_iop;
+            ProfileIdc = profileIdc;
+            ProfileIop = profileIop;
             Profile = profile;
         }
     }

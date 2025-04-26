@@ -15,7 +15,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// The value that goes in the RTP Payload Type Field. Must be unique.
         /// </summary>
-        public byte PayloadType { get; set; }
+        public byte PayloadType { get; init; }
 
         /// <summary>
         /// Transport layer and codec-specific feedback messages for this codec.

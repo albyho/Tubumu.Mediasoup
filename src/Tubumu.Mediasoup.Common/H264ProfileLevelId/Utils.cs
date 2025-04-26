@@ -5,10 +5,10 @@ namespace Tubumu.H264ProfileLevelId
 {
     /// <summary>
     /// H264ProfileLevelId utils.
-    /// <para><see cref="https://github.com/versatica/h264-profile-level-id"/></para>
-    /// <para><see cref="https://webrtc.googlesource.com/src/+/refs/heads/main/api/video_codecs/h264_profile_level_id.h"/></para>
-    /// <para><see cref="https://webrtc.googlesource.com/src/+/refs/heads/main/api/video_codecs/h264_profile_level_id.cc"/></para>
-    /// <para><see cref="https://webrtc.googlesource.com/src/+/refs/heads/main/api/video_codecs/test/h264_profile_level_id_unittest.cc"/></para>
+    /// <para><see href="https://github.com/versatica/h264-profile-level-id"/></para>
+    /// <para><see href="https://webrtc.googlesource.com/src/+/refs/heads/main/api/video_codecs/h264_profile_level_id.h"/></para>
+    /// <para><see href="https://webrtc.googlesource.com/src/+/refs/heads/main/api/video_codecs/h264_profile_level_id.cc"/></para>
+    /// <para><see href="https://webrtc.googlesource.com/src/+/refs/heads/main/api/video_codecs/test/h264_profile_level_id_unittest.cc"/></para>
     /// </summary>
     public static class Utils
     {
@@ -37,34 +37,34 @@ namespace Tubumu.H264ProfileLevelId
         {
             // For level_idc=11 and profile_idc=0x42, 0x4D, or 0x58, the constraint set3
             // flag specifies if level 1b or level 1.1 is used.
-            const int ConstraintSet3Flag = 0x10;
+            const int constraintSet3Flag = 0x10;
 
             // The string should consist of 3 bytes in hexadecimal format.
-            if (str == null || str.Length != 6)
+            if (str.Length != 6)
             {
                 return null;
             }
 
-            var profile_level_id_numeric = Convert.ToInt32(str, 16);
+            var profileLevelIdNumeric = Convert.ToInt32(str, 16);
 
-            if (profile_level_id_numeric == 0)
+            if (profileLevelIdNumeric == 0)
             {
                 return null;
             }
 
             // Separate into three bytes.
-            var level_idc = (Level)(profile_level_id_numeric & 0xFF);
-            var profile_iop = (profile_level_id_numeric >> 8) & 0xFF;
-            var profile_idc = (profile_level_id_numeric >> 16) & 0xFF;
+            var levelIdc = (Level)(profileLevelIdNumeric & 0xFF);
+            var profileIop = (profileLevelIdNumeric >> 8) & 0xFF;
+            var profileIdc = (profileLevelIdNumeric >> 16) & 0xFF;
 
             // Parse level based on level_idc and constraint set 3 flag.
             Level level;
 
-            switch (level_idc)
+            switch (levelIdc)
             {
                 case Level.L1_1:
                 {
-                    level = (profile_iop & ConstraintSet3Flag) != 0 ? Level.L1_b : Level.L1_1;
+                    level = (profileIop & constraintSet3Flag) != 0 ? Level.L1_b : Level.L1_1;
 
                     break;
                 }
@@ -85,7 +85,7 @@ namespace Tubumu.H264ProfileLevelId
                 case Level.L5_1:
                 case Level.L5_2:
                 {
-                    level = level_idc;
+                    level = levelIdc;
 
                     break;
                 }
@@ -101,7 +101,7 @@ namespace Tubumu.H264ProfileLevelId
             // Parse profile_idc/profile_iop into a Profile enum.
             foreach (var pattern in ProfilePatterns)
             {
-                if (profile_idc == pattern.ProfileIdc && pattern.ProfileIop.IsMatch(profile_iop))
+                if (profileIdc == pattern.ProfileIdc && pattern.ProfileIop.IsMatch(profileIop))
                 {
                     return new ProfileLevelId(pattern.Profile, level);
                 }
@@ -145,38 +145,38 @@ namespace Tubumu.H264ProfileLevelId
                 }
             }
 
-            string profile_idc_iop_string;
+            string profileIdcIopString;
 
             switch (profileLevelId.Profile)
             {
                 case Profile.ConstrainedBaseline:
                 {
-                    profile_idc_iop_string = "42e0";
+                    profileIdcIopString = "42e0";
                     break;
                 }
                 case Profile.Baseline:
                 {
-                    profile_idc_iop_string = "4200";
+                    profileIdcIopString = "4200";
                     break;
                 }
                 case Profile.Main:
                 {
-                    profile_idc_iop_string = "4d00";
+                    profileIdcIopString = "4d00";
                     break;
                 }
                 case Profile.ConstrainedHigh:
                 {
-                    profile_idc_iop_string = "640c";
+                    profileIdcIopString = "640c";
                     break;
                 }
                 case Profile.High:
                 {
-                    profile_idc_iop_string = "6400";
+                    profileIdcIopString = "6400";
                     break;
                 }
                 case Profile.PredictiveHigh444:
                 {
-                    profile_idc_iop_string = "f400";
+                    profileIdcIopString = "f400";
 
                     break;
                 }
@@ -195,7 +195,7 @@ namespace Tubumu.H264ProfileLevelId
                 levelStr = levelStr.PadLeft(2, '0');
             }
 
-            return $"{profile_idc_iop_string}{levelStr}";
+            return $"{profileIdcIopString}{levelStr}";
         }
 
         /// <summary>
@@ -231,24 +231,24 @@ namespace Tubumu.H264ProfileLevelId
         /// </summary>
         public static ProfileLevelId? ParseSdpProfileLevelId(IDictionary<string, object> parameters)
         {
-            return parameters.TryGetValue("profile-level-id", out var profile_level_id)
-                ? ParseProfileLevelId(profile_level_id.ToString()!)
+            return parameters.TryGetValue("profile-level-id", out var profileLevelId)
+                ? ParseProfileLevelId(profileLevelId.ToString()!)
                 : ProfileLevelId.DefaultProfileLevelId;
         }
 
         /// <summary>
         /// Returns true if the parameters have the same H264 profile, i.e. the same
-        /// H264 profile (Baseline, High, etc).
+        /// H264 profile (Baseline, High, etc.).
         /// </summary>
         public static bool IsSameProfile(IDictionary<string, object> params1, IDictionary<string, object> params2)
         {
-            var profile_level_id_1 = ParseSdpProfileLevelId(params1);
-            var profile_level_id_2 = ParseSdpProfileLevelId(params2);
+            var profileLevelId1 = ParseSdpProfileLevelId(params1);
+            var profileLevelId2 = ParseSdpProfileLevelId(params2);
 
             // Compare H264 profiles, but not levels.
-            return profile_level_id_1 != null
-                && profile_level_id_2 != null
-                && profile_level_id_1.Profile == profile_level_id_2.Profile;
+            return profileLevelId1 != null
+                && profileLevelId2 != null
+                && profileLevelId1.Profile == profileLevelId2.Profile;
         }
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace Tubumu.H264ProfileLevelId
         /// Generate codec parameters that will be used as answer in an SDP negotiation
         /// based on local supported parameters and remote offered parameters. Both
         /// local_supported_params and remote_offered_params represent sendrecv media
-        /// descriptions, i.e they are a mix of both encode and decode capabilities. In
+        /// descriptions, i.e. they are a mix of both encode and decode capabilities. In
         /// theory, when the profile in local_supported_params represent a strict superset
         /// of the profile in remote_offered_params, we could limit the profile in the
         /// answer to the profile in remote_offered_params.
@@ -273,15 +273,15 @@ namespace Tubumu.H264ProfileLevelId
         /// </para>
         /// </summary>
         public static string? GenerateProfileLevelIdForAnswer(
-            IDictionary<string, object> local_supported_params,
-            IDictionary<string, object> remote_offered_params
+            IDictionary<string, object> localSupportedParams,
+            IDictionary<string, object> remoteOfferedParams
         )
         {
             // If both local and remote params do not contain profile-level-id, they are
             // both using the default profile. In this case, don"t return anything.
             if (
-                !local_supported_params.TryGetValue("profile-level-id", out _)
-                && !remote_offered_params.TryGetValue("profile-level-id", out _)
+                !localSupportedParams.TryGetValue("profile-level-id", out _)
+                && !remoteOfferedParams.TryGetValue("profile-level-id", out _)
             )
             {
                 // NOTE: For testing.
@@ -290,42 +290,42 @@ namespace Tubumu.H264ProfileLevelId
             }
 
             // Parse profile-level-ids.
-            var local_profile_level_id = ParseSdpProfileLevelId(local_supported_params);
-            var remote_profile_level_id = ParseSdpProfileLevelId(remote_offered_params);
+            var localProfileLevelId = ParseSdpProfileLevelId(localSupportedParams);
+            var remoteProfileLevelId = ParseSdpProfileLevelId(remoteOfferedParams);
 
             // The local and remote codec must have valid and equal H264 Profiles.
-            if (local_profile_level_id == null)
+            if (localProfileLevelId == null)
             {
                 throw new Exception("invalid local_profile_level_id");
             }
 
-            if (remote_profile_level_id == null)
+            if (remoteProfileLevelId == null)
             {
                 throw new Exception("invalid remote_profile_level_id");
             }
 
-            if (local_profile_level_id.Profile != remote_profile_level_id.Profile)
+            if (localProfileLevelId.Profile != remoteProfileLevelId.Profile)
             {
                 throw new Exception("H264 Profile mismatch");
             }
 
             // Parse level information.
-            var level_asymmetry_allowed =
-                IsLevelAsymmetryAllowed(local_supported_params) && IsLevelAsymmetryAllowed(remote_offered_params);
+            var levelAsymmetryAllowed =
+                IsLevelAsymmetryAllowed(localSupportedParams) && IsLevelAsymmetryAllowed(remoteOfferedParams);
 
-            var local_level = local_profile_level_id.Level;
-            var remote_level = remote_profile_level_id.Level;
-            var min_level = MinLevel(local_level, remote_level);
+            var localLevel = localProfileLevelId.Level;
+            var remoteLevel = remoteProfileLevelId.Level;
+            var minLevel = MinLevel(localLevel, remoteLevel);
 
             // Determine answer level. When level asymmetry is not allowed, level upgrade
             // is not allowed, i.e., the level in the answer must be equal to or lower
             // than the level in the offer.
-            var answer_level = level_asymmetry_allowed ? local_level : min_level;
+            var answerLevel = levelAsymmetryAllowed ? localLevel : minLevel;
 
             //debug("GenerateProfileLevelIdForAnswer() | Result: [Profile:%s, Level:%s]", local_profile_level_id.profile, answer_level);
 
             // Return the resulting profile-level-id for the answer parameters.
-            return ProfileLevelIdToString(new ProfileLevelId(local_profile_level_id.Profile, answer_level));
+            return ProfileLevelIdToString(new ProfileLevelId(localProfileLevelId.Profile, answerLevel));
         }
 
         #region Private Methods
@@ -353,8 +353,8 @@ namespace Tubumu.H264ProfileLevelId
 
         private static bool IsLevelAsymmetryAllowed(IDictionary<string, object> parameters)
         {
-            return parameters.TryGetValue("level-asymmetry-allowed", out var level_asymmetry_allowed)
-                && level_asymmetry_allowed.ToString() == "1";
+            return parameters.TryGetValue("level-asymmetry-allowed", out var levelAsymmetryAllowed)
+                && levelAsymmetryAllowed.ToString() == "1";
         }
 
         #endregion Private Methods

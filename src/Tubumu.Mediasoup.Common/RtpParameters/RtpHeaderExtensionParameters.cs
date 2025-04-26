@@ -6,7 +6,7 @@ namespace Tubumu.Mediasoup
 {
     /// <summary>
     /// <para>
-    /// Defines a RTP header extension within the RTP parameters. The list of RTP
+    /// Defines an RTP header extension within the RTP parameters. The list of RTP
     /// header extensions supported by mediasoup is defined in the
     /// supportedRtpCapabilities.ts file.
     /// </para>

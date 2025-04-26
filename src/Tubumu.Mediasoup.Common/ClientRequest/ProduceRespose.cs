@@ -1,6 +1,6 @@
 ﻿namespace Tubumu.Mediasoup
 {
-    public class ProduceRespose
+    public class ProduceResponse
     {
         /// <summary>
         /// Producer id.

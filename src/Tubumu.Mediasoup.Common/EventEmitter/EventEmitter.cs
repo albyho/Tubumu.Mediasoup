@@ -55,7 +55,7 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    _events.Add(eventName, new List<Func<string, object?, Task>> { method });
+                    _events.Add(eventName, [method]);
                 }
             }
 
@@ -113,8 +113,8 @@ namespace Tubumu.Mediasoup
                 }
                 else
                 {
-                    var _event = subscribedMethods.Exists(e => e == method);
-                    if (!_event)
+                    var @event = subscribedMethods.Exists(e => e == method);
+                    if (!@event)
                     {
                         throw new DoesNotExistException($"Func [{method.Method}] does not exist to be removed.");
                     }

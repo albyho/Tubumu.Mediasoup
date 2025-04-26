@@ -625,7 +625,7 @@ namespace Tubumu.Meeting.Server
         /// <summary>
         /// Produce media.
         /// </summary>
-        public async Task<MeetingMessage<ProduceRespose>> Produce(ProduceRequest produceRequest)
+        public async Task<MeetingMessage<ProduceResponse>> Produce(ProduceRequest produceRequest)
         {
             // HACK: (alby) Android 传入 RtpParameters 有误的临时处理方案。See: https://mediasoup.discourse.group/t/audio-codec-channel-not-supported/1877
             if (produceRequest.Kind == MediaKind.AUDIO && produceRequest.RtpParameters.Codecs[0].MimeType == "audio/opus")
@@ -646,7 +646,7 @@ namespace Tubumu.Meeting.Server
                     var inviteKey = $"Invite:{produceRequest.Source}";
                     if (!internalData.InternalData.TryGetValue(inviteKey, out var inviteValue))
                     {
-                        return MeetingMessage<ProduceRespose>.Failure("未受邀请的生产。");
+                        return MeetingMessage<ProduceResponse>.Failure("未受邀请的生产。");
                     }
 
                     // 清除邀请状态
@@ -741,8 +741,8 @@ namespace Tubumu.Meeting.Server
                     }
                 );
 
-                return MeetingMessage<ProduceRespose>.Success(
-                    new ProduceRespose { Id = producer.ProducerId, Source = produceRequest.Source },
+                return MeetingMessage<ProduceResponse>.Success(
+                    new ProduceResponse { Id = producer.ProducerId, Source = produceRequest.Source },
                     "Produce 成功"
                 );
             }
@@ -755,7 +755,7 @@ namespace Tubumu.Meeting.Server
                 _logger.LogError(ex, "Produce 调用失败.");
             }
 
-            return MeetingMessage<ProduceRespose>.Failure("Produce 失败");
+            return MeetingMessage<ProduceResponse>.Failure("Produce 失败");
         }
 
         /// <summary>

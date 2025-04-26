@@ -1,3 +1,4 @@
+// ReSharper disable InconsistentNaming
 namespace Tubumu.H264ProfileLevelId
 {
     public enum Level
