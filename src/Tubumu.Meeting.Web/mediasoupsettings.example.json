@@ -112,7 +112,7 @@
         // libmediasoupclient).
         // See https://mediasoup.org/documentation/v3/mediasoup/api/#WebRtcTransportOptions
         "WebRtcTransportSettings": {
-            // ListenIps is not needed since webRtcServer is used.
+            // ListenInfos is not needed since webRtcServer is used.
             "ListenInfos": [
                 {
                     "Protocol": "udp",

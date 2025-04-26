@@ -728,7 +728,7 @@ namespace Tubumu.Mediasoup
         /// <summary>
         /// Pipes the given Producer or DataProducer into another Router in same host.
         /// </summary>
-        /// <param name="pipeToRouterOptions">ListenIp 传入 127.0.0.1, EnableSrtp 传入 true 。</param>
+        /// <param name="pipeToRouterOptions">ListenInfo 传入 127.0.0.1, EnableSrtp 传入 true 。</param>
         ///
         public async Task<PipeToRouterResult> PipeToRouteAsync(PipeToRouterOptions pipeToRouterOptions)
         {
