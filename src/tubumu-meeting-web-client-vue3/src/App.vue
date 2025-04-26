@@ -87,14 +87,14 @@
             playsinline
           />
           <video
-            v-for="([key, value], index) in Array.from(remoteVideoStreams.entries())"
+            v-for="[key, value] in remoteVideoStreams"
             :key="key"
             :srcObject="value"
             autoplay
             playsinline
           />
           <audio
-            v-for="([key, value], index) in Array.from(remoteAudioStreams.entries())"
+            v-for="[key, value] in remoteAudioStreams"
             :key="key"
             :srcObject="value"
             autoplay
