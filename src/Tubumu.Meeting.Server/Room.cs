@@ -70,7 +70,7 @@ namespace Tubumu.Meeting.Server
 
         public Room(
             ILoggerFactory loggerFactory,
-            WebRtcServer webRtcServer,
+            WebRtcServer? webRtcServer,
             Router router,
             AudioLevelObserver audioLevelObserver,
             string roomId,
