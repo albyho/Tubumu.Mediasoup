@@ -6,7 +6,7 @@
         //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Debug/mediasoup-worker",
         //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/xcode/debug/mediasoup-worker",
         //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/prebuild/3.15.7/mediasoup-worker",
-        "WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Debug/mediasoup-worker",
+        //"WorkerPath": "/Users/alby/Workspace/OpenSource/Multimedia/versatica/mediasoup/worker/out/Debug/mediasoup-worker",
         "NumberOfWorkers": 1,
         "UseWebRtcServer": true
     },

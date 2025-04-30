@@ -60,12 +60,23 @@ namespace Tubumu.Mediasoup
             var workerPath = mediasoupOptions.MediasoupStartupSettings.WorkerPath;
             if (workerPath.IsNullOrWhiteSpace())
             {
+                static string GetRuntimeIdentifier()
+                {
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return "win-x64";
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        return RuntimeInformation.OSArchitecture == Architecture.Arm64 ? "osx-arm64" : "osx-x64";
+                    }
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        return RuntimeInformation.OSArchitecture == Architecture.Arm64 ? "linux-arm64" : "linux-x64";
+                    }
+
+                    throw new PlatformNotSupportedException();
+                }
+
                 // 见：https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
-                string rid =
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "linux"
-                    : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "osx"
-                    : RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win"
-                    : throw new NotSupportedException("Unsupported platform");
+                var rid = GetRuntimeIdentifier();
                 var location = Assembly.GetEntryAssembly()!.Location;
                 var directory = Path.GetDirectoryName(location)!;
                 workerPath = Path.Combine(directory, "runtimes", rid, "native", "mediasoup-worker");

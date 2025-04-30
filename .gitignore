@@ -10,6 +10,9 @@ autom4te.cache/
 *.tar.gz
 tarballs/
 test-results/
+src/Tubumu.Mediasoup.Runtimes.Builder/build/
+src/Tubumu.Mediasoup.Runtimes.Builder/output/*
+src/Tubumu.Mediasoup.Runtimes.Builder/publish_nuget_internal.sh
 
 # Mac bundle stuff
 *.dmg
