@@ -7,7 +7,19 @@ OUT_DIR="output"
 WORK_DIR="build"
 BASE_URL="https://github.com/versatica/mediasoup/releases/download/${VERSION}"
 
-# 平台映射（key|value）
+# [.NET RID 目录](https://learn.microsoft.com/zh-cn/dotnet/core/rid-catalog)
+
+# 定义平台映射表
+# declare -A 是 Bash 4.0+ 的功能
+# declare -A PLATFORMS=(
+#   ["darwin-arm64"]="osx-arm64"
+#   ["darwin-x64"]="osx-x64"
+#   ["linux-arm64-kernel6"]="linux-arm64"
+#   ["linux-x64-kernel6"]="linux-x64"
+#   ["win32-x64"]="win-x64"
+# )
+
+# 定义平台映射表（key|value）
 PLATFORMS=(
   "darwin-arm64|osx-arm64"
   "darwin-x64|osx-x64"
