@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-VERSION=${1:-"3.15.7"}
+VERSION=${1:-"3.15.8"}
 PACKAGE_NAME="Tubumu.Mediasoup.Runtimes"
 OUT_DIR="output"
 WORK_DIR="build"
@@ -37,7 +37,7 @@ for entry in "${PLATFORMS[@]}"; do
   key="${entry%%|*}"
   rid="${entry##*|}"
   url="${BASE_URL}/mediasoup-worker-${VERSION}-${key}.tgz"
-  tgz_file="$WORK_DIR/$key.tgz"
+  tgz_file="$WORK_DIR/${key}-${VERSION}.tgz"
 
   if [[ -f "$tgz_file" ]]; then
     echo "✅ 已存在: $tgz_file，跳过下载"

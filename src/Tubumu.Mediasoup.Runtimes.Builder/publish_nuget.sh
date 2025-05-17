@@ -3,7 +3,7 @@ set -e
 
 # 参数
 PACKAGE_NAME="Tubumu.Mediasoup.Runtimes"
-VERSION=${1:-"3.15.7"}
+VERSION=${1:-"3.15.8"}
 API_KEY=${2}
 
 if [[ -z "$API_KEY" ]]; then
